@@ -1,7 +1,7 @@
 theme: just-the-docs
 
 title: Documentation
-description: ThreatWinds documentation for developers and advanced users.
+description: UTMStack documentation.
 
 
 kramdown:
@@ -24,11 +24,3 @@ callouts:
   warning:
     title: Warning
     color: red
-
-aux_links:
-  Platform: https://threatwinds.com
-  GitHub: https://github.com/ThreatWinds
-  Developer Center: https://developers.threatwinds.com
-
-ga_tracking: G-S1QNNPZWEM
-ga_tracking_anonymize_ip: false
