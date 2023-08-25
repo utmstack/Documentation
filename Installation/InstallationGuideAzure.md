@@ -45,7 +45,7 @@ Before you begin the installation, make sure you have the following prerequisite
 4. Select the system disk and click on "Size + performance" to expand the disk size.
    <img alt="vm settings" src="./Images/Images/../../../Images/vmconf3.png">
 
-5. Choose the desired disk size, such as 128GB, and apply the changes.
+5. Choose the desired disk size, such as 256GB, and apply the changes.
 6. Start the virtual machine after the disk expansion process is completed.
 
 ## Step 3: Access the Virtual Machine
