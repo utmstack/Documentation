@@ -43,25 +43,7 @@ The UTMStack installation process consists of three main steps:
     <br>For more detailed instructions on setting up the Probe/Proxy, please refer to the **<a href="./MasterServerInstallation">Master Server Setup Guide</a>** in the UTMStack documentation.
     <br>
 
-5. **Installing UTMStack Agents on Each Device**:
-    After setting up the master server and installing the Probe/Proxy if applicable, the next step is to install the UTMStack Agents on each device in your environment. This step ensures that all servers can communicate with the master server and contribute to the overall functionality of UTMStack.
-    
-    UTMStack offers seamless integration with a wide range of applications, providing comprehensive log collection and analysis capabilities. Currently, UTMStack includes 42 application integrations, including VMware Syslog, Office365 loga and Linux Logs.
-    
-    To explore the available integrations, navigate to the Integrations menu within the UTMStack interface. This menu provides an overview of all the applications that UTMStack has integrated, allowing you to easily configure and enable the desired integrations for your environment. Each application module includes a "View Integration" button that guides administrators through the installation of the corresponding integration.
-    
-    Follow the instructions below to install the UTMStack software:
-
-   * Identify the servers and devices in your environment where you want to install UTMStack.
-   * Download the UTMStack installation package from the designated source provided in the Integration Instructions inside of UTMStack.
-   * Execute the installation package on each device, following the provided instructions.
-   * During the installation process, provide the necessary configuration details, such as the IP address or hostname of the master server.
-   * Complete the installation process for each device.
-  
-    By installing the UTMStack software on each device, you ensure seamless communication between the devices and the master server, enabling comprehensive log collection and analysis across your environment.
-
-
-1. **Personalizing and Configuring UTMStack**: Once you have completed the installation of UTMStack software on each device, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack:
+5. **Personalizing and Configuring UTMStack**: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack:
 
     1. **Access UTMStack Management Interface**: Open a web browser and enter the URL or IP address to access the UTMStack management interface.
 
@@ -84,6 +66,3 @@ The UTMStack installation process consists of three main steps:
     By personalizing and configuring UTMStack, you can tailor the system to meet your organization's specific needs and optimize its performance for effective log management and security monitoring.
 
 Congratulations! You have successfully completed the installation process for UTMStack. Ensure that you perform thorough testing and verification to confirm the proper functioning of the platform.
-
-Conclusion
-The installation process for UTMStack involves setting up the master server, installing the UTMStack software on each server, and configuring the UTMStack services. By following the instructions provided in this guide, you can achieve a seamless and efficient deployment of UTMStack in your environment.
