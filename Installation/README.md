@@ -24,7 +24,7 @@ The UTMStack installation process consists of three main steps:
   <br>
 
 3. **Setting up the Master Servers**: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services.
-   <br>To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a **minimum** of **4GB of RAM** and **50GB of disk space** available for installation. Once the VM is created, it needs to be configured with a compatible operating system such as **Ubuntu Server 20.04** or **22.04 LTS**.
+   <br>To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a **minimum** of **8GB of RAM** and **256GB of disk space** available for installation. Once the VM is created, it needs to be configured with the operating system **Ubuntu Server 22.04 LTS**.
 
     <br>For detailed instructions on setting up the master servers, please refer to the **<a href="./MasterServerInstallation">Master Server Setup Guide</a>** in the UTMStack documentation.
     <br>
