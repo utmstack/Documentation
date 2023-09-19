@@ -757,214 +757,200 @@
   },"108": {
     "doc": "Configuration",
     "title": "Configuration",
-    "content": "This section will guide you through various configuration options available within UTMStack, ensuring you optimize the platform according to your organizational needs. ",
+    "content": "This section will guide you through various configuration options available within UTMStack, ensuring you optimize the platform according to your organizational needs. ##Application Settings . Go to Application Settings Section for more details . ##Configuring Index Rollover . Index Rollover aids in managing data by allowing the creation of a new index after predefined conditions are met, such as data size or age. Steps: . | Navigate to Application Management &gt; Data Retention. | Set the conditions under which the indexs should be deleted, for instance, after reaching a certain age. | Click on ‘Save’ to finalize your settings. | . This is a critical property that dictates how long the data will be retained in the data engine. It’s governed by both time (number of days) and space availability. | Delete days: Set the number of days for data retention, e.g., 30 days. | . Consideration: If the disk’s capacity reaches 85%, the system will automatically take action. Snapshot Archiving . Snapshot archiving is a crucial feature for organizations to save data snapshots for extended periods, providing an option to restore them if necessary. ",
     "url": "/UTMStackComponents/Configuration/README.html",
     
     "relUrl": "/UTMStackComponents/Configuration/README.html"
   },"109": {
     "doc": "Configuration",
-    "title": "1. Application Settings",
-    "content": "Go to Application Settings Section for more details . ",
-    "url": "/UTMStackComponents/Configuration/README.html#1-application-settings",
-    
-    "relUrl": "/UTMStackComponents/Configuration/README.html#1-application-settings"
-  },"110": {
-    "doc": "Configuration",
-    "title": "2.  Configuring Index Rollover",
-    "content": "Index Rollover aids in managing data by allowing the creation of a new index after predefined conditions are met, such as data size or age. Steps: . | Navigate to Application Management &gt; Data Retention. | Set the conditions under which the indexs should be deleted, for instance, after reaching a certain age. | Click on ‘Save’ to finalize your settings. | . This is a critical property that dictates how long the data will be retained in the data engine. It’s governed by both time (number of days) and space availability. | Delete days: Set the number of days for data retention, e.g., 30 days. | . Consideration: If the disk’s capacity reaches 85%, the system will automatically take action. Snapshot Archiving . Snapshot archiving is a crucial feature for organizations to save data snapshots for extended periods, providing an option to restore them if necessary. ",
-    "url": "/UTMStackComponents/Configuration/README.html#2--configuring-index-rollover",
-    
-    "relUrl": "/UTMStackComponents/Configuration/README.html#2--configuring-index-rollover"
-  },"111": {
-    "doc": "Configuration",
-    "title": "4. Custom Logos and Report Covers",
+    "title": "Custom Logos and Report Covers",
     "content": "Customize UTMStack’s appearance to align with your organization’s branding. Configuring Custom Logos . | Navigate to Settings &gt; Application Theme. | Upload your desired logo for the Header, Login, Report and Report Cover. | Save your settings. | . ",
-    "url": "/UTMStackComponents/Configuration/README.html#4-custom-logos-and-report-covers",
+    "url": "/UTMStackComponents/Configuration/README.html#custom-logos-and-report-covers",
     
-    "relUrl": "/UTMStackComponents/Configuration/README.html#4-custom-logos-and-report-covers"
-  },"112": {
+    "relUrl": "/UTMStackComponents/Configuration/README.html#custom-logos-and-report-covers"
+  },"110": {
     "doc": "Compliance Management",
     "title": "Compliance Management",
     "content": "Welcome to our in-depth guide on the Compliance Management module, a key feature of our cybersecurity software platform. This module aids organizations in achieving and maintaining compliance across various industry-specific regulations. By accommodating a multitude of standards, our Compliance Management module provides a holistic view of your organization’s regulatory compliance status. Each standard is categorized. By default, the categories available are: . | Account Management | Device Activity | Application Audit | Alerts and Incidents | . Each standard has its dedicated section. For example, if you wish to monitor the Office 365 Account Activity regarding successful logins, you can navigate to the relevant category. Upon selecting it, you’ll receive a detailed description of the report and the compliance standards it addresses. ",
     "url": "/UTMStackComponents/Compliance/README.html",
     
     "relUrl": "/UTMStackComponents/Compliance/README.html"
-  },"113": {
+  },"111": {
     "doc": "Compliance Management",
     "title": "Supported Compliance Standards",
     "content": "Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors: . 1. Health Insurance Portability and Accountability Act (HIPAA) . HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively. 2. General Data Protection Regulation (GDPR) . GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR’s core principles. 3. Gramm-Leach-Bliley Act (GLBA) . GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance. 4. System and Organization Controls 2 (SOC 2) . SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance. 5. Federal Information Security Management Act (FISMA) . FISMA is a U.S. federal law that mandates federal agencies to develop, document, and implement an information security and protection program. The module provides pre-defined reports monitoring compliance with FISMA’s crucial sections. 6. Cybersecurity Maturity Model Certification (CMMC) . CMMC certification is a requirement for businesses bidding on U.S. Government contracts. The CMMC section within the module provides reports specifically designed to monitor compliance with different CMMC Levels. 7. Payment Card Industry Data Security Standard (PCI-DSS) . PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards. ",
     "url": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards",
     
     "relUrl": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards"
-  },"114": {
+  },"112": {
     "doc": "Compliance Management",
     "title": "Export a Report",
     "content": "Upon accessing the Platform Menu, you’ll find the Compliance submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards. By selecting a standard, you’ll be directed to the Compliance Template Section. This is where you decide which report to export. Upon clicking on a report, you’ll be presented with an overview, options to modify the date range, and the capability to generate a PDF using a professionally designed template available on the platform. ",
     "url": "/UTMStackComponents/Compliance/README.html#export-a-report",
     
     "relUrl": "/UTMStackComponents/Compliance/README.html#export-a-report"
-  },"115": {
+  },"113": {
     "doc": "Compliance Management",
     "title": "Comprehensive Compliance Management",
     "content": "Beyond the features described above, the Compliance Management Dashboard—located in the application management section—grants complete control over compliance standards. You’re equipped to edit, remove, or append sections and reports to meet specific needs. Add Standard . Understanding that each organization has unique compliance requisites, our module is engineered for flexibility. It allows the addition of new compliance standards aligning with specific business needs. To introduce a new standard, proceed to the Compliance Management section. Here, the ‘Add Standard’ button will guide you through a straightforward interface for detailing the new standard. Adding Reports . We appreciate the importance of detailed reporting for each compliance standard. Our module thus empowers you to supplement new reports to an existing compliance standard. To do this, pick the preferred standard and section to which the report should belong. Next, select from a list of existing report dashboards to incorporate into your chosen compliance segment. This ensures thorough coverage of all regulatory facets. Import/Export . Acknowledging the need for system interoperability, the Compliance Management module boasts a robust import/export function. This tool aids in the proficient handling and transfer of compliance data. To export the prevailing compliance information, a comprehensive JSON file is produced, encapsulating all essentials of your standards, sections, and reports. By utilizing the ‘Export All’ button, a complete portrayal of your compliance configuration is readily compiled, ensuring data integrity. For importing, should there be a necessity to infuse the module with compliance data from an alternative system, the ‘Import All’ button facilitates this. Simply upload the corresponding JSON file, and the module will fluidly merge the data, aligning with your prior system’s setup. ",
     "url": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management",
     
     "relUrl": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management"
-  },"116": {
+  },"114": {
     "doc": "Charts",
     "title": "Charts",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/README.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/README.html"
-  },"117": {
+  },"115": {
     "doc": "SSL Certificate Management in UTMStack",
     "title": "SSL Certificate Management in UTMStack",
     "content": "This guide provides comprehensive steps on installing, generating, and renewing SSL certificates for UTMStack. | SSL Certificate Management in UTMStack . | Manual SSL Certificate Installation | Generate SSL with Certbot in UTMStack without DNS Change | Renew the Certificate Generated by Certbot in UTMStack | . | . ",
     "url": "/Installation/SSLConfiguration.html",
     
     "relUrl": "/Installation/SSLConfiguration.html"
-  },"118": {
+  },"116": {
     "doc": "SSL Certificate Management in UTMStack",
     "title": "Manual SSL Certificate Installation",
     "content": "Before beginning, ensure you’ve downloaded your certificate files. After downloading: . | You should have: . | A certificate file with the extension .crt or .pem | A private key with the extension .key or .pem | . | Rename the files: . | Certificate: utm.crt | Private Key: utm.key | . | Transfer both files to your server: | . mv utm.crt /UTMStack/cert/ mv utm.key /UTMStack/cert/ . | Restart Docker for the changes to take effect: | . systemctl restart docker . | Allow approximately 10 minutes for the stack to restart. | . Once these steps are completed, your SSL certificate will be installed and configured for UTMStack. For any issues or questions during the installation, please contact our support team. ",
     "url": "/Installation/SSLConfiguration.html#manual-ssl-certificate-installation",
     
     "relUrl": "/Installation/SSLConfiguration.html#manual-ssl-certificate-installation"
-  },"119": {
+  },"117": {
     "doc": "SSL Certificate Management in UTMStack",
     "title": "Generate SSL with Certbot in UTMStack without DNS Change",
     "content": ". | Allow Necessary Ports Open ports for Certbot and Nginx: | . ufw allow 80/tcp ufw allow 443/tcp ufw allow 1194/tcp ufw reload . | Install Certbot Install the necessary tools and dependencies: sudo apt install certbot python3-certbot-nginx . | Manage Services Stop Nginx and frontend services: | . systemctl stop nginx docker stop frontend docker ps | grep frontend . Then, start Nginx: . systemctl start nginx . | Generate SSL Certificate Replace “siem.domain.com” with your domain: | . sudo certbot --nginx -d siem.domain.com . | Update SSL Certificate in UTMStack | . systemctl stop nginx systemctl disable nginx cp /etc/letsencrypt/live/*/fullchain.pem /UTMStack/cert/utm.crt cp /etc/letsencrypt/live/*/privkey.pem /UTMStack/cert/utm.key systemctl stop docker systemctl start docker . ",
     "url": "/Installation/SSLConfiguration.html#generate-ssl-with-certbot-in-utmstack-without-dns-change",
     
     "relUrl": "/Installation/SSLConfiguration.html#generate-ssl-with-certbot-in-utmstack-without-dns-change"
-  },"120": {
+  },"118": {
     "doc": "SSL Certificate Management in UTMStack",
     "title": "Renew the Certificate Generated by Certbot in UTMStack",
     "content": ". | Manage Frontend Service | . docker stop frontend . | Start Nginx | . systemctl start nginx . | Renew SSL Certificate | . certbot renew . | Update SSL Certificate in UTMStack | . Replace “siem.domain.com” with your specific domain: . systemctl stop nginx systemctl disable nginx cp /etc/letsencrypt/live/siem.domain.com/fullchain.pem /UTMStack/cert/utm.crt cp /etc/letsencrypt/live/siem.domain.com/privkey.pem /UTMStack/cert/utm.key systemctl stop docker systemctl start docker . ",
     "url": "/Installation/SSLConfiguration.html#renew-the-certificate-generated-by-certbot-in-utmstack",
     
     "relUrl": "/Installation/SSLConfiguration.html#renew-the-certificate-generated-by-certbot-in-utmstack"
-  },"121": {
+  },"119": {
     "doc": "System Requirements",
     "title": "UTMStack System Resources",
     "content": "To guarantee a seamless installation and peak performance of UTMStack, adhere to the given system specifications for both Master and Probe/Proxy servers. Before diving in, be aware that UTMStack approaches data retention in two distinct methods: . | Hot Log Storage: Refers to data which isn’t archived and can be accessed anytime for immediate analysis. | Cold Storage: Represents archived data that necessitates restoration prior to access. | Data Source: Denotes any individual origin of logs, such as devices, agents, or SaaS integrations. | . ",
     "url": "/Installation/SystemRequirements.html#utmstack-system-resources",
     
     "relUrl": "/Installation/SystemRequirements.html#utmstack-system-resources"
-  },"122": {
+  },"120": {
     "doc": "System Requirements",
     "title": "Assumptions:",
     "content": "It’s assumed that 60 data sources (devices) roughly produce 100 GB of data monthly. ",
     "url": "/Installation/SystemRequirements.html#assumptions",
     
     "relUrl": "/Installation/SystemRequirements.html#assumptions"
-  },"123": {
+  },"121": {
     "doc": "System Requirements",
     "title": "Master Server Specifications:",
     "content": "The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the hot log storage: . | Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space | . | 50 (100 GB) | 4 | 8 GB | 150 GB | . | 120 (250 GB) | 8 | 16 GB | 250 GB | . | 240 (500 GB) | 16 | 32 GB | 450 GB | . You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration. ",
     "url": "/Installation/SystemRequirements.html#master-server-specifications",
     
     "relUrl": "/Installation/SystemRequirements.html#master-server-specifications"
-  },"124": {
+  },"122": {
     "doc": "System Requirements",
     "title": "Supported Operating Systems:",
     "content": "The UTMStack installation guide provides instructions specifically for Ubuntu 22.04 LTS. It is recommended to use one of these supported operating systems for compatibility and optimal performance. Please refer to the installation guide for detailed steps on setting up UTMStack on your chosen operating system. Ensuring that your system meets these requirements will help guarantee the stability, efficiency, and reliable operation of UTMStack. If you have any further questions or need additional assistance, please don’t hesitate to reach out. ",
     "url": "/Installation/SystemRequirements.html#supported-operating-systems",
     
     "relUrl": "/Installation/SystemRequirements.html#supported-operating-systems"
-  },"125": {
+  },"123": {
     "doc": "System Requirements",
     "title": "Federated Server (UTMStackFSInstaller)",
     "content": "Recommendations for Operating System: . Ubuntu 22.04 LTS. Resources for Master: . | Recommendation | Cores | RAM | Disk Space | . | Minimum Required (non-prod) | 2 | 4 GB | 20 GB | . | Recommended (prod) | 4 | 8 GB | 20 GB | . ",
     "url": "/Installation/SystemRequirements.html#federated-server-utmstackfsinstaller",
     
     "relUrl": "/Installation/SystemRequirements.html#federated-server-utmstackfsinstaller"
-  },"126": {
+  },"124": {
     "doc": "System Requirements",
     "title": "System Requirements",
     "content": " ",
     "url": "/Installation/SystemRequirements.html",
     
     "relUrl": "/Installation/SystemRequirements.html"
-  },"127": {
+  },"125": {
     "doc": "Table",
     "title": "Table Chart",
     "content": "The Table chart in UTMStack is an incredibly flexible tool for representing your data in a tabular format, which can be particularly helpful when you need to see precise values along with a high-level summary. In this guide, we’ll discuss how to configure the different options available for a Table chart. Options . Here are the options you can adjust to customize your Table chart: . | Dynamic Page Size?: This setting allows the table to adjust the number of rows displayed based on the size of the container. Enabling this option can be beneficial when viewing the table on different devices or screen sizes, ensuring that the data is always displayed optimally. | Show Total?: This option allows you to display the total for numeric fields at the bottom of the table. This can be very useful when you need to quickly assess the sum of a particular field across all rows. | Can it be Exported to CSV?: By enabling this option, you allow the table data to be exported to a CSV file. This feature can be handy when you need to share data or conduct further analysis outside UTMStack. | . Example: Creating a Table Chart for HIDS Alerts by Host . | Filter the Data Start by defining a filter for the alerts, ensuring the data type is ‘hids’. This filter will ensure that only the HIDS alerts are included in your data set. | . | Create a Metric Aggregation Next, you’ll need to create a Metric Aggregation that counts the quantity of alerts. This aggregation will determine the values displayed in your table. | . | Create a Bucket Aggregation for the Host Now it’s time to identify the host associated with each count. Create a new Bucket Aggregation using the ‘Terms’ type on the ‘destination.host.keyword’ field. This will group the alerts by host. For clarity, you can assign a custom label like “Hostname”. | Create a Sub-Bucket for the IP For more detailed information, you can add a sub-bucket to each host bucket that identifies the IP address associated with each host. To do this, click the ‘Add sub-Bucket’ button, select the ‘Terms’ aggregation type, and choose the ‘destination.ip.keyword’ field. You can use the custom label “IP” for this sub-bucket. | . | Run the Chart Once you’ve configured the aggregations, click the ‘Run’ button to see a preview of your chart. If you’re satisfied with the results, you’ve successfully created a Table chart for HIDS alerts by host. | . By following these steps, you can create a highly customized Table chart that fits your specific use case. Remember, the configuration can be adjusted at any time to refine the results. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Table.html#table-chart",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Table.html#table-chart"
-  },"128": {
+  },"126": {
     "doc": "Table",
     "title": "Table",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/Table.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Table.html"
-  },"129": {
+  },"127": {
     "doc": "Tag Cloud",
     "title": "Tag Cloud Charts",
     "content": ". UTMStack provides a Tag Cloud chart option for visualizing text data in a way that emphasizes the frequency or importance of different tags. These charts represent data by varying the size and color of individual words or phrases (tags), allowing you to quickly see the most prominent tags in your data. Tag Cloud Option . | Tag Cloud Shape: You can choose from a variety of shapes for your Tag Cloud chart. The shape you choose will determine how the words are arranged in the cloud. | Min Word Size: This setting allows you to adjust the smallest font size that will be used for the words in the tag cloud. The size of each term in the cloud represents its frequency or importance. By increasing the minimum word size, you can make the less frequent terms more visible. | Text Padding: Text padding is the space between words in the tag cloud. By adjusting this setting, you can control the density of words in your cloud. A higher padding value will result in more space between the words, making the cloud look sparser. A lower value will make the words appear closer together, creating a denser cloud. | . Colors . Adjust the color sequence for your chart data series. Toolbox . | Show Toolbox?: Option to display/hide the toolbox. | Show Save as Image Feature?: Option to enable/disable saving chart as an image. | Show Restore Chart Feature?: Option to enable/disable the feature to restore the chart to its original state. | Show Data View Feature?: Option to enable/disable the data view feature. | Show Data Zoom Feature?: Option to enable/disable the data zoom feature. | Show Mark Feature?: Option to enable/disable the mark feature. | Toolbox Vertical Position: Choose the vertical position of the toolbox (e.g., ‘top’). | Toolbox Horizontal Position: Choose the horizontal position of the toolbox (e.g., ‘right’). | Toolbox Orientation: Choose the orientation of the toolbox (e.g., ‘horizontal’). | Width/Height: Adjust the size of the toolbox. | Icon Size: Adjust the size of the toolbox icons. | . Example: Creating a Tag Cloud Chart for Top 10 Alerts Categories . Suppose you want to visualize the top 10 alert categories registered in your system using a Tag Cloud chart. Here’s how you can set this up using UTMStack’s visualization editor: . First, we will be using a Bucket Aggregation to represent the data. The steps to configure this are as follows: . | In the visualization editor, select the Buckets option. | Choose the Term aggregation type. This will allow us to group the data based on a specific field. | For the Field, select category.keyword. This will ensure that the chart represents the alerts based on their categories. | Set the Size to 10. This setting will limit the display to the top 10 alert categories. | . Your configuration should look like the following: . Options . Once the Bucket Aggregation is set, you can proceed to customize your Tag Cloud Chart under the Options tab: . | Tag Cloud Shape: Select a shape that suits your preferences. | Min Word Size: Adjust this setting based on how prominent you want the less frequent categories to be. | Text Padding: Determine the space between words to create the desired visual density. | . After you have finished adjusting these settings, you can run the chart to visualize the top 10 alerts categories in your system as a Tag Cloud chart. This personalized visualization can provide a quick and clear overview of the most frequent alert categories, aiding in system monitoring and management. ",
     "url": "/UTMStackComponents/Dashboards/Charts/TagCloud.html#tag-cloud-charts",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/TagCloud.html#tag-cloud-charts"
-  },"130": {
+  },"128": {
     "doc": "Tag Cloud",
     "title": "Tag Cloud",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/TagCloud.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/TagCloud.html"
-  },"131": {
+  },"129": {
     "doc": "Creating a Visualization",
     "title": "Creating a New Visualization",
     "content": "UTMStack is a powerful solution that leverages the data capabilities of OpenSearch and Logstash to deliver impactful data visualization. By translating your organization’s data into visually appealing charts and graphs, UTMStack empowers users to derive meaningful insights seamlessly. This guide provides step-by-step instructions on creating a new visualization in UTMStack. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#creating-a-new-visualization",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#creating-a-new-visualization"
-  },"132": {
+  },"130": {
     "doc": "Creating a Visualization",
     "title": "How to Create a New Visualization",
     "content": ". | Navigate to the Dashboard Editor or Visualization Menu and click on the New Visualization button. This action opens the New Visualization window. | . | The New Visualization window requires two primary parameters to create a visualization: . | Source: The data source for your visualization can be any set of logs, events, or alarms that UTMStack has aggregated. | Chart Type: UTMStack supports various chart types, each catering to different data representation requirements: . | Line: Depicts data trends over time. | Area: Similar to line charts, but the area beneath the line is filled, indicating volume. | Bar: Useful for comparing quantities or frequencies across categories. | Horizontal Bar: Similar to bar charts but oriented horizontally, these are particularly useful when category labels are long or numerous. | Tag Cloud:Displays textual data, with the size of each tag corresponding to its frequency or significance. | Table: Tables organize data into columns and rows, making it easy to compare multiple data points. | List: Lists present data in an ordered or unordered format, perfect for simple, unstructured data. | Gauge: Gauge charts are excellent for displaying progress or performance against a set goal. | Goal: Goal charts show the progress towards a single, numeric target. | Metric: Metric visualizations display a single, large number. It’s useful for highlighting a key figure. | Region Map: Region maps show the coordinates in a geographic areas according to associated data values. | Heat Map: Represents numeric tabular data, with cell colors indicating the value. | Text: Text allows you to add descriptive text, titles, or notes to your dashboard. | . | . | . After determining the source and chart type, click Create Visualization to customize your visualization. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#how-to-create-a-new-visualization",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#how-to-create-a-new-visualization"
-  },"133": {
+  },"131": {
     "doc": "Creating a Visualization",
     "title": "Navigating the Visualization Editor",
     "content": ". By default, UTMStack generates a generalized visualization based on the chosen aggregation metric (Count) and the selected chart type. Users can further refine this data using specific aggregation buckets. For an in-depth understanding of metric aggregations and bucket aggregations associated with each chart type, please refer to the respective chart’s documentation section. Applying Filters to Visualizations . One of the critical steps in creating a visualization is filtering the data you want to display. This involves comparing a specific field with a selected value using an operator. For instance, suppose you want to create a visualization focusing on Office 365 logon failures. In this case, select the field logx.o365.ResultStatus.keyword and apply the IS operator to check for equality to the value Failure.This filter will limit the visualization to the unsuccessful login attempts in Office 365. Understanding Filter Operators . Filter operators in UTMStack help fine-tune data selection within visualizations. Here are the available operators and their functionalities: . | Is: This operator selects all data entries matching the specific value chosen. | Is Not: Contrary to ‘Is’, this operator selects all data entries that do not match the specific value chosen. | Is One Of: This operator selects all data entries that match any value from a set of values specified. | Is Not One Of: This operator selects all data entries that do not match any value from a set of values specified. | Exists: This operator selects all data entries where the specified field exists. | Does Not Exist: This operator selects all data entries where the specified field does not exist. | Is Between: This operator selects numeric data within a specific value range. The range must align with the input pattern for each data field. For instance, the pattern for @timestamp is YYYY-MM-DDTHH:MM: SS.MsMsMsZ (2021-12-12T02:30:00.000Z.) . | Is Not Between: This operator selects numeric data not within a specific value range. | Contains: This operator selects all data entries containing a specific string. | Does Not Contain: This operator selects all data entries that do not contain a specific string. | Starts With: This operator selects all data entries that start with a specific string. | Does Not Start With: This operator selects all data entries that do not start with a specific string. | Ends With: This operator selects all data entries that end with a specific string. | Does Not End With: This operator selects all data entries that do not end with a specific string. | . The applied filters appear at the top of the interface, where they can be edited, deleted, or reverted as needed. Having selected your chart type and set up your filters, the next step involves adjusting specific parameters to your chosen chart type. For detailed instructions on how to proceed with each type of chart, please refer to the respective sections Chart Types. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor"
-  },"134": {
+  },"132": {
     "doc": "Creating a Visualization",
     "title": "Navigating the Visualization Editor Menu",
     "content": "When you open the Visualization Editor, you will find a menu on the left side of the interface: . The menu displayed highlights the index pattern being used as the foundation for the current visualization And the Run button to generate a preview of the updated chart. It also offers three key functionalities for customizing your chart: . | Data: This option enables you to define the value axis of your chart by choosing suitable metric aggregations and bucket agregations. | Options: Utilize this section to personalize your chart’s aesthetics and fine details to your liking. | One Click: This interactive feature requires the presence of at least one bucket. Clicking on a specific data point or series on the chart triggers a redirection to the category (ALERTS, EVENTS, or VULNERABILITIES) initially chosen during chart creation. The resultant view is filtered based on the series you clicked on. | . ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor-menu",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor-menu"
-  },"135": {
+  },"133": {
     "doc": "Creating a Visualization",
     "title": "Configuring Metric and Bucket Aggregations for Charts",
     "content": "In UTMStack, crafting the right visualization involves the careful selection and application of metric and bucket aggregations. These play a pivotal role in determining how your data is analyzed and presented. | Metric Aggregation Choose the right metric aggregations for your chart. UTMStack offers several aggregations options: | . | Count: Returns a raw count of the elements in the selected index pattern. | Average: Returns the average of a numeric field. You’ll need to select the appropriate field from the drop-down. | Sum: Returns the total sum of a numeric field. Choose the relevant field from the drop-down. | Min: Returns the minimum value of a numeric field. Select the corresponding field from the drop-down. | Max: Returns the maximum value of a numeric field. Choose the appropriate field from the drop-down. | Unique Count: Returns the number of unique values in a field (cardinality aggregation). Select the relevant field from the drop-down. | . For each aggregation, you can change the default display label by entering a custom string in the “Custom Label” field. The Add Metrics button and the red cross symbol allow you to add or remove aggregations as per your needs. | Bucket Aggregation Bucket aggregation serves to categorize data based on specific criteria, enabling meaningful insights. The two bucket aggregation types in UTMStack are: | . | Date Histogram: This type constructs a date-wise distribution based on a numeric field. Here, you need to pick a field representing the timeline and stipulate a minimum time frame (options include minute, hourly, daily, weekly, monthly, or yearly) in the Minimum intervals. For a custom interval frame, select the Custom interval option and specify a time unit. Time units can be milliseconds (ms), seconds (s), minutes (m), hours (h), or days (d). The Custom Label field allows you to modify the display label. | Terms Terms bucket aggregation categorizes data into buckets based on distinct values present in a specified field. These buckets are dynamically generated, each corresponding to a term found in the data field. This approach is beneficial when you want to analyze and visualize data with distinct or categorical values. | . Here’s how you can configure the Terms bucket aggregation in UTMStack: . | Field: Choose the field from which the terms for the buckets will be derived. This field will be the basis for categorizing the data into different buckets. | Order By: Decide how the buckets should be ordered. You can order them based on a metric (e.g., count, sum, average, min, max, etc.) or alphabetically (by term). The bucket with the highest value in the selected metric or alphabetical term will be presented first, depending on your chosen sort direction. | Order: Define the sort direction of the buckets. You can sort the buckets in either ascending or descending order. | Size: Specify the number of terms/buckets that should be returned per page. | Custom Label: If you want to change the default label for the buckets, enter your desired text in the Custom Label field. | . ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#configuring-metric-and-bucket-aggregations-for-charts",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#configuring-metric-and-bucket-aggregations-for-charts"
-  },"136": {
+  },"134": {
     "doc": "Creating a Visualization",
     "title": "Creating a Visualization",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html"
-  },"137": {
+  },"135": {
     "doc": "Visualization List",
     "title": "Visualizations List",
     "content": "The Visualizations List in UTMStack is your central hub for managing all visualizations in one place. With a simple yet powerful interface, it offers quick access to crucial visualization details and essential operations. This guide will walk you through the main components of the Visualizations List. | Filter Search The Filter Search panel, located on the left side of the Visualizations List, allows for efficient navigation through your visualizations. | . You can filter the list based on the following parameters: . | Visualization Name: Filter by the name of the visualization. | Chart Type: Filter by the type of chart used in the visualization (e.g., bar, line, pie). | Source: Filter by the index pattern used for the visualization. | Created At: Filter by the date the visualization was created. | Modified At: Filter by the date the visualization was last updated. | . Each filter field helps refine the visualizations displayed, aiding in quickly locating the visualization you need. | List of Visualizations The main body of the Visualizations List displays the visualizations available to you. | . For each visualization, you’ll find: . | Name: The unique identifier for the visualization. | Comments: Any additional comments or descriptions for the visualization. | Index Pattern: The specific data source pattern used in the visualization. | Last Modified: The date and time of the last update made to the visualization. | Action : Each visualization entry also has an Actions column, with buttons for: . | Edit: Opens the visualization for modification. | Delete: Permanently removes the visualization from the list. | . | . | Import Visualization The Import Visualization button allows you to import previously exported visualizations, facilitating easy replication of visualizations across different dashboards or UTMStack instances. | New Visualization The New Visualization button opens the Visualization Editor, providing a platform to create custom visualizations from scratch. Here, you can define data source, set filters, and specify other parameters to build your visualization. | . Understanding the Visualizations List’s components empowers you to manage your visualizations more effectively, leading to efficient monitoring and analysis processes within UTMStack. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationList.html#visualizations-list",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationList.html#visualizations-list"
-  },"138": {
+  },"136": {
     "doc": "Visualization List",
     "title": "Visualization List",
     "content": " ",

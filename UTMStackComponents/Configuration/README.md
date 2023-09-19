@@ -9,11 +9,11 @@ has_children: true
 
 This section will guide you through various configuration options available within UTMStack, ensuring you optimize the platform according to your organizational needs.
 
-## 1. Application Settings
+##Application Settings
 
 Go to Application Settings Section for more details
 
-## 2.  Configuring Index Rollover
+##Configuring Index Rollover
 
 
 ![Data Sources Overview](./../Images/Components/../../../Images/Components/Configuration/rollover.png)
@@ -38,7 +38,7 @@ Snapshot archiving is a crucial feature for organizations to save data snapshots
 
 
 
-## 4. Custom Logos and Report Covers
+## Custom Logos and Report Covers
 
 Customize UTMStack's appearance to align with your organization's branding.
 
