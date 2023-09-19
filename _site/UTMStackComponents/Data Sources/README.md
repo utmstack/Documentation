@@ -1,45 +1,37 @@
 # Data Sources Management Documentation
 
-This page provides a comprehensive overview of the Data Sources Management module of our software platform. This crucial module is engineered to manage and monitor the devices integrated into your organization's network.
+This documentation offers a detailed insight into the **Data Sources Management** module of our software platform. This pivotal module is meticulously crafted to oversee and manage the myriad of devices assimilated within your organization's network.
 
 ## Data Sources Overview
 
-Upon accessing the Data Sources Management module, you'll encounter a data grid presenting all the devices presently under the system's monitoring. This data grid imparts critical information for each device, including its status, types, last input, and accessible actions.
+When you delve into the Data Sources Management module, you're greeted with a comprehensive data grid. This grid showcases all devices currently under the system's surveillance, elaborating on vital details such as their status, type, last input, and available actions.
 
-![Data Sources Overview](./../Images/Components/../../../Images/Components/DataSourcesManagement/data_sources_overview.png)
+![Data Sources Overview](./../Images/Components/../../../Images/Components/DataSources/dash.png)
 
-You can filter the sources based on their groups or types, offering a simplified and organized view that enables easy navigation through a vast array of devices.
+For an enhanced user experience, you can sift through the sources based on groups or types. This organized perspective promotes effortless navigation, especially when dealing with an extensive inventory of devices.
 
-## Managing Data Source Actions
+## Data Source Details
 
-For each data source, users have the capability to perform various actions:
+Upon selecting a data source, you're presented with an exhaustive view detailing its attributes.
 
-### 1. Assigning a Type
+Moreover, this interface grants you direct access to the device's console, enabling seamless connectivity.
 
-You can attribute a type to a data source, enhancing its identification and categorization process.
+![Data Source Details](./../Images/Components/../../../Images/Components/DataSources/details.png)
 
-### 2. Adding to a Group
+## Connect to the console of the Device
 
-Data sources can be aggregated into specific groups. This feature is particularly beneficial in different scenarios, such as grouping devices by their function, location, or other relevant parameters.
+When yu proporcioned a reason to run a comand in the agent, tere is going to be asked the panel password
 
-### 3. Adding a Note
+![Data Source Details](./../Images/Components/../../../Images/Components/DataSources/console.png)
 
-This feature allows users to add specific notes to a data source, thereby aiding in the provision of additional information or context about the device.
+When you entered it succesfully you can run the command you want in the agent.
 
-### 4. Executing Actions
-
-In some cases, you may need to execute specific actions on a data source, such as running a particular command. This module provides you with the functionality to carry out such actions directly.
-
-## Managing Source View
-
-The Source View Management feature empowers users to customize the type of data sources they want to visualize in the dashboard. This ability to personalize the display aids in streamlining the focus towards the most relevant data sources.
-
-![Manage Source View](./../Images/Components/../../../Images/Components/DataSourcesManagement/manage_source_view.png)
-
+![Data Source Details](./../Images/Components/../../../Images/Components/DataSources/console2.png)
 ## Managing Source Groups
 
-Data sources can be grouped together to better organize and manage them. The Source Groups Management dashboard presents different groups and enables their easy modification. Whether you wish to group data sources based on their function, department, or any other relevant criteria, this feature makes the process simple and straightforward.
+For a structured approach to data source administration, devices can be conglomerated into specific groups. The **Source Groups Management** dashboard lays out these clusters, facilitating effortless edits. Whether your grouping rationale revolves around functionality, departmental affiliations, or any other relevant categorization, this utility simplifies the grouping dynamics.
 
-![Manage Source Groups](./../Images/Components/../../../Images/Components/DataSourcesManagement/manage_source_groups.png)
+![Manage Source Groups](./../Images/Components/../../../Images/Components/DataSources/sourcegroups.png)
+
 
 The Data Sources Management module is a comprehensive solution designed to facilitate the organized tracking and management of your organization's data sources. By allowing for efficient sorting, grouping, and action execution, this module serves as a powerful tool in any data-driven environment. 

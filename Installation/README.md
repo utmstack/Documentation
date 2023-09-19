@@ -24,26 +24,14 @@ The UTMStack installation process consists of three main steps:
   <br>
 
 3. **Setting up the Master Servers**: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services.
-   <br>To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a **minimum** of **8GB of RAM** and **256GB of disk space** available for installation. Once the VM is created, it needs to be configured with the operating system **Ubuntu Server 22.04 LTS**.
+ 
+   To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of **4 cores**, **8 GB of RAM** and **256 GB of disk storage** for each **50 devices**. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system **Ubuntu Server 22.04 LTS**.
 
     <br>For detailed instructions on setting up the master servers, please refer to the **<a href="./MasterServerInstallation">Master Server Setup Guide</a>** in the UTMStack documentation.
     <br>
 
-4. **Installing the Probe/Proxy (If You Choose That Architecture)**
-    
-   Before proceeding with the installation of the Probe/Proxy, please ensure that your system meets the minimum requirements specified in the <a href="./SystemRequirements">System Requirements</a> page.
 
-    The installation process for the Probe/Proxy is similar to that of the master server, with a few additional steps. Follow the instructions below to install the Probe/Proxy:
-
-    * Open the UTMStack installer script.
-    * Select the "Install Probe" option when prompted.
-    * Follow the on-screen instructions provided by the installer script.
-    * Provide the necessary configuration details, such as the IP address or fully qualified domain name of the master server,
-  
-    <br>For more detailed instructions on setting up the Probe/Proxy, please refer to the **<a href="./MasterServerInstallation">Master Server Setup Guide</a>** in the UTMStack documentation.
-    <br>
-
-5. **Personalizing and Configuring UTMStack**: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack:
+4. **Personalizing and Configuring UTMStack**: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack:
 
     1. **Access UTMStack Management Interface**: Open a web browser and enter the URL or IP address to access the UTMStack management interface.
 

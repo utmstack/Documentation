@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Architecture
-nav_order: 3
+parent: Installation
+nav_order: 1
 ---
 
 

@@ -1,87 +1,87 @@
 {"0": {
     "doc": "Alert Management",
     "title": "Alert Management",
-    "content": "Welcome to the Alert Management Section. This resource provides comprehensive guidelines to aid your understanding and usage of our Alert Management system. It covers all the aspects and functionalities of the system, including correlation rules, alert generation, severity assignment, and visualizations, among others. ",
-    "url": "/UTMStackComponents/Threath%20Managment/AlerManagment.html",
+    "content": "Welcome to the Alert Management Section. This resource is tailored to guide you through the nuances and intricacies of our Alert Management system. From the mechanisms of correlation rules and alert generation to severity classifications and data visualizations, this guide encapsulates it all. ",
+    "url": "/UTMStackComponents/Threat%20Management/AlertManagement.html",
     
-    "relUrl": "/UTMStackComponents/Threath%20Managment/AlerManagment.html"
+    "relUrl": "/UTMStackComponents/Threat%20Management/AlertManagement.html"
   },"1": {
     "doc": "Alert Management",
     "title": "Introduction",
-    "content": "Alert Management is a critical component of any security information and event management (SIEM) system. Its primary function is to monitor various data sources, identify anomalies and suspicious activities, and generate alerts based on predefined correlation rules. It enables organizations to take prompt and effective action against potential threats, ensuring the integrity and safety of their digital assets. Our Alert Management system features an advanced correlation engine, which is responsible for the generation of alerts. The engine scrutinizes the incoming data in real-time and matches it against the defined correlation rules, the engine generates an alert and assigns it a severity based on the potential impact and threat level of the incident. The Alert Management Module forms an integral part of our system, serving as a real-time hub for all the alerts detected by the correlation engine. It efficiently captures, displays, and manages vital information related to these alerts, enhancing your capacity to oversee and control potential risks within your environment. With a myriad of features and capabilities, it facilitates better understanding and management of alerts. ",
-    "url": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#introduction",
+    "content": "Alert Management isn’t just a component—it’s the bedrock of any effective security information and event management (SIEM) system. Its raison d’être lies in actively monitoring diverse data sources, pinpointing anomalies, detecting suspicious activities, and accordingly manifesting alerts in line with pre-configured correlation rules. The overarching objective? To empower organizations with actionable insights, ensuring the inviolability of their digital perimeter. Our Alert Management system is fueled by a state-of-the-art correlation engine. This dynamo tirelessly processes incoming data in real-time, juxtaposes it against a matrix of defined correlation rules, and depending on the potential risk magnitude, spawns an alert with a corresponding severity. This module acts as the nerve center for all alerts detected, showcasing pertinent details and allowing for effective alert handling. It’s not just a tool; it’s your vantage point to preemptively mitigate risks. ",
+    "url": "/UTMStackComponents/Threat%20Management/AlertManagement.html#introduction",
     
-    "relUrl": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#introduction"
+    "relUrl": "/UTMStackComponents/Threat%20Management/AlertManagement.html#introduction"
   },"2": {
     "doc": "Alert Management",
     "title": "1. Data Grid",
-    "content": "Here, you’ll find a comprehensive list of all alerts detected by our powerful correlation engine. This detailed grid, populated in real-time, houses the most relevant and significant alert information such as: . | Rule Name: The specific rule that triggered the alert. | Severity: The level of seriousness or urgency attached to the alert. | Status: The current state of the alert, indicating whether it’s new, under review, or resolved. | Sensor: The specific source or detector that identified the potential risk, generating the alert. | . With a focus on flexibility and ease of use, the Data Grid allows you to sort alerts based on any field. By default, it organizes alerts chronologically, ensuring that you are always up-to-date with the latest alerts raised by the system. Through this streamlined, interactive interface, you can swiftly navigate and respond to the complex alert landscape, bolstering your system’s defense capabilities. Key Alert Operations . In addition to browsing and sorting alerts, the Alert Management Module allows you to perform three vital operations, which offer deeper insight and aid in effective threat management: . Creating an Incident Based on an Alert . When an alert signifies a significant threat, warranting further investigation or action, you can use the ‘Create Incident’ operation. This feature enables you to create a new incident directly from the alert, or associate the alert with an existing incident. The newly created incident will appear in the Incident Module. To learn more about managing incidents, please refer to our detailed guide here. Creating a New Tag Rule Based on an Alert . The Alert Management Module also allows you to create a new Tag Rule using the fields of the alert. With this operation, you can define the specific fields needed to automatically tag similar alerts in the future. By default, you’ll have the “False Positive” tag available for use. Creating Filters from an Alert . The Alert Management Module also provides an intuitive feature to generate a filter based on the specific attributes of an alert. This feature can be particularly helpful when investigating a series of related alerts or when you wish to monitor alerts with similar characteristics. To utilize this feature, simply select the alert that exhibits the characteristics you wish to filter by. Then, choose the filter icon from Alert’ s option. Adding Notes to an Alert . To enhance collaboration and knowledge sharing, you can add notes to each alert. This operation enables you to annotate an alert with relevant observations, questions, or insights, providing valuable context for you and your team. ",
-    "url": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#1-data-grid",
+    "content": "The heart of our Alert Management system, the Data Grid, is an interactive tableau of all detected alerts. It collates and exhibits salient details: . | Rule Name: The specific set of conditions that birthed the alert. | Severity: The urgency quotient attached to the alert. | Status: A real-time status indicator—new, under review, or resolved. | Sensor: The data source or trigger point that sensed the potential jeopardy. | . The Data Grid, apart from its intuitive design, allows alerts to be catalogued based on any field, defaulting to a chronological hierarchy. Key Alert Operations . Dive deeper with these pivotal operations: . Converting an Alert to an Incident . Not all alerts are born equal. Some demand heightened scrutiny. Use the ‘Create Incident’ feature to either instantiate a new incident from an alert or annex it to an existing incident. Once an alert graduates to an incident status, an automatic email dispatch takes place, notifying stakeholders listed in the UTMStack settings. Craving more on incidents? Dive into our Incident Guide. Tagging Alerts: Beyond the False Positive . Hand-in-hand with alerts come false positives. Our system grants you the ability to create Tag Rules directly from alert fields, defaulting with the “False Positive” tag. Once tagged as a false positive through a rule, similar alerts won’t bombard your dashboard. Distilling Alerts through Filters . Harness the power of filters to refine your alert view. With a simple selection, morph your alert landscape based on attributes of your choice. Annotating Alerts . Collaboration is key in any cybersecurity endeavor. The ability to annotate alerts allows teams to share insights, questions, or additional context regarding the nature and potential implications of an alert. These annotations act as collaborative markers, ensuring that team members operate with a common understanding of potential threats. ",
+    "url": "/UTMStackComponents/Threat%20Management/AlertManagement.html#1-data-grid",
     
-    "relUrl": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#1-data-grid"
+    "relUrl": "/UTMStackComponents/Threat%20Management/AlertManagement.html#1-data-grid"
   },"3": {
     "doc": "Alert Management",
     "title": "2. Filter",
-    "content": "The Filters section provides powerful and customizable functionality to narrow down your view of alerts based on specific criteria. It allows you to interactively filter alerts based on various fields. For instance, you can focus on ‘High Severity’ alerts from a specific sensor, or alerts triggered by a particular rule name. To perform a general search across multiple fields, use the search bar at the top. The system provides a set of predefined filters, offering a quick start for common filtering needs. However, the Alert Management Module also provides the flexibility to customize these filters. You can add or remove filters according to your specific needs, thereby personalizing the filtering interface to match your operational requirements. By utilizing the Filters section effectively, you can swiftly navigate the vast array of alerts and focus on those most pertinent to your security objectives. ",
-    "url": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#2-filter",
+    "content": "In a dynamic digital environment, the sheer volume of alerts can be overwhelming. The Filters section is designed to empower users with refined control over the alerts they see. By using powerful and customizable filtering tools, teams can focus on alerts that truly matter. Whether you’re zoning in on ‘High Severity’ alerts from a specific data source, or tracking down alerts generated by a particular rule, the Filter section offers you an unparalleled degree of specificity. Beyond the default set of filters, the Alert Management Module is flexible enough to allow customization. This means that as your organization’s needs evolve, so too can your filtering approach. Effective utilization of the Filters section not only simplifies alert management but also elevates your organization’s reactive and proactive security postures. ",
+    "url": "/UTMStackComponents/Threat%20Management/AlertManagement.html#2-filter",
     
-    "relUrl": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#2-filter"
+    "relUrl": "/UTMStackComponents/Threat%20Management/AlertManagement.html#2-filter"
   },"4": {
     "doc": "Alert Management",
     "title": "3. Additional Alert Management Features",
-    "content": "The Alert Management Module also offers a variety of additional features to facilitate efficient and personalized alert handling. The 3 Option buttons on the top right of the module contains three main functionalities: Save Report, Manage Tags, and View Tag Rules. Save Report . This option allows you to generate and download a report of the alerts in CSV format. The report can be tailored based on a specific timeframe within the last 7 days and the quantity of alerts to be included in the report. The quantity can be predefined as 50, 100, 200, 500, 1000, or 2500 alerts per report, depending on your requirements. Manage Tags . This function provides the ability to manage and customize the tags available in your system. Tags can be incredibly useful for categorizing and filtering your alerts. You can create new tags or manage existing ones to ensure they align with your alert handling workflow. View Tag Rules . Finally, the ‘View Tag Rules’ option allows you to review and manage your established tag rules. In this section, you can inspect the details of each rule or delete them if they’re no longer required. Tag rules assist in automating the process of alert tagging based on specific conditions or criteria. ",
-    "url": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#3-additional-alert-management-features",
+    "content": "Our Alert Management Module is brimming with features designed to ensure that you remain ahead of potential threats. At the top right of the module interface, you’ll find three primary functionalities: Save Report, Manage Tags, and View Tag Rules. Save Report . In some scenarios, offline analysis and record-keeping are indispensable. The ‘Save Report’ feature allows users to extract and download a comprehensive report of the alerts in a standard CSV format. Whether it’s a deep dive into the past week’s data or a broader look at alert trends, this feature facilitates flexible data export for any analytical or compliance need. Manage Tags . Tagging is more than just a labeling exercise—it’s about classification, prioritization, and quick identification. The ‘Manage Tags’ feature empowers users to define their taxonomy of tags, ensuring that alerts can be swiftly categorized and acted upon. View Tag Rules . Automation meets classification in the ‘View Tag Rules’ section. Here, you can define, review, and manage rules that automatically tag incoming alerts based on pre-set conditions. This auto-tagging not only streamlines alert handling but also introduces a degree of predictability in how alerts are categorized. By embracing the full suite of features in our Alert Management Module, organizations can equip themselves to rapidly identify, classify, and react to potential threats. In a landscape where response time is paramount, we ensure you have the tools to stay ahead. ",
+    "url": "/UTMStackComponents/Threat%20Management/AlertManagement.html#3-additional-alert-management-features",
     
-    "relUrl": "/UTMStackComponents/Threath%20Managment/AlerManagment.html#3-additional-alert-management-features"
+    "relUrl": "/UTMStackComponents/Threat%20Management/AlertManagement.html#3-additional-alert-management-features"
   },"5": {
     "doc": "Architecture",
     "title": "Architecture and Deployment Models",
     "content": "UTMStack offers a flexible and scalable architecture, empowering organizations to choose from various deployment models that best suit their needs. Whether deployed on the cloud or on-premises, UTMStack can seamlessly adapt to any scenario, providing a robust and comprehensive cybersecurity solution. ",
-    "url": "/Architecture.html#architecture-and-deployment-models",
+    "url": "/Installation/Architecture.html#architecture-and-deployment-models",
     
-    "relUrl": "/Architecture.html#architecture-and-deployment-models"
+    "relUrl": "/Installation/Architecture.html#architecture-and-deployment-models"
   },"6": {
     "doc": "Architecture",
     "title": "Deployment Models",
     "content": "UTMStack presents four compelling deployment models, each catering to specific requirements and offering distinct advantages: . ",
-    "url": "/Architecture.html#deployment-models",
+    "url": "/Installation/Architecture.html#deployment-models",
     
-    "relUrl": "/Architecture.html#deployment-models"
+    "relUrl": "/Installation/Architecture.html#deployment-models"
   },"7": {
     "doc": "Architecture",
     "title": "1. Master Only Deployment: Unparalleled Data Control and Security",
     "content": ". A Master Only Deployment of UTMStack is dedicated to an individual customer, ensuring unparalleled data control and security. By opting for a master-only installation, organizations can maintain complete control over their data. UTMStack can be effortlessly deployed within the customer’s network, whether on a virtual machine or a physical server. This approach allows for direct log gathering from customer devices and applications, ensuring data remains within the organization’s boundaries. With data isolation and enhanced security, the master-only deployment model offers peace of mind, particularly for organizations concerned about sharing sensitive information with third parties. ",
-    "url": "/Architecture.html#1-master-only-deployment-unparalleled-data-control-and-security",
+    "url": "/Installation/Architecture.html#1-master-only-deployment-unparalleled-data-control-and-security",
     
-    "relUrl": "/Architecture.html#1-master-only-deployment-unparalleled-data-control-and-security"
+    "relUrl": "/Installation/Architecture.html#1-master-only-deployment-unparalleled-data-control-and-security"
   },"8": {
     "doc": "Architecture",
     "title": "2. Federated Master Deployment: Streamlined Management for MSPs",
     "content": ". The federated master deployment model is ideal for Managed Service Providers (MSPs) managing multiple instances of UTMStack. In this model, multiple master servers are deployed, with one in each customer’s network. A central federation service acts as a unified monitoring panel, allowing MSPs to effortlessly oversee alerts generated by separate systems from a single centralized interface. This streamlined approach simplifies monitoring and management, enabling MSPs to efficiently navigate activities across multiple clients and organizations. The federated master deployment model is commonly used by SOC teams for its simplicity and effectiveness. ",
-    "url": "/Architecture.html#2-federated-master-deployment-streamlined-management-for-msps",
+    "url": "/Installation/Architecture.html#2-federated-master-deployment-streamlined-management-for-msps",
     
-    "relUrl": "/Architecture.html#2-federated-master-deployment-streamlined-management-for-msps"
+    "relUrl": "/Installation/Architecture.html#2-federated-master-deployment-streamlined-management-for-msps"
   },"9": {
     "doc": "Architecture",
     "title": "3. UTMStack Master &amp; Proxy: Optimal Flexibility and Security",
     "content": ". The UTMStack master and proxy deployment model offers optimal flexibility and security, making it suitable for Managed Services Providers (MSPs) looking to host UTMStack within their network. By deploying UTMStack within their infrastructure, MSPs gain complete control over their network and data. Lightweight proxy servers are then installed within each customer’s network, functioning as local master servers. These proxies serve as intermediaries, securely collecting logs from customer devices and forwarding them to the central master server. This deployment model is particularly useful when capturing and transmitting logs from customer firewall devices. Instead of sending logs directly over the internet, which may not be recommended for security reasons, the Probe proxy acts as a secure intermediary. It captures the logs locally within the customer’s network and securely transmits them to the Master Server over the internet. By implementing the UTMStack master and proxy model, MSPs can ensure the secure and efficient collection of logs from customer networks, enabling effective monitoring and analysis while maintaining a high level of data protection and privacy. IMPORTANT NOTE: . Please note that a proxy is not always required. UTMstack supports SysLog TLS and all communications between agents and master servers are encrypted using TLS. The proxy is recommended only if customer servers are not allowed to access the internet or there are devices like old firewalls that do not support TLS encryption over the internet. Agents can be installed in customer servers directly without needing a proxy. Devices that support Syslog TLS can send logs directly to UTMStack. ",
-    "url": "/Architecture.html#3-utmstack-master--proxy-optimal-flexibility-and-security",
+    "url": "/Installation/Architecture.html#3-utmstack-master--proxy-optimal-flexibility-and-security",
     
-    "relUrl": "/Architecture.html#3-utmstack-master--proxy-optimal-flexibility-and-security"
+    "relUrl": "/Installation/Architecture.html#3-utmstack-master--proxy-optimal-flexibility-and-security"
   },"10": {
     "doc": "Architecture",
     "title": "4. SaaS (Software as a Service): Simplified Management with Unparalleled Support",
     "content": ". For organizations seeking for a hassle-free and fully managed solution, UTMStack offers the Software as a Service (SaaS) deployment model. With SaaS, organizations can benefit from a comprehensive managed instance of UTMStack, including updates, scaling, backups, high availability, and dedicated support. Logs can be effortlessly collected from customer systems by installing agents or configuring SyslogTLS or proxy. This streamlined approach allows organizations to focus on their core business, leaving the complexities of cybersecurity management to the experts at UTMStack. Enjoy the peace of mind that comes with a fully managed solution, ensuring top-notch security and efficiency without the burden of infrastructure management. UTMStack’s flexible deployment models empower organizations and MSPs to choose the most suitable approach based on their specific requirements, infrastructure, and security preferences. By offering a range of options, UTMStack ensures that organizations of all sizes and complexities can enjoy the benefits of a robust and comprehensive cybersecurity platform. ",
-    "url": "/Architecture.html#4-saas-software-as-a-service-simplified-management-with-unparalleled-support",
+    "url": "/Installation/Architecture.html#4-saas-software-as-a-service-simplified-management-with-unparalleled-support",
     
-    "relUrl": "/Architecture.html#4-saas-software-as-a-service-simplified-management-with-unparalleled-support"
+    "relUrl": "/Installation/Architecture.html#4-saas-software-as-a-service-simplified-management-with-unparalleled-support"
   },"11": {
     "doc": "Architecture",
     "title": "Architecture",
     "content": " ",
-    "url": "/Architecture.html",
+    "url": "/Installation/Architecture.html",
     
-    "relUrl": "/Architecture.html"
+    "relUrl": "/Installation/Architecture.html"
   },"12": {
     "doc": "Dashboards List Overview",
     "title": "Dashboards List Overview",
@@ -141,7 +141,7 @@
   },"20": {
     "doc": "Federation Service Installation",
     "title": "UTMStack Federation Service Installation Guide",
-    "content": "This guide will walk you through the process of installing the UTMStack Federation Service (UTMStackFS) on an Ubuntu 20.04 LTS system. Please follow the steps below to ensure a successful installation. ",
+    "content": "Welcome to the installation page for the Federated Master Deployment of UTMStack! If you’re an MSP (Managed Service Provider) with the mission of managing multiple instances of UTMStack across various customer networks, you’re in the right place. Our federated master deployment model is meticulously designed to provide a streamlined management experience, presenting a holistic view of activities across multiple clients and organizations. This guide will walk you through the process of installing the UTMStack Federation Service (UTMStackFS) on an Ubuntu 20.04 LTS system. Please follow the steps below to ensure a successful installation. For more details contact Customer Service. ",
     "url": "/Installation/FederationServiceInstallation.html#utmstack-federation-service-installation-guide",
     
     "relUrl": "/Installation/FederationServiceInstallation.html#utmstack-federation-service-installation-guide"
@@ -182,710 +182,661 @@
     "relUrl": "/Installation/FirewallRules.html#rules-for-access-from-probeproxy-to-master"
   },"26": {
     "doc": "Firewall Rules",
-    "title": "Rules for Access from Master to Probe/Proxy",
-    "content": "Allow incoming traffic on the following ports from the master to the probe/proxy: . | Ports: 9390/TCP and 8888/TCP . | Purpose: Used to connect with the vulnerabilities scanner. | . | Ports: 5000/TCP and 8000/TCP . | Purpose: Used to connect with the assets discovery service. | . | . ",
-    "url": "/Installation/FirewallRules.html#rules-for-access-from-master-to-probeproxy",
+    "title": "Firewall Rules",
+    "content": "To ensure proper communication and functionality of UTMStack, it is important to configure the firewall rules on your network devices accordingly. This section provides an overview of the required firewall rules for different components of UTMStack. Please refer to the following guidelines: . ",
+    "url": "/Installation/FirewallRules.html",
     
-    "relUrl": "/Installation/FirewallRules.html#rules-for-access-from-master-to-probeproxy"
+    "relUrl": "/Installation/FirewallRules.html"
   },"27": {
     "doc": "Firewall Rules",
-    "title": "Rules for Access from Agentless Devices to Master or Probe/Proxy",
-    "content": "Allow incoming traffic on the following ports from agentless devices (firewalls, hypervisors, etc.) to the master or probe/proxy: . | Port: 2055/UDP . | Purpose: Used to send Netflow packets. | . | Port: 514/UDP . | Purpose: Used to send syslog logs. | . | Port: 514/TCP . | Purpose: Used to send syslog logs. | . | Port: 1470/TCP . | Purpose: Used to send syslog logs. | . | Port: 2056/TCP . | Purpose: Used to send syslog logs. | . | Port: 8089/TCP . | Purpose: Used to send logs through HTTP POST. | . | . ",
-    "url": "/Installation/FirewallRules.html#rules-for-access-from-agentless-devices-to-master-or-probeproxy",
+    "title": "Required Ports",
+    "content": ". | Port: 22/TCP . | Purpose: Secure Shell (We recommend creating a firewall rule to allow it only from the admin workstation). | . | Port: 80/TCP . | Purpose: UTMStack Web-based Graphical User Interface Redirector (We recommend creating a firewall rule to allow it only from admin and security analyst workstations). | . | Port: 443/TCP . | Purpose: UTMStack Web-based Graphical User Interface (We recommend creating a firewall rule to allow it only from admin and security analyst workstations). | . | Port: 9090/TCP . | Purpose: Cockpit Web-based Graphical Interface for Servers (We recommend creating a firewall rule to allow it only from the admin workstation). | . | . Other ports will be required during the configuration of UTMStack’s integrations to receive logs. Please follow the security recommendations given in the integration guide if it exists. By configuring the firewall rules as specified above, you ensure that the necessary network traffic is allowed for UTMStack components to function properly. Make sure to update your network devices’ firewall settings accordingly to enable seamless communication within the UTMStack environment. ",
+    "url": "/Installation/FirewallRules.html#required-ports",
     
-    "relUrl": "/Installation/FirewallRules.html#rules-for-access-from-agentless-devices-to-master-or-probeproxy"
+    "relUrl": "/Installation/FirewallRules.html#required-ports"
   },"28": {
-    "doc": "Firewall Rules",
-    "title": "Rules for Agents Communication with Master or Probe/Proxy",
-    "content": "Allow incoming traffic on the following ports on the master for agents to communicate with the master or probe/proxy: . | Port: 5044/TCP . | Purpose: Used to send logs. | . | Ports: 1514-1516/TCP . | Purpose: Used for HIDS agent communications. | . | Port: 55000/TCP . | Purpose: Used for HIDS management API. | . | Port: 9000/TCP . | Purpose: Used to connect to the Agent Manager. | . | . ",
-    "url": "/Installation/FirewallRules.html#rules-for-agents-communication-with-master-or-probeproxy",
-    
-    "relUrl": "/Installation/FirewallRules.html#rules-for-agents-communication-with-master-or-probeproxy"
-  },"29": {
-    "doc": "Firewall Rules",
-    "title": "Rule for Accessing the UTMStack Web Console",
-    "content": "Allow incoming traffic on port 443 to access the UTMStack Web console. By configuring the firewall rules as specified above, you ensure that the necessary network traffic is allowed for UTMStack components to function properly. Make sure to update your network devices’ firewall settings accordingly to enable seamless communication within the UTMStack environment. ",
-    "url": "/Installation/FirewallRules.html#rule-for-accessing-the-utmstack-web-console",
-    
-    "relUrl": "/Installation/FirewallRules.html#rule-for-accessing-the-utmstack-web-console"
-  },"30": {
     "doc": "Goal",
     "title": "Goal Chart",
     "content": ". A Goal chart is a visualization tool used to represent progress towards a specific target or goal. It’s a powerful way to show progress and motivate performance. UTMStack offers a Goal chart with customizable options to suit your specific requirements. Here are the options that you can configure while creating a Goal chart: . | Color: You can select the color of the goal chart. | Goal Type: Choose the type of Goal chart. You have the option to choose ‘semi’,’arch’ or ‘full’. | LineBar style: Choose the style for the LineBar in the Goal chart. You can select ‘round’ or ‘butt’. | Min: This is the starting point or minimum value of your goal. | Goal: This is the target or the goal you aim to reach. | LineBar width: Adjust the width of the LineBar. | Formatter: This option allows you to choose how the value is represented. If you want the value to be represented as a percentage, you can select ‘%’. | Animate on load?: This option allows you to decide if you want the chart to animate when it loads. | Decimal: Adjust the number of decimal places you want to display in your Goal chart. | . These options offer a high degree of flexibility and can be adjusted to create a Goal chart that aligns with your specific needs. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Goal.html#goal-chart",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Goal.html#goal-chart"
-  },"31": {
+  },"29": {
     "doc": "Goal",
     "title": "Goal",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/Goal.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Goal.html"
-  },"32": {
+  },"30": {
     "doc": "Heat Map",
     "title": "Heat Map",
     "content": "Heat Map is a type of chart that represents data in a two-dimensional format, with colors representing values. The color intensity of the cells in the map corresponds to the data values they represent, allowing you to easily spot trends and patterns in your data. Heat Maps are especially effective for displaying large amounts of data that vary in scale and range. ",
     "url": "/UTMStackComponents/Dashboards/Charts/HeatMap.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/HeatMap.html"
-  },"33": {
+  },"31": {
     "doc": "Heat Map",
     "title": "Chart Customization Options",
     "content": "In UTMStack’s visualization editor, various aspects of your chart can be personalized to meet specific needs. The following sections explain the settings available under the Options tab when creating these chart. yAxis . | Name: Provide a name for the Y-axis. | Axis Type: Specify the type of data on the Y-axis, typically ‘value’. | Axis Label Color: Customize the color of the axis labels. | Axis Label Formatter: Format the axis label. Its support string template. Default is {value}. | Axis Line Color: Customize the color of the axis line. | Show Split Line?: Option to show/hide split lines. | Axis Split Line Color: Customize the color of the split lines. | Split Line Type: Choose the style of the split lines (e.g., ‘dashed’). | . xAxis . This section has the same configuration options as the yAxis, but applied to the X-axis. Legend . | Show Legend?: Option to display/hide the legend. | Legend Vertical Position: Choose the vertical position of the legend (e.g., ‘bottom’). | Legend Horizontal Position: Choose the horizontal position of the legend (e.g., ‘center’). | Legend Orientation: Choose the orientation of the legend (e.g., ‘horizontal’). | Color Width/Height: Adjust the size of the color boxes in the legend. | Use Custom Icon for Legend?: Option to use a custom icon in the legend. | Legend Icon: Choose the shape of the legend icons (e.g., ‘roundRect’). | . Toolbox . | Show Toolbox?: Option to display/hide the toolbox. | Show Magic Type Feature?: Option to enable/disable magic type features. | Magic Feature: Enable magic types to switch between different chart types. | Show Save as Image Feature?: Option to enable/disable saving chart as an image. | Show Restore Chart Feature?: Option to enable/disable the feature to restore the chart to its original state. | Show Data View Feature?: Option to enable/disable the data view feature. | Show Data Zoom Feature?: Option to enable/disable the data zoom feature. | Show Mark Feature?: Option to enable/disable the mark feature. | Toolbox Vertical Position: Choose the vertical position of the toolbox (e.g., ‘top’). | Toolbox Horizontal Position: Choose the horizontal position of the toolbox (e.g., ‘right’). | Toolbox Orientation: Choose the orientation of the toolbox (e.g., ‘horizontal’). | Width/Height: Adjust the size of the toolbox. | Icon Size: Adjust the size of the toolbox icons. | . Colors . Adjust the color sequence for your chart data series. Grid . | Top/Left/Right/Bottom: Adjust the chart margins. | . DataZoom . | Show Data Zoom?: Option to enable/disable the data zoom feature. | Legend Orientation: Choose the orientation of the data zoom (e.g., ‘horizontal’). | Start/End: Set the initial view of the data in percentage. | Height/Width: Adjust the size of the data zoom control. | Top/Left/Right/Bottom: Adjust the margins for the data zoom control. | . Example: Creating a Heat Map for Incident Categories . If you aim to create a Heat Map visualization that provides an insight into the count of various alertd categories in your alerts index, follow these steps: . Step 1: Select Metric Aggregation You’ll start with defining your metric aggregation. For this case, you’re counting the number of alerts in each category, so select the ‘Count’ aggregation. Step 2: Configure Bucket Aggregation Next, define your bucket aggregation. Here, you will use the ‘Terms’ aggregation on the ‘alert.category.keyword’ field. This organizes your alerts data into different categories. Step 3: Adjust Scale and Color Range Now it’s time to choose a suitable color scale. For clarity, you might want to use a ‘Sequential’ color scale, which assigns cooler colors to lower alert counts and warmer colors to higher alert counts. Remember, the goal is to allow for easy visual differentiation between high and low incident counts. Step 5: Generate Your Visualization After all these settings are done, click on ‘Run’. This will generate your Heat Map, where you can identify the most frequent incident categories in your alert index at a glance. By using this Heat Map, you can promptly pinpoint which categories of alerts are more common, enabling you to focus your resources and attention more effectively. ",
     "url": "/UTMStackComponents/Dashboards/Charts/HeatMap.html#chart-customization-options",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/HeatMap.html#chart-customization-options"
-  },"34": {
+  },"32": {
     "doc": "Incident Response Automation",
     "title": "Incident Response Automation",
     "content": "The Incident Response Automation feature in UTMStack empowers organizations to automate actions based on triggers in incident fields. This functionality enhances the efficiency and effectiveness of the incident response strategy by executing predefined actions automatically. By leveraging triggers and actions, organizations can streamline and expedite the incident response process. ",
     "url": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html"
-  },"35": {
+  },"33": {
     "doc": "Incident Response Automation",
     "title": "Incident Response Dashboard View",
     "content": ". Incidents response Automation Grid . The Incidents response Automation Grid is a pivotal component of the Incident Response page, providing a comprehensive snapshot of all Inciden Response Automation Rules. Each row or entry within the grid pertains to a unique command execution and unveils key details such as: . | Rule name: Identifies the rule name. | Status: Represents the status of the rule (active, inactive). | Description: Provides a description of the rule. | Modify By: Displays the name of the last user who modified the rule. | Modify At: Shows the date of the last modification of the rule. | Trigger Condition: Indicates the total number of conditions used for this rule. | Command: Displays a preview of the instruction that is going to be executed. | Platform: Specifies the platform where the command is going to be executed. | Action: Provides options to edit or delete the automation rule. | . Filters . To expedite the search for specific automation rules, the Incident Response Automation page features a Filters section. This allows users to refine the command list based on parameters such as status, platform, user, or rule name. Automation Rule Details . Clicking on an automation rule opens a new window displaying the automation rule details. The details include: . | Description: Provides a description of the automation rule. | Execute on agents with: Specifies the required operating system to execute the command. | Excluding: Lists the agents excluded from the execution. | Trigger when: Describes the rule conditions based on the incident fields that trigger the execution. | Execution Command: Displays the command that is going to be executed when the alert triggers. | Rule History: Shows the history of changes for the Rule. | . Create Automation Rule . The ‘Create Automation’ button at the top-right corner of the dashboard provides an option to create a new automation rule. It guides users through the steps for creating an Incident Response Automation. Step 1: Automation Information . The first step is to provide a name and description for the automation rule. Both can contain spaces. Step 2: Trigger Configuration . The second step is to configure the conditions for executing the command. Users can add multiple conditions based on the incident fields. The conditions are exact matches. Users can also specify the agent platform where the command will be executed and exclude any specific agents if desired. Step 3: Action Configuration . The last step is to define the action through a command line that will be executed on the device. By pressing the TAB key, users can access alert fields and incorporate them into the command execution by simply clicking on them. Conclusion . By automating actions based on incident triggers, organizations can streamline their incident response process, reduce response times, minimize errors, and ensure consistent and standardized incident handling. The Incident Response Automation feature empowers organizations to enhance their incident response capabilities and mitigate the impact of security incidents more efficiently. ",
     "url": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html#incident-response-dashboard-view",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html#incident-response-dashboard-view"
-  },"36": {
+  },"34": {
     "doc": "Incidents",
     "title": "Incident Managment",
     "content": "The Incident Management page is a crucial component of the UTMStack platform, dedicated to providing a comprehensive overview of all incidents within your organization. Designed to echo the layout and functionality of the Threat Management’s Alert page, it ensures a seamless and consistent user experience across different modules. ",
     "url": "/UTMStackComponents/Incidents/Incidents.html#incident-managment",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html#incident-managment"
-  },"37": {
+  },"35": {
     "doc": "Incidents",
     "title": "Data Grid",
     "content": "The heart of the Incident Management page is the Data Grid. This is where you’ll find all the alerts escalated to incidents. Each row signifies a unique incident, providing crucial information like the incident’s name, severity, status, proposed solution, and the action taken. The grid’s contents can be sorted based on any field, allowing for a customized, user-specific view for easier navigation and handling. ",
     "url": "/UTMStackComponents/Incidents/Incidents.html#data-grid",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html#data-grid"
-  },"38": {
+  },"36": {
     "doc": "Incidents",
     "title": "Filters",
     "content": "On the Incident page, the Filters section lets you drill down on specific incidents based on chosen criteria. Filterable fields include name, ID, severity, and status. This allows you to quickly find and respond to the most urgent incidents, enhancing your organization’s incident response capabilities. ",
     "url": "/UTMStackComponents/Incidents/Incidents.html#filters",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html#filters"
-  },"39": {
+  },"37": {
     "doc": "Incidents",
     "title": "Operations",
     "content": "The Incident Management page extends its functionality by allowing you to perform several key operations on each incident. These include updating the incident’s status, adding notes for context, and executing a command for mitigation or resolution. This set of functionalities optimizes your incident response process, ensuring it remains efficient and effective. ",
     "url": "/UTMStackComponents/Incidents/Incidents.html#operations",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html#operations"
-  },"40": {
+  },"38": {
     "doc": "Incidents",
     "title": "Incident Details and Related Alerts",
     "content": "By clicking on an incident, a window appears on the right side presenting detailed information about the incident, as well as alerts related to it. From this view, you can perform operations on the incident, inspect its history, or analyze associated alerts. This consolidated view of incidents and related alerts boosts your understanding of the security incident landscape, aiding in faster and more informed decision-making. ",
     "url": "/UTMStackComponents/Incidents/Incidents.html#incident-details-and-related-alerts",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html#incident-details-and-related-alerts"
-  },"41": {
+  },"39": {
     "doc": "Incidents",
     "title": "Incidents",
     "content": " ",
     "url": "/UTMStackComponents/Incidents/Incidents.html",
     
     "relUrl": "/UTMStackComponents/Incidents/Incidents.html"
-  },"42": {
-    "doc": "Incident Response",
-    "title": "Incident Response",
-    "content": "The Incident Response page is a dedicated workspace within UTMStack, designed to streamline your incident response strategy. It provides a thorough record of all the commands executed during the incident response process. Each command record details crucial information such as the hostname on which it was executed, the operation result, and more. ",
-    "url": "/UTMStackComponents/Incidents/Incidentsresponse.html",
-    
-    "relUrl": "/UTMStackComponents/Incidents/Incidentsresponse.html"
-  },"43": {
-    "doc": "Incident Response",
-    "title": "Incident Response Dashboard View",
-    "content": ". Command Grid . The Command Grid is the pivotal component of the Incident Response page. It provides a comprehensive snapshot of all commands executed throughout the incident response process. Each row or entry within the grid pertains to a unique command execution, unveiling key details such as: . | Hostname: Identifies the system where the command was executed. | Command: Outlines the specific command that was executed. | Status: Represents the execution status of the command (success, failure, pending, etc.). | Applied In: Signifies the asset or environment in which the command was executed. | Applied To: Designates the specific asset the command was targeted at. | Created: Marks the date and time when the command was created and executed. | Created By: Specifies the individual who initiated the creation and execution of the command. | Execution: Provides a detailed account of the command’s execution outcome. | . Filters . To expedite your search for specific command executions, the Incident Response page features a Filters section. This allows you to refine your command list based on parameters such as action, status, or creation date. Command Operations . Command Operations serve as a critical tool in the Incident Response module and are split into two main functionalities: ‘View Commands’ and ‘Execute Commands’. These functionalities are conveniently located at the right top corner of the Incident Response page, ensuring easy access. View Commands . The ‘View Commands’ function provides you with a detailed view of all the commands that can be executed. This feature promotes transparency in the incident response process, offering insights into possible actions, such as shutting down a compromised asset. Understanding available commands can guide you in choosing the most appropriate response strategy. Execute Commands . The ‘Execute Commands’ function facilitates immediate action by allowing you to execute specific commands on relevant assets. This proactive capability is a cornerstone in effectively managing and resolving incidents. By enabling you to take targeted action on the systems involved in an incident, UTMStack enhances your organization’s incident response agility. ",
-    "url": "/UTMStackComponents/Incidents/Incidentsresponse.html#incident-response-dashboard-view",
-    
-    "relUrl": "/UTMStackComponents/Incidents/Incidentsresponse.html#incident-response-dashboard-view"
-  },"44": {
+  },"40": {
     "doc": "Master Installation Guide for Azure",
     "title": "UTMStack Master Installation Guide for Azure",
     "content": "This guide will walk you through the step-by-step process of installing UTMStack Master on Azure. Please follow the instructions carefully to ensure a successful installation. ",
     "url": "/Installation/InstallationGuideAzure.html#utmstack-master-installation-guide-for-azure",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#utmstack-master-installation-guide-for-azure"
-  },"45": {
+  },"41": {
     "doc": "Master Installation Guide for Azure",
     "title": "Prerequisites",
     "content": "Before you begin the installation, make sure you have the following prerequisites: . | An active Azure subscription. | Basic knowledge of Azure and virtual machines. | Access to the Azure portal. | . ",
     "url": "/Installation/InstallationGuideAzure.html#prerequisites",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#prerequisites"
-  },"46": {
+  },"42": {
     "doc": "Master Installation Guide for Azure",
     "title": "Step 1: Create a Virtual Machine",
-    "content": ". | Sign in to the Azure portal at portal.azure.com using your Azure credentials. | Click on “Create a resource” and search for “Ubuntu Server” in the Azure Marketplace. | Select “Ubuntu Server” from the search results and click “Create.” | Fill in the required information for the virtual machine, such as the resource group, virtual machine name, region, and availability options. | . | Choose the appropriate virtual machine size based on your resource requirements. See System Requirements page to select the better option. | Configure the networking options, such as virtual network and subnet settings, public IP address, and SSH settings (ensure that port 22 is open for SSH access). | Review the configuration details and click “Create” to start the virtual machine deployment process. | . ",
+    "content": ". | Sign in to the Azure portal at portal.azure.com using your Azure credentials. | Click on “Create a resource” and search for “Ubuntu Server” in the Azure Marketplace. | Select “Ubuntu Server” from the search results and click “Create.” | Fill in the required information for the virtual machine, such as the resource group, virtual machine name, region, and availability options. | . | Choose the appropriate virtual machine size based on your resource requirements. See System Requirements page to select the better option. | Configure the networking options, such as virtual network and subnet settings, public IP address, and SSH settings (ensure that port 22/TCP is open for SSH access from your IP). | You will need port 80/TCP and 443/TCP open to access the UTMStack web interface. | Review the configuration details and click “Create” to start the virtual machine deployment process. | . ",
     "url": "/Installation/InstallationGuideAzure.html#step-1-create-a-virtual-machine",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#step-1-create-a-virtual-machine"
-  },"47": {
+  },"43": {
     "doc": "Master Installation Guide for Azure",
     "title": "Step 2: Expand the System Disk",
-    "content": "Note: This step should be performed after the virtual machine creation is complete. | Locate the newly created virtual machine in the Azure portal. | . | Stop the virtual machine to enable disk expansion. | Go to the “Disks” section of the virtual machine settings. | Select the system disk and click on “Size + performance” to expand the disk size. | Choose the desired disk size, such as 128GB, and apply the changes. | Start the virtual machine after the disk expansion process is completed. | . ",
+    "content": "Note: This step should be performed after the virtual machine creation is complete. | Locate the newly created virtual machine in the Azure portal. | . | Stop the virtual machine to enable disk expansion. | Go to the “Disks” section of the virtual machine settings. | Select the system disk and click on “Size + performance” to expand the disk size. | Choose the desired disk size, such as 256GB, and apply the changes. | Start the virtual machine after the disk expansion process is completed. | . ",
     "url": "/Installation/InstallationGuideAzure.html#step-2-expand-the-system-disk",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#step-2-expand-the-system-disk"
-  },"48": {
+  },"44": {
     "doc": "Master Installation Guide for Azure",
     "title": "Step 3: Access the Virtual Machine",
     "content": ". | Once the virtual machine is running, note down the public IP address or DNS name assigned to it. | Open an SSH client, and connect to the virtual machine using the public IP address or DNS name. | Provide your Azure credentials and SSH into the virtual machine. | . ",
     "url": "/Installation/InstallationGuideAzure.html#step-3-access-the-virtual-machine",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#step-3-access-the-virtual-machine"
-  },"49": {
+  },"45": {
     "doc": "Master Installation Guide for Azure",
     "title": "Step 4: Install UTMStack Master",
     "content": ". | Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack Master. You can find the installation guide at UTMStack Installation Guide. | Make sure to carefully follow the instructions provided in the guide, including the configuration settings and any additional dependencies or packages required. | Complete the installation process as per the guide’s instructions. | . ",
     "url": "/Installation/InstallationGuideAzure.html#step-4-install-utmstack-master",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#step-4-install-utmstack-master"
-  },"50": {
+  },"46": {
     "doc": "Master Installation Guide for Azure",
     "title": "Step 5: Post-Installation Configuration",
     "content": ". | After the UTMStack Master installation is complete, you can access the UTMStack web interface by opening a web browser and navigating to the IP address or DNS name of the virtual machine, followed by the appropriate port (usually port 443 for HTTPS). | Follow any further configuration steps provided in the UTMStack documentation to set up the system according to your requirements. | . Congratulations! You have successfully installed UTMStack Master on Azure. You can now begin utilizing the UTMStack platform for your network management and monitoring needs. ",
     "url": "/Installation/InstallationGuideAzure.html#step-5-post-installation-configuration",
     
     "relUrl": "/Installation/InstallationGuideAzure.html#step-5-post-installation-configuration"
-  },"51": {
+  },"47": {
     "doc": "Master Installation Guide for Azure",
     "title": "Master Installation Guide for Azure",
     "content": " ",
     "url": "/Installation/InstallationGuideAzure.html",
     
     "relUrl": "/Installation/InstallationGuideAzure.html"
-  },"52": {
+  },"48": {
     "doc": "Introduction",
     "title": "UTMStack: Next-Generation SIEM and Compliance Platform",
     "content": "Welcome to the UTMStack documentation, your comprehensive guide to our powerful cybersecurity platform. UTMStack® is a Unified Threat Management Platform specifically designed for hybrid environments, making it easy to deploy across both on-premises and cloud providers. Designed with the most advanced cybersecurity technology, it offers an extensive array of essential cybersecurity solutions. Our platform offers a wide range of modular services, including compliance management, log management, vulnerability management, identity management, threat management, and asset management. This documentation will walk you through the platform’s key features, installation requirements, configuration steps, and best practices, enabling you to maximize the security and efficiency of your organization. As a testament to its adaptability and integration potential, UTMStack seamlessly integrates with the world’s leading cloud providers, including Azure and Google Cloud. This high-level compatibility offers increased flexibility and ensures that users can manage their cybersecurity regardless of their infrastructure setup. ",
     "url": "/#utmstack-next-generation-siem-and-compliance-platform",
     
     "relUrl": "/#utmstack-next-generation-siem-and-compliance-platform"
-  },"53": {
+  },"49": {
     "doc": "Introduction",
     "title": "Overview of our Solution",
     "content": "Powerful Capabilities for Enhanced Security . UTMStack® incorporates a proprietary correlation engine that enables real-time threat detection and response. By analyzing data during ingestion, our platform minimizes detection and response times, allowing you to take swift action against emerging threats. Fine-tuning the system with customizable false positive conditions and tags helps reduce alert fatigue. With a vast collection of over 30 billion Indicators of Compromise (IOC) elements, UTMStack® leverages live threat intelligence platforms and advanced correlation rules to ensure highly effective detection. Seamless Integration and Customization . Designed for hybrid environments, UTMStack® can be easily deployed across on-premises and cloud providers. Our platform integrates seamlessly with various technologies, including cloud services, network devices, and more. Leveraging APIs, Syslog, Netflow, or Agents, you can connect UTMStack® to your existing infrastructure, ensuring comprehensive visibility and streamlined security management. We believe that these capabilities will greatly enhance the security posture and operational efficiency of your organization. ",
     "url": "/#overview-of-our-solution",
     
     "relUrl": "/#overview-of-our-solution"
-  },"54": {
+  },"50": {
     "doc": "Introduction",
     "title": "Key Features and Modules",
     "content": "Log Management (SIEM) . UTMStack’s Security Information and Event Management (SIEM) module allows you to collect, store, and correlate log data from various sources. By leveraging this information, you can generate compliance reports and gain valuable insights into security incidents. Access Rights Auditor . Track and manage account access and permission changes within your organization. UTMStack’s Access Rights Auditor module helps you monitor user activities and sends alerts in the event of suspicious behavior. Incident Response . Handle security incidents efficiently with UTMStack’s Incident Response module. You can remotely manage your environment and respond to attacks directly from the centralized dashboard, ensuring swift and effective incident resolution. Endpoint Protection . Protect your endpoints and servers with UTMStack’s Advanced Threat Protection. Our platform provides robust security measures to safeguard your critical assets against advanced threats. HIPS and NIPS . UTMStack includes Host and Network-based Intrusion Detection Systems (HIPS and NIPS) with prevention capabilities. These systems actively monitor and defend against potential intrusions, helping you maintain a secure environment. Compliance . Ensure compliance with industry regulations and standards such as GDPR, GLBA, HIPAA, SOC, and ISO. UTMStack provides compliance reports and dashboards to help you demonstrate adherence to these requirements. File Tracker . Maintain control over sensitive information with UTMStack’s File Tracker. This module enables you to track changes and access to classified data, ensuring data integrity and confidentiality. ",
     "url": "/#key-features-and-modules",
     
     "relUrl": "/#key-features-and-modules"
-  },"55": {
+  },"51": {
     "doc": "Introduction",
     "title": "Our Commitment",
     "content": "At UTMStack, we are committed to democratizing enterprise-level cybersecurity solutions. We believe that cybersecurity should not be a luxury accessible only to large organizations. Our mission is to provide competitive pricing and make top-notch cybersecurity services accessible to companies of all sizes. By doing so, we aim to significantly reduce the number of small businesses that face financial ruin following a data breach or cyber attack. Join UTMStack Today . Take control of your cybersecurity with UTMStack. Benefit from our comprehensive suite of cybersecurity services, simplified management, and cost-effective solutions. Start protecting your organization against threats and ensuring compliance today. ",
     "url": "/#our-commitment",
     
     "relUrl": "/#our-commitment"
-  },"56": {
+  },"52": {
     "doc": "Introduction",
     "title": "Introduction",
     "content": " ",
     "url": "/",
     
     "relUrl": "/"
-  },"57": {
+  },"53": {
     "doc": "Line, Area LineBar, Bar and Bar Horizontal charts",
     "title": "Line, Area LineBar, Bar and Bar Horizontal charts",
     "content": ". UTMStack provides a versatile set of charting options to visually represent your data, including Line, Area, Bar, and others. These charts are excellent for displaying data trends over time, mapping data on an X/Y axis, and highlighting changes in values between different data points. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Line.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Line.html"
-  },"58": {
+  },"54": {
     "doc": "Line, Area LineBar, Bar and Bar Horizontal charts",
     "title": "Chart Customization Options",
     "content": "In UTMStack’s visualization editor, various aspects of your chart can be personalized to meet specific needs. The following sections explain the settings available under the Options tab when creating these charts. Series . | Type: Change the chart type, such as to a bar chart. | Mark Point: Mark specific points on the line for emphasis. The configuration includes: . | Symbol: Define the symbol used to mark the point. For instance, you could choose ‘pin’ to represent marked points as pin symbols. | Symbol Size: Adjust the size of the symbol used to mark the point. | Font Size: Determine the size of the font used in the mark point. | Type: Set the type of mark point, options include ‘min’, ‘max’, or ‘avg’. | Name: Provide a custom name for the mark point. This name will be displayed in tooltips and legends when hovering over the point or when it’s included in the legend. | . | Mark Line: Similarly to Mark Point, you can also highlight a specific line for emphasis. | . yAxis . | Name: Provide a name for the Y-axis. | Axis Type: Specify the type of data on the Y-axis, typically ‘value’. | Axis Label Color: Customize the color of the axis labels. | Axis Label Formatter: Format the axis label. Its support string template. Default is {value}. | Axis Line Color: Customize the color of the axis line. | Show Split Line?: Option to show/hide split lines. | Axis Split Line Color: Customize the color of the split lines. | Split Line Type: Choose the style of the split lines (e.g., ‘dashed’). | . xAxis . This section has the same configuration options as the yAxis, but applied to the X-axis. Legend . | Show Legend?: Option to display/hide the legend. | Legend Vertical Position: Choose the vertical position of the legend (e.g., ‘bottom’). | Legend Horizontal Position: Choose the horizontal position of the legend (e.g., ‘center’). | Legend Orientation: Choose the orientation of the legend (e.g., ‘horizontal’). | Color Width/Height: Adjust the size of the color boxes in the legend. | Use Custom Icon for Legend?: Option to use a custom icon in the legend. | Legend Icon: Choose the shape of the legend icons (e.g., ‘roundRect’). | . Toolbox . | Show Toolbox?: Option to display/hide the toolbox. | Show Magic Type Feature?: Option to enable/disable magic type features. | Magic Feature: Enable magic types to switch between different chart types. | Show Save as Image Feature?: Option to enable/disable saving chart as an image. | Show Restore Chart Feature?: Option to enable/disable the feature to restore the chart to its original state. | Show Data View Feature?: Option to enable/disable the data view feature. | Show Data Zoom Feature?: Option to enable/disable the data zoom feature. | Show Mark Feature?: Option to enable/disable the mark feature. | Toolbox Vertical Position: Choose the vertical position of the toolbox (e.g., ‘top’). | Toolbox Horizontal Position: Choose the horizontal position of the toolbox (e.g., ‘right’). | Toolbox Orientation: Choose the orientation of the toolbox (e.g., ‘horizontal’). | Width/Height: Adjust the size of the toolbox. | Icon Size: Adjust the size of the toolbox icons. | . Colors . Adjust the color sequence for your chart data series. Grid . | Top/Left/Right/Bottom: Adjust the chart margins. | . DataZoom . | Show Data Zoom?: Option to enable/disable the data zoom feature. | Legend Orientation: Choose the orientation of the data zoom (e.g., ‘horizontal’). | Start/End: Set the initial view of the data in percentage. | Height/Width: Adjust the size of the data zoom control. | Top/Left/Right/Bottom: Adjust the margins for the data zoom control. | . These settings allow you to create a more engaging and informative visualization tailored to your specific needs. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Line.html#chart-customization-options",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Line.html#chart-customization-options"
-  },"59": {
-    "doc": "Linux Installation Guide",
-    "title": "Linux Installation Guide",
-    "content": "This guide will walk you through the process of installing UTMStack on a Linux system using the official installer script. Please follow the steps below to ensure a successful installation. ",
-    "url": "/Installation/LinuxInstallation.html",
-    
-    "relUrl": "/Installation/LinuxInstallation.html"
-  },"60": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 1: Prepare the System",
-    "content": "Before starting the installation, make sure that your system meets the minimum requirements and is up to date. Run the following commands to update the package list and install the necessary dependencies: . sudo apt update sudo apt install wget . ",
-    "url": "/Installation/LinuxInstallation.html#step-1-prepare-the-system",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-1-prepare-the-system"
-  },"61": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 2: Download the Installer Script",
-    "content": "Download the latest version of the UTMStack installer script from the official UTMStack website. You can use the following command to retrieve the script: . wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer . ",
-    "url": "/Installation/LinuxInstallation.html#step-2-download-the-installer-script",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-2-download-the-installer-script"
-  },"62": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 3: Grant Execution Permissions",
-    "content": "Change to the root user to ensure proper execution of the installer script: . sudo su . Set execution permissions for the installer script using the following command: . chmod +x installer . ",
-    "url": "/Installation/LinuxInstallation.html#step-3-grant-execution-permissions",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-3-grant-execution-permissions"
-  },"63": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 4: Run the Installer",
-    "content": "Now, you are ready to run the installer script and begin the installation process. The installer script provides two options for installation: with or without parameters. Installation Options . When using the CLI for the UTMStack installation, you have the option of installing with or without parameters. Without Parameters (Unattended Installation) . To perform an unattended installation, execute the installer without any parameters: ./installer . With Parameters . If you prefer to customize the installation process, you can use parameters to define specific configurations. For example, to install UTMStack as a master server and set the database password, use the following command: ./installer master --db-pass \"ExAmP1EpaSSWORD\" . Make sure to replace “ExAmP1EpaSSWORD” with your desired password. For probe installation, use the following command: ./installer probe --db-pass \"Master's DB password\" --host \"Master's IP or FQDN\" . Replace “Master’s DB password” with the actual password for the master server’s database, and “Master’s IP or FQDN” with the IP address or fully qualified domain name of the master server. UTMStack password requirements at least 3 capital case letters. at least 5 lower case letters. at least 5 numbers. at least 3 special characters. Allowed special characters: , . _ . After executing the installer script with the desired parameters, you will see a screen like the following: . Select the appropriate option based on the type of installation you are performing. Once the installation begins, you will see a progress screen like the following: . The installer script will take care of downloading the necessary packages, configuring them according to your specified parameters, and deploying them onto the respective machines. Please note that the installation process may take some time depending on the system and the options selected. When the installation is complete, you will see a message box displaying “Installation Successful” along with the master password. It is crucial to save this password for future use: . Trubleshooting: If you find any errors during the installation, please check the installation log for more details: /var/log/utm-setup.log . You can found the password and other generated configurations in /root/utmstack.yml . ",
-    "url": "/Installation/LinuxInstallation.html#step-4-run-the-installer",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-4-run-the-installer"
-  },"64": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 5: Configuration of UTMStack",
-    "content": "After successfully installing UTMStack on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack’s capabilities. To learn more about the specific firewall rules you need to create for UTMStack, please refer to the Firewall Rules section for detailed instructions. ",
-    "url": "/Installation/LinuxInstallation.html#step-5-configuration-of-utmstack",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-5-configuration-of-utmstack"
-  },"65": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 6:  Installing and Configuring an SSL/TLS certificate",
-    "content": "Step 1: Switch to the root user . sudo su . Step 2: Stop the frontend container . docker stop frontend . Stopping the frontend container ensures that the web server is temporarily halted, allowing for necessary changes to be made to the server configuration. Step 3: Install NGINX and start it . apt install nginx systemctl start nginx . This command installs the NGINX web server, which will be responsible for serving the website and handling HTTPS connections. Step 4: Install Certbot with NGINX plugin . apt-get install certbot python3-certbot-nginx . This command installs Certbot, a tool for obtaining and managing SSL/TLS certificates, along with the NGINX plugin, which enables seamless integration between Certbot and NGINX. Step 5: Obtain and install the certificate (Example using Let’s Encrypt) . certbot certonly --preferred-challenges=dns --email your_email@example.com --agree-tos -d your_domain.com . In this example, we are using a certificate from Let’s Encrypt as a demonstration. Let’s Encrypt provides free SSL/TLS certificates that are valid for 90 days. Step 6: Disable NGINX . systemctl disable nginx . Step 7: Copy the certificate files . To use your custom certificate with UTMStack, you need to copy the certificate and private key files to the appropriate location on the server. Follow these steps: . | Upload both files to the server into the folder /utmstack/cert/. | Rename the certificate file to utm.crt and the private key file to utm.key. | . cp /etc/letsencrypt/live/your_domain.com/fullchain.pem /utmstack/cert/utm.crt cp /etc/letsencrypt/live/your_domain.com/privkey.pem /utmstack/cert/utm.key . Make sure to replace your_domain.com with the actual domain name for which you obtained the certificate. By copying the certificate and private key files to the specified location, UTMStack will be able to use the custom certificate for secure communication. Step 8: Start the frontend container . docker start frontend . Step 9: Restart other services . docker restart logstash . Step 10: Optional - Verify the running containers . docker ps . This command lists the currently running Docker containers, allowing you to confirm that the necessary containers, including the frontend and other relevant services, are running as expected. ",
-    "url": "/Installation/LinuxInstallation.html#step-6--installing-and-configuring-an-ssltls-certificate",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-6--installing-and-configuring-an-ssltls-certificate"
-  },"66": {
-    "doc": "Linux Installation Guide",
-    "title": "Step 7: Accessing the UTMStack Platform",
-    "content": "Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform: . Open your preferred web browser. Enter the HTTPS URL of your server’s name or IP address in the browser’s address bar. For example, if your server’s IP address is 192.168.0.100, you would enter https://192.168.0.100. Press Enter to load the UTMStack login page. On the login page, you will be prompted to enter your admin username and password. Enter “admin” as username and the password that was generated by the installer for the default user. Click on the “Sign In” button to authenticate and access the UTMStack platform. ",
-    "url": "/Installation/LinuxInstallation.html#step-7-accessing-the-utmstack-platform",
-    
-    "relUrl": "/Installation/LinuxInstallation.html#step-7-accessing-the-utmstack-platform"
-  },"67": {
+  },"55": {
     "doc": "List",
     "title": "List Chart",
     "content": "List charts provide a way to display your data in a tabular form, offering an easy-to-read structure. This makes it perfect for detailed views of individual records. List charts come in handy when you need to compare individual data points, highlight specific data, or when details for each data point are essential. Moreover, they offer an excellent way to visualize nominal and small range ordinal variables. ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html#list-chart",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html#list-chart"
-  },"68": {
+  },"56": {
     "doc": "List",
     "title": "Options",
     "content": "When creating a list chart with UTMStack’s visualization editor, you can customize several features to better present your data. Here are some available options under the Options tab: . Table option . | Dynamic page size?: This option allows the table to automatically adjust its page size based on the size of the browser window. If disabled, you will need to manually specify the number of rows per page. | Can it be exported to CSV?: If enabled, this option allows users to download the table data as a CSV file. | . Columns . In the Data tab, you can define the structure and the content of your list by specifying the fields you wish to include as columns. | Column: Here, you can set the column’s label as it will appear in the chart. | Field: This option allows you to select the data field that will populate the column. | Custom label: You can also provide a custom label for this column. This name will be displayed in the chart. | . With these settings, you can create a detailed and informative visualization tailored to your specific needs. ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html#options",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html#options"
-  },"69": {
+  },"57": {
     "doc": "List",
     "title": "Example: Creating a List Chart for User Logon Success Details",
     "content": "If you want to create a List chart that presents a detailed view of successful user logon activities in your system, follow these steps: . ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html#example-creating-a-list-chart-for-user-logon-success-details",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html#example-creating-a-list-chart-for-user-logon-success-details"
-  },"70": {
+  },"58": {
     "doc": "List",
     "title": "Step 1: Add Filters",
     "content": "Start by applying filters to narrow down your dataset to only include successful logon activities. | Filter 1: To focus on logon activities, select the field logx.wineventlog.event_id, set the operator to is, and the value to 4624. This isolates the events specific to user logon activities. | Filter 2: To exclude unsuccessful logon attempts, use the field logx.wineventlog.event_data.FailureReasonDescription.keyword, set the operator to is not one of, and provide the values None and An Error occurred during Logon. | Filter 3: To eliminate instances where the username isn’t available, select the field logx.wineventlog.event_data.TargetUserName.keyword, set the operator to is not, and provide the value -. | Filter 4: To avoid including system-generated logon activities, use the field logx.wineventlog.event_data.TargetUserName, set the operator to does not end with, and provide the value $. | . ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html#step-1-add-filters",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html#step-1-add-filters"
-  },"71": {
+  },"59": {
     "doc": "List",
     "title": "Step 2: Select Columns",
     "content": "Once your filters are set, go to the Data tab and specify the columns for your list. | Username: To include a ‘Username’ column that shows the username for each logon event, click ‘Add Column’, select the field logx.wineventlog.event_data.TargetUserName.keyword, and set the custom label to ‘Username’. | Computer: To include a ‘Computer’ column that displays the host machine name for each logon event, click ‘Add Column’, select the field logx.wineventlog.beat.hostname.keyword, and set the custom label to ‘Computer’. | Date: To include a ‘Date’ column showing the timestamp of each logon event, click ‘Add Column’, select the field @timestamp, and set the custom label to ‘Date’. | . These steps will help you create a List chart that provides a detailed view of successful user logon activities in your system. ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html#step-2-select-columns",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html#step-2-select-columns"
-  },"72": {
+  },"60": {
     "doc": "List",
     "title": "List",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/List.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/List.html"
-  },"73": {
+  },"61": {
     "doc": "Master Server Setup Guide",
     "title": "UTMStack Master Server Setup Guide",
     "content": "This guide will walk you through the process of setting up the UTMStack Master Server. The Master Server is the central component of UTMStack and is responsible for managing the security operations and data collection. ",
     "url": "/Installation/MasterServerInstallation.html#utmstack-master-server-setup-guide",
     
     "relUrl": "/Installation/MasterServerInstallation.html#utmstack-master-server-setup-guide"
-  },"74": {
+  },"62": {
     "doc": "Master Server Setup Guide",
     "title": "Installation Options",
     "content": "There are two primary ways to install UTMStack on your Master Server: . | Linux Installer: Deploy UTMStack using the UTMStack installer for Ubuntu Linux. This method is suitable for deploying UTMStack on physical servers, network appliances, or virtual machines in Azure, AWS, GCP, or Digital Ocean. | ISO Image: If needed, you can install an ISO image that includes the operating system and UTMStack components. This method allows for faster deployment in virtualized environments using popular hypervisors such as VMWare, Hyper-V, Proxmox, or OpenStack. | . Choose the installation option that best suits your requirements and follow the respective instructions below. ",
     "url": "/Installation/MasterServerInstallation.html#installation-options",
     
     "relUrl": "/Installation/MasterServerInstallation.html#installation-options"
-  },"75": {
+  },"63": {
     "doc": "Master Server Setup Guide",
-    "title": "Linux Installer",
-    "content": "The Linux Installer provides a straightforward method for deploying UTMStack on a Linux server. It supports both virtual machine deployments and installations on physical servers or network appliances. Prerequisites . Before proceeding with the installation, ensure that you have reviewed and met the System Requirements for UTMStack. Overview of the Installation Steps . After setting up your master server, you can then proceed with installing UTMStack using the official installer script, available from the UTMStack Repository. This script will guide you through all necessary steps. Once done, you will have completed the installation process. For detailed step-by-step instructions, including the commands involved in the installation process, refer to the Linux Installation Guide. ",
-    "url": "/Installation/MasterServerInstallation.html#linux-installer",
+    "title": "Linux Installation Guide",
+    "content": "This guide will walk you through the process of installing UTMStack on a Linux system using the official installer script. Please follow the steps below to ensure a successful installation. ",
+    "url": "/Installation/MasterServerInstallation.html#linux-installation-guide",
     
-    "relUrl": "/Installation/MasterServerInstallation.html#linux-installer"
-  },"76": {
+    "relUrl": "/Installation/MasterServerInstallation.html#linux-installation-guide"
+  },"64": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 1: Prepare the System",
+    "content": "Before starting the installation, make sure that your system meets the minimum requirements and is up to date. Run the following commands to update the package list and install the necessary dependencies: . sudo apt update sudo apt install wget . ",
+    "url": "/Installation/MasterServerInstallation.html#step-1-prepare-the-system",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-1-prepare-the-system"
+  },"65": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 2: Download the Installer Script",
+    "content": "Download the latest version of the UTMStack installer script from the official UTMStack website. You can use the following command to retrieve the script: . wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer . ",
+    "url": "/Installation/MasterServerInstallation.html#step-2-download-the-installer-script",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-2-download-the-installer-script"
+  },"66": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 3: Grant Execution Permissions",
+    "content": "Change to the root user to ensure proper execution of the installer script: . sudo su . Set execution permissions for the installer script using the following command: . chmod +x installer . ",
+    "url": "/Installation/MasterServerInstallation.html#step-3-grant-execution-permissions",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-3-grant-execution-permissions"
+  },"67": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 4: Run the Installer",
+    "content": "Now, you are ready to run the installer script and begin the installation process. Execute the installer without parameters: ./installer . The installer script will take care of downloading the necessary packages. Please note that the installation process may take some time depending on the system and the options selected. Trubleshooting: If you find any errors during the installation, please check the installation log for more details: /var/log/utm-setup.log . You can found the password and other generated configurations in /root/utmstack.yml . ",
+    "url": "/Installation/MasterServerInstallation.html#step-4-run-the-installer",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-4-run-the-installer"
+  },"68": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 5: Configuration of UTMStack",
+    "content": "After successfully installing UTMStack on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack’s capabilities. To learn more about the specific firewall rules you need to create for UTMStack, please refer to the Firewall Rules section for detailed instructions. ",
+    "url": "/Installation/MasterServerInstallation.html#step-5-configuration-of-utmstack",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-5-configuration-of-utmstack"
+  },"69": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 6:  Installing and Configuring an SSL/TLS certificate",
+    "content": "Go to Configuring an SSL/TLS certificate section for detailed instructions. ",
+    "url": "/Installation/MasterServerInstallation.html#step-6--installing-and-configuring-an-ssltls-certificate",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-6--installing-and-configuring-an-ssltls-certificate"
+  },"70": {
+    "doc": "Master Server Setup Guide",
+    "title": "Step 7: Accessing the UTMStack Platform",
+    "content": "Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform: . Open your preferred web browser. Enter the HTTPS URL of your server’s name or IP address in the browser’s address bar. For example, if your server’s IP address is 192.168.0.100, you would enter https://192.168.0.100. Press Enter to load the UTMStack login page. Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can found the password and other generated configurations in /root/utmstack. Note: Use HTTPS in front of your server name or IP to access the login page. Click on the “Sign In” button to authenticate and access the UTMStack platform. ",
+    "url": "/Installation/MasterServerInstallation.html#step-7-accessing-the-utmstack-platform",
+    
+    "relUrl": "/Installation/MasterServerInstallation.html#step-7-accessing-the-utmstack-platform"
+  },"71": {
     "doc": "Master Server Setup Guide",
     "title": "ISO Image",
     "content": "The ISO Image option provides a bundled package that includes the Ubuntu Linux operating system and UTMStack components. This allows for a smoother installation process, especially in virtualized environments. Prerequisites . Before proceeding with the ISO Image installation, ensure that you have the following: . | A supported hypervisor such as VMWare, Hyper-V, Proxmox, or OpenStack. | The UTMStack ISO Image downloaded and accessible. | . Installation Steps . Follow these steps to install UTMStack using the ISO Image: . Create a new virtual machine in your preferred hypervisor. Attach the UTMStack ISO Image to the virtual machine. Configure the virtual machine settings, including CPU, RAM, and disk space allocation. Start the virtual machine and follow the on-screen instructions to complete the installation. By following the appropriate installation method outlined above, you can successfully set up the UTMStack Master Server and begin leveraging its powerful security management capabilities. Please note that additional configuration steps and post-installation tasks may be required. Refer to the UTMStack Master Server Installation Guide for comprehensive instructions and best practices. Now that the Master Server is installed, you can proceed to the next step, which is installing the UTMStack software on each server in your network. ",
     "url": "/Installation/MasterServerInstallation.html#iso-image",
     
     "relUrl": "/Installation/MasterServerInstallation.html#iso-image"
-  },"77": {
+  },"72": {
     "doc": "Master Server Setup Guide",
     "title": "Master Server Setup Guide",
     "content": " ",
     "url": "/Installation/MasterServerInstallation.html",
     
     "relUrl": "/Installation/MasterServerInstallation.html"
-  },"78": {
+  },"73": {
     "doc": "Metric",
     "title": "Metric Chart",
     "content": "A Metric chart is a simple, yet powerful tool for visualizing a single piece of data, often used to highlight a key performance indicator (KPI) or other significant metric in your data set. UTMStack’s Metric chart allows you to customize the appearance of your metric to meet your specific needs. Let’s go through the configuration settings available under the Options tab when creating a Metric chart: . ",
     "url": "/UTMStackComponents/Dashboards/Charts/Metric.html#metric-chart",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Metric.html#metric-chart"
-  },"79": {
+  },"74": {
     "doc": "Metric",
     "title": "Metric option",
     "content": ". | Select icon: This option allows you to choose an icon to represent your data. An icon can provide a visual cue that helps users understand the data more intuitively. | Select color: Use this option to choose the color of the icon you selected above. This can be useful for differentiating different metrics or to align the color with the data’s semantics. | Decimal: This option lets you choose how many decimal places your metric should be rounded to. | . In this way, you can design a Metric chart that clearly and effectively communicates the key piece of information you want to present to your users. Example: Creating a Metric Chart for Severity Level 2 Alerts . Let’s say you want to create a Metric chart that displays the count of severity level 2 alerts in your system, you can follow these steps: . Step 1: Filter the Data . Start by applying a filter to only include the severity level 2 alerts. | Select the field ‘severity’. | Set the operator to ‘is’. | Specify the value as ‘2’. | . This filter ensures that your Metric chart will only count the severity level 2 alerts. Step 2: Select the Aggregation . Now you need to select the aggregation for your Metric chart. For this example, we will use the ‘COUNT’ aggregation. This will count the number of severity level 2 alerts. After applying the filter and choosing the aggregation and press Run you should be able to see the count of severity level 2 alerts on your Metric chart. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Metric.html#metric-option",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Metric.html#metric-option"
-  },"80": {
+  },"75": {
     "doc": "Metric",
     "title": "Metric",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/Metric.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Metric.html"
-  },"81": {
+  },"76": {
     "doc": "Pie",
     "title": "Pie Charts",
     "content": ". UTMStack’s visualization editor also offers the option to visualize your data in the form of a Pie chart. Pie charts are excellent for displaying the proportional breakdown of different categories within a dataset. Chart Customization Options . You can personalize various aspects of your Pie chart to meet specific needs. The following sections explain the settings available under the Options tab when creating a Pie chart. In the Pie options, you can find the Pie chart is a donut? option. By enabling this, your Pie chart will be transformed into a Donut chart. Legend . | Show Legend?: Option to display/hide the legend. | Legend Vertical Position: Choose the vertical position of the legend (e.g., ‘bottom’). | Legend Horizontal Position: Choose the horizontal position of the legend (e.g., ‘center’). | Legend Orientation: Choose the orientation of the legend (e.g., ‘horizontal’). | Color Width/Height: Adjust the size of the color boxes in the legend. | Use Custom Icon for Legend?: Option to use a custom icon in the legend. | Legend Icon: Choose the shape of the legend icons (e.g., ‘roundRect’). | . Toolbox . | Show Toolbox?: Option to display/hide the toolbox. | Show Magic Type Feature?: Option to enable/disable magic type features. | Magic Feature: Enable magic types to switch between different chart types. | Show Save as Image Feature?: Option to enable/disable saving chart as an image. | Show Restore Chart Feature?: Option to enable/disable the feature to restore the chart to its original state. | Show Data View Feature?: Option to enable/disable the data view feature. | Show Data Zoom Feature?: Option to enable/disable the data zoom feature. | Show Mark Feature?: Option to enable/disable the mark feature. | Toolbox Vertical Position: Choose the vertical position of the toolbox (e.g., ‘top’). | Toolbox Horizontal Position: Choose the horizontal position of the toolbox (e.g., ‘right’). | Toolbox Orientation: Choose the orientation of the toolbox (e.g., ‘horizontal’). | Width/Height: Adjust the size of the toolbox. | Icon Size: Adjust the size of the toolbox icons. | . Colors . Adjust the color sequence for your chart data series. Grid . | Top/Left/Right/Bottom: Adjust the chart margins. | . DataZoom . | Show Data Zoom?: Option to enable/disable the data zoom feature. | Legend Orientation: Choose the orientation of the data zoom (e.g., ‘horizontal’). | Start/End: Set the initial view of the data in percentage. | Height/Width: Adjust the size of the data zoom control. | Top/Left/Right/Bottom: Adjust the margins for the data zoom control. | . ",
     "url": "/UTMStackComponents/Dashboards/Charts/Pie.html#pie-charts",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Pie.html#pie-charts"
-  },"82": {
+  },"77": {
     "doc": "Pie",
     "title": "Pie",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/Pie.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Pie.html"
-  },"83": {
+  },"78": {
+    "doc": "Quick Start",
+    "title": "Quick Start Guide",
+    "content": "Getting started with UTMStack is straightforward. Follow this 3-step process: . | Installation: Deploy UTMStack on your Master Server. | Initial Configuration: Set up essential settings, including SSL and email configurations. | DataSource Setup: Configure a Windows Agent as a data source. | . ",
+    "url": "/QuickStart.html#quick-start-guide",
+    
+    "relUrl": "/QuickStart.html#quick-start-guide"
+  },"79": {
+    "doc": "Quick Start",
+    "title": "1. Install UTMStack",
+    "content": "Before you begin, ensure your system meets the minimum requirements: 4 cores, 8 GB of RAM, and 150 GB of disk storage for up to 50 devices. Deploy the UTMStack Master Server, which oversees security operations and data collection. Procedure: . Use the UTMStack installer for Ubuntu Linux 22.04 LTS. | Download and Prepare: sudo apt update sudo apt install wget wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer sudo su chmod +x installer . | Install: ./installer . | . Configure Firewall and Ports: . Ensure the following ports are correctly configured on your firewall for UTM Stack access: . | 22/TCP: Secure Shell (Restrict to admin workstation). | 80/TCP: Web-based GUI Redirector (Restrict to admin and security analyst workstations). | 443/TCP: Web-based GUI (Restrict to admin and security analyst workstations). | 9090/TCP: Cockpit Web-based Interface (Restrict to admin workstation). | . Setup SSL with Certbot (Optional, but recommended): . If you haven’t manually installed an SSL certificate, use Certbot to generate one for your domain. This ensures encrypted connections for your users. Follow the provided guide: Generate SSL with Certbot. ",
+    "url": "/QuickStart.html#1-install-utmstack",
+    
+    "relUrl": "/QuickStart.html#1-install-utmstack"
+  },"80": {
+    "doc": "Quick Start",
+    "title": "2. Initial Configuration",
+    "content": "Post installation, the first time you get access to utmstack, its going to be required that enter the old password and establish the new one.The default username is admin. Your initial password and other configurations can be found in /root/utmstack.yml. After that you need to configure the email setting . Email Configuration . | Access Email Settings: . | Navigate to Settings &gt; Email Configuration within the UTMStack platform. | . | SMTP Setup: . | Mail Server Password: The password for your email server to authenticate and send out notifications. | . | . | Utmstack email address: The official UTMStack email address that will be used to send out notifications. | Utmstack base url: The default is https://utmstack.utmstack.com. | Mail Server Host: For example: example.hostmail.com. | Mail Server Port: Typically, the port can be 587. | Mail Server Username: The username for your email server. | Encryption type: Choose the encryption protocol for your email server. Options include: . | TLS | SSL | NONE | . | . Refer to the Email Configuration Section for a detailed walkthrough. ",
+    "url": "/QuickStart.html#2-initial-configuration",
+    
+    "relUrl": "/QuickStart.html#2-initial-configuration"
+  },"81": {
+    "doc": "Quick Start",
+    "title": "3. Configure a Windows Agent DataSource",
+    "content": "Add a Windows agent to forward logs and data to UTMStack. Procedure: . | Pre-installation Checks: . | Ensure compatibility with Windows Server version 2016 R2 or higher. | Ensure ports 9000 and 5044 are open. | . | Installation: . | Open a Windows PowerShell terminal as “Administrator” and run the following: New-Item -ItemType Directory -Force -Path \"C:\\Program Files\\UTMStack\\UTMStack Agent\"; Set-Location -Path \"C:\\Program Files\\UTMStack\\UTMStack Agent\"; Invoke-WebRequest -Uri \"https://storage.googleapis.com/utmstack-updates/runner/release/utmstackagent-windows.exe\" -OutFile \".\\utmstackagent-windows.exe\"; Start-Process \".\\utmstackagent-windows.exe\" -ArgumentList 'silent-install', '192.168.1.18', 'Your_Secret_Token', 'yes' -NoNewWindow -Wait . | . | . Note: Replace Your_Secret_Token . with your actual token. ",
+    "url": "/QuickStart.html#3-configure-a-windows-agent-datasource",
+    
+    "relUrl": "/QuickStart.html#3-configure-a-windows-agent-datasource"
+  },"82": {
     "doc": "Quick Start",
     "title": "Quick Start",
-    "content": ". ",
+    "content": " ",
     "url": "/QuickStart.html",
     
     "relUrl": "/QuickStart.html"
-  },"84": {
-    "doc": "Dashboards",
-    "title": "Dashboards",
-    "content": ". ",
-    "url": "/UTMStackComponents/Dashboards/README.html",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html"
-  },"85": {
-    "doc": "Dashboards",
-    "title": "Overview",
-    "content": "The UTMStack Dashboard is a comprehensive interface that displays a collection of visualizations and searches. This one-stop hub offers critical insights into user activity, alerts, vulnerabilities, and network traffic within your organization. Equipped with a variety of visualization types, UTMStack streamlines security monitoring and analysis for a more secure network environment. In this guide, we will walk through the Dashboard feature of UTMStack. Learn how to create custom visualizations from your log, event, and alarm data and add them to a personalized dashboard for efficient viewing and tracking. This guide covers the steps to filter and edit visualizations and using aggregation and segmentation options for a deeper understanding of the data. ",
-    "url": "/UTMStackComponents/Dashboards/README.html#overview",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#overview"
-  },"86": {
-    "doc": "Dashboards",
-    "title": "Getting Started",
-    "content": ". | After logging into UTMStack, navigate to the Dashboard tab. | . | Click on New Dashboard | . ",
-    "url": "/UTMStackComponents/Dashboards/README.html#getting-started",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#getting-started"
-  },"87": {
-    "doc": "Dashboards",
-    "title": "Creating a New Dashboard",
-    "content": "Upon clicking the New Dashboard option, a pop-up window appears on the right side of your screen. This window displays a list of pre-created visualizations, tailored based on the most common and useful visualizations requested by our users. You can now select your preferred visualization for the dashboard you wish to create by checking the respective checkboxes. For example, we are going to create a dashboard for manage the logon failure, using the Top 5 User Logon Failures, Top 5 Failure Reason Local Logon Failures, and Detail User Logon Failure visualizations. Now we click in the + Add visualizations buttons in the botton of the windows. Upon closing the window, you’ll be directed to the Dashboard view editor, featuring the selected visualizations. You can now add other visualizations, modify the size, position, and date range of your selected visualizations, or customize these visualizations to meet your specific requirements. When you’ve finished configuring your dashboard, press the Save Dashboard button. You will need to provide a name for your dashboard and may also add a description (optional). In the Dashboard List, you can use the search bar to quickly locate the dashboard you’ve just created. Congratulations, your dashboard is now created and ready for use. You can click in the elements to get the data that is visualized in the chart. You can use the Save to PDF button to export the dashboard visualizations to a PDF file. ",
-    "url": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard"
-  },"88": {
-    "doc": "Installation",
-    "title": "UTMStack Installation Guide",
-    "content": "Welcome to the UTMStack installation guide. This guide will walk you through the step-by-step process of installing UTMStack, ensuring a seamless setup and configuration of the platform. Please follow the instructions carefully to ensure a successful installation. ",
-    "url": "/Installation/README.html#utmstack-installation-guide",
-    
-    "relUrl": "/Installation/README.html#utmstack-installation-guide"
-  },"89": {
-    "doc": "Installation",
-    "title": "System Requirements",
-    "content": "Before proceeding with the installation, it is important to ensure that your system meets the minimum requirements to run UTMStack effectively. Please refer to the System Requirements page in the UTMStack documentation for detailed information about the recommended specifications for your environment. ",
-    "url": "/Installation/README.html#system-requirements",
-    
-    "relUrl": "/Installation/README.html#system-requirements"
-  },"90": {
-    "doc": "Installation",
-    "title": "Installation Steps",
-    "content": "The UTMStack installation process consists of three main steps: . | Choose the Architecture: Before starting the installation, you need to decide on the architecture for your UTMStack deployment. This step determines the components and services that will be installed. Refer to the Architecture Page for a detailed description of each architecture option. | Installing the Federated Service (Optional): If you have chosen the Federated architecture in Step 1, follow the instructions in the Federated Server Installation Guide after ensuring your system meets the recommended specifications mentioned in the Federated Service Requirements page. | Setting up the Master Servers: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services. To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a minimum of 4GB of RAM and 50GB of disk space available for installation. Once the VM is created, it needs to be configured with a compatible operating system such as Ubuntu Server 20.04 or 22.04 LTS. For detailed instructions on setting up the master servers, please refer to the Master Server Setup Guide in the UTMStack documentation. | Installing the Probe/Proxy (If You Choose That Architecture) . Before proceeding with the installation of the Probe/Proxy, please ensure that your system meets the minimum requirements specified in the System Requirements page. The installation process for the Probe/Proxy is similar to that of the master server, with a few additional steps. Follow the instructions below to install the Probe/Proxy: . | Open the UTMStack installer script. | Select the “Install Probe” option when prompted. | Follow the on-screen instructions provided by the installer script. | Provide the necessary configuration details, such as the IP address or fully qualified domain name of the master server, | . For more detailed instructions on setting up the Probe/Proxy, please refer to the Master Server Setup Guide in the UTMStack documentation. | Installing UTMStack Agents on Each Device: After setting up the master server and installing the Probe/Proxy if applicable, the next step is to install the UTMStack Agents on each device in your environment. This step ensures that all servers can communicate with the master server and contribute to the overall functionality of UTMStack. UTMStack offers seamless integration with a wide range of applications, providing comprehensive log collection and analysis capabilities. Currently, UTMStack includes 42 application integrations, including VMware Syslog, Office365 loga and Linux Logs. To explore the available integrations, navigate to the Integrations menu within the UTMStack interface. This menu provides an overview of all the applications that UTMStack has integrated, allowing you to easily configure and enable the desired integrations for your environment. Each application module includes a “View Integration” button that guides administrators through the installation of the corresponding integration. Follow the instructions below to install the UTMStack software: . | Identify the servers and devices in your environment where you want to install UTMStack. | Download the UTMStack installation package from the designated source provided in the Integration Instructions inside of UTMStack. | Execute the installation package on each device, following the provided instructions. | During the installation process, provide the necessary configuration details, such as the IP address or hostname of the master server. | Complete the installation process for each device. | . By installing the UTMStack software on each device, you ensure seamless communication between the devices and the master server, enabling comprehensive log collection and analysis across your environment. | Personalizing and Configuring UTMStack: Once you have completed the installation of UTMStack software on each device, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack: . | Access UTMStack Management Interface: Open a web browser and enter the URL or IP address to access the UTMStack management interface. | Log in: Use the provided credentials to log in to the UTMStack management interface. | Navigate to Settings: Locate the settings menu, accessible through a hamburger menu icon on the right side of the interface. | . | Personalize UTMStack: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization’s needs and security policies. | . For more detailed instructions on settings , please refer to the Configuration Section in the UTMStack documentation. | Save and Verify: Save the configurations and ensure that all UTMStack services are running correctly. Verify that the desired functionality is achieved and that the system is operating optimally. | . By personalizing and configuring UTMStack, you can tailor the system to meet your organization’s specific needs and optimize its performance for effective log management and security monitoring. | . Congratulations! You have successfully completed the installation process for UTMStack. Ensure that you perform thorough testing and verification to confirm the proper functioning of the platform. Conclusion The installation process for UTMStack involves setting up the master server, installing the UTMStack software on each server, and configuring the UTMStack services. By following the instructions provided in this guide, you can achieve a seamless and efficient deployment of UTMStack in your environment. ",
-    "url": "/Installation/README.html#installation-steps",
-    
-    "relUrl": "/Installation/README.html#installation-steps"
-  },"91": {
-    "doc": "Installation",
-    "title": "Installation",
-    "content": " ",
-    "url": "/Installation/README.html",
-    
-    "relUrl": "/Installation/README.html"
-  },"92": {
-    "doc": "Threat Management",
-    "title": "Threat Management Module",
-    "content": "The Threat Management Module is a vital component of the UTMStack, serving as the primary interface for security engineers and analysts. It offers a comprehensive and real-time view of all security events and potential threats within your organization. When the UTMStack engine detects an event or anything that could be considered a threat, it is immediately directed to this module. This facilitates real-time threat detection and management, providing a continually updated overview of the security landscape within your organization. The module is split into two key sections: . | Alert Managment: This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action. | Taggin Rules: This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents. | . Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives). ",
-    "url": "/UTMStackComponents/Threath%20Managment/README.html#threat-management-module",
-    
-    "relUrl": "/UTMStackComponents/Threath%20Managment/README.html#threat-management-module"
-  },"93": {
-    "doc": "Threat Management",
-    "title": "Threat Management",
-    "content": " ",
-    "url": "/UTMStackComponents/Threath%20Managment/README.html",
-    
-    "relUrl": "/UTMStackComponents/Threath%20Managment/README.html"
-  },"94": {
-    "doc": "Log Explorer Module",
-    "title": "Log Explorer Module",
-    "content": "The Log Explorer Module, a central element of UTMStack, is purpose-built to deliver an exhaustive and comprehensive view of an organization’s log data. This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure. Overview . The Log Explorer interface has been thoughtfully designed for seamless navigation and efficient functionality. The module’s centerpiece is the Data Grid, a feature offering an extensive view of an organization’s log data based on the defined datasource and query. This enables a logical grouping of queries based on user-defined filters, and the capacity to open multiple tabs for various queries. This level of customization empowers users to save their search criteria for future use, making the tool adaptable and time-efficient. In a concerted effort to make data analysis as user-friendly as possible, the Log Explorer module provides visually intuitive representations of logs. Interactive charts and graphs facilitate an at-a-glance understanding of data trends and patterns, simplifying the task of data interpretation. 1. Source . A key aspect of the Log Explorer module is the source functionality. Serving as a crucial data filtering tool, it lets users narrow down their search to specific index patterns. For instance, users can confine their search, for example, to logs originating from Office365 exclusively, thereby eliminating unnecessary data noise. In addition, this module offers the flexibility to create custom index patterns or sources. This allows users to define search parameters that cater to their specific needs, providing a level of personalization that ensures a more targeted and efficient search experience. 2. Filters . Serving as the backbone of the Log Explorer, the filtering functionality offers comprehensive data parsing based on the user’s search requirements. Filters can be defined to track logs from a specific computer, or to isolate logs pertaining to a specific operation, such as a log-in event. The versatility of these filters provides an unparalleled level of control over data analysis. The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process. 3. Data Grid . The Data Grid is where the bulk of log information can be viewed, offering users the choice of viewing the data in a table or chart format. This visualization is predicated on a selected field, allowing for a high degree of customization. Users can also define the columns they want to see in the Table mode view, either through the Select fields option on the left, or by directly selecting a field in the log. 4 The Log . The Log section offers a comprehensive view of all log information, ranging from agent_id, process name, to the source IP. This data can be viewed in two ways – either in a table view or in a JSON mode – depending on the user’s preference. The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field. 4.1 Options . Each log field within the Log Explorer module provides two key options for users: . | Adding a filter: Based on the field and value of a specific log, users can swiftly add a filter. This feature further fine-tunes the data presented in the Data Grid, refining the log data to fit the user’s specific needs. | Creating a column: Users can choose to create a new column in the Data Grid Table based on the field. This feature allows for immediate visibility and accessibility of key data points. | . 5. Personalize Fields . You can also add or remove columns in the Data Grid view, based on the fields of the logs. 5. Save the information . Users can refresh their data, save the current query for future use, or export the current data to a CSV file for offline analysis. For example, a filter to view all Office365 log-in activities could be saved for future use, negating the need to repeat the filter creation process. The option to view and manage stored queries also ensures that past investigations can be revisited with ease. By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it’s streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience. Office 365 Login Failure Analysis: Step-by-Step Guide Example . This example provides a comprehensive guide on how to utilize the Log Explorer module to create, configure, and save a query that focuses on all login failure events within Office 365 logs. ",
-    "url": "/UTMStackComponents/Log%20Explorer/README.html",
-    
-    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html"
-  },"95": {
-    "doc": "Log Explorer Module",
-    "title": "Step 1. Source Selection",
-    "content": "In the Source field, type and select “log-o365-*” from the dropdown list. This sets the data source to all Office 365 logs. Step 2. Filter Configuration: . a. Click on the ‘Add Filter’ button. b. In the Field dropdown, find and select logx.o365.Operation.keyword. c. In the Operator dropdown, select is. d. Type UserLoginFailed in the Value input box, indicating a login failure in your log system. Click Add Filter to apply this filter. After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview. Step 3. Column Selection . Option A: . a. Click on the ‘Select fields’ on the left side of the Data Grid. b. From the dropdown list, find and select “Userid”, “Workload”, and “AuthenticationType”. Option B: . a. In the Log list, switch to the Table mode view. b. From the field list, find and press the table icon next to the fields “userid”, “workload”, and “authenticationType”. These fields will be added to your Data Grid view. Save Query . Once your filters and columns are set up, click on the ‘Save’ button at the top right corner of the Data Grid. b. In the pop-up box, give your query a unique name, such as “Office365 Login Failures”, and provide a brief description if needed. Click ‘Save’ to finalize the process. Now, you can go to the Query List view by clicking the Queries button in the top right corner and use that query whenever you need. ",
-    "url": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection",
-    
-    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection"
-  },"96": {
-    "doc": "Charts",
-    "title": "Charts",
-    "content": " ",
-    "url": "/UTMStackComponents/Dashboards/Charts/README.html",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/Charts/README.html"
-  },"97": {
-    "doc": "Compliance Management",
-    "title": "Compliance Management",
-    "content": "Welcome to our comprehensive guide on the Compliance Management module, an indispensable feature of our software platform. This module is designed to assist organizations in achieving and maintaining compliance with diverse industry-specific regulations. By supporting a wide array of standards, the Compliance Management module offers a comprehensive view of your organization’s regulatory compliance landscape. Upon navigating to the Plataform Menu, you’ll be greeted by the Compliance menu, presenting you with an option to create a new compliance report or browse through various compliance standards dashboards. ",
-    "url": "/UTMStackComponents/Compliance/README.html",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html"
-  },"98": {
-    "doc": "Compliance Management",
-    "title": "Supported Compliance Standards",
-    "content": "Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors: . 1. Health Insurance Portability and Accountability Act (HIPAA) . HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively. 2. General Data Protection Regulation (GDPR) . GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR’s core principles. 3. Gramm-Leach-Bliley Act (GLBA) . GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance. 4. System and Organization Controls 2 (SOC 2) . SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance. 5. Federal Information Security Management Act (FISMA) . FISMA is a U.S. federal law that mandates federal agencies to develop, document, and implement an information security and protection program. The module provides pre-defined reports monitoring compliance with FISMA’s crucial sections. 6. Cybersecurity Maturity Model Certification (CMMC) . CMMC certification is a requirement for businesses bidding on U.S. Government contracts. The CMMC section within the module provides reports specifically designed to monitor compliance with different CMMC Levels. 7. Payment Card Industry Data Security Standard (PCI-DSS) . PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards. ",
-    "url": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards"
-  },"99": {
-    "doc": "Compliance Management",
-    "title": "Report Overview and Options",
-    "content": "Each compliance standard in this module is subdivided into distinct sections, and each section contains several pre-defined reports. These reports are meticulously designed to monitor and manage your organization’s compliance with that specific section of the standard. Within each report, you can get an overview, change the date range, export the data in CSV format, or generate a PDF using a professional pre-defined template provided by the platform. Furthermore, you can also swiftly generate a report using the ‘New Compliance Report’ option in the main menu. ",
-    "url": "/UTMStackComponents/Compliance/README.html#report-overview-and-options",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#report-overview-and-options"
-  },"100": {
-    "doc": "Compliance Management",
-    "title": "Comprehensive Compliance Management",
-    "content": "In addition to the rich features above, the Compliance Management Dashboard, also found in the application management section, allows full customization of all compliance standards. You have the freedom to edit, delete, or add sections and reports to cater to your unique requirements. Add Standard . The Compliance Management module is built with the understanding that every organization’s compliance needs are unique. Thus, it features the flexibility to add new compliance standards that are pertinent to your business requirements. To add a new standard, navigate to the Compliance Management section. Here, you’ll find the ‘Add Standard’ button. Clicking on this button triggers a user-friendly interface where you can input the necessary details of the new standard. This intuitive process allows you to tailor your compliance management system precisely according to your organization’s needs. Adding Reports . Our module also understands the need for specific reporting within each compliance standard. Therefore, it offers you the ability to add new reports to an existing compliance standard. To add a new report, select the desired standard and section where you want to include the report. You can then choose from an existing report dashboard and integrate it into your selected compliance section. This feature allows you to customize the depth of your compliance reporting, ensuring every critical aspect of your regulatory requirements is covered. Import/Export . Recognizing the need for interoperability and seamless transitions across various systems, the Compliance Management module is equipped with an advanced import/export feature. This tool is designed to help you efficiently manage and transport your compliance information. To export your current compliance data, the module offers the ability to create a comprehensive JSON file. This file encapsulates all the necessary details of your compliance standards, sections, and reports. By clicking on the ‘Export All’ button, a complete snapshot of your current compliance setup is instantly packaged into a portable file, ensuring no critical details are lost during transit. This is particularly useful for backup purposes, migrating to a new system, or simply sharing your compliance structure with other teams or departments. The import feature plays a crucial role when you need to populate the module with existing compliance data from another system. By using the ‘Import All’ button, you can upload the JSON file containing the requisite data. The module will seamlessly integrate this data, ensuring your compliance standards, sections, and reports are set up exactly as per your previous system. ",
-    "url": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management"
-  },"101": {
+  },"83": {
     "doc": "Incident Management",
     "title": "Incident Management Module",
-    "content": "The Incident Management Module is an essential part of UTMStack, designed to handle any incidents that arise within your organization’s digital environment. This module consists of two key sections: Incident Management and Incident Response. ",
+    "content": "The Incident Management Module stands as a vital component of UTMStack, meticulously designed to address and manage any incidents surfacing within your organization’s digital domain. This module bifurcates into two primary sections: Incident Management and Incident Response. ",
     "url": "/UTMStackComponents/Incidents/README.html#incident-management-module",
     
     "relUrl": "/UTMStackComponents/Incidents/README.html#incident-management-module"
-  },"102": {
+  },"84": {
     "doc": "Incident Management",
     "title": "Incidents",
-    "content": "In the Incident Management section, you can manage, track, and resolve incidents that have been raised in your organization. It’s designed to help your security teams efficiently manage incidents, from the initial detection and classification to the final resolution. ",
+    "content": "In the Incident Management segment, you’re equipped with tools to manage, track, and effectively resolve incidents identified within your organizational framework. This section is not just about managing individual incidents. You can cluster a set of alerts to form an incident or even append new alerts to pre-existing incidents. This holistic approach ensures that your security teams efficiently navigate the incident lifecycle, stretching from the initial detection, effective classification, right up to its conclusive resolution. ",
     "url": "/UTMStackComponents/Incidents/README.html#incidents",
     
     "relUrl": "/UTMStackComponents/Incidents/README.html#incidents"
-  },"103": {
-    "doc": "Incident Management",
-    "title": "Incident Response",
-    "content": "The Incident Response section is where your security team can execute their incident response strategy. This could involve executing a prederminated or perzonalized command. This section is designed to be flexible and adaptable, accommodating your organization’s unique incident response procedures. ",
-    "url": "/UTMStackComponents/Incidents/README.html#incident-response",
-    
-    "relUrl": "/UTMStackComponents/Incidents/README.html#incident-response"
-  },"104": {
+  },"85": {
     "doc": "Incident Management",
     "title": "Incident Response Automation",
-    "content": "The Incident Response Automation feature empowers your organization to automate actions based on triggers in incident fields. By leveraging this automation capability, you can enhance the speed, accuracy, and consistency of your incident response process, enabling your team to focus on critical tasks and minimize the impact of security incidents. ",
+    "content": "Bolster your incident response strategy with the Incident Response Automation feature. This capability allows your organization to deploy automated actions conditioned on specific triggers present in incident fields. Harnessing this automation not only elevates the pace but also boosts the precision and uniformity of your incident response mechanism. It strategically offloads mundane tasks, allowing your team to channel their focus on mission-critical activities, thus curtailing the adverse aftermath of security breaches. ",
     "url": "/UTMStackComponents/Incidents/README.html#incident-response-automation",
     
     "relUrl": "/UTMStackComponents/Incidents/README.html#incident-response-automation"
-  },"105": {
+  },"86": {
     "doc": "Incident Management",
     "title": "Incident Management",
     "content": " ",
     "url": "/UTMStackComponents/Incidents/README.html",
     
     "relUrl": "/UTMStackComponents/Incidents/README.html"
-  },"106": {
-    "doc": "System Requirements",
-    "title": "UTMStack System Requirements",
-    "content": "To ensure a smooth installation and optimal performance of UTMStack, it is essential to meet the following system requirements for both the Master and Probe/Proxy servers. ",
-    "url": "/Installation/SystemRequirements.html#utmstack-system-requirements",
+  },"87": {
+    "doc": "Dashboards",
+    "title": "Dashboards",
+    "content": ". ",
+    "url": "/UTMStackComponents/Dashboards/README.html",
     
-    "relUrl": "/Installation/SystemRequirements.html#utmstack-system-requirements"
-  },"107": {
-    "doc": "System Requirements",
-    "title": "Master Server Requirements:",
-    "content": "The Master server is responsible for managing and coordinating the UTMStack platform. The table below outlines the recommended resource specifications for different environments: . | Environment | Cores | RAM | Disk Space | . | Non-prod (minimum required) | 4 | 10GB | 74GB | . | Live Logs (100GB) | 4 | 16GB | 180GB | . | Live Logs (1000GB) (most used) | 16 | 32GB | 1080GB | . | Cold Data (10000GB) | 16 | 64GB | 11080GB | . | Live Logs (10000GB - Cluster) | 16 | 32GB | 1080GB | . The requirement highlighted is a popular choice among users and widely utilized for most master setups. It has consistently proven to be highly effective based on our experience and user feedback. Please note that these requirements are the minimum recommendations. For optimal performance, it may be necessary to allocate additional resources based on your specific workload and data volume. ",
-    "url": "/Installation/SystemRequirements.html#master-server-requirements",
+    "relUrl": "/UTMStackComponents/Dashboards/README.html"
+  },"88": {
+    "doc": "Dashboards",
+    "title": "Overview",
+    "content": "The UTMStack Dashboard is a comprehensive interface that displays a collection of visualizations and searches. This one-stop hub offers critical insights into user activity, alerts, vulnerabilities, and network traffic within your organization. Equipped with a variety of visualization types, UTMStack streamlines security monitoring and analysis for a more secure network environment. In this guide, we will walk through the Dashboard feature of UTMStack. Learn how to create custom visualizations from your log, event, and alarm data and add them to a personalized dashboard for efficient viewing and tracking. This guide covers the steps to filter and edit visualizations and using aggregation and segmentation options for a deeper understanding of the data. ",
+    "url": "/UTMStackComponents/Dashboards/README.html#overview",
     
-    "relUrl": "/Installation/SystemRequirements.html#master-server-requirements"
-  },"108": {
-    "doc": "System Requirements",
-    "title": "Probe or Proxy Server Requirements (optional):",
-    "content": "A probe, in the context of network monitoring or management, is a crucial component responsible for collecting data and monitoring the status or performance of a network and its components. It operates in a distributed network environment, gathering information and reporting it back to a central management system. In the case of the probe or proxy server, it serves the purpose of assisting in collecting log data and forwarding it to the master server. This model, allows for efficient management of log data. The probe or proxy server acts as an intermediary, ensuring smooth communication between the data source and the master server. For the probe or proxy server to effectively fulfill its role, it should meet the following minimum requirements. Please note that these requirements are specifically applicable when adopting the master and proxy model . | Resource | Minimum Requirement | . | Disk Space for system | 50 GB | . | Cores | 4 (May require more) | . | RAM | 4 GB (May require more) | . It is important to ensure that the Probe or Proxy server has sufficient disk space, CPU cores, and RAM to handle the data collection and forwarding tasks effectively. The master can act as probe if a proxy is not used. ",
-    "url": "/Installation/SystemRequirements.html#probe-or-proxy-server-requirements-optional",
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#overview"
+  },"89": {
+    "doc": "Dashboards",
+    "title": "Getting Started",
+    "content": ". | After logging into UTMStack, navigate to the Dashboard tab. | . | Click on New Dashboard | . ",
+    "url": "/UTMStackComponents/Dashboards/README.html#getting-started",
     
-    "relUrl": "/Installation/SystemRequirements.html#probe-or-proxy-server-requirements-optional"
-  },"109": {
-    "doc": "System Requirements",
-    "title": "Supported Operating Systems:",
-    "content": "The UTMStack installation guide provides instructions specifically for Ubuntu 20.04 LTS and 22.04 LTS. It is recommended to use one of these supported operating systems for compatibility and optimal performance. Please refer to the installation guide for detailed steps on setting up UTMStack on your chosen operating system. Ensuring that your system meets these requirements will help guarantee the stability, efficiency, and reliable operation of UTMStack. If you have any further questions or need additional assistance, please don’t hesitate to reach out. ",
-    "url": "/Installation/SystemRequirements.html#supported-operating-systems",
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#getting-started"
+  },"90": {
+    "doc": "Dashboards",
+    "title": "Creating a New Dashboard",
+    "content": "Upon clicking the New Dashboard option, a pop-up window appears on the right side of your screen. This window displays a list of pre-created visualizations, tailored based on the most common and useful visualizations requested by our users. You can now select your preferred visualization for the dashboard you wish to create by checking the respective checkboxes. For example, we are going to create a dashboard for manage the logon failure, using the Top 5 User Logon Failures, Top 5 Failure Reason Local Logon Failures, and Detail User Logon Failure visualizations. Now we click in the + Add visualizations buttons in the botton of the windows. Upon closing the window, you’ll be directed to the Dashboard view editor, featuring the selected visualizations. You can now add other visualizations, modify the size, position, and date range of your selected visualizations, or customize these visualizations to meet your specific requirements. When you’ve finished configuring your dashboard, press the Save Dashboard button. You will need to provide a name for your dashboard and may also add a description (optional). In the Dashboard List, you can use the search bar to quickly locate the dashboard you’ve just created. Congratulations, your dashboard is now created and ready for use. You can click in the elements to get the data that is visualized in the chart. You can use the Save to PDF button to export the dashboard visualizations to a PDF file. ",
+    "url": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard",
     
-    "relUrl": "/Installation/SystemRequirements.html#supported-operating-systems"
-  },"110": {
-    "doc": "System Requirements",
-    "title": "Federated Server (UTMStackFSInstaller)",
-    "content": "Recommendations for Operating System: . Ubuntu 20.04 LTS. Resources for Master: . | Recommendation | Cores | RAM | Disk Space | . | Minimum Required (non-prod) | 2 | 4 GB | 20 GB | . | Recommended (prod) | 4 | 8 GB | 20 GB | . ",
-    "url": "/Installation/SystemRequirements.html#federated-server-utmstackfsinstaller",
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard"
+  },"91": {
+    "doc": "Installation",
+    "title": "UTMStack Installation Guide",
+    "content": "Welcome to the UTMStack installation guide. This guide will walk you through the step-by-step process of installing UTMStack, ensuring a seamless setup and configuration of the platform. Please follow the instructions carefully to ensure a successful installation. ",
+    "url": "/Installation/README.html#utmstack-installation-guide",
     
-    "relUrl": "/Installation/SystemRequirements.html#federated-server-utmstackfsinstaller"
-  },"111": {
-    "doc": "System Requirements",
+    "relUrl": "/Installation/README.html#utmstack-installation-guide"
+  },"92": {
+    "doc": "Installation",
     "title": "System Requirements",
-    "content": " ",
-    "url": "/Installation/SystemRequirements.html",
+    "content": "Before proceeding with the installation, it is important to ensure that your system meets the minimum requirements to run UTMStack effectively. Please refer to the System Requirements page in the UTMStack documentation for detailed information about the recommended specifications for your environment. ",
+    "url": "/Installation/README.html#system-requirements",
     
-    "relUrl": "/Installation/SystemRequirements.html"
-  },"112": {
+    "relUrl": "/Installation/README.html#system-requirements"
+  },"93": {
+    "doc": "Installation",
+    "title": "Installation Steps",
+    "content": "The UTMStack installation process consists of three main steps: . | Choose the Architecture: Before starting the installation, you need to decide on the architecture for your UTMStack deployment. This step determines the components and services that will be installed. Refer to the Architecture Page for a detailed description of each architecture option. | Installing the Federated Service (Optional): If you have chosen the Federated architecture in Step 1, follow the instructions in the Federated Server Installation Guide after ensuring your system meets the recommended specifications mentioned in the Federated Service Requirements page. | Setting up the Master Servers: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services. To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of 4 cores, 8 GB of RAM and 256 GB of disk storage for each 50 devices. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system Ubuntu Server 22.04 LTS. For detailed instructions on setting up the master servers, please refer to the Master Server Setup Guide in the UTMStack documentation. | Personalizing and Configuring UTMStack: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack: . | Access UTMStack Management Interface: Open a web browser and enter the URL or IP address to access the UTMStack management interface. | Log in: Use the provided credentials to log in to the UTMStack management interface. | Navigate to Settings: Locate the settings menu, accessible through a hamburger menu icon on the right side of the interface. | . | Personalize UTMStack: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization’s needs and security policies. | . For more detailed instructions on settings , please refer to the Configuration Section in the UTMStack documentation. | Save and Verify: Save the configurations and ensure that all UTMStack services are running correctly. Verify that the desired functionality is achieved and that the system is operating optimally. | . By personalizing and configuring UTMStack, you can tailor the system to meet your organization’s specific needs and optimize its performance for effective log management and security monitoring. | . Congratulations! You have successfully completed the installation process for UTMStack. Ensure that you perform thorough testing and verification to confirm the proper functioning of the platform. ",
+    "url": "/Installation/README.html#installation-steps",
+    
+    "relUrl": "/Installation/README.html#installation-steps"
+  },"94": {
+    "doc": "Installation",
+    "title": "Installation",
+    "content": " ",
+    "url": "/Installation/README.html",
+    
+    "relUrl": "/Installation/README.html"
+  },"95": {
+    "doc": "Threat Management",
+    "title": "Threat Management Module",
+    "content": "The Threat Management Module is a vital component of the UTMStack, serving as the primary interface for security engineers and analysts. It offers a comprehensive and real-time view of all security events and potential threats within your organization. When the UTMStack engine detects an event or anything that could be considered a threat, it is immediately directed to this module. This facilitates real-time threat detection and management, providing a continually updated overview of the security landscape within your organization. The module is split into two key sections: . | Alert Managment: This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action. | Taggin Rules: This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents. | . Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives). ",
+    "url": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module",
+    
+    "relUrl": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module"
+  },"96": {
+    "doc": "Threat Management",
+    "title": "Threat Management",
+    "content": " ",
+    "url": "/UTMStackComponents/Threat%20Management/README.html",
+    
+    "relUrl": "/UTMStackComponents/Threat%20Management/README.html"
+  },"97": {
+    "doc": "Charts",
+    "title": "Charts",
+    "content": " ",
+    "url": "/UTMStackComponents/Dashboards/Charts/README.html",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/Charts/README.html"
+  },"98": {
+    "doc": "Compliance Management",
+    "title": "Compliance Management",
+    "content": "Welcome to our in-depth guide on the Compliance Management module, a key feature of our cybersecurity software platform. This module aids organizations in achieving and maintaining compliance across various industry-specific regulations. By accommodating a multitude of standards, our Compliance Management module provides a holistic view of your organization’s regulatory compliance status. Each standard is categorized. By default, the categories available are: . | Account Management | Device Activity | Application Audit | Alerts and Incidents | . Each standard has its dedicated section. For example, if you wish to monitor the Office 365 Account Activity regarding successful logins, you can navigate to the relevant category. Upon selecting it, you’ll receive a detailed description of the report and the compliance standards it addresses. ",
+    "url": "/UTMStackComponents/Compliance/README.html",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html"
+  },"99": {
+    "doc": "Compliance Management",
+    "title": "Supported Compliance Standards",
+    "content": "Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors: . 1. Health Insurance Portability and Accountability Act (HIPAA) . HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively. 2. General Data Protection Regulation (GDPR) . GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR’s core principles. 3. Gramm-Leach-Bliley Act (GLBA) . GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance. 4. System and Organization Controls 2 (SOC 2) . SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance. 5. Federal Information Security Management Act (FISMA) . FISMA is a U.S. federal law that mandates federal agencies to develop, document, and implement an information security and protection program. The module provides pre-defined reports monitoring compliance with FISMA’s crucial sections. 6. Cybersecurity Maturity Model Certification (CMMC) . CMMC certification is a requirement for businesses bidding on U.S. Government contracts. The CMMC section within the module provides reports specifically designed to monitor compliance with different CMMC Levels. 7. Payment Card Industry Data Security Standard (PCI-DSS) . PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards. ",
+    "url": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards"
+  },"100": {
+    "doc": "Compliance Management",
+    "title": "Export a Report",
+    "content": "Upon accessing the Platform Menu, you’ll find the Compliance submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards. By selecting a standard, you’ll be directed to the Compliance Template Section. This is where you decide which report to export. Upon clicking on a report, you’ll be presented with an overview, options to modify the date range, and the capability to generate a PDF using a professionally designed template available on the platform. ",
+    "url": "/UTMStackComponents/Compliance/README.html#export-a-report",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#export-a-report"
+  },"101": {
+    "doc": "Compliance Management",
+    "title": "Comprehensive Compliance Management",
+    "content": "Beyond the features described above, the Compliance Management Dashboard—located in the application management section—grants complete control over compliance standards. You’re equipped to edit, remove, or append sections and reports to meet specific needs. Add Standard . Understanding that each organization has unique compliance requisites, our module is engineered for flexibility. It allows the addition of new compliance standards aligning with specific business needs. To introduce a new standard, proceed to the Compliance Management section. Here, the ‘Add Standard’ button will guide you through a straightforward interface for detailing the new standard. Adding Reports . We appreciate the importance of detailed reporting for each compliance standard. Our module thus empowers you to supplement new reports to an existing compliance standard. To do this, pick the preferred standard and section to which the report should belong. Next, select from a list of existing report dashboards to incorporate into your chosen compliance segment. This ensures thorough coverage of all regulatory facets. Import/Export . Acknowledging the need for system interoperability, the Compliance Management module boasts a robust import/export function. This tool aids in the proficient handling and transfer of compliance data. To export the prevailing compliance information, a comprehensive JSON file is produced, encapsulating all essentials of your standards, sections, and reports. By utilizing the ‘Export All’ button, a complete portrayal of your compliance configuration is readily compiled, ensuring data integrity. For importing, should there be a necessity to infuse the module with compliance data from an alternative system, the ‘Import All’ button facilitates this. Simply upload the corresponding JSON file, and the module will fluidly merge the data, aligning with your prior system’s setup. ",
+    "url": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management"
+  },"102": {
+    "doc": "Log Explorer Module",
+    "title": "Log Explorer Module",
+    "content": "The Log Explorer Module, a central element of UTMStack, is purpose-built to deliver an exhaustive and comprehensive view of an organization’s log data. This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure. Overview . The Log Explorer interface has been thoughtfully designed for seamless navigation and efficient functionality. The module’s centerpiece is the Data Grid, a feature offering an extensive view of an organization’s log data based on the defined datasource and query. This enables a logical grouping of queries based on user-defined filters, and the capacity to open multiple tabs for various queries. This level of customization empowers users to save their search criteria for future use, making the tool adaptable and time-efficient. In a concerted effort to make data analysis as user-friendly as possible, the Log Explorer module provides visually intuitive representations of logs. Interactive charts and graphs facilitate an at-a-glance understanding of data trends and patterns, simplifying the task of data interpretation. 1. Source . A key aspect of the Log Explorer module is the source functionality. Serving as a crucial data filtering tool, it lets users narrow down their search to specific index patterns. For instance, users can confine their search, for example, to logs originating from Office365 exclusively, thereby eliminating unnecessary data noise. In addition, this module offers the flexibility to create custom index patterns or sources. This allows users to define search parameters that cater to their specific needs, providing a level of personalization that ensures a more targeted and efficient search experience. 2. Filters . Serving as the backbone of the Log Explorer, the filtering functionality offers comprehensive data parsing based on the user’s search requirements. Filters can be defined to track logs from a specific computer, or to isolate logs pertaining to a specific operation, such as a log-in event. The versatility of these filters provides an unparalleled level of control over data analysis. The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process. 3. Data Grid . The Data Grid is where the bulk of log information can be viewed, offering users the choice of viewing the data in a table or chart format. This visualization is predicated on a selected field, allowing for a high degree of customization. Users can also define the columns they want to see in the Table mode view, either through the Select fields option on the left, or by directly selecting a field in the log. 4 The Log . The Log section offers a comprehensive view of all log information, ranging from agent_id, process name, to the source IP. This data can be viewed in two ways – either in a table view or in a JSON mode – depending on the user’s preference. The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field. 4.1 Options . Each log field within the Log Explorer module provides two key options for users: . | Adding a filter: Based on the field and value of a specific log, users can swiftly add a filter. This feature further fine-tunes the data presented in the Data Grid, refining the log data to fit the user’s specific needs. | Creating a column: Users can choose to create a new column in the Data Grid Table based on the field. This feature allows for immediate visibility and accessibility of key data points. | . 5. Personalize Fields . You can also add or remove columns in the Data Grid view, based on the fields of the logs. 5. Save the information . Users can refresh their data, save the current query for future use, or export the current data to a CSV file for offline analysis. For example, a filter to view all Office365 log-in activities could be saved for future use, negating the need to repeat the filter creation process. The option to view and manage stored queries also ensures that past investigations can be revisited with ease. By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it’s streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience. Office 365 Login Failure Analysis: Step-by-Step Guide Example . This example provides a comprehensive guide on how to utilize the Log Explorer module to create, configure, and save a query that focuses on all login failure events within Office 365 logs. ",
+    "url": "/UTMStackComponents/Log%20Explorer/README.html",
+    
+    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html"
+  },"103": {
+    "doc": "Log Explorer Module",
+    "title": "Step 1. Source Selection",
+    "content": "In the Source field, type and select “log-o365-*” from the dropdown list. This sets the data source to all Office 365 logs. Step 2. Filter Configuration: . a. Click on the ‘Add Filter’ button. b. In the Field dropdown, find and select logx.o365.Operation.keyword. c. In the Operator dropdown, select is. d. Type UserLoginFailed in the Value input box, indicating a login failure in your log system. Click Add Filter to apply this filter. After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview. Step 3. Column Selection . Option A: . a. Click on the ‘Select fields’ on the left side of the Data Grid. b. From the dropdown list, find and select “Userid”, “Workload”, and “AuthenticationType”. Option B: . a. In the Log list, switch to the Table mode view. b. From the field list, find and press the table icon next to the fields “userid”, “workload”, and “authenticationType”. These fields will be added to your Data Grid view. Save Query . Once your filters and columns are set up, click on the ‘Save’ button at the top right corner of the Data Grid. b. In the pop-up box, give your query a unique name, such as “Office365 Login Failures”, and provide a brief description if needed. Click ‘Save’ to finalize the process. Now, you can go to the Query List view by clicking the Queries button in the top right corner and use that query whenever you need. ",
+    "url": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection",
+    
+    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection"
+  },"104": {
+    "doc": "SSL Certificate Management in UTMStack",
+    "title": "SSL Certificate Management in UTMStack",
+    "content": "This guide provides comprehensive steps on installing, generating, and renewing SSL certificates for UTMStack. | SSL Certificate Management in UTMStack . | Manual SSL Certificate Installation | Generate SSL with Certbot in UTMStack without DNS Change | Renew the Certificate Generated by Certbot in UTMStack | . | . ",
+    "url": "/Installation/SSLConfiguration.html",
+    
+    "relUrl": "/Installation/SSLConfiguration.html"
+  },"105": {
+    "doc": "SSL Certificate Management in UTMStack",
+    "title": "Manual SSL Certificate Installation",
+    "content": "Before beginning, ensure you’ve downloaded your certificate files. After downloading: . | You should have: . | A certificate file with the extension .crt or .pem | A private key with the extension .key or .pem | . | Rename the files: . | Certificate: utm.crt | Private Key: utm.key | . | Transfer both files to your server: | . mv utm.crt /utmstack/cert/ mv utm.key /utmstack/cert/ . | Restart Docker for the changes to take effect: | . systemctl restart docker . | Allow approximately 10 minutes for the stack to restart. | . Once these steps are completed, your SSL certificate will be installed and configured for UTMStack. For any issues or questions during the installation, please contact our support team. ",
+    "url": "/Installation/SSLConfiguration.html#manual-ssl-certificate-installation",
+    
+    "relUrl": "/Installation/SSLConfiguration.html#manual-ssl-certificate-installation"
+  },"106": {
+    "doc": "SSL Certificate Management in UTMStack",
+    "title": "Generate SSL with Certbot in UTMStack without DNS Change",
+    "content": ". | Allow Necessary Ports Open ports for Certbot and Nginx: | . ufw allow 80/tcp ufw allow 443/tcp ufw allow 1194/tcp ufw reload . | Install Certbot Install the necessary tools and dependencies: sudo apt install certbot python3-certbot-nginx . | Manage Services Stop Nginx and frontend services: | . systemctl stop nginx docker stop frontend docker ps | grep frontend . Then, start Nginx: . systemctl start nginx . | Generate SSL Certificate Replace “siem.domain.com” with your domain: | . sudo certbot --nginx -d siem.domain.com . | Update SSL Certificate in UTMStack | . systemctl stop nginx systemctl disable nginx cp /etc/letsencrypt/live/*/fullchain.pem /utmstack/cert/utm.crt cp /etc/letsencrypt/live/*/privkey.pem /utmstack/cert/utm.key systemctl stop docker systemctl start docker . ",
+    "url": "/Installation/SSLConfiguration.html#generate-ssl-with-certbot-in-utmstack-without-dns-change",
+    
+    "relUrl": "/Installation/SSLConfiguration.html#generate-ssl-with-certbot-in-utmstack-without-dns-change"
+  },"107": {
+    "doc": "SSL Certificate Management in UTMStack",
+    "title": "Renew the Certificate Generated by Certbot in UTMStack",
+    "content": ". | Manage Frontend Service | . docker stop frontend . | Start Nginx | . systemctl start nginx . | Renew SSL Certificate | . certbot renew . | Update SSL Certificate in UTMStack | . Replace “siem.domain.com” with your specific domain: . systemctl stop nginx systemctl disable nginx cp /etc/letsencrypt/live/siem.domain.com/fullchain.pem /utmstack/cert/utm.crt cp /etc/letsencrypt/live/siem.domain.com/privkey.pem /utmstack/cert/utm.key systemctl stop docker systemctl start docker . ",
+    "url": "/Installation/SSLConfiguration.html#renew-the-certificate-generated-by-certbot-in-utmstack",
+    
+    "relUrl": "/Installation/SSLConfiguration.html#renew-the-certificate-generated-by-certbot-in-utmstack"
+  },"108": {
     "doc": "Table",
     "title": "Table Chart",
     "content": "The Table chart in UTMStack is an incredibly flexible tool for representing your data in a tabular format, which can be particularly helpful when you need to see precise values along with a high-level summary. In this guide, we’ll discuss how to configure the different options available for a Table chart. Options . Here are the options you can adjust to customize your Table chart: . | Dynamic Page Size?: This setting allows the table to adjust the number of rows displayed based on the size of the container. Enabling this option can be beneficial when viewing the table on different devices or screen sizes, ensuring that the data is always displayed optimally. | Show Total?: This option allows you to display the total for numeric fields at the bottom of the table. This can be very useful when you need to quickly assess the sum of a particular field across all rows. | Can it be Exported to CSV?: By enabling this option, you allow the table data to be exported to a CSV file. This feature can be handy when you need to share data or conduct further analysis outside UTMStack. | . Example: Creating a Table Chart for HIDS Alerts by Host . | Filter the Data Start by defining a filter for the alerts, ensuring the data type is ‘hids’. This filter will ensure that only the HIDS alerts are included in your data set. | . | Create a Metric Aggregation Next, you’ll need to create a Metric Aggregation that counts the quantity of alerts. This aggregation will determine the values displayed in your table. | . | Create a Bucket Aggregation for the Host Now it’s time to identify the host associated with each count. Create a new Bucket Aggregation using the ‘Terms’ type on the ‘destination.host.keyword’ field. This will group the alerts by host. For clarity, you can assign a custom label like “Hostname”. | Create a Sub-Bucket for the IP For more detailed information, you can add a sub-bucket to each host bucket that identifies the IP address associated with each host. To do this, click the ‘Add sub-Bucket’ button, select the ‘Terms’ aggregation type, and choose the ‘destination.ip.keyword’ field. You can use the custom label “IP” for this sub-bucket. | . | Run the Chart Once you’ve configured the aggregations, click the ‘Run’ button to see a preview of your chart. If you’re satisfied with the results, you’ve successfully created a Table chart for HIDS alerts by host. | . By following these steps, you can create a highly customized Table chart that fits your specific use case. Remember, the configuration can be adjusted at any time to refine the results. ",
     "url": "/UTMStackComponents/Dashboards/Charts/Table.html#table-chart",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Table.html#table-chart"
-  },"113": {
+  },"109": {
     "doc": "Table",
     "title": "Table",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/Table.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/Table.html"
-  },"114": {
+  },"110": {
     "doc": "Tag Cloud",
     "title": "Tag Cloud Charts",
     "content": ". UTMStack provides a Tag Cloud chart option for visualizing text data in a way that emphasizes the frequency or importance of different tags. These charts represent data by varying the size and color of individual words or phrases (tags), allowing you to quickly see the most prominent tags in your data. Tag Cloud Option . | Tag Cloud Shape: You can choose from a variety of shapes for your Tag Cloud chart. The shape you choose will determine how the words are arranged in the cloud. | Min Word Size: This setting allows you to adjust the smallest font size that will be used for the words in the tag cloud. The size of each term in the cloud represents its frequency or importance. By increasing the minimum word size, you can make the less frequent terms more visible. | Text Padding: Text padding is the space between words in the tag cloud. By adjusting this setting, you can control the density of words in your cloud. A higher padding value will result in more space between the words, making the cloud look sparser. A lower value will make the words appear closer together, creating a denser cloud. | . Colors . Adjust the color sequence for your chart data series. Toolbox . | Show Toolbox?: Option to display/hide the toolbox. | Show Save as Image Feature?: Option to enable/disable saving chart as an image. | Show Restore Chart Feature?: Option to enable/disable the feature to restore the chart to its original state. | Show Data View Feature?: Option to enable/disable the data view feature. | Show Data Zoom Feature?: Option to enable/disable the data zoom feature. | Show Mark Feature?: Option to enable/disable the mark feature. | Toolbox Vertical Position: Choose the vertical position of the toolbox (e.g., ‘top’). | Toolbox Horizontal Position: Choose the horizontal position of the toolbox (e.g., ‘right’). | Toolbox Orientation: Choose the orientation of the toolbox (e.g., ‘horizontal’). | Width/Height: Adjust the size of the toolbox. | Icon Size: Adjust the size of the toolbox icons. | . Example: Creating a Tag Cloud Chart for Top 10 Alerts Categories . Suppose you want to visualize the top 10 alert categories registered in your system using a Tag Cloud chart. Here’s how you can set this up using UTMStack’s visualization editor: . First, we will be using a Bucket Aggregation to represent the data. The steps to configure this are as follows: . | In the visualization editor, select the Buckets option. | Choose the Term aggregation type. This will allow us to group the data based on a specific field. | For the Field, select category.keyword. This will ensure that the chart represents the alerts based on their categories. | Set the Size to 10. This setting will limit the display to the top 10 alert categories. | . Your configuration should look like the following: . Options . Once the Bucket Aggregation is set, you can proceed to customize your Tag Cloud Chart under the Options tab: . | Tag Cloud Shape: Select a shape that suits your preferences. | Min Word Size: Adjust this setting based on how prominent you want the less frequent categories to be. | Text Padding: Determine the space between words to create the desired visual density. | . After you have finished adjusting these settings, you can run the chart to visualize the top 10 alerts categories in your system as a Tag Cloud chart. This personalized visualization can provide a quick and clear overview of the most frequent alert categories, aiding in system monitoring and management. ",
     "url": "/UTMStackComponents/Dashboards/Charts/TagCloud.html#tag-cloud-charts",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/TagCloud.html#tag-cloud-charts"
-  },"115": {
+  },"111": {
     "doc": "Tag Cloud",
     "title": "Tag Cloud",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/Charts/TagCloud.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/TagCloud.html"
-  },"116": {
+  },"112": {
     "doc": "Creating a Visualization",
     "title": "Creating a New Visualization",
     "content": "UTMStack is a powerful solution that leverages the data capabilities of OpenSearch and Logstash to deliver impactful data visualization. By translating your organization’s data into visually appealing charts and graphs, UTMStack empowers users to derive meaningful insights seamlessly. This guide provides step-by-step instructions on creating a new visualization in UTMStack. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#creating-a-new-visualization",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#creating-a-new-visualization"
-  },"117": {
+  },"113": {
     "doc": "Creating a Visualization",
     "title": "How to Create a New Visualization",
     "content": ". | Navigate to the Dashboard Editor or Visualization Menu and click on the New Visualization button. This action opens the New Visualization window. | . | The New Visualization window requires two primary parameters to create a visualization: . | Source: The data source for your visualization can be any set of logs, events, or alarms that UTMStack has aggregated. | Chart Type: UTMStack supports various chart types, each catering to different data representation requirements: . | Line: Depicts data trends over time. | Area: Similar to line charts, but the area beneath the line is filled, indicating volume. | Bar: Useful for comparing quantities or frequencies across categories. | Horizontal Bar: Similar to bar charts but oriented horizontally, these are particularly useful when category labels are long or numerous. | Tag Cloud:Displays textual data, with the size of each tag corresponding to its frequency or significance. | Table: Tables organize data into columns and rows, making it easy to compare multiple data points. | List: Lists present data in an ordered or unordered format, perfect for simple, unstructured data. | Gauge: Gauge charts are excellent for displaying progress or performance against a set goal. | Goal: Goal charts show the progress towards a single, numeric target. | Metric: Metric visualizations display a single, large number. It’s useful for highlighting a key figure. | Region Map: Region maps show the coordinates in a geographic areas according to associated data values. | Heat Map: Represents numeric tabular data, with cell colors indicating the value. | Text: Text allows you to add descriptive text, titles, or notes to your dashboard. | . | . | . After determining the source and chart type, click Create Visualization to customize your visualization. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#how-to-create-a-new-visualization",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#how-to-create-a-new-visualization"
-  },"118": {
+  },"114": {
     "doc": "Creating a Visualization",
     "title": "Navigating the Visualization Editor",
     "content": ". By default, UTMStack generates a generalized visualization based on the chosen aggregation metric (Count) and the selected chart type. Users can further refine this data using specific aggregation buckets. For an in-depth understanding of metric aggregations and bucket aggregations associated with each chart type, please refer to the respective chart’s documentation section. Applying Filters to Visualizations . One of the critical steps in creating a visualization is filtering the data you want to display. This involves comparing a specific field with a selected value using an operator. For instance, suppose you want to create a visualization focusing on Office 365 logon failures. In this case, select the field logx.o365.ResultStatus.keyword and apply the IS operator to check for equality to the value Failure.This filter will limit the visualization to the unsuccessful login attempts in Office 365. Understanding Filter Operators . Filter operators in UTMStack help fine-tune data selection within visualizations. Here are the available operators and their functionalities: . | Is: This operator selects all data entries matching the specific value chosen. | Is Not: Contrary to ‘Is’, this operator selects all data entries that do not match the specific value chosen. | Is One Of: This operator selects all data entries that match any value from a set of values specified. | Is Not One Of: This operator selects all data entries that do not match any value from a set of values specified. | Exists: This operator selects all data entries where the specified field exists. | Does Not Exist: This operator selects all data entries where the specified field does not exist. | Is Between: This operator selects numeric data within a specific value range. The range must align with the input pattern for each data field. For instance, the pattern for @timestamp is YYYY-MM-DDTHH:MM: SS.MsMsMsZ (2021-12-12T02:30:00.000Z.) . | Is Not Between: This operator selects numeric data not within a specific value range. | Contains: This operator selects all data entries containing a specific string. | Does Not Contain: This operator selects all data entries that do not contain a specific string. | Starts With: This operator selects all data entries that start with a specific string. | Does Not Start With: This operator selects all data entries that do not start with a specific string. | Ends With: This operator selects all data entries that end with a specific string. | Does Not End With: This operator selects all data entries that do not end with a specific string. | . The applied filters appear at the top of the interface, where they can be edited, deleted, or reverted as needed. Having selected your chart type and set up your filters, the next step involves adjusting specific parameters to your chosen chart type. For detailed instructions on how to proceed with each type of chart, please refer to the respective sections Chart Types. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor"
-  },"119": {
+  },"115": {
     "doc": "Creating a Visualization",
     "title": "Navigating the Visualization Editor Menu",
     "content": "When you open the Visualization Editor, you will find a menu on the left side of the interface: . The menu displayed highlights the index pattern being used as the foundation for the current visualization And the Run button to generate a preview of the updated chart. It also offers three key functionalities for customizing your chart: . | Data: This option enables you to define the value axis of your chart by choosing suitable metric aggregations and bucket agregations. | Options: Utilize this section to personalize your chart’s aesthetics and fine details to your liking. | One Click: This interactive feature requires the presence of at least one bucket. Clicking on a specific data point or series on the chart triggers a redirection to the category (ALERTS, EVENTS, or VULNERABILITIES) initially chosen during chart creation. The resultant view is filtered based on the series you clicked on. | . ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor-menu",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#navigating-the-visualization-editor-menu"
-  },"120": {
+  },"116": {
     "doc": "Creating a Visualization",
     "title": "Configuring Metric and Bucket Aggregations for Charts",
     "content": "In UTMStack, crafting the right visualization involves the careful selection and application of metric and bucket aggregations. These play a pivotal role in determining how your data is analyzed and presented. | Metric Aggregation Choose the right metric aggregations for your chart. UTMStack offers several aggregations options: | . | Count: Returns a raw count of the elements in the selected index pattern. | Average: Returns the average of a numeric field. You’ll need to select the appropriate field from the drop-down. | Sum: Returns the total sum of a numeric field. Choose the relevant field from the drop-down. | Min: Returns the minimum value of a numeric field. Select the corresponding field from the drop-down. | Max: Returns the maximum value of a numeric field. Choose the appropriate field from the drop-down. | Unique Count: Returns the number of unique values in a field (cardinality aggregation). Select the relevant field from the drop-down. | . For each aggregation, you can change the default display label by entering a custom string in the “Custom Label” field. The Add Metrics button and the red cross symbol allow you to add or remove aggregations as per your needs. | Bucket Aggregation Bucket aggregation serves to categorize data based on specific criteria, enabling meaningful insights. The two bucket aggregation types in UTMStack are: | . | Date Histogram: This type constructs a date-wise distribution based on a numeric field. Here, you need to pick a field representing the timeline and stipulate a minimum time frame (options include minute, hourly, daily, weekly, monthly, or yearly) in the Minimum intervals. For a custom interval frame, select the Custom interval option and specify a time unit. Time units can be milliseconds (ms), seconds (s), minutes (m), hours (h), or days (d). The Custom Label field allows you to modify the display label. | Terms Terms bucket aggregation categorizes data into buckets based on distinct values present in a specified field. These buckets are dynamically generated, each corresponding to a term found in the data field. This approach is beneficial when you want to analyze and visualize data with distinct or categorical values. | . Here’s how you can configure the Terms bucket aggregation in UTMStack: . | Field: Choose the field from which the terms for the buckets will be derived. This field will be the basis for categorizing the data into different buckets. | Order By: Decide how the buckets should be ordered. You can order them based on a metric (e.g., count, sum, average, min, max, etc.) or alphabetically (by term). The bucket with the highest value in the selected metric or alphabetical term will be presented first, depending on your chosen sort direction. | Order: Define the sort direction of the buckets. You can sort the buckets in either ascending or descending order. | Size: Specify the number of terms/buckets that should be returned per page. | Custom Label: If you want to change the default label for the buckets, enter your desired text in the Custom Label field. | . ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html#configuring-metric-and-bucket-aggregations-for-charts",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html#configuring-metric-and-bucket-aggregations-for-charts"
-  },"121": {
+  },"117": {
     "doc": "Creating a Visualization",
     "title": "Creating a Visualization",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/VisualizationCreation.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationCreation.html"
-  },"122": {
+  },"118": {
     "doc": "Visualization List",
     "title": "Visualizations List",
     "content": "The Visualizations List in UTMStack is your central hub for managing all visualizations in one place. With a simple yet powerful interface, it offers quick access to crucial visualization details and essential operations. This guide will walk you through the main components of the Visualizations List. | Filter Search The Filter Search panel, located on the left side of the Visualizations List, allows for efficient navigation through your visualizations. | . You can filter the list based on the following parameters: . | Visualization Name: Filter by the name of the visualization. | Chart Type: Filter by the type of chart used in the visualization (e.g., bar, line, pie). | Source: Filter by the index pattern used for the visualization. | Created At: Filter by the date the visualization was created. | Modified At: Filter by the date the visualization was last updated. | . Each filter field helps refine the visualizations displayed, aiding in quickly locating the visualization you need. | List of Visualizations The main body of the Visualizations List displays the visualizations available to you. | . For each visualization, you’ll find: . | Name: The unique identifier for the visualization. | Comments: Any additional comments or descriptions for the visualization. | Index Pattern: The specific data source pattern used in the visualization. | Last Modified: The date and time of the last update made to the visualization. | Action : Each visualization entry also has an Actions column, with buttons for: . | Edit: Opens the visualization for modification. | Delete: Permanently removes the visualization from the list. | . | . | Import Visualization The Import Visualization button allows you to import previously exported visualizations, facilitating easy replication of visualizations across different dashboards or UTMStack instances. | New Visualization The New Visualization button opens the Visualization Editor, providing a platform to create custom visualizations from scratch. Here, you can define data source, set filters, and specify other parameters to build your visualization. | . Understanding the Visualizations List’s components empowers you to manage your visualizations more effectively, leading to efficient monitoring and analysis processes within UTMStack. ",
     "url": "/UTMStackComponents/Dashboards/VisualizationList.html#visualizations-list",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationList.html#visualizations-list"
-  },"123": {
+  },"119": {
     "doc": "Visualization List",
     "title": "Visualization List",
     "content": " ",
     "url": "/UTMStackComponents/Dashboards/VisualizationList.html",
     
     "relUrl": "/UTMStackComponents/Dashboards/VisualizationList.html"
-  },"124": {
-    "doc": "Installing a WAF Policy",
-    "title": "Installing a WAF Policy: A Step-by-Step Guide",
-    "content": "Azure Web Application Firewall (WAF) is a cloud-native service that protects web apps from common web-hacking techniques such as SQL injection and security vulnerabilities such as cross-site scripting. Installing a WAF policy is a critical step in protecting your web applications from security threats. With the right guidance, the process can be straightforward. This step-by-step guide will walk you through setting up a WAF policy on Microsoft Azure’s portal, including configuring the policy’s settings, managing rules, and associating it with a Front Door profile. By following these instructions and regularly testing and monitoring, you can ensure that your WAF policy effectively safeguards your web applications against common attack vectors. ",
-    "url": "/Installation/WAFPolicy.html#installing-a-waf-policy-a-step-by-step-guide",
-    
-    "relUrl": "/Installation/WAFPolicy.html#installing-a-waf-policy-a-step-by-step-guide"
-  },"125": {
-    "doc": "Installing a WAF Policy",
-    "title": "Installing WAF Policy",
-    "content": ". | Access the Microsoft Azure portal and use the search engine at the top of the screen to search for and select “Web Application Firewall (WAF) policy.” . | On the Basics tab of the Create WAF policy page, provide the following information and accept the defaults for the rest of the configuration: . | . | Configuration | Value | . | Directive of (Policy for) | Select WAF global (Front Door) | . | Subscription | Select your Azure subscription | . | Resource group | Select the name of the Front Door resource group | . | Name of the board | Type a unique name for the WAF policy | . | Directive Status | Set to Enabled | . | Policy mode | Select Prevention | . | In the Managed rules section, configure the same rules that are active in production. For example, if there are 3 rules unchecked in the “Request-Application-Attack-SQLI” policy, ensure those rules are also disabled in this configuration. | In Policy settings the default values are left as follows: . | Under Association select + Associate a Front Door profile, enter the following settings and select Add: . | Perform tests to ensure that the WAF is working properly. | | Monitor the WAF regularly to detect and correct any issues. | . By following these steps and regularly testing and monitoring your WAF policy, you can effectively protect your web applications from security threats. ",
-    "url": "/Installation/WAFPolicy.html#installing-waf-policy",
-    
-    "relUrl": "/Installation/WAFPolicy.html#installing-waf-policy"
-  },"126": {
-    "doc": "Installing a WAF Policy",
-    "title": "Installing a WAF Policy",
-    "content": " ",
-    "url": "/Installation/WAFPolicy.html",
-    
-    "relUrl": "/Installation/WAFPolicy.html"
   }
 }

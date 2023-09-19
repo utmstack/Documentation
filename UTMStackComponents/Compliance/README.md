@@ -7,14 +7,23 @@ nav_order: 9
 
 # Compliance Management
 
-Welcome to our comprehensive guide on the Compliance Management module, an indispensable feature of our software platform. This module is designed to assist organizations in achieving and maintaining compliance with diverse industry-specific regulations. By supporting a wide array of standards, the Compliance Management module offers a comprehensive view of your organization's regulatory compliance landscape.
+Welcome to our in-depth guide on the **Compliance Management** module, a key feature of our cybersecurity software platform. This module aids organizations in achieving and maintaining compliance across various industry-specific regulations. By accommodating a multitude of standards, our Compliance Management module provides a holistic view of your organization's regulatory compliance status.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/dash.png"><br><br>
+![vm settings](./../Images/Components/../../../Images/Components/Compliance/dash.png)
 
-Upon navigating to the Plataform Menu, you'll be greeted by the Compliance menu, presenting you with an option to create a new compliance report or browse through various compliance standards dashboards.
+Each standard is categorized. By default, the categories available are:
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/menu.png">
+- **Account Management**
+- **Device Activity**
+- **Application Audit**
+- **Alerts and Incidents**
 
+
+Each standard has its dedicated section.
+
+For example, if you wish to monitor the Office 365 Account Activity regarding successful logins, you can navigate to the relevant category. Upon selecting it, you'll receive a detailed description of the report and the compliance standards it addresses.
+
+![vm settings](./../Images/Components/../../../Images/Components/Compliance/compliancedash.png)
 
 ## Supported Compliance Standards
 Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors:
@@ -40,53 +49,50 @@ CMMC certification is a requirement for businesses bidding on U.S. Government co
 ### 7. Payment Card Industry Data Security Standard (PCI-DSS)
 PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards.
 
-## Report Overview and Options
+## Export a Report
 
-Each compliance standard in this module is subdivided into distinct sections, and each section contains several pre-defined reports. These reports are meticulously designed to monitor and manage your organization's compliance with that specific section of the standard.
+Upon accessing the **Platform Menu**, you'll find the **Compliance** submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/HIPAAtemplate.png">
+![vm settings](./../Images/Components/../../../Images/Components/Compliance/menu.png)
 
-Within each report, you can get an overview, change the date range, export the data in CSV format, or generate a PDF using a professional pre-defined template provided by the platform.
+By selecting a standard, you'll be directed to the **Compliance Template Section**. This is where you decide which report to export.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/options.png">
-<br><br>
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/template.png">
+![Compliance Template](./../Images/Components/../../../Images/Components/Compliance/compliancetemplate.png)
 
+Upon clicking on a report, you'll be presented with an overview, options to modify the date range, and the capability to generate a PDF using a professionally designed template available on the platform.
 
-Furthermore, you can also swiftly generate a report using the 'New Compliance Report' option in the main menu.
-
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/createcompliancereport.png">
-
+![Report Options](./../Images/Components/../../../Images/Components/Compliance/options.png)
+![Report Template](./../Images/Components/../../../Images/Components/Compliance/template.png)
 
 ## Comprehensive Compliance Management
 
-In addition to the rich features above, the Compliance Management Dashboard, also found in the application management section, allows full customization of all compliance standards. You have the freedom to edit, delete, or add sections and reports to cater to your unique requirements.
+Beyond the features described above, the **Compliance Management Dashboard**—located in the application management section—grants complete control over compliance standards. You're equipped to edit, remove, or append sections and reports to meet specific needs.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/dash.png">
-<br><br>
+![Dashboard](./../Images/Components/../../../Images/Components/Compliance/dash.png)
 
 ### Add Standard
-The Compliance Management module is built with the understanding that every organization's compliance needs are unique. Thus, it features the flexibility to add new compliance standards that are pertinent to your business requirements.
 
-To add a new standard, navigate to the Compliance Management section. Here, you'll find the 'Add Standard' button. Clicking on this button triggers a user-friendly interface where you can input the necessary details of the new standard. This intuitive process allows you to tailor your compliance management system precisely according to your organization's needs.
+Understanding that each organization has unique compliance requisites, our module is engineered for flexibility. It allows the addition of new compliance standards aligning with specific business needs.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/newstandard.png">
+To introduce a new standard, proceed to the **Compliance Management** section. Here, the 'Add Standard' button will guide you through a straightforward interface for detailing the new standard.
+
+![New Standard](./../Images/Components/../../../Images/Components/Compliance/newstandard.png)
 
 ### Adding Reports
 
-Our module also understands the need for specific reporting within each compliance standard. Therefore, it offers you the ability to add new reports to an existing compliance standard.
+We appreciate the importance of detailed reporting for each compliance standard. Our module thus empowers you to supplement new reports to an existing compliance standard.
 
-To add a new report, select the desired standard and section where you want to include the report. You can then choose from an existing report dashboard and integrate it into your selected compliance section. This feature allows you to customize the depth of your compliance reporting, ensuring every critical aspect of your regulatory requirements is covered.
+To do this, pick the preferred standard and section to which the report should belong. Next, select from a list of existing report dashboards to incorporate into your chosen compliance segment. This ensures thorough coverage of all regulatory facets.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/createreport.png">
-
+![Create Compliance Report](./../Images/Components/../../../Images/Components/Compliance/createcompliancereport.png)
+![Create Report](./../Images/Components/../../../Images/Components/Compliance/createreport.png)
 
 ### Import/Export
 
-Recognizing the need for interoperability and seamless transitions across various systems, the Compliance Management module is equipped with an advanced import/export feature. This tool is designed to help you efficiently manage and transport your compliance information.
+Acknowledging the need for system interoperability, the **Compliance Management** module boasts a robust import/export function. This tool aids in the proficient handling and transfer of compliance data.
 
-To **export** your current compliance data, the module offers the ability to create a comprehensive JSON file. This file encapsulates all the necessary details of your compliance standards, sections, and reports. By clicking on the 'Export All' button, a complete snapshot of your current compliance setup is instantly packaged into a portable file, ensuring no critical details are lost during transit. This is particularly useful for backup purposes, migrating to a new system, or simply sharing your compliance structure with other teams or departments.
+To **export** the prevailing compliance information, a comprehensive JSON file is produced, encapsulating all essentials of your standards, sections, and reports. By utilizing the 'Export All' button, a complete portrayal of your compliance configuration is readily compiled, ensuring data integrity.
 
-The **import** feature plays a crucial role when you need to populate the module with existing compliance data from another system. By using the 'Import All' button, you can upload the JSON file containing the requisite data. The module will seamlessly integrate this data, ensuring your compliance standards, sections, and reports are set up exactly as per your previous system.
+For **importing**, should there be a necessity to infuse the module with compliance data from an alternative system, the 'Import All' button facilitates this. Simply upload the corresponding JSON file, and the module will fluidly merge the data, aligning with your prior system's setup.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/Compliance/options2.png">
+![Import/Export Options](./../Images/Components/../../../Images/Components/Compliance/options2.png)

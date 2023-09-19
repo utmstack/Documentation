@@ -6,17 +6,15 @@ has_children: true
 ---
 
 # Incident Management Module
-The Incident Management Module is an essential part of UTMStack, designed to handle any incidents that arise within your organization's digital environment. This module consists of two key sections: Incident Management and Incident Response.
 
-<img alt="dashobard view" src="./../Images/../../Images/Components/Incidents/menu.PNG">
+The **Incident Management Module** stands as a vital component of UTMStack, meticulously designed to address and manage any incidents surfacing within your organization's digital domain. This module bifurcates into two primary sections: Incident Management and Incident Response.
 
+![Dashboard View](./../Images/../../Images/Components/Incidents/menu.PNG)
 
 ## Incidents
-In the Incident Management section, you can manage, track, and resolve incidents that have been raised in your organization. It's designed to help your security teams efficiently manage incidents, from the initial detection and classification to the final resolution. 
 
-## Incident Response
-The Incident Response section is where your security team can execute their incident response strategy. This could involve executing a prederminated or perzonalized command. This section is designed to be flexible and adaptable, accommodating your organization's unique incident response procedures.
+In the Incident Management segment, you're equipped with tools to manage, track, and effectively resolve incidents identified within your organizational framework. This section is not just about managing individual incidents. You can cluster a set of alerts to form an incident or even append new alerts to pre-existing incidents. This holistic approach ensures that your security teams efficiently navigate the incident lifecycle, stretching from the initial detection, effective classification, right up to its conclusive resolution.
 
 ## Incident Response Automation
 
-The Incident Response Automation feature empowers your organization to automate actions based on triggers in incident fields. By leveraging this automation capability, you can enhance the speed, accuracy, and consistency of your incident response process, enabling your team to focus on critical tasks and minimize the impact of security incidents.
+Bolster your incident response strategy with the **Incident Response Automation** feature. This capability allows your organization to deploy automated actions conditioned on specific triggers present in incident fields. Harnessing this automation not only elevates the pace but also boosts the precision and uniformity of your incident response mechanism. It strategically offloads mundane tasks, allowing your team to channel their focus on mission-critical activities, thus curtailing the adverse aftermath of security breaches.

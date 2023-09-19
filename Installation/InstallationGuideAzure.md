@@ -28,9 +28,11 @@ Before you begin the installation, make sure you have the following prerequisite
 
 1. Choose the appropriate virtual machine size based on your resource requirements. See <a href="./SystemRequirements">System Requirements</a> page to select the better option.
 
-2. Configure the networking options, such as virtual network and subnet settings, public IP address, and SSH settings (ensure that port 22 is open for SSH access).
+2. Configure the networking options, such as virtual network and subnet settings, public IP address, and SSH settings (ensure that port 22/TCP is open for SSH access from your IP).
 
-3. Review the configuration details and click "Create" to start the virtual machine deployment process.
+3. You will need port 80/TCP and 443/TCP open to access the UTMStack web interface.
+
+4. Review the configuration details and click "Create" to start the virtual machine deployment process.
 
 ## Step 2: Expand the System Disk
 
