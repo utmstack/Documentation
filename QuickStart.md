@@ -14,7 +14,7 @@ Getting started with UTMStack is straightforward. Follow this 3-step process:
 
 ## 1. Install UTMStack
 
-Before you begin, ensure your system meets the minimum requirements: **4 cores**, **8 GB of RAM**, and **150 GB of disk storage** for up to **50 devices**.
+Before you begin, ensure your system meets the minimum requirements: **4 cores**, **8 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
 
 Deploy the UTMStack Master Server, which oversees security operations and data collection.
 
@@ -53,7 +53,7 @@ Follow the provided guide: [Generate SSL with Certbot](./Installation/SSLConfigu
 
 ## 2. Initial Configuration
 
-Post installation, the first time you get access to utmstack, its going to be required that enter the old password and establish the new one.The default username is `admin`. Your initial password and other configurations can be found in `/root/utmstack.yml`.
+Post installation, the first time you get access to UTMStack, its going to be required that enter the old password and establish the new one.The default username is `admin`. Your initial password and other configurations can be found in `/root/UTMStack.yml`.
  
  After that you need to configure the email setting
  
@@ -66,9 +66,9 @@ Post installation, the first time you get access to utmstack, its going to be re
 2. **SMTP Setup**:
 - **Mail Server Password**: The password for your email server to authenticate and send out notifications.
 
-- **Utmstack email address**: The official UTMStack email address that will be used to send out notifications.
+- **UTMStack email address**: The official UTMStack email address that will be used to send out notifications.
 
-- **Utmstack base url**: The default is `https://utmstack.utmstack.com`.
+- **UTMStack base url**: The default is `https://UTMStack.UTMStack.com`.
 
 - **Mail Server Host**: For example: `example.hostmail.com`.
 
@@ -81,30 +81,22 @@ Post installation, the first time you get access to utmstack, its going to be re
   - SSL
   - NONE 
 
- Refer to the [Email Configuration Section](./UTMStackComponents/Configuration/ApplicationSetting.md) for a detailed walkthrough.
+ Refer to the [Email Configuration Section](./UTMStackComponents/Configuration/ApplicationSetting) for a detailed walkthrough.
 
 ## 3. Configure a Windows Agent DataSource
 
 Add a Windows agent to forward logs and data to UTMStack.
 
-### **Procedure**:
+## Procedure:
 
-1. **Pre-installation Checks**:
-    - Ensure compatibility with Windows Server version 2016 R2 or higher.
-    - Ensure ports 9000 and 5044 are open.
+### 1. Pre-installation Requirements:
+   * **Compatibility:** Ensure the system runs on Windows Server version 2016 R2 or later.
+   * **Network:** Ensure ports 9000 and 5044 are open.
 
-2. **Installation**:
-    - Open a Windows PowerShell terminal as "Administrator" and run the following:
-      ```powershell
-      New-Item -ItemType Directory -Force -Path "C:\Program Files\UTMStack\UTMStack Agent"; 
-      Set-Location -Path "C:\Program Files\UTMStack\UTMStack Agent"; 
-      Invoke-WebRequest -Uri "https://storage.googleapis.com/utmstack-updates/runner/release/utmstackagent-windows.exe" -OutFile ".\utmstackagent-windows.exe"; 
-      Start-Process ".\utmstackagent-windows.exe" -ArgumentList 'silent-install', '192.168.1.18', 'Your_Secret_Token', 'yes' -NoNewWindow -Wait
-      ```
+### 2. Installation Steps:
+   1. Go to `Integrations` and select `Windows Agent`.
+   2. Open a Windows PowerShell terminal with "Administrator" privileges and execute the provided command from the instructions.
 
-{:note}
-**Note**: Replace `Your_Secret_Token`
 
- with your actual token.
 
 

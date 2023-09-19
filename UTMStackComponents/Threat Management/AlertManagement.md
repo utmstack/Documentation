@@ -43,7 +43,7 @@ Not all alerts are born equal. Some demand heightened scrutiny. Use the 'Create 
 
 ![Incident Detail](./../Images/../../Images/Components/ThreatManagment/createincident.png)
 
-Craving more on incidents? Dive into our [Incident Guide](#link_to_guide).
+Craving more on incidents? Dive into our [Incident Guide](../Incidents/Incidents.md).
 
 ### Tagging Alerts: Beyond the False Positive
 

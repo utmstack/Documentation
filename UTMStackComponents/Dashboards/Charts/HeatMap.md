@@ -88,7 +88,7 @@ You'll start with defining your metric aggregation. For this case, you're counti
 **Step 2: Configure Bucket Aggregation**
 Next, define your bucket aggregation. Here, you will use the 'Terms' aggregation on the 'alert.category.keyword' field. This organizes your alerts data into different categories.
 
-<img alt="dashobard view" src="./../../../Images/Components/Dashboards/HeatMap/options.PNG">
+<img alt="dashobard view" src="./../../../Images/Components/Dashboards/HeatMap/options.png">
 
 **Step 3: Adjust Scale and Color Range**
 Now it's time to choose a suitable color scale. For clarity, you might want to use a 'Sequential' color scale, which assigns cooler colors to lower alert counts and warmer colors to higher alert counts. Remember, the goal is to allow for easy visual differentiation between high and low incident counts.

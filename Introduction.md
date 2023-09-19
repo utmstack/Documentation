@@ -18,6 +18,10 @@ UTMStack® incorporates a proprietary correlation engine that enables real-time 
 ### Seamless Integration and Customization
 Designed for hybrid environments, UTMStack® can be easily deployed across on-premises and cloud providers. Our platform integrates seamlessly with various technologies, including cloud services, network devices, and more. Leveraging APIs, Syslog, Netflow, or Agents, you can connect UTMStack® to your existing infrastructure, ensuring comprehensive visibility and streamlined security management.
 
+### Threat Intelligence Integration
+UTMStack® provides a 24/7 Security Operations Center powered by AI and Threat Intelligence, streamlining alert investigations, automating classification, reducing analyst workload, and enabling real-time threat detection with a proprietary correlation engine.
+
+
 We believe that these capabilities will greatly enhance the security posture and operational efficiency of your organization.
 ## Key Features and Modules
 
@@ -33,8 +37,6 @@ Handle security incidents efficiently with UTMStack's Incident Response module. 
 ### Endpoint Protection
 Protect your endpoints and servers with UTMStack's Advanced Threat Protection. Our platform provides robust security measures to safeguard your critical assets against advanced threats.
 
-### HIPS and NIPS
-UTMStack includes Host and Network-based Intrusion Detection Systems (HIPS and NIPS) with prevention capabilities. These systems actively monitor and defend against potential intrusions, helping you maintain a secure environment.
 
 ### Compliance
 Ensure compliance with industry regulations and standards such as GDPR, GLBA, HIPAA, SOC, and ISO. UTMStack provides compliance reports and dashboards to help you demonstrate adherence to these requirements.

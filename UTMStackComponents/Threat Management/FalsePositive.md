@@ -1,3 +1,10 @@
+---
+layout: default
+title: False Positive
+parent: Threat Management
+nav_order: 1
+---
+
 # False Positives in Alert Management
 
 In the realm of cybersecurity, not all alerts are indicative of genuine threats. Sometimes, alerts are triggered by benign activities or known behaviors which, while meeting the conditions of an alert rule, do not represent any malicious intent. Such alerts are termed as "False Positives". 

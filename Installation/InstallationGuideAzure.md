@@ -58,7 +58,7 @@ Before you begin the installation, make sure you have the following prerequisite
 
 ## Step 4: Install UTMStack Master
 
-1. Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack Master. You can find the installation guide at [UTMStack Installation Guide](./LinuxInstallation).
+1. Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack Master. You can find the installation guide at [UTMStack Installation Guide](./MasterServerInstallation).
 2. Make sure to carefully follow the instructions provided in the guide, including the configuration settings and any additional dependencies or packages required.
 3. Complete the installation process as per the guide's instructions.
 

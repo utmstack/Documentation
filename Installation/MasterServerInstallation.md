@@ -75,17 +75,17 @@ Trubleshooting:
 If you find any errors during the installation, please check the installation log for more details: /var/log/utm-setup.log
 
 {: .note}
-You can found the password and other generated configurations in /root/utmstack.yml
+You can find the password and other generated configurations in /root/UTMStack.yml
 
 ## Step 5: Configuration of UTMStack
 After successfully installing UTMStack on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack's capabilities.
 
-To learn more about the specific firewall rules you need to create for UTMStack, please refer to the **<a href="./FirewallRules.md">Firewall Rules</a>** section for detailed instructions.
+To learn more about the specific firewall rules you need to create for UTMStack, please refer to the **<a href="./FirewallRules">Firewall Rules</a>** section for detailed instructions.
 
 
 ## Step 6:  Installing and Configuring an SSL/TLS certificate
 
-Go to **<a href="./FirewallRules.md">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
+Go to **<a href="./FirewallRules">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
 
 ## Step 7: Accessing the UTMStack Platform
 Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform:
@@ -98,7 +98,7 @@ Press Enter to load the UTMStack login page.
 
 <img title="UTMStack Installer Capture" alt="UTMStack Installer Capture" src="./Images/Images/../../../Images/UTMStacklogin.png">
 
-Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can found the password and other generated configurations in /root/utmstack.
+Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/UTMStack.
 
 {: .note}
 Note: Use HTTPS in front of your server name or IP to access the login page.

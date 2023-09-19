@@ -1,3 +1,10 @@
+---
+layout: default
+title: Application Settings
+parent: Configuration
+nav_order: 1
+---
+
 # APPLICATION SETTINGS
 
 UTMStack offers a comprehensive configuration module where administrators can adjust various settings to customize the application according to their organizational preferences. Here's a detailed breakdown:
@@ -19,9 +26,9 @@ Configure the email settings to send emails notifications for the alerts and inc
 
 - **Mail Server Password**: The password for your email server to authenticate and send out notifications.
 
-- **Utmstack email address**: The official UTMStack email address that will be used to send out notifications.
+- **UTMStack email address**: The official UTMStack email address that will be used to send out notifications.
 
-- **Utmstack base url**: The default is `https://utmstack.utmstack.com`.
+- **UTMStack base url**: For example: `https://UTMStack.UTMStack.com`.
 
 - **Mail Server Host**: For example: `example.hostmail.com`.
 

@@ -15,7 +15,7 @@ UTMStack presents four compelling deployment models, each catering to specific r
 
 ## 1. Master Only Deployment: Unparalleled Data Control and Security
 
-<img title="Master Only Diagram" alt="Master Only Diagram" src="./Images/Architecture/Master%20Only/diagram.png">
+<img title="Master Only Diagram" alt="Master Only Diagram" src="../Images/Architecture/Master%20Only/diagram.png">
 
 A **Master Only Deployment** of UTMStack is dedicated to an individual customer, ensuring unparalleled data control and security.
 
@@ -25,7 +25,7 @@ With data isolation and enhanced security, the master-only deployment model offe
 
 ## 2. Federated Master Deployment: Streamlined Management for MSPs
 
-<img title="Master Only Diagram" alt="Master Only Diagram" src="./Images/Architecture/Federated/diagram.png">
+<img title="Master Only Diagram" alt="Master Only Diagram" src="../Images/Architecture/Federated/diagram.png">
 
 The **federated master deployment model** is ideal for Managed Service Providers (MSPs) managing multiple instances of UTMStack.
 
@@ -35,34 +35,9 @@ This streamlined approach simplifies monitoring and management, enabling MSPs to
 
 The federated master deployment model is commonly used by SOC teams for its simplicity and effectiveness.
 
+## 3. SaaS (Software as a Service): Simplified Management with Unparalleled Support
 
-## 3. UTMStack Master & Proxy: Optimal Flexibility and Security
-
-<img title="Master Only Diagram" alt="Master Only Diagram" src="./Images/Architecture/Master%20and%20Proxy/diagram.png">
-
-The **UTMStack master and proxy deployment model** offers optimal flexibility and security, making it suitable for Managed Services Providers (MSPs) looking to host UTMStack within their network.
-
-By deploying UTMStack within their infrastructure, MSPs gain complete control over their network and data. Lightweight proxy servers are then installed within each customer's network, functioning as local master servers. These proxies serve as intermediaries, securely collecting logs from customer devices and forwarding them to the central master server.
-
-This deployment model is particularly useful when capturing and transmitting logs from customer firewall devices. Instead of sending logs directly over the internet, which may not be recommended for security reasons, the Probe proxy acts as a secure intermediary. It captures the logs locally within the customer's network and securely transmits them to the Master Server over the internet.
-
-
-By implementing the UTMStack master and proxy model, MSPs can ensure the secure and efficient collection of logs from customer networks, enabling effective monitoring and analysis while maintaining a high level of data protection and privacy.
-
-**IMPORTANT NOTE:**
-
-Please note that a proxy is not always required.
-
-UTMstack supports SysLog TLS and all communications between agents and master servers are encrypted using TLS.
-
-The proxy is recommended only if customer servers are not allowed to access the internet or there are devices like old firewalls that do not support TLS encryption over the internet.
-
-Agents can be installed in customer servers directly without needing a proxy.
-Devices that support Syslog TLS can send logs directly to UTMStack.
-
-## 4. SaaS (Software as a Service): Simplified Management with Unparalleled Support
-
-<img title="Master Only Diagram" alt="Master Only Diagram" src="./Images/Architecture/SaaS/diagram.png">
+<img title="Master Only Diagram" alt="Master Only Diagram" src="../Images/Architecture/SaaS/diagram.png">
 
 For organizations seeking for a hassle-free and fully managed solution, UTMStack offers the **Software as a Service (SaaS) deployment model**.
 

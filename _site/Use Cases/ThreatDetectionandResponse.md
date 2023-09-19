@@ -47,7 +47,7 @@ By accessing the **Manage Alerts** section, you can effectively monitor and resp
 
 <img alt="vm settings" src="./../Images/alertdetailsview.png">
 
-<img alt="vm settings" src="./../Images/logsview.PNG">
+<img alt="vm settings" src="./../Images/logsview.png">
 
 **Step 5**: Create an Incident
 

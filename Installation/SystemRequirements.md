@@ -1,3 +1,10 @@
+---
+layout: default
+title: System Requirements
+parent: Installation
+nav_order: 3
+---
+
 # UTMStack System Resources
 
 To guarantee a seamless installation and peak performance of UTMStack, adhere to the given system specifications for both Master and Probe/Proxy servers.

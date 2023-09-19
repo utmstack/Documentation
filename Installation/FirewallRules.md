@@ -5,16 +5,6 @@ parent: Installation
 nav_order: 5
 ---
 
-# Firewall Rules
-
-To ensure proper communication and functionality of UTMStack, it is important to configure the firewall rules on your network devices accordingly. This section provides an overview of the required firewall rules for different components of UTMStack. Please refer to the following guidelines:
-
-## Rules for Access from Probe/Proxy to Master
-
-Allow incoming traffic on the following ports from the probe/proxy to the master:
-
-- Port: 1194/TCP
-  - Purpose: Used to connect the probe/proxy over the internet using VPN.
 
 # Firewall Rules
 

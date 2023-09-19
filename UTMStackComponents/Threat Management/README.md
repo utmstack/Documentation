@@ -15,8 +15,8 @@ When the UTMStack engine detects an event or anything that could be considered a
 The module is split into two key sections:
 
 <ul>
-<li ><a href="./AlerManagment">Alert Managment: </a>This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action.</li>
-<li ><a href="./AlerManagment#tagginrules">Taggin Rules: </a> This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents.</li>
+<li ><a href="AlertManagement">Alert Managment: </a>This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action.</li>
+<li ><a href="FalsePositive">Taggin Rules: </a> This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents.</li>
 </ul>
 
 Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives).

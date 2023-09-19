@@ -131,4 +131,4 @@ b. In the pop-up box, give your query a unique name, such as "Office365 Login Fa
 
 Now, you can go to the Query List view by clicking the **Queries** button in the top right corner and use that query whenever you need.
 
-<img alt="vm settings" src="./../Images/Components/../../../Images/Components/LogExplorer/examplequerylist.PNG">
+<img alt="vm settings" src="./../Images/Components/../../../Images/Components/LogExplorer/examplequerylist.png">
