@@ -1,4 +1,8 @@
-
+---
+layout: default
+title: Use Case
+nav_order: 1
+---
 # Active Attack Scenario: Compromised Employee Workstation
 In this section, we will explore a realistic active attack scenario involving a compromised employee workstation. The purpose of this exercise is to demonstrate how UTMStack can effectively detect and respond to such attacks, ensuring the security of your corporate systems.
 
