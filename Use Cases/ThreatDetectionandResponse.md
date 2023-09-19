@@ -4,9 +4,10 @@ title: Use Case
 nav_order: 1
 ---
 # Active Attack Scenario: Compromised Employee Workstation
+
 In this section, we will explore a realistic active attack scenario involving a compromised employee workstation. The purpose of this exercise is to demonstrate how UTMStack can effectively detect and respond to such attacks, ensuring the security of your corporate systems.
 
-##Attack Overview
+## Attack Overview
 In this simulated attack, an external malicious actor successfully executes a social engineering attack, gaining unauthorized access to a corporate device. The attacker's objective is to infiltrate the corporate systems and carry out unauthorized activities. The attack unfolds in several phases, showcasing the attacker's techniques and UTMStack's capabilities in identifying and mitigating threats. The primary steps involved in this attack scenario are as follows:
 
 * **Reconnaissance Attack**: The attacker initiates the attack by conducting a reconnaissance phase to gather information about the target network. This phase enables the attacker to gain visibility and identify potential vulnerabilities.
