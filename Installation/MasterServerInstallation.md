@@ -8,16 +8,6 @@ nav_order: 3
 
 This guide will walk you through the process of setting up the UTMStack Master Server. The Master Server is the central component of UTMStack and is responsible for managing the security operations and data collection.
 
-## Installation Options
-There are two primary ways to install UTMStack on your Master Server:
-
-1. **Linux Installer**: Deploy UTMStack using the UTMStack installer for Ubuntu Linux. This method is suitable for deploying UTMStack on physical servers, network appliances, or virtual machines in Azure, AWS, GCP, or Digital Ocean.
-
-1. **ISO Image**: If needed, you can install an ISO image that includes the operating system and UTMStack components. This method allows for faster deployment in virtualized environments using popular hypervisors such as VMWare, Hyper-V, Proxmox, or OpenStack.
-
-Choose the installation option that best suits your requirements and follow the respective instructions below.
-
-
 # Linux Installation Guide
 
 This guide will walk you through the process of installing UTMStack on a Linux system using the official installer script. Please follow the steps below to ensure a successful installation.
@@ -104,28 +94,3 @@ Once UTMStack is installed, use admin as the user and the password generated dur
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
 Click on the "Sign In" button to authenticate and access the UTMStack platform.
-
-
-## ISO Image
-The ISO Image option provides a bundled package that includes the Ubuntu Linux operating system and UTMStack components. This allows for a smoother installation process, especially in virtualized environments.
-
-### Prerequisites
-Before proceeding with the ISO Image installation, ensure that you have the following:
-
-* A supported hypervisor such as VMWare, Hyper-V, Proxmox, or OpenStack.
-* The UTMStack ISO Image downloaded and accessible.
-
-
-### Installation Steps
-Follow these steps to install UTMStack using the ISO Image:
-
-Create a new virtual machine in your preferred hypervisor.
-Attach the UTMStack ISO Image to the virtual machine.
-Configure the virtual machine settings, including CPU, RAM, and disk space allocation.
-Start the virtual machine and follow the on-screen instructions to complete the installation.
-
-By following the appropriate installation method outlined above, you can successfully set up the UTMStack Master Server and begin leveraging its powerful security management capabilities.
-
-Please note that additional configuration steps and post-installation tasks may be required. Refer to the UTMStack Master Server Installation Guide for comprehensive instructions and best practices.
-
-Now that the Master Server is installed, you can proceed to the next step, which is installing the UTMStack software on each server in your network.
