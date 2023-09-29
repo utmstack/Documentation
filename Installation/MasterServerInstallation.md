@@ -26,7 +26,7 @@ sudo apt install wget
 Download the latest version of the UTMStack installer script from the official UTMStack website. You can use the following command to retrieve the script:
 
 ``` bash
-wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
 
 ```
 
