@@ -9,7 +9,7 @@ nav_order: 5
 # Heat Map
 Heat Map is a type of chart that represents data in a two-dimensional format, with colors representing values. The color intensity of the cells in the map corresponds to the data values they represent, allowing you to easily spot trends and patterns in your data. Heat Maps are especially effective for displaying large amounts of data that vary in scale and range.
 
-<img alt="dashobard view" src="./../../../Images/Components/Dashboards/HeatMap/result.png">
+<img alt="dashobard view" src="./../../../Images/Components/Dashboards/heatmap/result.png">
 
 ## Chart Customization Options
 
@@ -88,7 +88,7 @@ You'll start with defining your metric aggregation. For this case, you're counti
 **Step 2: Configure Bucket Aggregation**
 Next, define your bucket aggregation. Here, you will use the 'Terms' aggregation on the 'alert.category.keyword' field. This organizes your alerts data into different categories.
 
-<img alt="dashobard view" src="./../../../Images/Components/Dashboards/HeatMap/options.png">
+<img alt="dashobard view" src="./../../../Images/Components/Dashboards/heatmap/options.png">
 
 **Step 3: Adjust Scale and Color Range**
 Now it's time to choose a suitable color scale. For clarity, you might want to use a 'Sequential' color scale, which assigns cooler colors to lower alert counts and warmer colors to higher alert counts. Remember, the goal is to allow for easy visual differentiation between high and low incident counts.
@@ -99,4 +99,4 @@ After all these settings are done, click on 'Run'. This will generate your Heat 
 By using this Heat Map, you can promptly pinpoint which categories of alerts are more common, enabling you to focus your resources and attention more effectively.
 
 
-<img alt="dashobard view" src="./../../../Images/Components/Dashboards/HeatMap/result.png">
+<img alt="dashobard view" src="./../../../Images/Components/Dashboards/heatmap/result.png">
