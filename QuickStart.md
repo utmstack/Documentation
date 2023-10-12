@@ -68,7 +68,7 @@ Post installation, the first time you get access to UTMStack, its going to be re
 
 - **UTMStack email address**: The official UTMStack email address that will be used to send out notifications.
 
-- **UTMStack base url**: The default is `https://UTMStack.UTMStack.com`.
+- **UTMStack base url**: This refers to the primary URL or address through which all users and systems interact with the UTMStack platform.  For example: `https://UTMStack.UTMStack.com`.
 
 - **Mail Server Host**: For example: `example.hostmail.com`.
 

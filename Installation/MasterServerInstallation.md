@@ -14,7 +14,11 @@ This guide will walk you through the process of installing UTMStack on a Linux s
 
 ## Step 1: Prepare the System
 
-Before starting the installation, make sure that your system meets the minimum requirements and is up to date. Run the following commands to update the package list and install the necessary dependencies:
+Before starting the installation, make sure that your system meets the minimum requirements and is up to date. 
+
+Please refer to the **<a href="./SystemRequirements">System Requirements</a>** page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
+
+Execute the following commands to update the package list and install the required dependencies on your Ubuntu 22.04 LTS system:
 
 ``` bash
 sudo apt update

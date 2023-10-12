@@ -9,7 +9,7 @@ has_children: true
 
 The **Incident Management Module** stands as a vital component of UTMStack, meticulously designed to address and manage any incidents surfacing within your organization's digital domain. This module bifurcates into two primary sections: Incident Management and Incident Response.
 
-![Dashboard View](./../Images/../../Images/Components/Incidents/menu.PNG)
+![Dashboard View](./../Images/../../Images/Components/Incidents/menu.png)
 
 ## Incidents
 

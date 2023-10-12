@@ -21,6 +21,6 @@ The module is split into two key sections:
 
 Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives).
 
-<img alt="dashobard view" src="./../Images/../../Images/Components/ThreatManagment/threatmenu.PNG">
+<img alt="dashobard view" src="./../Images/../../Images/Components/ThreatManagment/threatmenu.png">
 
 

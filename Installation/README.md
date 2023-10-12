@@ -39,11 +39,11 @@ The UTMStack installation process consists of three main steps:
 
     3. **Navigate to Settings**: Locate the settings menu, accessible through a hamburger menu icon on the right side of the interface.
    
-   <img title="setting capture" alt="setting capture" src="./Images/Images/../../../Images/settingcapture.PNG">
+   <img title="setting capture" alt="setting capture" src="./Images/Images/../../../Images/settingcapture.png">
 
     4. **Personalize UTMStack**: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization's needs and security policies.
 
-    <img title="setting capture" alt="setting capture" src="./Images/Images/../../../Images/settingcapture2.PNG">
+    <img title="setting capture" alt="setting capture" src="./Images/Images/../../../Images/settingcapture2.png">
 
     <br>For more detailed instructions on settings , please refer to the **<a href="../UTMStackComponents/Configuration/Readme">Configuration Section</a>** in the UTMStack documentation.
     <br>

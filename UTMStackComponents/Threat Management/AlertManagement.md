@@ -10,7 +10,7 @@ nav_order: 1
 
 Welcome to the Alert Management Section. This resource is tailored to guide you through the nuances and intricacies of our Alert Management system. From the mechanisms of correlation rules and alert generation to severity classifications and data visualizations, this guide encapsulates it all.
 
-![Dashboard View](./../Images/../../Images/Components/ThreatManagment/AlertDashboard.PNG)
+![Dashboard View](./../Images/../../Images/Components/ThreatManagment/AlertDashboard.png)
 
 ## Introduction
 

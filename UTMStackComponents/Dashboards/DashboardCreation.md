@@ -68,7 +68,7 @@ Each visualization in your dashboard can be resized and repositioned to best fit
 **Add Filter**
 Use the Add Filter option to narrow down the data displayed in your visualizations. This can be particularly useful when you want to filter specific fields of your datasource.
 
-<img alt="dashobard view" src="./../Images/../../Images/Components/Dashboards/myfilter.PNG">
+<img alt="dashobard view" src="./../Images/../../Images/Components/Dashboards/myfilter.png">
 
 When creating a filter, you can define various parameters:
 
@@ -84,7 +84,7 @@ When creating a filter, you can define various parameters:
 
 After creating and arranging your visualizations in the Dashboard Editor, it's time to save your work. UTMStack provides a variety of saving options to best accommodate your needs.
 
-<img alt="dashobard view" src="./../Images/../../Images/Components/Dashboards/savedashwithmyfilter.PNG">
+<img alt="dashobard view" src="./../Images/../../Images/Components/Dashboards/savedashwithmyfilter.png">
 
 * **Name**: Provide a unique name for your dashboard. This name will help identify your dashboard in the list of available dashboards.
 
