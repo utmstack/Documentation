@@ -26,7 +26,7 @@ Use the UTMStack installer for Ubuntu Linux 22.04 LTS.
     ```bash
     sudo apt update
     sudo apt install wget
-    wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer
+    wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
     sudo su
     chmod +x installer
     ```
