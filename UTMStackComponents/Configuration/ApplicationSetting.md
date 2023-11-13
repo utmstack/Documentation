@@ -2,7 +2,7 @@
 layout: default
 title: Application Settings
 parent: Configuration
-nav_order: 1
+nav_order: 4
 ---
 
 # APPLICATION SETTINGS
