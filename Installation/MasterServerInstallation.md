@@ -79,7 +79,7 @@ To learn more about the specific firewall rules you need to create for UTMStack,
 
 ## Step 6:  Installing and Configuring an SSL/TLS certificate
 
-Go to **<a href="./FirewallRules">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
+Go to **<a href="./SSLConfiguration">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
 
 ## Step 7: Accessing the UTMStack Platform
 Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform:
