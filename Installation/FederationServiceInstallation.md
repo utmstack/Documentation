@@ -32,7 +32,7 @@ sudo apt install wget net-tools
 3. Download the latest version of the UTMStackFS installer from the official GitHub repository. You can use the following command to retrieve the installer:
 
 ``` bash
-wget https://github.com/AtlasInsideCorp/UTMStackFSInstaller/releases/latest/download/UTMStackFSInstaller.zip
+wget https://github.com/utmstack/UTMStackFSInstaller/releases/download/v10.0.0/UTMStackFSInstaller.zip
 ```
 
 4. Unzip the installer package using the following command. If you don't have the unzip tool installed, you can do so by running sudo apt-get install zip unzip:
