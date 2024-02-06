@@ -339,6 +339,7 @@ We recommend using search when the analysis period exceeds 1h or the rule's comp
   solution: Refer to NIST guidelines when creating password policies and set account lockout policies after a certain number of failed login attempts to prevent passwords from being guessed. Too strict a policy may create a denial of service condition and render environments un-usable, with all accounts used in the brute force being locked-out.
   category: User Account Authentication
   tactic: "Brute Force: Password Guessing"
+  dataTypes: ["wineventlog"]
   reference: 
     - "https://attack.mitre.org/techniques/T1110/001/"
   frequency: 10
