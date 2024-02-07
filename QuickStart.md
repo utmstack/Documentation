@@ -14,7 +14,7 @@ Getting started with UTMStack is straightforward. Follow this 3-step process:
 
 ## 1. Install UTMStack
 
-Before you begin, ensure your system meets the minimum requirements: **4 cores**, **8 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
+Before you begin, ensure your system meets the minimum requirements: **4 cores**, **12 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
 
 Deploy the UTMStack Master Server, which oversees security operations and data collection.
 
