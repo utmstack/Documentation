@@ -62,12 +62,3 @@ Our team is always working on a new integration, but here is the list of what we
 | 42  | Nginx                         |                            <img title="Nginx" alt="Nginx" src="../Images/Integrations/logonginx.svg">                            |
 | 43  | Sophos Central                |               <img title="Sophos Central" alt="Sophos Central" src="../Images/Integrations/logosophoscentral.svg">               |
 | 44  | SentinelOne Endpoint Security | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logosentinelone.svg"> |
-| 45  | IBM AS400                     |                      <img title="IBM AS400" alt="IBM AS400" src="../Images/Integrations/logoibmas400.jpg">                       |
-| 46  | UFW                           |                               <img title="UFW" alt="UFW" src="../Images/Integrations/logoufw.jpg">                               |
-| 47  | Rsyslog                       |                         <img title="Rsyslog" alt="Rsyslog" src="../Images/Integrations/logorsyslog.png">                         |
-| 48  | Netflow                       |                         <img title="Netflow" alt="Netflow" src="../Images/Integrations/logonetflow.jpg">                         |
-| 49  | ESET NOD32                    |                     <img title="ESET NOD32" alt="ESET NOD32" src="../Images/Integrations/logoesetnod32.svg">                     |
-| 50  | FortiWeb                      |                       <img title="FortiWeb" alt="FortiWeb" src="../Images/Integrations/logofortigate.svg">                       |
-| 51  | IBM AIX                       |                         <img title="IBM AIX" alt="IBM AIX" src="../Images/Integrations/logoibmaix.png">                          |
-| 52  | Check Point                   |                   <img title="Check Point" alt="Check Point" src="../Images/Integrations/logocheckpoint.png">                    |
-| 53  | pfSense                       |                         <img title="pfSense" alt="pfSense" src="../Images/Integrations/logopfsense.png">                         |
