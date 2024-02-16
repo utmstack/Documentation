@@ -66,11 +66,8 @@ Our team is always working on a new integration, but here is the list of what we
 | 46  | UFW                           |                               <img title="UFW" alt="UFW" src="../Images/Integrations/logoufw.jpg">                               |
 | 47  | Rsyslog                       |                         <img title="Rsyslog" alt="Rsyslog" src="../Images/Integrations/logorsyslog.png">                         |
 | 48  | Netflow                       |                         <img title="Netflow" alt="Netflow" src="../Images/Integrations/logonetflow.jpg">                         |
-| 59  | Salesforce                    |                    <img title="Salesforce" alt="Salesforce" src="../Images/Integrations/logosalesforce.png">                     |
-| 50  | Suricata                      |                       <img title="Suricata" alt="Suricata" src="../Images/Integrations/logosuricata.png">                        |
-| 51  | Wazuh                         |                            <img title="Wazuh" alt="Wazuh" src="../Images/Integrations/logowazuh.jpg">                            |
-| 52  | ESET NOD32                    |                     <img title="ESET NOD32" alt="ESET NOD32" src="../Images/Integrations/logoesetnod32.svg">                     |
-| 53  | FortiWeb                      |                       <img title="FortiWeb" alt="FortiWeb" src="../Images/Integrations/logofortigate.svg">                       |
-| 54  | IBM AIX                       |                         <img title="IBM AIX" alt="IBM AIX" src="../Images/Integrations/logoibmaix.png">                          |
-| 55  | Check Point                   |                   <img title="Check Point" alt="Check Point" src="../Images/Integrations/logocheckpoint.png">                    |
-| 56  | pfSense                       |                         <img title="pfSense" alt="pfSense" src="../Images/Integrations/logopfsense.png">                         |
+| 49  | ESET NOD32                    |                     <img title="ESET NOD32" alt="ESET NOD32" src="../Images/Integrations/logoesetnod32.svg">                     |
+| 50  | FortiWeb                      |                       <img title="FortiWeb" alt="FortiWeb" src="../Images/Integrations/logofortigate.svg">                       |
+| 51  | IBM AIX                       |                         <img title="IBM AIX" alt="IBM AIX" src="../Images/Integrations/logoibmaix.png">                          |
+| 52  | Check Point                   |                   <img title="Check Point" alt="Check Point" src="../Images/Integrations/logocheckpoint.png">                    |
+| 53  | pfSense                       |                         <img title="pfSense" alt="pfSense" src="../Images/Integrations/logopfsense.png">                         |
