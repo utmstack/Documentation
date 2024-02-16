@@ -98,8 +98,9 @@ Once UTMStack is installed, use admin as the user and the password generated dur
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
 {: .note-title }
-> Default Login Credentials:
+> Default credentials for Ubuntu Server when using the ISO installer:
 >
-> User: utmstack, Password: utmstack
+>  User: utmstack
+>  Password: utmstack
 
 Click on the "Sign In" button to authenticate and access the UTMStack platform.

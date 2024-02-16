@@ -25,7 +25,7 @@ The Master server undertakes the task of overseeing and orchestrating the UTMSta
 
 | Data Sources (Approx. Monthly Data) | Cores | RAM   | Disk Space |
 | ----------------------------------- | ------| ------| -----------|
-| **50 (100 GB)**                     | 4     | 8 GB  | 150 GB    |
+| **50 (100 GB)**                     | 4     | 12 GB  | 150 GB    |
 | **120 (250 GB)**                    | 8     | 16 GB | 250 GB    |
 | **240 (500 GB)**                    | 16    | 32 GB | 450 GB    |
 
