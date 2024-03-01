@@ -1,11 +1,12 @@
 ---
 layout: default
-title: Predefined playbooks
+title: Examples playbooks
 parent: Incident Management
 nav_order: 3
 ---
 
-# Predefined playbooks of incident response actions
+# Examples of incident response playbooks
+In this section, we offer **examples of incident response playbooks tailored for Ubuntu systems**, designed to assist system administrators and security professionals in effectively managing security incidents.
 
 ## Shutdown Machine
 

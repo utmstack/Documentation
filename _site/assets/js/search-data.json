@@ -370,43 +370,43 @@
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html#incident-response-dashboard-view"
   },"53": {
-    "doc": "Predefined playbooks",
-    "title": "Predefined playbooks of incident response actions",
-    "content": " ",
-    "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#predefined-playbooks-of-incident-response-actions",
+    "doc": "Examples playbooks",
+    "title": "Examples of incident response playbooks",
+    "content": "In this section, we offer examples of incident response playbooks tailored for Ubuntu systems, designed to assist system administrators and security professionals in effectively managing security incidents. ",
+    "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#examples-of-incident-response-playbooks",
     
-    "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#predefined-playbooks-of-incident-response-actions"
+    "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#examples-of-incident-response-playbooks"
   },"54": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Shutdown Machine",
     "content": "Use Case: An alert is triggered indicating a high-severity unauthorized access attempt to a critical server. The protocol used is SSH, and the intrusion detection system generated the alert. The source of the attempt is identified with a hostname of attacker.example.com, an IP address of 192.0.2.1, and is coming from the US with ASN 12345 on port 22. Response: . shutdown -h now . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#shutdown-machine",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#shutdown-machine"
   },"55": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block User",
     "content": "Use Case: An alert for a brute force attack is generated due to multiple failed login attempts via SSH. The alert is active, with high severity, and the source is attacker.example.com from IP 192.0.2.1 in the US with ASN 12345 on port 22. Response: . usermod -L ${source.user} . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-user",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-user"
   },"56": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block IP",
     "content": "Use Case Suspicious network traffic is detected by the firewall, triggering an alert categorized as network scanning with high severity. The traffic is on TCP protocol from scanner.example.com with IP 192.0.2.1 from CN with ASN 23456 on port 80. Response: . iptables -A INPUT -s ${source.ip} -j DROP . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip"
   },"57": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block IP in Firewall",
     "content": "Use Case: An alert of high-severity suspicious firewall traffic categorized as network scanning is triggered. The alert indicates traffic from scanner.example.com with IP 192.0.2.1 from CN with ASN 23456 on port 80. Response: . # Connection to the firewall ssh admin@firewall.example.com # Command to block the IP in ufw firewall ufw deny from ${source.ip} . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip-in-firewall",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip-in-firewall"
   },"58": {
-    "doc": "Predefined playbooks",
-    "title": "Predefined playbooks",
+    "doc": "Examples playbooks",
+    "title": "Examples playbooks",
     "content": " ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html",
     
