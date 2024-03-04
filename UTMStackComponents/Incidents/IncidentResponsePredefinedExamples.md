@@ -2,7 +2,7 @@
 layout: default
 title: Examples playbooks
 parent: Incident Management
-nav_order: 3
+nav_order: 4
 ---
 
 # Examples of incident response playbooks

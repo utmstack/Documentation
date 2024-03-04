@@ -53,7 +53,7 @@ PCI-DSS is a set of standards for managing and securing credit card-related pers
 
 Upon accessing the **Platform Menu**, you'll find the **Compliance** submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards.
 
-![vm settings](./../Images/Components/../../../Images/Components/Compliance/menu.png)
+![vm settings](./../Images/Components/../../../Images/Components/Compliance/menu_compliance.png)
 
 By selecting a standard, you'll be directed to the **Compliance Template Section**. This is where you decide which report to export.
 
