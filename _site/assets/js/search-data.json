@@ -370,43 +370,43 @@
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponseAutomation.html#incident-response-dashboard-view"
   },"53": {
-    "doc": "Predefined playbooks",
-    "title": "Predefined playbooks of incident response actions",
-    "content": " ",
-    "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#predefined-playbooks-of-incident-response-actions",
+    "doc": "Examples playbooks",
+    "title": "Examples of incident response playbooks",
+    "content": "In this section, we offer examples of incident response playbooks tailored for Ubuntu systems, designed to assist system administrators and security professionals in effectively managing security incidents. ",
+    "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#examples-of-incident-response-playbooks",
     
-    "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#predefined-playbooks-of-incident-response-actions"
+    "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#examples-of-incident-response-playbooks"
   },"54": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Shutdown Machine",
     "content": "Use Case: An alert is triggered indicating a high-severity unauthorized access attempt to a critical server. The protocol used is SSH, and the intrusion detection system generated the alert. The source of the attempt is identified with a hostname of attacker.example.com, an IP address of 192.0.2.1, and is coming from the US with ASN 12345 on port 22. Response: . shutdown -h now . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#shutdown-machine",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#shutdown-machine"
   },"55": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block User",
     "content": "Use Case: An alert for a brute force attack is generated due to multiple failed login attempts via SSH. The alert is active, with high severity, and the source is attacker.example.com from IP 192.0.2.1 in the US with ASN 12345 on port 22. Response: . usermod -L ${source.user} . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-user",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-user"
   },"56": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block IP",
     "content": "Use Case Suspicious network traffic is detected by the firewall, triggering an alert categorized as network scanning with high severity. The traffic is on TCP protocol from scanner.example.com with IP 192.0.2.1 from CN with ASN 23456 on port 80. Response: . iptables -A INPUT -s ${source.ip} -j DROP . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip"
   },"57": {
-    "doc": "Predefined playbooks",
+    "doc": "Examples playbooks",
     "title": "Block IP in Firewall",
     "content": "Use Case: An alert of high-severity suspicious firewall traffic categorized as network scanning is triggered. The alert indicates traffic from scanner.example.com with IP 192.0.2.1 from CN with ASN 23456 on port 80. Response: . # Connection to the firewall ssh admin@firewall.example.com # Command to block the IP in ufw firewall ufw deny from ${source.ip} . ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip-in-firewall",
     
     "relUrl": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html#block-ip-in-firewall"
   },"58": {
-    "doc": "Predefined playbooks",
-    "title": "Predefined playbooks",
+    "doc": "Examples playbooks",
+    "title": "Examples playbooks",
     "content": " ",
     "url": "/UTMStackComponents/Incidents/IncidentResponsePredefinedExamples.html",
     
@@ -687,7 +687,7 @@
   },"98": {
     "doc": "Master Server Setup Guide",
     "title": "Step 7: Accessing the UTMStack Platform",
-    "content": "Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform: . Open your preferred web browser. Enter the HTTPS URL of your server’s name or IP address in the browser’s address bar. For example, if your server’s IP address is 192.168.0.100, you would enter https://192.168.0.100. Press Enter to load the UTMStack login page. Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/UTMStack. Note: Use HTTPS in front of your server name or IP to access the login page. Default Login Credentials: . User: utmstack, Password: utmstack . Click on the “Sign In” button to authenticate and access the UTMStack platform. ",
+    "content": "Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform: . Open your preferred web browser. Enter the HTTPS URL of your server’s name or IP address in the browser’s address bar. For example, if your server’s IP address is 192.168.0.100, you would enter https://192.168.0.100. Press Enter to load the UTMStack login page. Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/UTMStack. Note: Use HTTPS in front of your server name or IP to access the login page. Default credentials for Ubuntu Server when using the ISO installer: . User: utmstack Password: utmstack . Click on the “Sign In” button to authenticate and access the UTMStack platform. ",
     "url": "/Installation/MasterServerInstallation.html#step-7-accessing-the-utmstack-platform",
     
     "relUrl": "/Installation/MasterServerInstallation.html#step-7-accessing-the-utmstack-platform"
@@ -1191,7 +1191,7 @@
   },"170": {
     "doc": "System Requirements",
     "title": "Master Server Specifications:",
-    "content": "The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the hot log storage: . | Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space | . | 50 (100 GB) | 4 | 8 GB | 150 GB | . | 120 (250 GB) | 8 | 16 GB | 250 GB | . | 240 (500 GB) | 16 | 32 GB | 450 GB | . You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration. ",
+    "content": "The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the hot log storage: . | Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space | . | 50 (100 GB) | 4 | 12 GB | 150 GB | . | 120 (250 GB) | 8 | 16 GB | 250 GB | . | 240 (500 GB) | 16 | 32 GB | 450 GB | . You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration. ",
     "url": "/Installation/SystemRequirements.html#master-server-specifications",
     
     "relUrl": "/Installation/SystemRequirements.html#master-server-specifications"
@@ -1275,7 +1275,7 @@
   },"182": {
     "doc": "Integrations",
     "title": "UTMStack Integrations",
-    "content": "UTMStack comes out of the box with a wide range of built-in integrations for most mainstream technologies. Enabling an integration allows UTMStack to correlate logs coming from the corresponding data source on your network and detecting threats reliably. Each specific integration has its own guide. Our team is always working on a new integration, but here is the list of what we have developed so far: . | No. | Name |   | . | 1 | VMWare Syslog | | . | 2 | Windows Agent | | . | 3 | Syslog | | . | 4 | Linux Agent | | . | 5 | SOC AI | | . | 6 | ESET Endpoint Protection | | . | 7 | Kaspersky Security | | . | 8 | Bitdefender | | . | 9 | Traefik | | . | 10 | Google Cloud Platform | | . | 11 | AWS Cloudwatch | | . | 12 | Office365 | | . | 13 | Azure | | . | 14 | Logstash | | . | 15 | MongoDB | | . | 16 | MySQL | | . | 17 | Redis | | . | 18 | Kafka | | . | 19 | Elasticsearch | | . | 20 | PostgreSQL | | . | 21 | Kibana | | . | 22 | Cisco Switch | | . | 23 | Cisco ASA | | . | 24 | Cisco Meraki | | . | 25 | FortiGate | | . | 26 | Sophos XG | | . | 27 | Fire Power | | . | 28 | MikroTik | | . | 29 | Palo Alto | | . | 30 | SonicWall | | . | 31 | GitHub | | . | 32 | Nats | | . | 33 | Json Input | | . | 34 | MacOS | | . | 35 | OsQuery | | . | 36 | Linux Auditing Demon | | . | 37 | Deceptive Bytes | | . | 38 | High Availability Proxy | | . | 39 | File Classification | | . | 40 | Apache | | . | 41 | Internet Information Services | | . | 42 | Nginx | | . | 43 | Sophos Central | | . | 44 | SentinelOne Endpoint Security | | . | 45 | IBM AS400 | | . | 46 | UFW | | . | 47 | Rsyslog | | . | 48 | Netflow | | . | 59 | Salesforce | | . | 50 | Suricata | | . | 51 | Wazuh | | . | 52 | ESET NOD32 | | . | 53 | FortiWeb | | . | 54 | IBM AIX | | . | 55 | Check Point | | . | 56 | pfSense | | . ",
+    "content": "UTMStack comes out of the box with a wide range of built-in integrations for most mainstream technologies. Enabling an integration allows UTMStack to correlate logs coming from the corresponding data source on your network and detecting threats reliably. Each specific integration has its own guide. Our team is always working on a new integration, but here is the list of what we have developed so far: . | No. | Name |   | . | 1 | VMWare Syslog | | . | 2 | Windows Agent | | . | 3 | Syslog | | . | 4 | Linux Agent | | . | 5 | SOC AI | | . | 6 | ESET Endpoint Protection | | . | 7 | Kaspersky Security | | . | 8 | Bitdefender | | . | 9 | Traefik | | . | 10 | Google Cloud Platform | | . | 11 | AWS Cloudwatch | | . | 12 | Office365 | | . | 13 | Azure | | . | 14 | Logstash | | . | 15 | MongoDB | | . | 16 | MySQL | | . | 17 | Redis | | . | 18 | Kafka | | . | 19 | Elasticsearch | | . | 20 | PostgreSQL | | . | 21 | Kibana | | . | 22 | Cisco Switch | | . | 23 | Cisco ASA | | . | 24 | Cisco Meraki | | . | 25 | FortiGate | | . | 26 | Sophos XG | | . | 27 | Fire Power | | . | 28 | MikroTik | | . | 29 | Palo Alto | | . | 30 | SonicWall | | . | 31 | GitHub | | . | 32 | Nats | | . | 33 | Json Input | | . | 34 | MacOS | | . | 35 | OsQuery | | . | 36 | Linux Auditing Demon | | . | 37 | Deceptive Bytes | | . | 38 | High Availability Proxy | | . | 39 | File Classification | | . | 40 | Apache | | . | 41 | Internet Information Services | | . | 42 | Nginx | | . | 43 | Sophos Central | | . | 44 | SentinelOne Endpoint Security | | . ",
     "url": "/Integrations/ThreatDetectionandResponse.html#utmstack-integrations",
     
     "relUrl": "/Integrations/ThreatDetectionandResponse.html#utmstack-integrations"
