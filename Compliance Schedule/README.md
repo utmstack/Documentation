@@ -35,5 +35,10 @@ Apply filters to customize the information included in the reports. Filters can 
 Schedule the delivery of reports at predefined time intervals. An intuitive interface is provided to select the delivery frequency, the day and the specific time when the reports will be sent by e-mail.
 ![Dashboard View](./../Images/../../Images/Components/Compliance/schedule_time.png)
 
+{: .note-title }
+> Note
+>
+> The minimum number of time sequences is defined for one daily
+
 ### 5. Confirmation and Saving
 Once you have selected the reports, applied the filters and configured the delivery time, you must confirm and save the configuration. This information will be stored for future automatic deliveries.
