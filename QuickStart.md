@@ -91,7 +91,7 @@ Add a Windows agent to forward logs and data to UTMStack.
 
 ### 1. Pre-installation Requirements:
    * **Compatibility:** Ensure the system runs on Windows Server version 2016 R2 or later.
-   * **Network:** Ensure ports 9000 and 5044 are open.
+   * **Network:** Ensure ports 9000 and 50051 are open.
 
 ### 2. Installation Steps:
    1. Go to `Integrations` and select `Windows Agent`.
