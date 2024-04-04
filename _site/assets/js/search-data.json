@@ -792,7 +792,7 @@
   },"113": {
     "doc": "Quick Start",
     "title": "Procedure:",
-    "content": "1. Pre-installation Requirements: . | Compatibility: Ensure the system runs on Windows Server version 2016 R2 or later. | Network: Ensure ports 9000 and 5044 are open. | . 2. Installation Steps: . | Go to Integrations and select Windows Agent. | Open a Windows PowerShell terminal with “Administrator” privileges and execute the provided command from the instructions. | . ",
+    "content": "1. Pre-installation Requirements: . | Compatibility: Ensure the system runs on Windows Server version 2016 R2 or later. | Network: Ensure ports 9000 and 50051 are open. | . 2. Installation Steps: . | Go to Integrations and select Windows Agent. | Open a Windows PowerShell terminal with “Administrator” privileges and execute the provided command from the instructions. | . ",
     "url": "/QuickStart.html#procedure-1",
     
     "relUrl": "/QuickStart.html#procedure-1"
@@ -804,376 +804,376 @@
     
     "relUrl": "/QuickStart.html"
   },"115": {
-    "doc": "Charts",
-    "title": "Charts",
-    "content": " ",
-    "url": "/UTMStackComponents/Dashboards/Charts/README.html",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/Charts/README.html"
-  },"116": {
-    "doc": "Dashboards",
-    "title": "Dashboards",
-    "content": ". ",
-    "url": "/UTMStackComponents/Dashboards/README.html",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html"
-  },"117": {
-    "doc": "Dashboards",
-    "title": "Overview",
-    "content": "The UTMStack Dashboard is a comprehensive interface that displays a collection of visualizations and searches. This one-stop hub offers critical insights into user activity, alerts, vulnerabilities, and network traffic within your organization. Equipped with a variety of visualization types, UTMStack streamlines security monitoring and analysis for a more secure network environment. In this guide, we will walk through the Dashboard feature of UTMStack. Learn how to create custom visualizations from your log, event, and alarm data and add them to a personalized dashboard for efficient viewing and tracking. This guide covers the steps to filter and edit visualizations and using aggregation and segmentation options for a deeper understanding of the data. ",
-    "url": "/UTMStackComponents/Dashboards/README.html#overview",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#overview"
-  },"118": {
-    "doc": "Dashboards",
-    "title": "Getting Started",
-    "content": ". | After logging into UTMStack, navigate to the Dashboard tab. | . | Click on New Dashboard | . ",
-    "url": "/UTMStackComponents/Dashboards/README.html#getting-started",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#getting-started"
-  },"119": {
-    "doc": "Dashboards",
-    "title": "Creating a New Dashboard",
-    "content": "Upon clicking the New Dashboard option, a pop-up window appears on the right side of your screen. This window displays a list of pre-created visualizations, tailored based on the most common and useful visualizations requested by our users. You can now select your preferred visualization for the dashboard you wish to create by checking the respective checkboxes. For example, we are going to create a dashboard for manage the logon failure, using the Top 5 User Logon Failures, Top 5 Failure Reason Local Logon Failures, and Detail User Logon Failure visualizations. Now we click in the + Add visualizations buttons in the botton of the windows. Upon closing the window, you’ll be directed to the Dashboard view editor, featuring the selected visualizations. You can now add other visualizations, modify the size, position, and date range of your selected visualizations, or customize these visualizations to meet your specific requirements. When you’ve finished configuring your dashboard, press the Save Dashboard button. You will need to provide a name for your dashboard and may also add a description (optional). In the Dashboard List, you can use the search bar to quickly locate the dashboard you’ve just created. Congratulations, your dashboard is now created and ready for use. You can click in the elements to get the data that is visualized in the chart. You can use the Save to PDF button to export the dashboard visualizations to a PDF file. ",
-    "url": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard",
-    
-    "relUrl": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard"
-  },"120": {
-    "doc": "Compliance Management",
-    "title": "Compliance Management",
-    "content": "Welcome to our in-depth guide on the Compliance Management module, a key feature of our cybersecurity software platform. This module aids organizations in achieving and maintaining compliance across various industry-specific regulations. By accommodating a multitude of standards, our Compliance Management module provides a holistic view of your organization’s regulatory compliance status. Each standard is categorized. By default, the categories available are: . | Account Management | Device Activity | Application Audit | Alerts and Incidents | . Each standard has its dedicated section. For example, if you wish to monitor the Office 365 Account Activity regarding successful logins, you can navigate to the relevant category. Upon selecting it, you’ll receive a detailed description of the report and the compliance standards it addresses. ",
-    "url": "/UTMStackComponents/Compliance/README.html",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html"
-  },"121": {
-    "doc": "Compliance Management",
-    "title": "Supported Compliance Standards",
-    "content": "Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors: . 1. Health Insurance Portability and Accountability Act (HIPAA) . HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively. 2. General Data Protection Regulation (GDPR) . GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR’s core principles. 3. Gramm-Leach-Bliley Act (GLBA) . GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance. 4. System and Organization Controls 2 (SOC 2) . SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance. 5. Federal Information Security Management Act (FISMA) . FISMA is a U.S. federal law that mandates federal agencies to develop, document, and implement an information security and protection program. The module provides pre-defined reports monitoring compliance with FISMA’s crucial sections. 6. Cybersecurity Maturity Model Certification (CMMC) . CMMC certification is a requirement for businesses bidding on U.S. Government contracts. The CMMC section within the module provides reports specifically designed to monitor compliance with different CMMC Levels. 7. Payment Card Industry Data Security Standard (PCI-DSS) . PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards. ",
-    "url": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards"
-  },"122": {
-    "doc": "Compliance Management",
-    "title": "Export a Report",
-    "content": "Upon accessing the Platform Menu, you’ll find the Compliance submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards. By selecting a standard, you’ll be directed to the Compliance Template Section. This is where you decide which report to export. Upon clicking on a report, you’ll be presented with an overview, options to modify the date range, and the capability to generate a PDF using a professionally designed template available on the platform. ",
-    "url": "/UTMStackComponents/Compliance/README.html#export-a-report",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#export-a-report"
-  },"123": {
-    "doc": "Compliance Management",
-    "title": "Comprehensive Compliance Management",
-    "content": "Beyond the features described above, the Compliance Management Dashboard—located in the application management section—grants complete control over compliance standards. You’re equipped to edit, remove, or append sections and reports to meet specific needs. Add Standard . Understanding that each organization has unique compliance requisites, our module is engineered for flexibility. It allows the addition of new compliance standards aligning with specific business needs. To introduce a new standard, proceed to the Compliance Management section. Here, the ‘Add Standard’ button will guide you through a straightforward interface for detailing the new standard. Adding Reports . We appreciate the importance of detailed reporting for each compliance standard. Our module thus empowers you to supplement new reports to an existing compliance standard. To do this, pick the preferred standard and section to which the report should belong. Next, select from a list of existing report dashboards to incorporate into your chosen compliance segment. This ensures thorough coverage of all regulatory facets. Import/Export . Acknowledging the need for system interoperability, the Compliance Management module boasts a robust import/export function. This tool aids in the proficient handling and transfer of compliance data. To export the prevailing compliance information, a comprehensive JSON file is produced, encapsulating all essentials of your standards, sections, and reports. By utilizing the ‘Export All’ button, a complete portrayal of your compliance configuration is readily compiled, ensuring data integrity. For importing, should there be a necessity to infuse the module with compliance data from an alternative system, the ‘Import All’ button facilitates this. Simply upload the corresponding JSON file, and the module will fluidly merge the data, aligning with your prior system’s setup. ",
-    "url": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management",
-    
-    "relUrl": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management"
-  },"124": {
-    "doc": "Incident Management",
-    "title": "Incident Management Module",
-    "content": "The Incident Management Module stands as a vital component of UTMStack, meticulously designed to address and manage any incidents surfacing within your organization’s digital domain. This module bifurcates into two primary sections: Incident Management and Incident Response. ",
-    "url": "/UTMStackComponents/Incidents/README.html#incident-management-module",
-    
-    "relUrl": "/UTMStackComponents/Incidents/README.html#incident-management-module"
-  },"125": {
-    "doc": "Incident Management",
-    "title": "Incidents",
-    "content": "In the Incident Management segment, you’re equipped with tools to manage, track, and effectively resolve incidents identified within your organizational framework. This section is not just about managing individual incidents. You can cluster a set of alerts to form an incident or even append new alerts to pre-existing incidents. This holistic approach ensures that your security teams efficiently navigate the incident lifecycle, stretching from the initial detection, effective classification, right up to its conclusive resolution. ",
-    "url": "/UTMStackComponents/Incidents/README.html#incidents",
-    
-    "relUrl": "/UTMStackComponents/Incidents/README.html#incidents"
-  },"126": {
-    "doc": "Incident Management",
-    "title": "Incident Response Automation",
-    "content": "Bolster your incident response strategy with the Incident Response Automation feature. This capability allows your organization to deploy automated actions conditioned on specific triggers present in incident fields. Harnessing this automation not only elevates the pace but also boosts the precision and uniformity of your incident response mechanism. It strategically offloads mundane tasks, allowing your team to channel their focus on mission-critical activities, thus curtailing the adverse aftermath of security breaches. ",
-    "url": "/UTMStackComponents/Incidents/README.html#incident-response-automation",
-    
-    "relUrl": "/UTMStackComponents/Incidents/README.html#incident-response-automation"
-  },"127": {
-    "doc": "Incident Management",
-    "title": "Incident Management",
-    "content": " ",
-    "url": "/UTMStackComponents/Incidents/README.html",
-    
-    "relUrl": "/UTMStackComponents/Incidents/README.html"
-  },"128": {
-    "doc": "Threat Management",
-    "title": "Threat Management Module",
-    "content": "The Threat Management Module is a vital component of the UTMStack, serving as the primary interface for security engineers and analysts. It offers a comprehensive and real-time view of all security events and potential threats within your organization. When the UTMStack engine detects an event or anything that could be considered a threat, it is immediately directed to this module. This facilitates real-time threat detection and management, providing a continually updated overview of the security landscape within your organization. The module is split into two key sections: . | Alert Managment: This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action. | Taggin Rules: This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents. | . Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives). ",
-    "url": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module",
-    
-    "relUrl": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module"
-  },"129": {
-    "doc": "Threat Management",
-    "title": "Threat Management",
-    "content": " ",
-    "url": "/UTMStackComponents/Threat%20Management/README.html",
-    
-    "relUrl": "/UTMStackComponents/Threat%20Management/README.html"
-  },"130": {
-    "doc": "Log Explorer Module",
-    "title": "Log Explorer Module",
-    "content": "The Log Explorer Module, a central element of UTMStack, is purpose-built to deliver an exhaustive and comprehensive view of an organization’s log data. This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure. Overview . The Log Explorer interface has been thoughtfully designed for seamless navigation and efficient functionality. The module’s centerpiece is the Data Grid, a feature offering an extensive view of an organization’s log data based on the defined datasource and query. This enables a logical grouping of queries based on user-defined filters, and the capacity to open multiple tabs for various queries. This level of customization empowers users to save their search criteria for future use, making the tool adaptable and time-efficient. In a concerted effort to make data analysis as user-friendly as possible, the Log Explorer module provides visually intuitive representations of logs. Interactive charts and graphs facilitate an at-a-glance understanding of data trends and patterns, simplifying the task of data interpretation. 1. Source . A key aspect of the Log Explorer module is the source functionality. Serving as a crucial data filtering tool, it lets users narrow down their search to specific index patterns. For instance, users can confine their search, for example, to logs originating from Office365 exclusively, thereby eliminating unnecessary data noise. In addition, this module offers the flexibility to create custom index patterns or sources. This allows users to define search parameters that cater to their specific needs, providing a level of personalization that ensures a more targeted and efficient search experience. 2. Filters . Serving as the backbone of the Log Explorer, the filtering functionality offers comprehensive data parsing based on the user’s search requirements. Filters can be defined to track logs from a specific computer, or to isolate logs pertaining to a specific operation, such as a log-in event. The versatility of these filters provides an unparalleled level of control over data analysis. The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process. 3. Data Grid . The Data Grid is where the bulk of log information can be viewed, offering users the choice of viewing the data in a table or chart format. This visualization is predicated on a selected field, allowing for a high degree of customization. Users can also define the columns they want to see in the Table mode view, either through the Select fields option on the left, or by directly selecting a field in the log. 4 The Log . The Log section offers a comprehensive view of all log information, ranging from agent_id, process name, to the source IP. This data can be viewed in two ways – either in a table view or in a JSON mode – depending on the user’s preference. The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field. 4.1 Options . Each log field within the Log Explorer module provides two key options for users: . | Adding a filter: Based on the field and value of a specific log, users can swiftly add a filter. This feature further fine-tunes the data presented in the Data Grid, refining the log data to fit the user’s specific needs. | Creating a column: Users can choose to create a new column in the Data Grid Table based on the field. This feature allows for immediate visibility and accessibility of key data points. | . 5. Personalize Fields . You can also add or remove columns in the Data Grid view, based on the fields of the logs. 5. Save the information . Users can refresh their data, save the current query for future use, or export the current data to a CSV file for offline analysis. For example, a filter to view all Office365 log-in activities could be saved for future use, negating the need to repeat the filter creation process. The option to view and manage stored queries also ensures that past investigations can be revisited with ease. By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it’s streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience. Office 365 Login Failure Analysis: Step-by-Step Guide Example . This example provides a comprehensive guide on how to utilize the Log Explorer module to create, configure, and save a query that focuses on all login failure events within Office 365 logs. ",
-    "url": "/UTMStackComponents/Log%20Explorer/README.html",
-    
-    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html"
-  },"131": {
-    "doc": "Log Explorer Module",
-    "title": "Step 1. Source Selection",
-    "content": "In the Source field, type and select “log-o365-*” from the dropdown list. This sets the data source to all Office 365 logs. Step 2. Filter Configuration: . a. Click on the ‘Add Filter’ button. b. In the Field dropdown, find and select logx.o365.Operation.keyword. c. In the Operator dropdown, select is. d. Type UserLoginFailed in the Value input box, indicating a login failure in your log system. Click Add Filter to apply this filter. After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview. Step 3. Column Selection . Option A: . a. Click on the ‘Select fields’ on the left side of the Data Grid. b. From the dropdown list, find and select “Userid”, “Workload”, and “AuthenticationType”. Option B: . a. In the Log list, switch to the Table mode view. b. From the field list, find and press the table icon next to the fields “userid”, “workload”, and “authenticationType”. These fields will be added to your Data Grid view. Save Query . Once your filters and columns are set up, click on the ‘Save’ button at the top right corner of the Data Grid. b. In the pop-up box, give your query a unique name, such as “Office365 Login Failures”, and provide a brief description if needed. Click ‘Save’ to finalize the process. Now, you can go to the Query List view by clicking the Queries button in the top right corner and use that query whenever you need. ",
-    "url": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection",
-    
-    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection"
-  },"132": {
-    "doc": "Q&A",
-    "title": "Q&amp;A Guide",
-    "content": " ",
-    "url": "/QA/README.html#qa-guide",
-    
-    "relUrl": "/QA/README.html#qa-guide"
-  },"133": {
-    "doc": "Q&A",
-    "title": "Uninstalling Client Agents in UTMStack",
-    "content": "To ensure a thorough and trouble-free uninstallation of client agents, please execute the steps below: . | Log into the Client System: Begin by accessing the client system with the installed UTMStack agent. | Launch Command Line Interface (CLI): . | For Windows: Navigate to Command Prompt and execute it as an administrator. | For Linux: Open Terminal ensuring you possess the requisite permissions for system commands. | . | Commence Uninstallation: . | On Windows, type the following command and hit Enter: utmstackagent-windows.exe uninstall . | On Linux, input this command: sudo utmstackagent-linux uninstall . | . | . ",
-    "url": "/QA/README.html#uninstalling-client-agents-in-utmstack",
-    
-    "relUrl": "/QA/README.html#uninstalling-client-agents-in-utmstack"
-  },"134": {
-    "doc": "Q&A",
-    "title": "Addressing Alerts Without User Identification in UTMStack",
-    "content": "When confronted with alerts missing user IDs, showing “Not available” in the User field, delve into the original logs. These logs may contain user information that wasn’t captured or parsed correctly during the alert generation process. ",
-    "url": "/QA/README.html#addressing-alerts-without-user-identification-in-utmstack",
-    
-    "relUrl": "/QA/README.html#addressing-alerts-without-user-identification-in-utmstack"
-  },"135": {
-    "doc": "Q&A",
-    "title": "Locating Integration Guides in UTMStack",
-    "content": "Integration guides are available in the Integrations Section of the application. These guides offer detailed instructions for installing agents with a variety of platforms. ",
-    "url": "/QA/README.html#locating-integration-guides-in-utmstack",
-    
-    "relUrl": "/QA/README.html#locating-integration-guides-in-utmstack"
-  },"136": {
-    "doc": "Q&A",
-    "title": "Understanding the Role of the Probe Server in UTMStack",
-    "content": "The Probe server previously part of UTMStack’s architecture is now obsolete. The updated system architecture involves Agents directly installed on devices, which relay logs to UTMStack, enhancing efficiency and data acquisition. ",
-    "url": "/QA/README.html#understanding-the-role-of-the-probe-server-in-utmstack",
-    
-    "relUrl": "/QA/README.html#understanding-the-role-of-the-probe-server-in-utmstack"
-  },"137": {
-    "doc": "Q&A",
-    "title": "Baseline Rules in UTMStack",
-    "content": "Baseline rules in UTMStack are critical for setting the standard for expected operational behavior: . | Definition: These rules establish the norm for routine operations. | Functionality: Deviations from established norms trigger alerts, prompting further investigation. | . For additional insights, refer to the Correlation Rules documentation. ",
-    "url": "/QA/README.html#baseline-rules-in-utmstack",
-    
-    "relUrl": "/QA/README.html#baseline-rules-in-utmstack"
-  },"138": {
-    "doc": "Q&A",
-    "title": "Compliance Features within UTMStack",
-    "content": "UTMStack is equipped with an array of compliance features tailored to meet various regulatory requirements: . | Health Insurance Portability and Accountability Act (HIPAA): Aimed at safeguarding sensitive patient data, with reports tailored to enforce HIPAA provisions. | General Data Protection Regulation (GDPR): Ensures adherence to EU data protection laws with pre-configured compliance reports. | Gramm-Leach-Bliley Act (GLBA): Assists financial institutions in managing private information through customized reports. | System and Organization Controls 2 (SOC 2): Offers reports in line with SOC 2’s Control Criteria for non-financial reporting controls. | Federal Information Security Management Act (FISMA): Includes predefined reports to aid in upholding FISMA regulations. | Cybersecurity Maturity Model Certification (CMMC): Provides targeted reports for compliance with various CMMC Levels for U.S. Government contract aspirants. | Payment Card Industry Data Security Standard (PCI-DSS): Features specific reports to ensure credit card data processing is within PCI-DSS guidelines. | . ",
-    "url": "/QA/README.html#compliance-features-within-utmstack",
-    
-    "relUrl": "/QA/README.html#compliance-features-within-utmstack"
-  },"139": {
-    "doc": "Q&A",
-    "title": "What network and host intrusion detection services does UTMStack offer?",
-    "content": "UTMStack offers network and host intrusion detection services that include rule-based network intrusion detection, rule-based host intrusion detection system, and heuristic-based analysis with ATP capabilities, as well as network traffic, protocol, and DNS analysis. ",
-    "url": "/QA/README.html#what-network-and-host-intrusion-detection-services-does-utmstack-offer",
-    
-    "relUrl": "/QA/README.html#what-network-and-host-intrusion-detection-services-does-utmstack-offer"
-  },"140": {
-    "doc": "Q&A",
-    "title": "What access rights audit services does UTMStack offer?",
-    "content": "UTMStack offers access rights audit services that include an Active Directory explorer, user activity and permissions tracking, and suspicious activity monitoring. ",
-    "url": "/QA/README.html#what-access-rights-audit-services-does-utmstack-offer",
-    
-    "relUrl": "/QA/README.html#what-access-rights-audit-services-does-utmstack-offer"
-  },"141": {
-    "doc": "Q&A",
-    "title": "What file classification services does UTMStack offer?",
-    "content": "UTMStack offers file classification services that include file change and access tracking, activity monitoring, and file integrity monitoring. ",
-    "url": "/QA/README.html#what-file-classification-services-does-utmstack-offer",
-    
-    "relUrl": "/QA/README.html#what-file-classification-services-does-utmstack-offer"
-  },"142": {
-    "doc": "Q&A",
-    "title": "What Deep Web monitoring services does UTMStack offer?",
-    "content": "UTMStack offers Deep Web monitoring services that include monitoring for compromised or stolen data from employees and customers, as well as monitoring of domain and individual email addresses. ",
-    "url": "/QA/README.html#what-deep-web-monitoring-services-does-utmstack-offer",
-    
-    "relUrl": "/QA/README.html#what-deep-web-monitoring-services-does-utmstack-offer"
-  },"143": {
-    "doc": "Q&A",
-    "title": "How is UTMStack different from other cybersecurity platforms?",
-    "content": "UTMStack stands out from other cybersecurity platforms by offering an integrated, cost-effective solution that bundles multiple cybersecurity products on a single platform. This reduces the learning curve for security professionals and the costs of purchasing different tools from multiple vendors. In addition, the platform includes a powerful dashboard and report builder that can be used to customize the monitoring experience or to perform advanced compliance audits and reports. ",
-    "url": "/QA/README.html#how-is-utmstack-different-from-other-cybersecurity-platforms",
-    
-    "relUrl": "/QA/README.html#how-is-utmstack-different-from-other-cybersecurity-platforms"
-  },"144": {
-    "doc": "Q&A",
-    "title": "For what types of environments is UTMStack designed?",
-    "content": "UTMStack is designed for hybrid environments, allowing it to be easily implemented in both on-premises and cloud environments. ",
-    "url": "/QA/README.html#for-what-types-of-environments-is-utmstack-designed",
-    
-    "relUrl": "/QA/README.html#for-what-types-of-environments-is-utmstack-designed"
-  },"145": {
-    "doc": "Q&A",
-    "title": "What compliance features does UTMStack include?",
-    "content": "UTMStack includes compliance reports for HIPAA, GLBA, SOC, and GDPR, as well as an event and log explorer for advanced forensic analysis and a customizable report/dashboard builder for compliance reporting. ",
-    "url": "/QA/README.html#what-compliance-features-does-utmstack-include",
-    
-    "relUrl": "/QA/README.html#what-compliance-features-does-utmstack-include"
-  },"146": {
-    "doc": "Q&A",
-    "title": "What threat detection technology does UTMStack use?",
-    "content": "UTMStack uses a range of rule-based, scanner, and AI-powered machine learning algorithms for its threat detection engine. The modules operate independently and, in some cases, are combined to provide more accurate and real-time threat detection. ",
-    "url": "/QA/README.html#what-threat-detection-technology-does-utmstack-use",
-    
-    "relUrl": "/QA/README.html#what-threat-detection-technology-does-utmstack-use"
-  },"147": {
-    "doc": "Q&A",
-    "title": "What log management services does UTMStack offer?",
-    "content": "UTMStack offers log management services that include log collection and correlation, customizable correlation rules and integration with third-party log management solutions. ",
-    "url": "/QA/README.html#what-log-management-services-does-utmstack-offer",
-    
-    "relUrl": "/QA/README.html#what-log-management-services-does-utmstack-offer"
-  },"148": {
-    "doc": "Q&A",
-    "title": "What data can I define with baseline rules?",
-    "content": "We offer baseline rules that allow users to define the following data: . | Whitelist of allowed internal IP addresses | Whitelist of allowed IP addresses for login | Whitelist of allowed applications | Whitelist of allowed O365 users | Whitelist of allowed Windows users | . For an in-depth understanding, visit Customizable Rules. ",
-    "url": "/QA/README.html#what-data-can-i-define-with-baseline-rules",
-    
-    "relUrl": "/QA/README.html#what-data-can-i-define-with-baseline-rules"
-  },"149": {
-    "doc": "Q&A",
-    "title": "How can I get more information or request additional assistance?",
-    "content": "To get more information or request additional assistance, please contact us and we’ll be happy to help. ",
-    "url": "/QA/README.html#how-can-i-get-more-information-or-request-additional-assistance",
-    
-    "relUrl": "/QA/README.html#how-can-i-get-more-information-or-request-additional-assistance"
-  },"150": {
-    "doc": "Q&A",
-    "title": "File Classification Services",
-    "content": "UTMStack offers file classification services that include: . | File change and access tracking | Activity monitoring | File integrity monitoring | . ",
-    "url": "/QA/README.html#file-classification-services",
-    
-    "relUrl": "/QA/README.html#file-classification-services"
-  },"151": {
-    "doc": "Q&A",
-    "title": "UTMStack vs. Other Cybersecurity Platforms",
-    "content": "UTMStack is unique in that it: . | Provides an integrated, cost-effective cybersecurity solution | Bundles multiple cybersecurity tools into one platform | Features a powerful dashboard and report builder for customization | Reduces learning curves and vendor costs | . ",
-    "url": "/QA/README.html#utmstack-vs-other-cybersecurity-platforms",
-    
-    "relUrl": "/QA/README.html#utmstack-vs-other-cybersecurity-platforms"
-  },"152": {
-    "doc": "Q&A",
-    "title": "Threat Detection Technology",
-    "content": "UTMStack’s threat detection uses: . | Rule-based algorithms | Scanner technologies | AI-powered machine learning algorithms | Independent and combined module operation for accurate threat detection | . ",
-    "url": "/QA/README.html#threat-detection-technology",
-    
-    "relUrl": "/QA/README.html#threat-detection-technology"
-  },"153": {
-    "doc": "Q&A",
-    "title": "Log Management Services",
-    "content": "UTMStack’s log management services encompass: . | Log collection and correlation | Customizable correlation rules | Integration with third-party log management solutions | . ",
-    "url": "/QA/README.html#log-management-services",
-    
-    "relUrl": "/QA/README.html#log-management-services"
-  },"154": {
-    "doc": "Q&A",
-    "title": "AD Audit Activation Issue",
-    "content": "If encountering issues when activating AD Audit in UTMStack v9: . | It’s advised to upgrade to the latest version of UTMStack for improved compatibility and performance due to potential incompatibility with Windows updates. | . ",
-    "url": "/QA/README.html#ad-audit-activation-issue",
-    
-    "relUrl": "/QA/README.html#ad-audit-activation-issue"
-  },"155": {
-    "doc": "Q&A",
-    "title": "Instance Integration Limitations",
-    "content": "For UTMStack instances: . | A v9 instance cannot be integrated with a v10 instance for archiving or receiving alerts due to compatibility issues. | . ",
-    "url": "/QA/README.html#instance-integration-limitations",
-    
-    "relUrl": "/QA/README.html#instance-integration-limitations"
-  },"156": {
-    "doc": "Q&A",
-    "title": "Agent Compatibility",
-    "content": "Regarding UTMStack agents: . | The v10 agent, deployed via PowerShell, cannot be used with v9. Each version requires the respective agent. | . ",
-    "url": "/QA/README.html#agent-compatibility",
-    
-    "relUrl": "/QA/README.html#agent-compatibility"
-  },"157": {
-    "doc": "Q&A",
-    "title": "Q&A",
-    "content": " ",
-    "url": "/QA/README.html",
-    
-    "relUrl": "/QA/README.html"
-  },"158": {
     "doc": "Compliance Schedule",
     "title": "Compliance Schedule",
     "content": "We introduce an essential feature within our cybersecurity software platform: the Compliance Reports Selection and Scheduling Module. This module is an indispensable tool for organizations looking to optimize the management of compliance with industry-specific regulations. Adapting to a wide spectrum of standards, the module offers a comprehensive solution for customizing, automating, and monitoring the regulatory compliance status. ",
     "url": "/Compliance%20Schedule/README.html",
     
     "relUrl": "/Compliance%20Schedule/README.html"
-  },"159": {
+  },"116": {
     "doc": "Compliance Schedule",
     "title": "Compliance calendar panel view",
     "content": ". Designed to provide a clear and concise overview of each schedule, including details such as the name of the schedule, the frequency of the reports, the date range, and the specific data filters used, such as types of incidents, affected regions, or compliance categories. This organization allows users to quickly review and manage their compliance schedules, facilitating adjustments or updates as necessary to ensure that compliance information remains accurate and relevant according to regulatory requirements and organizational needs. | Name: Identifies the name of the program. | Schedule: Defined time intervals. | Filters: Customized filters of information included in the reports. | Action: Provides options to edit or delete the compliance schedule. | . 1. Create a new schedule . Click on the “New Schedule” button . 2. Report Selection . A list of available reports will be presented. You can select the specific reports you are interested in for further configuration. 3. Filter Application . Apply filters to customize the information included in the reports. Filters can be configured according to criteria already defined according to the dashboard associated to the selected report. 4. Time Configuration . Schedule the delivery of reports at predefined time intervals. An intuitive interface is provided to select the delivery frequency, the day and the specific time when the reports will be sent by e-mail. Note . The minimum number of time sequences is defined for one daily . 5. Confirmation and Saving . Once you have selected the reports, applied the filters and configured the delivery time, you must confirm and save the configuration. This information will be stored for future automatic deliveries. ",
     "url": "/Compliance%20Schedule/README.html#compliance-calendar-panel-view",
     
     "relUrl": "/Compliance%20Schedule/README.html#compliance-calendar-panel-view"
-  },"160": {
+  },"117": {
     "doc": "Configuration",
     "title": "Configuration",
     "content": "This section will guide you through various configuration options available within UTMStack, ensuring you optimize the platform according to your organizational needs. ##Application Settings . Go to Application Settings Section for more details . ",
     "url": "/UTMStackComponents/Configuration/README.html",
     
     "relUrl": "/UTMStackComponents/Configuration/README.html"
-  },"161": {
+  },"118": {
     "doc": "Configuration",
     "title": "Custom Logos and Report Covers",
     "content": "Customize UTMStack’s appearance to align with your organization’s branding. Configuring Custom Logos . | Navigate to Settings &gt; Application Theme. | Upload your desired logo for the Header, Login, Report and Report Cover. | Save your settings. | . ",
     "url": "/UTMStackComponents/Configuration/README.html#custom-logos-and-report-covers",
     
     "relUrl": "/UTMStackComponents/Configuration/README.html#custom-logos-and-report-covers"
-  },"162": {
-    "doc": "Installation",
-    "title": "UTMStack Installation Guide",
-    "content": "Welcome to the UTMStack installation guide. This guide will walk you through the step-by-step process of installing UTMStack, ensuring a seamless setup and configuration of the platform. Please follow the instructions carefully to ensure a successful installation. ",
-    "url": "/Installation/README.html#utmstack-installation-guide",
-    
-    "relUrl": "/Installation/README.html#utmstack-installation-guide"
-  },"163": {
-    "doc": "Installation",
-    "title": "System Requirements",
-    "content": "Before proceeding with the installation, it is important to ensure that your system meets the minimum requirements to run UTMStack effectively. Please refer to the System Requirements page in the UTMStack documentation for detailed information about the recommended specifications for your environment. ",
-    "url": "/Installation/README.html#system-requirements",
-    
-    "relUrl": "/Installation/README.html#system-requirements"
-  },"164": {
-    "doc": "Installation",
-    "title": "Installation Steps",
-    "content": "The UTMStack installation process consists of three main steps: . | Choose the Architecture: Before starting the installation, you need to decide on the architecture for your UTMStack deployment. This step determines the components and services that will be installed. Refer to the Architecture Page for a detailed description of each architecture option. | Installing the Federated Service (Optional): If you have chosen the Federated architecture in Step 1, follow the instructions in the Federated Server Installation Guide after ensuring your system meets the recommended specifications mentioned in the Federated Service Requirements page. | Setting up the Master Servers: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services. To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of 4 cores, 8 GB of RAM and 256 GB of disk storage for each 50 devices. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system Ubuntu Server 22.04 LTS. For detailed instructions on setting up the master servers, please refer to the Master Server Setup Guide in the UTMStack documentation. | Personalizing and Configuring UTMStack: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack: . | Access UTMStack Management Interface: Open a web browser and enter the URL or IP address to access the UTMStack management interface. | Log in: Use the provided credentials to log in to the UTMStack management interface. | Navigate to Settings: Locate the settings menu, accessible through a hamburger menu icon on the right side of the interface. | . | Personalize UTMStack: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization’s needs and security policies. | . For more detailed instructions on settings , please refer to the Configuration Section in the UTMStack documentation. | Save and Verify: Save the configurations and ensure that all UTMStack services are running correctly. Verify that the desired functionality is achieved and that the system is operating optimally. | . By personalizing and configuring UTMStack, you can tailor the system to meet your organization’s specific needs and optimize its performance for effective log management and security monitoring. | . Congratulations! You have successfully completed the installation process for UTMStack. Ensure that you perform thorough testing and verification to confirm the proper functioning of the platform. ",
-    "url": "/Installation/README.html#installation-steps",
-    
-    "relUrl": "/Installation/README.html#installation-steps"
-  },"165": {
-    "doc": "Installation",
-    "title": "Installation",
-    "content": " ",
-    "url": "/Installation/README.html",
-    
-    "relUrl": "/Installation/README.html"
-  },"166": {
+  },"119": {
     "doc": "Correlation Rules",
     "title": "Correlation Rules",
     "content": "Correlation rules in UTMStack are defined frameworks aiding analysts in detecting network threats. Through automated log analysis, these rules swiftly identify potential security incidents. Defined by fields like reference name and severity, each rule generates alerts to notify of varying threat levels. With a vast pool of over 128,000 rules, ranging in complexity, UTMStack’s real-time correlation engine processes data pre-ingestion, enabling prompt threat detection and response. This robust system forms a critical defense mechanism, essential for maintaining network security and compliance in UTMStack environments. ",
     "url": "/Correlation%20Rules/README.html",
     
     "relUrl": "/Correlation%20Rules/README.html"
-  },"167": {
+  },"120": {
     "doc": "Correlation Rules",
     "title": "Fields Reference",
     "content": "name . This is the name that we will use for the alerts of the current rule. severity . The severity of the alerts for this rule. Use the majuscule initial. Possible values: Low, Medium, High. description . The description that will appear in the alerts. solution . If there is a known solution for this incident, specify here. category . If there is any category in which the alert can be grouped. tactic . If there is an incident detected by this rule fits into any of the attack tactics. dataTypes . Group of datatypes applied to a rule, means that only the logs with dataType field matching with at least one of these values will be processed by this rule. This field is an array of string values, so, you can place more than one value separated by comma. Reference . A list of URLs where you can get more information about the attack. frequency . How often in seconds the alert should be checked. cache . This field declares that the iterations will occur on the cache of the correlation engine and contains the definition of said iterations. When this field is used, the search field is not used and vice versa. cache -&gt; allOff . All comparisons within this field must be met for the rule to generate an alert. cache -&gt; oneOff . Any comparison within this field must be met for the rule to generate an alert. | **cache -&gt; [allOff | oneOff] -&gt; field** | . The field on which the comparison will be applied. A field is a series of keys separated by dots. It can contain special wildcard characters ‘*’ and ‘?’. To access a slice value, use the index as the key. To get the number of elements in a slice or to access a child path, use the ‘#’ character. Dot and wildcard characters can be escaped with ‘\\’. You can also query a slice for the first match using # (…), or find all matches with # (…) #. You can use the comparison operators (==,!=, &lt;, &lt;=,&gt;,&gt;=) and the simple pattern matching operators (% and !%). | This description also applies to [cache | search] -&gt; save -&gt; field | . { \"name\": {\"first\": \"Tom\", \"last\": \"Anderson\"}, \"age\":37, \"children\": [\"Sara\",\"Alex\",\"Jack\"], \"fav.movie\": \"Deer Hunter\", \"friends\": [ {\"first\": \"Dale\", \"last\": \"Murphy\", \"age\": 44, \"nets\": [\"ig\", \"fb\", \"tw\"]}, {\"first\": \"Roger\", \"last\": \"Craig\", \"age\": 68, \"nets\": [\"fb\", \"tw\"]}, {\"first\": \"Jane\", \"last\": \"Murphy\", \"age\": 47, \"nets\": [\"ig\", \"tw\"]} ] } \"name.last\" &gt;&gt; \"Anderson\" \"age\" &gt;&gt; 37 \"children\" &gt;&gt; [\"Sara\",\"Alex\",\"Jack\"] \"children.#\" &gt;&gt; 3 \"children.1\" &gt;&gt; \"Alex\" \"child*.2\" &gt;&gt; \"Jack\" \"c?ildren.0\" &gt;&gt; \"Sara\" \"fav\\.movie\" &gt;&gt; \"Deer Hunter\" \"friends.#.first\" &gt;&gt; [\"Dale\",\"Roger\",\"Jane\"] \"friends.1.last\" &gt;&gt; \"Craig\" \"friends.#(last==\"Murphy\").first\" &gt;&gt; \"Dale\" \"friends.#(last==\"Murphy\")#.first\" &gt;&gt; [\"Dale\",\"Jane\"] \"friends.#(age&gt;45)#.last\" &gt;&gt; [\"Craig\",\"Murphy\"] \"friends.#(first%\"D*\").last\" &gt;&gt; \"Murphy\" \"friends.#(first!%\"D*\").last\" &gt;&gt; \"Craig\" \"friends.#(nets.#(==\"fb\"))#.first\" &gt;&gt; [\"Dale\",\"Roger\"] . | **cache -&gt; [allOff | oneOff] -&gt; operator** | . Operator to use in the comparison. See information about the operators in Operators . | **cache -&gt; [allOff | oneOff] -&gt; value** | . | Value to compare the content of “cache -&gt; [allOff | oneOff] -&gt; field”. In the second iteration case or onwards, you can use an alias to use the content of that alias as a value. | . cache -&gt; timeLapse . How much time backward in seconds will be checked in the logs. | **[cache | search] -&gt; minCount** | . How many minimum logs must be obtained as a result for this rule to be met. | **[cache | search] -&gt; save** | . Required fields to save to use in the next cycle iteration or to complete the information of the alerts. | **[cache | search] -&gt; save -&gt; field** | . The original name of the field to store. | **[cache | search] -&gt; save -&gt; alias** | . The alias or name to access the field. There cannot be two or more aliases with the same name within the same iteration. In the last iteration, the system will use the following aliases to fill in the alert details: . | Protocol | SourceUser | SourceHost | SourceIP | SourcePort | DestinationUser | DestinationHost | DestinationIP | DestinationPort | . The geolocation will be filled automatically from the SourceIP and DestinationIP aliases. If the SourceIP or DestinationIP aliases do not exist, the system will generate them using SourceHost and DestinationHost, and vice versa. If any field is saved with the aliases AlertName and AlertCategory in the last iteration, the alert name or category will be overwritten with those aliases’ content as appropriate. search . This field declares that the iterations will occur on Elasticsearch and contains the said iterations definition. When this field is used, the cache field is not used, and vice versa. search -&gt; query . The elasticsearch or opensearch query in json format. Remember to enclose the query in simple quotation marks. Operators . == . It’s true if the field’s content is exactly equal to “value” content. It is sensitive to capital letters. | hello == Hello //False | hello == hello //True | . :: . It’s true if the field’s content is equal to “value” content. It is not sensitive to capital letters. | hello :: Hello //True | hello :: hello //True | . != y &lt;&gt; . It’s true if the field’s content is unequal to “value” content. It is sensitive to capital letters. | hello != Hello //True | hello != hello //False | . !! . It’s true if the field’s content is unequal to “value” content. It is not sensitive to capital letters. | hello !! Hello //False | hello !! hello //False | . contains . It’s true if the “value” content is part of the field content. | “hello world” contains “world” //True | “hello world” contains “worlds” //False | . not contain . It’s true if the “value” content is not part of the field content. | ” hello world “ not contain “ world “ //False | ” hello world “ not contain “ worlds” //True | . in . It’s true if the field content is part of the “value” content. | ” world “ in “hello, world, this, is, a, test” //True | ” worlds” in “hello, world, this, is, a, test” //False | . not in . It’s true if the field content is not part of the “value” content. | ” world” not in “hello, world, this, is, a, test “ //False | ” worlds” not in “hello, world, this, is, a, test “ //True | . start with . It’s true if the “value” content is a prefix of the field content. | ” hello world “ start with “ world “ //False | ” hello world “ start with “hello” //True | . not start with . It’s true if the “value” content is not a prefix of the field content. | ” hello world “ not start with “ world “ //True | ” hello world “ not start with “ hello “ //False | . end with . It’s true if the “value” content is a suffix of the field content. | ” hello world “ end with “ world “ //True | ” hello world “ end with “hello” //False | . not end with . It’s true if the “value” content is not a suffix of the field content. | ” hello world “ not end with “ world “ //False | ” hello world “ not end with “ hello “ //True | . regexp . It’s true if the field content matches the regular expression of “value”. | “adam[23]” regexp “^[a-z]+\\[[0-9]+\\]$” //True | ” hello world “ regexp “^[a-z]+\\[[0-9]+\\]$” //False | . not regexp . It’s true if the field content does not match the regular expression of “value”. | “adam[23]” not regexp “^[a-z]+\\[[0-9]+\\]$” //False | ” hello world “ not regexp “^[a-z]+\\[[0-9]+\\]$” //True | . exist . It’s true if the field exists. The value must leave empty, as it must exist, but it will not be used. not exist . It’s true if the field does not exist. The value must leave empty, as it must exist, but it will not be used. in cidr . It’s true if the IP in the field is within the value range. not in cidr . It’s true if the IP in the field is not within the value range. Classic mathematical operators that only apply to numbers. Use only when the field content and the “value” are numeric. | &lt; | &gt; | &lt;= | &gt;= | . When to use cache or search . We recommend using the cache for the rules that will analyze logs in a maximum of 1h. We recommend using search when the analysis period exceeds 1h or the rule’s complexity is very high, and there is no way to do it using the cache. Examples . - name: Windows authentication failure severity: Low description: A Windows user was unable to authenticate with the server or workstation more than 5 times. solution: Refer to NIST guidelines when creating password policies and set account lockout policies after a certain number of failed login attempts to prevent passwords from being guessed. Too strict a policy may create a denial of service condition and render environments un-usable, with all accounts used in the brute force being locked-out. category: User Account Authentication tactic: \"Brute Force: Password Guessing\" dataTypes: [\"wineventlog\"] reference: - \"https://attack.mitre.org/techniques/T1110/001/\" frequency: 10 cache: - allOf: - field: logx.wineventlog.event_id operator: \"==\" value: 4625 minCount: 1 timeLapse: 15 save: - field: logx.wineventlog.event_data.TargetUserName alias: DestinationUser - field: logx.wineventlog.host.name alias: DestinationHost - allOf: - field: logx.wineventlog.event_id operator: \"==\" value: 4625 - field: logx.wineventlog.event_data.TargetUserName operator: \"==\" value: \"\" - field: logx.wineventlog.host.name operator: \"==\" value: \"\" minCount: 5 timeLapse: 60 save: - field: logx.wineventlog.event_data.TargetUserName alias: DestinationUser - field: logx.wineventlog.host.name alias: DestinationHost - field: logx.wineventlog.event_data.WorkstationName alias: SourceHost - field: logx.wineventlog.event_data.IpAddress alias: SourceIP . - name: Windows authentication failure severity: Low description: A Windows user was unable to authenticate with the server or workstation more than 5 times. solution: Refer to NIST guidelines when creating password policies and set account lockout policies after a certain number of failed login attempts to prevent passwords from being guessed. Too strict a policy may create a denial of service condition and render environments un-usable, with all accounts used in the brute force being locked-out. category: User Account Authentication tactic: \"Brute Force: Password Guessing\" dataTypes: [\"wineventlog\"] reference: - \"https://attack.mitre.org/techniques/T1110/001/\" frequency: 10 search: - query: '{\"size\": 500, \"query\": {\"bool\": {\"must\": [{\"match_phrase\": {\"logx.wineventlog.event_id\": 4625}}], \"filter\": [{\"range\": {\"@timestamp\": {\"gte\": \"now-15s\", \"lte\": \"now\"}}}], \"should\": [], \"must_not\": []}}}' minCount: 1 save: - field: logx.wineventlog.event_data.TargetUserName alias: DestinationUser - field: logx.wineventlog.host.name alias: DestinationHost - query: '{\"size\": 500, \"query\": {\"bool\": {\"must\": [{\"match_phrase\": {\"logx.wineventlog.event_id\": 4625}}, {\"match_phrase\": {\"logx.wineventlog.event_data.TargetUserName\": \"\"}}], \"filter\": [{\"range\": {\"@timestamp\": {\"gte\": \"now-60s\", \"lte\": \"now\"}}}], \"should\": [], \"must_not\": [{\"match_phrase\": {\"logx.wineventlog.event_data.TargetUserName\": \"$\"}}]}}}' minCount: 5 save: - field: logx.wineventlog.event_data.TargetUserName alias: DestinationUser - field: logx.wineventlog.host.name alias: DestinationHost - field: logx.wineventlog.event_data.WorkstationName alias: SourceHost - field: logx.wineventlog.event_data.IpAddress alias: SourceIP . ",
     "url": "/Correlation%20Rules/README.html#fields-reference",
     
     "relUrl": "/Correlation%20Rules/README.html#fields-reference"
+  },"121": {
+    "doc": "Charts",
+    "title": "Charts",
+    "content": " ",
+    "url": "/UTMStackComponents/Dashboards/Charts/README.html",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/Charts/README.html"
+  },"122": {
+    "doc": "Incident Management",
+    "title": "Incident Management Module",
+    "content": "The Incident Management Module stands as a vital component of UTMStack, meticulously designed to address and manage any incidents surfacing within your organization’s digital domain. This module bifurcates into two primary sections: Incident Management and Incident Response. ",
+    "url": "/UTMStackComponents/Incidents/README.html#incident-management-module",
+    
+    "relUrl": "/UTMStackComponents/Incidents/README.html#incident-management-module"
+  },"123": {
+    "doc": "Incident Management",
+    "title": "Incidents",
+    "content": "In the Incident Management segment, you’re equipped with tools to manage, track, and effectively resolve incidents identified within your organizational framework. This section is not just about managing individual incidents. You can cluster a set of alerts to form an incident or even append new alerts to pre-existing incidents. This holistic approach ensures that your security teams efficiently navigate the incident lifecycle, stretching from the initial detection, effective classification, right up to its conclusive resolution. ",
+    "url": "/UTMStackComponents/Incidents/README.html#incidents",
+    
+    "relUrl": "/UTMStackComponents/Incidents/README.html#incidents"
+  },"124": {
+    "doc": "Incident Management",
+    "title": "Incident Response Automation",
+    "content": "Bolster your incident response strategy with the Incident Response Automation feature. This capability allows your organization to deploy automated actions conditioned on specific triggers present in incident fields. Harnessing this automation not only elevates the pace but also boosts the precision and uniformity of your incident response mechanism. It strategically offloads mundane tasks, allowing your team to channel their focus on mission-critical activities, thus curtailing the adverse aftermath of security breaches. ",
+    "url": "/UTMStackComponents/Incidents/README.html#incident-response-automation",
+    
+    "relUrl": "/UTMStackComponents/Incidents/README.html#incident-response-automation"
+  },"125": {
+    "doc": "Incident Management",
+    "title": "Incident Management",
+    "content": " ",
+    "url": "/UTMStackComponents/Incidents/README.html",
+    
+    "relUrl": "/UTMStackComponents/Incidents/README.html"
+  },"126": {
+    "doc": "Q&A",
+    "title": "Q&amp;A Guide",
+    "content": " ",
+    "url": "/QA/README.html#qa-guide",
+    
+    "relUrl": "/QA/README.html#qa-guide"
+  },"127": {
+    "doc": "Q&A",
+    "title": "Uninstalling Client Agents in UTMStack",
+    "content": "To ensure a thorough and trouble-free uninstallation of client agents, please execute the steps below: . | Log into the Client System: Begin by accessing the client system with the installed UTMStack agent. | Launch Command Line Interface (CLI): . | For Windows: Navigate to Command Prompt and execute it as an administrator. | For Linux: Open Terminal ensuring you possess the requisite permissions for system commands. | . | Commence Uninstallation: . | On Windows, type the following command and hit Enter: utmstackagent-windows.exe uninstall . | On Linux, input this command: sudo utmstackagent-linux uninstall . | . | . ",
+    "url": "/QA/README.html#uninstalling-client-agents-in-utmstack",
+    
+    "relUrl": "/QA/README.html#uninstalling-client-agents-in-utmstack"
+  },"128": {
+    "doc": "Q&A",
+    "title": "Addressing Alerts Without User Identification in UTMStack",
+    "content": "When confronted with alerts missing user IDs, showing “Not available” in the User field, delve into the original logs. These logs may contain user information that wasn’t captured or parsed correctly during the alert generation process. ",
+    "url": "/QA/README.html#addressing-alerts-without-user-identification-in-utmstack",
+    
+    "relUrl": "/QA/README.html#addressing-alerts-without-user-identification-in-utmstack"
+  },"129": {
+    "doc": "Q&A",
+    "title": "Locating Integration Guides in UTMStack",
+    "content": "Integration guides are available in the Integrations Section of the application. These guides offer detailed instructions for installing agents with a variety of platforms. ",
+    "url": "/QA/README.html#locating-integration-guides-in-utmstack",
+    
+    "relUrl": "/QA/README.html#locating-integration-guides-in-utmstack"
+  },"130": {
+    "doc": "Q&A",
+    "title": "Understanding the Role of the Probe Server in UTMStack",
+    "content": "The Probe server previously part of UTMStack’s architecture is now obsolete. The updated system architecture involves Agents directly installed on devices, which relay logs to UTMStack, enhancing efficiency and data acquisition. ",
+    "url": "/QA/README.html#understanding-the-role-of-the-probe-server-in-utmstack",
+    
+    "relUrl": "/QA/README.html#understanding-the-role-of-the-probe-server-in-utmstack"
+  },"131": {
+    "doc": "Q&A",
+    "title": "Baseline Rules in UTMStack",
+    "content": "Baseline rules in UTMStack are critical for setting the standard for expected operational behavior: . | Definition: These rules establish the norm for routine operations. | Functionality: Deviations from established norms trigger alerts, prompting further investigation. | . For additional insights, refer to the Correlation Rules documentation. ",
+    "url": "/QA/README.html#baseline-rules-in-utmstack",
+    
+    "relUrl": "/QA/README.html#baseline-rules-in-utmstack"
+  },"132": {
+    "doc": "Q&A",
+    "title": "Compliance Features within UTMStack",
+    "content": "UTMStack is equipped with an array of compliance features tailored to meet various regulatory requirements: . | Health Insurance Portability and Accountability Act (HIPAA): Aimed at safeguarding sensitive patient data, with reports tailored to enforce HIPAA provisions. | General Data Protection Regulation (GDPR): Ensures adherence to EU data protection laws with pre-configured compliance reports. | Gramm-Leach-Bliley Act (GLBA): Assists financial institutions in managing private information through customized reports. | System and Organization Controls 2 (SOC 2): Offers reports in line with SOC 2’s Control Criteria for non-financial reporting controls. | Federal Information Security Management Act (FISMA): Includes predefined reports to aid in upholding FISMA regulations. | Cybersecurity Maturity Model Certification (CMMC): Provides targeted reports for compliance with various CMMC Levels for U.S. Government contract aspirants. | Payment Card Industry Data Security Standard (PCI-DSS): Features specific reports to ensure credit card data processing is within PCI-DSS guidelines. | . ",
+    "url": "/QA/README.html#compliance-features-within-utmstack",
+    
+    "relUrl": "/QA/README.html#compliance-features-within-utmstack"
+  },"133": {
+    "doc": "Q&A",
+    "title": "What network and host intrusion detection services does UTMStack offer?",
+    "content": "UTMStack offers network and host intrusion detection services that include rule-based network intrusion detection, rule-based host intrusion detection system, and heuristic-based analysis with ATP capabilities, as well as network traffic, protocol, and DNS analysis. ",
+    "url": "/QA/README.html#what-network-and-host-intrusion-detection-services-does-utmstack-offer",
+    
+    "relUrl": "/QA/README.html#what-network-and-host-intrusion-detection-services-does-utmstack-offer"
+  },"134": {
+    "doc": "Q&A",
+    "title": "What access rights audit services does UTMStack offer?",
+    "content": "UTMStack offers access rights audit services that include an Active Directory explorer, user activity and permissions tracking, and suspicious activity monitoring. ",
+    "url": "/QA/README.html#what-access-rights-audit-services-does-utmstack-offer",
+    
+    "relUrl": "/QA/README.html#what-access-rights-audit-services-does-utmstack-offer"
+  },"135": {
+    "doc": "Q&A",
+    "title": "What file classification services does UTMStack offer?",
+    "content": "UTMStack offers file classification services that include file change and access tracking, activity monitoring, and file integrity monitoring. ",
+    "url": "/QA/README.html#what-file-classification-services-does-utmstack-offer",
+    
+    "relUrl": "/QA/README.html#what-file-classification-services-does-utmstack-offer"
+  },"136": {
+    "doc": "Q&A",
+    "title": "What Deep Web monitoring services does UTMStack offer?",
+    "content": "UTMStack offers Deep Web monitoring services that include monitoring for compromised or stolen data from employees and customers, as well as monitoring of domain and individual email addresses. ",
+    "url": "/QA/README.html#what-deep-web-monitoring-services-does-utmstack-offer",
+    
+    "relUrl": "/QA/README.html#what-deep-web-monitoring-services-does-utmstack-offer"
+  },"137": {
+    "doc": "Q&A",
+    "title": "How is UTMStack different from other cybersecurity platforms?",
+    "content": "UTMStack stands out from other cybersecurity platforms by offering an integrated, cost-effective solution that bundles multiple cybersecurity products on a single platform. This reduces the learning curve for security professionals and the costs of purchasing different tools from multiple vendors. In addition, the platform includes a powerful dashboard and report builder that can be used to customize the monitoring experience or to perform advanced compliance audits and reports. ",
+    "url": "/QA/README.html#how-is-utmstack-different-from-other-cybersecurity-platforms",
+    
+    "relUrl": "/QA/README.html#how-is-utmstack-different-from-other-cybersecurity-platforms"
+  },"138": {
+    "doc": "Q&A",
+    "title": "For what types of environments is UTMStack designed?",
+    "content": "UTMStack is designed for hybrid environments, allowing it to be easily implemented in both on-premises and cloud environments. ",
+    "url": "/QA/README.html#for-what-types-of-environments-is-utmstack-designed",
+    
+    "relUrl": "/QA/README.html#for-what-types-of-environments-is-utmstack-designed"
+  },"139": {
+    "doc": "Q&A",
+    "title": "What compliance features does UTMStack include?",
+    "content": "UTMStack includes compliance reports for HIPAA, GLBA, SOC, and GDPR, as well as an event and log explorer for advanced forensic analysis and a customizable report/dashboard builder for compliance reporting. ",
+    "url": "/QA/README.html#what-compliance-features-does-utmstack-include",
+    
+    "relUrl": "/QA/README.html#what-compliance-features-does-utmstack-include"
+  },"140": {
+    "doc": "Q&A",
+    "title": "What threat detection technology does UTMStack use?",
+    "content": "UTMStack uses a range of rule-based, scanner, and AI-powered machine learning algorithms for its threat detection engine. The modules operate independently and, in some cases, are combined to provide more accurate and real-time threat detection. ",
+    "url": "/QA/README.html#what-threat-detection-technology-does-utmstack-use",
+    
+    "relUrl": "/QA/README.html#what-threat-detection-technology-does-utmstack-use"
+  },"141": {
+    "doc": "Q&A",
+    "title": "What log management services does UTMStack offer?",
+    "content": "UTMStack offers log management services that include log collection and correlation, customizable correlation rules and integration with third-party log management solutions. ",
+    "url": "/QA/README.html#what-log-management-services-does-utmstack-offer",
+    
+    "relUrl": "/QA/README.html#what-log-management-services-does-utmstack-offer"
+  },"142": {
+    "doc": "Q&A",
+    "title": "What data can I define with baseline rules?",
+    "content": "We offer baseline rules that allow users to define the following data: . | Whitelist of allowed internal IP addresses | Whitelist of allowed IP addresses for login | Whitelist of allowed applications | Whitelist of allowed O365 users | Whitelist of allowed Windows users | . For an in-depth understanding, visit Customizable Rules. ",
+    "url": "/QA/README.html#what-data-can-i-define-with-baseline-rules",
+    
+    "relUrl": "/QA/README.html#what-data-can-i-define-with-baseline-rules"
+  },"143": {
+    "doc": "Q&A",
+    "title": "How can I get more information or request additional assistance?",
+    "content": "To get more information or request additional assistance, please contact us and we’ll be happy to help. ",
+    "url": "/QA/README.html#how-can-i-get-more-information-or-request-additional-assistance",
+    
+    "relUrl": "/QA/README.html#how-can-i-get-more-information-or-request-additional-assistance"
+  },"144": {
+    "doc": "Q&A",
+    "title": "File Classification Services",
+    "content": "UTMStack offers file classification services that include: . | File change and access tracking | Activity monitoring | File integrity monitoring | . ",
+    "url": "/QA/README.html#file-classification-services",
+    
+    "relUrl": "/QA/README.html#file-classification-services"
+  },"145": {
+    "doc": "Q&A",
+    "title": "UTMStack vs. Other Cybersecurity Platforms",
+    "content": "UTMStack is unique in that it: . | Provides an integrated, cost-effective cybersecurity solution | Bundles multiple cybersecurity tools into one platform | Features a powerful dashboard and report builder for customization | Reduces learning curves and vendor costs | . ",
+    "url": "/QA/README.html#utmstack-vs-other-cybersecurity-platforms",
+    
+    "relUrl": "/QA/README.html#utmstack-vs-other-cybersecurity-platforms"
+  },"146": {
+    "doc": "Q&A",
+    "title": "Threat Detection Technology",
+    "content": "UTMStack’s threat detection uses: . | Rule-based algorithms | Scanner technologies | AI-powered machine learning algorithms | Independent and combined module operation for accurate threat detection | . ",
+    "url": "/QA/README.html#threat-detection-technology",
+    
+    "relUrl": "/QA/README.html#threat-detection-technology"
+  },"147": {
+    "doc": "Q&A",
+    "title": "Log Management Services",
+    "content": "UTMStack’s log management services encompass: . | Log collection and correlation | Customizable correlation rules | Integration with third-party log management solutions | . ",
+    "url": "/QA/README.html#log-management-services",
+    
+    "relUrl": "/QA/README.html#log-management-services"
+  },"148": {
+    "doc": "Q&A",
+    "title": "AD Audit Activation Issue",
+    "content": "If encountering issues when activating AD Audit in UTMStack v9: . | It’s advised to upgrade to the latest version of UTMStack for improved compatibility and performance due to potential incompatibility with Windows updates. | . ",
+    "url": "/QA/README.html#ad-audit-activation-issue",
+    
+    "relUrl": "/QA/README.html#ad-audit-activation-issue"
+  },"149": {
+    "doc": "Q&A",
+    "title": "Instance Integration Limitations",
+    "content": "For UTMStack instances: . | A v9 instance cannot be integrated with a v10 instance for archiving or receiving alerts due to compatibility issues. | . ",
+    "url": "/QA/README.html#instance-integration-limitations",
+    
+    "relUrl": "/QA/README.html#instance-integration-limitations"
+  },"150": {
+    "doc": "Q&A",
+    "title": "Agent Compatibility",
+    "content": "Regarding UTMStack agents: . | The v10 agent, deployed via PowerShell, cannot be used with v9. Each version requires the respective agent. | . ",
+    "url": "/QA/README.html#agent-compatibility",
+    
+    "relUrl": "/QA/README.html#agent-compatibility"
+  },"151": {
+    "doc": "Q&A",
+    "title": "Q&A",
+    "content": " ",
+    "url": "/QA/README.html",
+    
+    "relUrl": "/QA/README.html"
+  },"152": {
+    "doc": "Installation",
+    "title": "UTMStack Installation Guide",
+    "content": "Welcome to the UTMStack installation guide. This guide will walk you through the step-by-step process of installing UTMStack, ensuring a seamless setup and configuration of the platform. Please follow the instructions carefully to ensure a successful installation. ",
+    "url": "/Installation/README.html#utmstack-installation-guide",
+    
+    "relUrl": "/Installation/README.html#utmstack-installation-guide"
+  },"153": {
+    "doc": "Installation",
+    "title": "System Requirements",
+    "content": "Before proceeding with the installation, it is important to ensure that your system meets the minimum requirements to run UTMStack effectively. Please refer to the System Requirements page in the UTMStack documentation for detailed information about the recommended specifications for your environment. ",
+    "url": "/Installation/README.html#system-requirements",
+    
+    "relUrl": "/Installation/README.html#system-requirements"
+  },"154": {
+    "doc": "Installation",
+    "title": "Installation Steps",
+    "content": "The UTMStack installation process consists of three main steps: . | Choose the Architecture: Before starting the installation, you need to decide on the architecture for your UTMStack deployment. This step determines the components and services that will be installed. Refer to the Architecture Page for a detailed description of each architecture option. | Installing the Federated Service (Optional): If you have chosen the Federated architecture in Step 1, follow the instructions in the Federated Server Installation Guide after ensuring your system meets the recommended specifications mentioned in the Federated Service Requirements page. | Setting up the Master Servers: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services. To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of 4 cores, 8 GB of RAM and 256 GB of disk storage for each 50 devices. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system Ubuntu Server 22.04 LTS. For detailed instructions on setting up the master servers, please refer to the Master Server Setup Guide in the UTMStack documentation. | Personalizing and Configuring UTMStack: Once you have completed the installation of UTMStack, the next step is to personalize and configure the UTMStack services to optimize its performance and functionality. Follow the instructions below to personalize and configure UTMStack: . | Access UTMStack Management Interface: Open a web browser and enter the URL or IP address to access the UTMStack management interface. | Log in: Use the provided credentials to log in to the UTMStack management interface. | Navigate to Settings: Locate the settings menu, accessible through a hamburger menu icon on the right side of the interface. | . | Personalize UTMStack: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization’s needs and security policies. | . For more detailed instructions on settings , please refer to the Configuration Section in the UTMStack documentation. | Save and Verify: Save the configurations and ensure that all UTMStack services are running correctly. Verify that the desired functionality is achieved and that the system is operating optimally. | . By personalizing and configuring UTMStack, you can tailor the system to meet your organization’s specific needs and optimize its performance for effective log management and security monitoring. | . Congratulations! You have successfully completed the installation process for UTMStack. Ensure that you perform thorough testing and verification to confirm the proper functioning of the platform. ",
+    "url": "/Installation/README.html#installation-steps",
+    
+    "relUrl": "/Installation/README.html#installation-steps"
+  },"155": {
+    "doc": "Installation",
+    "title": "Installation",
+    "content": " ",
+    "url": "/Installation/README.html",
+    
+    "relUrl": "/Installation/README.html"
+  },"156": {
+    "doc": "Compliance Management",
+    "title": "Compliance Management",
+    "content": "Welcome to our in-depth guide on the Compliance Management module, a key feature of our cybersecurity software platform. This module aids organizations in achieving and maintaining compliance across various industry-specific regulations. By accommodating a multitude of standards, our Compliance Management module provides a holistic view of your organization’s regulatory compliance status. Each standard is categorized. By default, the categories available are: . | Account Management | Device Activity | Application Audit | Alerts and Incidents | . Each standard has its dedicated section. For example, if you wish to monitor the Office 365 Account Activity regarding successful logins, you can navigate to the relevant category. Upon selecting it, you’ll receive a detailed description of the report and the compliance standards it addresses. ",
+    "url": "/UTMStackComponents/Compliance/README.html",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html"
+  },"157": {
+    "doc": "Compliance Management",
+    "title": "Supported Compliance Standards",
+    "content": "Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors: . 1. Health Insurance Portability and Accountability Act (HIPAA) . HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively. 2. General Data Protection Regulation (GDPR) . GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR’s core principles. 3. Gramm-Leach-Bliley Act (GLBA) . GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance. 4. System and Organization Controls 2 (SOC 2) . SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance. 5. Federal Information Security Management Act (FISMA) . FISMA is a U.S. federal law that mandates federal agencies to develop, document, and implement an information security and protection program. The module provides pre-defined reports monitoring compliance with FISMA’s crucial sections. 6. Cybersecurity Maturity Model Certification (CMMC) . CMMC certification is a requirement for businesses bidding on U.S. Government contracts. The CMMC section within the module provides reports specifically designed to monitor compliance with different CMMC Levels. 7. Payment Card Industry Data Security Standard (PCI-DSS) . PCI-DSS is a set of standards for managing and securing credit card-related personal data. The PCI-DSS section in the Compliance Management module provides reports aligned with specific PCI requirements, ensuring that your credit card data processing activities remain within the bounds of PCI-DSS standards. ",
+    "url": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#supported-compliance-standards"
+  },"158": {
+    "doc": "Compliance Management",
+    "title": "Export a Report",
+    "content": "Upon accessing the Platform Menu, you’ll find the Compliance submenu. Here, you can choose to either create a new compliance report or delve into various compliance standard dashboards. By selecting a standard, you’ll be directed to the Compliance Template Section. This is where you decide which report to export. Upon clicking on a report, you’ll be presented with an overview, options to modify the date range, and the capability to generate a PDF using a professionally designed template available on the platform. ",
+    "url": "/UTMStackComponents/Compliance/README.html#export-a-report",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#export-a-report"
+  },"159": {
+    "doc": "Compliance Management",
+    "title": "Comprehensive Compliance Management",
+    "content": "Beyond the features described above, the Compliance Management Dashboard—located in the application management section—grants complete control over compliance standards. You’re equipped to edit, remove, or append sections and reports to meet specific needs. Add Standard . Understanding that each organization has unique compliance requisites, our module is engineered for flexibility. It allows the addition of new compliance standards aligning with specific business needs. To introduce a new standard, proceed to the Compliance Management section. Here, the ‘Add Standard’ button will guide you through a straightforward interface for detailing the new standard. Adding Reports . We appreciate the importance of detailed reporting for each compliance standard. Our module thus empowers you to supplement new reports to an existing compliance standard. To do this, pick the preferred standard and section to which the report should belong. Next, select from a list of existing report dashboards to incorporate into your chosen compliance segment. This ensures thorough coverage of all regulatory facets. Import/Export . Acknowledging the need for system interoperability, the Compliance Management module boasts a robust import/export function. This tool aids in the proficient handling and transfer of compliance data. To export the prevailing compliance information, a comprehensive JSON file is produced, encapsulating all essentials of your standards, sections, and reports. By utilizing the ‘Export All’ button, a complete portrayal of your compliance configuration is readily compiled, ensuring data integrity. For importing, should there be a necessity to infuse the module with compliance data from an alternative system, the ‘Import All’ button facilitates this. Simply upload the corresponding JSON file, and the module will fluidly merge the data, aligning with your prior system’s setup. ",
+    "url": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management",
+    
+    "relUrl": "/UTMStackComponents/Compliance/README.html#comprehensive-compliance-management"
+  },"160": {
+    "doc": "Dashboards",
+    "title": "Dashboards",
+    "content": ". ",
+    "url": "/UTMStackComponents/Dashboards/README.html",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/README.html"
+  },"161": {
+    "doc": "Dashboards",
+    "title": "Overview",
+    "content": "The UTMStack Dashboard is a comprehensive interface that displays a collection of visualizations and searches. This one-stop hub offers critical insights into user activity, alerts, vulnerabilities, and network traffic within your organization. Equipped with a variety of visualization types, UTMStack streamlines security monitoring and analysis for a more secure network environment. In this guide, we will walk through the Dashboard feature of UTMStack. Learn how to create custom visualizations from your log, event, and alarm data and add them to a personalized dashboard for efficient viewing and tracking. This guide covers the steps to filter and edit visualizations and using aggregation and segmentation options for a deeper understanding of the data. ",
+    "url": "/UTMStackComponents/Dashboards/README.html#overview",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#overview"
+  },"162": {
+    "doc": "Dashboards",
+    "title": "Getting Started",
+    "content": ". | After logging into UTMStack, navigate to the Dashboard tab. | . | Click on New Dashboard | . ",
+    "url": "/UTMStackComponents/Dashboards/README.html#getting-started",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#getting-started"
+  },"163": {
+    "doc": "Dashboards",
+    "title": "Creating a New Dashboard",
+    "content": "Upon clicking the New Dashboard option, a pop-up window appears on the right side of your screen. This window displays a list of pre-created visualizations, tailored based on the most common and useful visualizations requested by our users. You can now select your preferred visualization for the dashboard you wish to create by checking the respective checkboxes. For example, we are going to create a dashboard for manage the logon failure, using the Top 5 User Logon Failures, Top 5 Failure Reason Local Logon Failures, and Detail User Logon Failure visualizations. Now we click in the + Add visualizations buttons in the botton of the windows. Upon closing the window, you’ll be directed to the Dashboard view editor, featuring the selected visualizations. You can now add other visualizations, modify the size, position, and date range of your selected visualizations, or customize these visualizations to meet your specific requirements. When you’ve finished configuring your dashboard, press the Save Dashboard button. You will need to provide a name for your dashboard and may also add a description (optional). In the Dashboard List, you can use the search bar to quickly locate the dashboard you’ve just created. Congratulations, your dashboard is now created and ready for use. You can click in the elements to get the data that is visualized in the chart. You can use the Save to PDF button to export the dashboard visualizations to a PDF file. ",
+    "url": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard",
+    
+    "relUrl": "/UTMStackComponents/Dashboards/README.html#creating-a-new-dashboard"
+  },"164": {
+    "doc": "Threat Management",
+    "title": "Threat Management Module",
+    "content": "The Threat Management Module is a vital component of the UTMStack, serving as the primary interface for security engineers and analysts. It offers a comprehensive and real-time view of all security events and potential threats within your organization. When the UTMStack engine detects an event or anything that could be considered a threat, it is immediately directed to this module. This facilitates real-time threat detection and management, providing a continually updated overview of the security landscape within your organization. The module is split into two key sections: . | Alert Managment: This is where all alerts detected by the UTMStack engine are collated and presented for your analysis and action. | Taggin Rules: This is where you can manage the rules for tagging specific alerts, aiding in efficient classification and tracking of recurrent incidents. | . Additionally, the module comes equipped with an array of predefined alert options. These filters can provide quick views of alerts based on various criteria, such as the source (like Azure or Windows) or the alert classification (such as false positives). ",
+    "url": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module",
+    
+    "relUrl": "/UTMStackComponents/Threat%20Management/README.html#threat-management-module"
+  },"165": {
+    "doc": "Threat Management",
+    "title": "Threat Management",
+    "content": " ",
+    "url": "/UTMStackComponents/Threat%20Management/README.html",
+    
+    "relUrl": "/UTMStackComponents/Threat%20Management/README.html"
+  },"166": {
+    "doc": "Log Explorer Module",
+    "title": "Log Explorer Module",
+    "content": "The Log Explorer Module, a central element of UTMStack, is purpose-built to deliver an exhaustive and comprehensive view of an organization’s log data. This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure. Overview . The Log Explorer interface has been thoughtfully designed for seamless navigation and efficient functionality. The module’s centerpiece is the Data Grid, a feature offering an extensive view of an organization’s log data based on the defined datasource and query. This enables a logical grouping of queries based on user-defined filters, and the capacity to open multiple tabs for various queries. This level of customization empowers users to save their search criteria for future use, making the tool adaptable and time-efficient. In a concerted effort to make data analysis as user-friendly as possible, the Log Explorer module provides visually intuitive representations of logs. Interactive charts and graphs facilitate an at-a-glance understanding of data trends and patterns, simplifying the task of data interpretation. 1. Source . A key aspect of the Log Explorer module is the source functionality. Serving as a crucial data filtering tool, it lets users narrow down their search to specific index patterns. For instance, users can confine their search, for example, to logs originating from Office365 exclusively, thereby eliminating unnecessary data noise. In addition, this module offers the flexibility to create custom index patterns or sources. This allows users to define search parameters that cater to their specific needs, providing a level of personalization that ensures a more targeted and efficient search experience. 2. Filters . Serving as the backbone of the Log Explorer, the filtering functionality offers comprehensive data parsing based on the user’s search requirements. Filters can be defined to track logs from a specific computer, or to isolate logs pertaining to a specific operation, such as a log-in event. The versatility of these filters provides an unparalleled level of control over data analysis. The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process. 3. Data Grid . The Data Grid is where the bulk of log information can be viewed, offering users the choice of viewing the data in a table or chart format. This visualization is predicated on a selected field, allowing for a high degree of customization. Users can also define the columns they want to see in the Table mode view, either through the Select fields option on the left, or by directly selecting a field in the log. 4 The Log . The Log section offers a comprehensive view of all log information, ranging from agent_id, process name, to the source IP. This data can be viewed in two ways – either in a table view or in a JSON mode – depending on the user’s preference. The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field. 4.1 Options . Each log field within the Log Explorer module provides two key options for users: . | Adding a filter: Based on the field and value of a specific log, users can swiftly add a filter. This feature further fine-tunes the data presented in the Data Grid, refining the log data to fit the user’s specific needs. | Creating a column: Users can choose to create a new column in the Data Grid Table based on the field. This feature allows for immediate visibility and accessibility of key data points. | . 5. Personalize Fields . You can also add or remove columns in the Data Grid view, based on the fields of the logs. 5. Save the information . Users can refresh their data, save the current query for future use, or export the current data to a CSV file for offline analysis. For example, a filter to view all Office365 log-in activities could be saved for future use, negating the need to repeat the filter creation process. The option to view and manage stored queries also ensures that past investigations can be revisited with ease. By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it’s streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience. Office 365 Login Failure Analysis: Step-by-Step Guide Example . This example provides a comprehensive guide on how to utilize the Log Explorer module to create, configure, and save a query that focuses on all login failure events within Office 365 logs. ",
+    "url": "/UTMStackComponents/Log%20Explorer/README.html",
+    
+    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html"
+  },"167": {
+    "doc": "Log Explorer Module",
+    "title": "Step 1. Source Selection",
+    "content": "In the Source field, type and select “log-o365-*” from the dropdown list. This sets the data source to all Office 365 logs. Step 2. Filter Configuration: . a. Click on the ‘Add Filter’ button. b. In the Field dropdown, find and select logx.o365.Operation.keyword. c. In the Operator dropdown, select is. d. Type UserLoginFailed in the Value input box, indicating a login failure in your log system. Click Add Filter to apply this filter. After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview. Step 3. Column Selection . Option A: . a. Click on the ‘Select fields’ on the left side of the Data Grid. b. From the dropdown list, find and select “Userid”, “Workload”, and “AuthenticationType”. Option B: . a. In the Log list, switch to the Table mode view. b. From the field list, find and press the table icon next to the fields “userid”, “workload”, and “authenticationType”. These fields will be added to your Data Grid view. Save Query . Once your filters and columns are set up, click on the ‘Save’ button at the top right corner of the Data Grid. b. In the pop-up box, give your query a unique name, such as “Office365 Login Failures”, and provide a brief description if needed. Click ‘Save’ to finalize the process. Now, you can go to the Query List view by clicking the Queries button in the top right corner and use that query whenever you need. ",
+    "url": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection",
+    
+    "relUrl": "/UTMStackComponents/Log%20Explorer/README.html#step-1-source-selection"
   },"168": {
     "doc": "SSL Certificate Management in UTMStack",
     "title": "SSL Certificate Management in UTMStack",
@@ -1273,47 +1273,47 @@
     
     "relUrl": "/UTMStackComponents/Dashboards/Charts/TagCloud.html"
   },"182": {
-    "doc": "Use Case",
-    "title": "Active Attack Scenario: Compromised Employee Workstation",
-    "content": "In this section, we will explore a realistic active attack scenario involving a compromised employee workstation. The purpose of this exercise is to demonstrate how UTMStack can effectively detect and respond to such attacks, ensuring the security of your corporate systems. ",
-    "url": "/Use%20Cases/ThreatDetectionandResponse.html#active-attack-scenario-compromised-employee-workstation",
-    
-    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#active-attack-scenario-compromised-employee-workstation"
-  },"183": {
-    "doc": "Use Case",
-    "title": "Attack Overview",
-    "content": "In this simulated attack, an external malicious actor successfully executes a social engineering attack, gaining unauthorized access to a corporate device. The attacker’s objective is to infiltrate the corporate systems and carry out unauthorized activities. The attack unfolds in several phases, showcasing the attacker’s techniques and UTMStack’s capabilities in identifying and mitigating threats. The primary steps involved in this attack scenario are as follows: . | Reconnaissance Attack: The attacker initiates the attack by conducting a reconnaissance phase to gather information about the target network. This phase enables the attacker to gain visibility and identify potential vulnerabilities. | Exploitation of Saved Credentials: Leveraging acquired knowledge, the attacker exploits saved credentials to gain unauthorized access to the corporate network. By compromising an employee workstation, the attacker bypasses initial security measures. | Modifying the Host File: To evade detection, the attacker modifies the host file, a critical system file used to map IP addresses to hostnames. By altering this file, the attacker can redirect network traffic and maintain persistence within the compromised system. | Creation of a Masquerading User: The attacker masquerades as a Windows update service account by creating a new user within the compromised employee’s workstation. This technique allows the attacker to establish a covert presence, making it harder to detect their activities. | . ",
-    "url": "/Use%20Cases/ThreatDetectionandResponse.html#attack-overview",
-    
-    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#attack-overview"
-  },"184": {
-    "doc": "Use Case",
-    "title": "UTMStack Alert Management and Incident Response",
-    "content": "One common concern in incident response is the potential delay in detecting and responding to threats. However, UTMStack’s correlation capabilities ensure that detection occurs in near real-time, significantly reducing the time between the initial attack and response. Upon accessing the UTMStack instance, you will immediately notice that it displays several alerts related to the previously executed network scan. This powerful feature enables security teams, such as a Security Operations Center (SOC), to efficiently manage and respond to potential threats. Step 1: Access the Threat Management Menu . Log in to the UTMStack platform using your credentials. Once logged in, navigate to the Threat Management menu. This menu is the central hub for managing security-related Alert activities within UTMStack. Step 2: Manage Alerts . Within the Threat Management menu, select the Alerts option. This section provides an overview of all alerts generated by UTMStack, including those related to the ongoing attack. By accessing the Manage Alerts section, you can effectively monitor and respond to potential threats. Step 3: Identify the High Priority Alert . | Scan through the list of alerts displayed in the “Manage Alerts” section. | Identify the high priority alert associated with the active attack. This alert signifies a critical threat that requires immediate attention. | Pay close attention to indicators such as severity levels, timestamps, and alert descriptions to prioritize your response | . Step 4: View Alert Details . | Click on the identified high priority alert to access its detailed information. The alert details provide crucial insights into the nature of the attack, affected systems, potential impact, and related logs. You can access them to gather more information about the sequence of events. | Analyze the information provided to gain a comprehensive understanding of the attack scenario. | . Step 5: Create an Incident . Based on the high priority alert, take action to create an incident within UTMStack. By creating an incident, you initiate a dedicated investigation and response process. Follow the guidelines provided in UTMStack’s incident creation workflow to ensure accurate and comprehensive documentation of the incident. Step 6: Navigate to Incident View . Once the incident is created, navigate to the Incident View section in UTMStack. Incident view provides a centralized location for managing and tracking incident-related activities. Go to Incident Menu and select Incidents: . You will see the list of Incidents: . Step 7: Mitigate the Attack . Within the Incident View, review the details and evidence associated with the incident. Take immediate and decisive actions to mitigate the ongoing attack based on the available information. One recommended approach is to initiate the shutdown of the compromised server as the default response. This action helps contain the threat and prevent further unauthorized access to your corporate systems. However, please consider your organization’s specific incident response procedures and consult with your security team to determine the most appropriate course of action in this situation. ",
-    "url": "/Use%20Cases/ThreatDetectionandResponse.html#utmstack-alert-management-and-incident-response",
-    
-    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#utmstack-alert-management-and-incident-response"
-  },"185": {
-    "doc": "Use Case",
-    "title": "Use Case",
-    "content": " ",
-    "url": "/Use%20Cases/ThreatDetectionandResponse.html",
-    
-    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html"
-  },"186": {
     "doc": "Integrations",
     "title": "UTMStack Integrations",
     "content": "UTMStack comes out of the box with a wide range of built-in integrations for most mainstream technologies. Enabling an integration allows UTMStack to correlate logs coming from the corresponding data source on your network and detecting threats reliably. Each specific integration has its own guide. Our team is always working on a new integration, but here is the list of what we have developed so far: . | No. | Name |   | . | 1 | VMWare Syslog | | . | 2 | Windows Agent | | . | 3 | Syslog | | . | 4 | Linux Agent | | . | 5 | SOC AI | | . | 6 | ESET Endpoint Protection | | . | 7 | Kaspersky Security | | . | 8 | Bitdefender | | . | 9 | Traefik | | . | 10 | Google Cloud Platform | | . | 11 | AWS Cloudwatch | | . | 12 | Office365 | | . | 13 | Azure | | . | 14 | Logstash | | . | 15 | MongoDB | | . | 16 | MySQL | | . | 17 | Redis | | . | 18 | Kafka | | . | 19 | Elasticsearch | | . | 20 | PostgreSQL | | . | 21 | Kibana | | . | 22 | Cisco Switch | | . | 23 | Cisco ASA | | . | 24 | Cisco Meraki | | . | 25 | FortiGate | | . | 26 | Sophos XG | | . | 27 | Fire Power | | . | 28 | MikroTik | | . | 29 | Palo Alto | | . | 30 | SonicWall | | . | 31 | GitHub | | . | 32 | Nats | | . | 33 | Json Input | | . | 34 | MacOS | | . | 35 | OsQuery | | . | 36 | Linux Auditing Demon | | . | 37 | Deceptive Bytes | | . | 38 | High Availability Proxy | | . | 39 | File Classification | | . | 40 | Apache | | . | 41 | Internet Information Services | | . | 42 | Nginx | | . | 43 | Sophos Central | | . | 44 | SentinelOne Endpoint Security | | . ",
     "url": "/Integrations/ThreatDetectionandResponse.html#utmstack-integrations",
     
     "relUrl": "/Integrations/ThreatDetectionandResponse.html#utmstack-integrations"
-  },"187": {
+  },"183": {
     "doc": "Integrations",
     "title": "Integrations",
     "content": " ",
     "url": "/Integrations/ThreatDetectionandResponse.html",
     
     "relUrl": "/Integrations/ThreatDetectionandResponse.html"
+  },"184": {
+    "doc": "Use Case",
+    "title": "Active Attack Scenario: Compromised Employee Workstation",
+    "content": "In this section, we will explore a realistic active attack scenario involving a compromised employee workstation. The purpose of this exercise is to demonstrate how UTMStack can effectively detect and respond to such attacks, ensuring the security of your corporate systems. ",
+    "url": "/Use%20Cases/ThreatDetectionandResponse.html#active-attack-scenario-compromised-employee-workstation",
+    
+    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#active-attack-scenario-compromised-employee-workstation"
+  },"185": {
+    "doc": "Use Case",
+    "title": "Attack Overview",
+    "content": "In this simulated attack, an external malicious actor successfully executes a social engineering attack, gaining unauthorized access to a corporate device. The attacker’s objective is to infiltrate the corporate systems and carry out unauthorized activities. The attack unfolds in several phases, showcasing the attacker’s techniques and UTMStack’s capabilities in identifying and mitigating threats. The primary steps involved in this attack scenario are as follows: . | Reconnaissance Attack: The attacker initiates the attack by conducting a reconnaissance phase to gather information about the target network. This phase enables the attacker to gain visibility and identify potential vulnerabilities. | Exploitation of Saved Credentials: Leveraging acquired knowledge, the attacker exploits saved credentials to gain unauthorized access to the corporate network. By compromising an employee workstation, the attacker bypasses initial security measures. | Modifying the Host File: To evade detection, the attacker modifies the host file, a critical system file used to map IP addresses to hostnames. By altering this file, the attacker can redirect network traffic and maintain persistence within the compromised system. | Creation of a Masquerading User: The attacker masquerades as a Windows update service account by creating a new user within the compromised employee’s workstation. This technique allows the attacker to establish a covert presence, making it harder to detect their activities. | . ",
+    "url": "/Use%20Cases/ThreatDetectionandResponse.html#attack-overview",
+    
+    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#attack-overview"
+  },"186": {
+    "doc": "Use Case",
+    "title": "UTMStack Alert Management and Incident Response",
+    "content": "One common concern in incident response is the potential delay in detecting and responding to threats. However, UTMStack’s correlation capabilities ensure that detection occurs in near real-time, significantly reducing the time between the initial attack and response. Upon accessing the UTMStack instance, you will immediately notice that it displays several alerts related to the previously executed network scan. This powerful feature enables security teams, such as a Security Operations Center (SOC), to efficiently manage and respond to potential threats. Step 1: Access the Threat Management Menu . Log in to the UTMStack platform using your credentials. Once logged in, navigate to the Threat Management menu. This menu is the central hub for managing security-related Alert activities within UTMStack. Step 2: Manage Alerts . Within the Threat Management menu, select the Alerts option. This section provides an overview of all alerts generated by UTMStack, including those related to the ongoing attack. By accessing the Manage Alerts section, you can effectively monitor and respond to potential threats. Step 3: Identify the High Priority Alert . | Scan through the list of alerts displayed in the “Manage Alerts” section. | Identify the high priority alert associated with the active attack. This alert signifies a critical threat that requires immediate attention. | Pay close attention to indicators such as severity levels, timestamps, and alert descriptions to prioritize your response | . Step 4: View Alert Details . | Click on the identified high priority alert to access its detailed information. The alert details provide crucial insights into the nature of the attack, affected systems, potential impact, and related logs. You can access them to gather more information about the sequence of events. | Analyze the information provided to gain a comprehensive understanding of the attack scenario. | . Step 5: Create an Incident . Based on the high priority alert, take action to create an incident within UTMStack. By creating an incident, you initiate a dedicated investigation and response process. Follow the guidelines provided in UTMStack’s incident creation workflow to ensure accurate and comprehensive documentation of the incident. Step 6: Navigate to Incident View . Once the incident is created, navigate to the Incident View section in UTMStack. Incident view provides a centralized location for managing and tracking incident-related activities. Go to Incident Menu and select Incidents: . You will see the list of Incidents: . Step 7: Mitigate the Attack . Within the Incident View, review the details and evidence associated with the incident. Take immediate and decisive actions to mitigate the ongoing attack based on the available information. One recommended approach is to initiate the shutdown of the compromised server as the default response. This action helps contain the threat and prevent further unauthorized access to your corporate systems. However, please consider your organization’s specific incident response procedures and consult with your security team to determine the most appropriate course of action in this situation. ",
+    "url": "/Use%20Cases/ThreatDetectionandResponse.html#utmstack-alert-management-and-incident-response",
+    
+    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html#utmstack-alert-management-and-incident-response"
+  },"187": {
+    "doc": "Use Case",
+    "title": "Use Case",
+    "content": " ",
+    "url": "/Use%20Cases/ThreatDetectionandResponse.html",
+    
+    "relUrl": "/Use%20Cases/ThreatDetectionandResponse.html"
   },"188": {
     "doc": "User Access Audit",
     "title": "User Access Audit",
