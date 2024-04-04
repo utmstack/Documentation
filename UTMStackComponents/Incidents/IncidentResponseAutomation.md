@@ -50,7 +50,7 @@ The details include:
 
 The 'Create Automation' button at the top-right corner of the dashboard provides an option to create a new automation rule. It guides users through the steps for creating an Incident Response Automation.
 
-![Create Automation Rule](./../Images/../../Images/Components/Incidents/createautomation.png)
+![Create Automation Rule](./../Images/../../Images/Components/Incidents/createautoamtion.png)
 
 ### Step 1: Automation Information
 
