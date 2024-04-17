@@ -62,3 +62,10 @@ Our team is always working on a new integration, but here is the list of what we
 | 42  | Nginx                         |                            <img title="Nginx" alt="Nginx" src="../Images/Integrations/logonginx.svg">                            |
 | 43  | Sophos Central                |               <img title="Sophos Central" alt="Sophos Central" src="../Images/Integrations/logosophoscentral.svg">               |
 | 44  | SentinelOne Endpoint Security | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logosentinelone.svg"> |
+| 45  | PfSense                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/pfsenselogo.png">     |
+| 46  | IBM AIX                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/IBMAIXlogo.png.png">  |
+| 47  | FortiWeb                      | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logofortigate.png">   |
+| 48  | NetFlow                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/netflowlogo.png">     |
+
+
+

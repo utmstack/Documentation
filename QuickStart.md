@@ -53,7 +53,7 @@ Follow the provided guide: [Generate SSL with Certbot](./Installation/SSLConfigu
 
 ## 2. Initial Configuration
 
-Post installation, the first time you get access to UTMStack, its going to be required that enter the old password and establish the new one.The default username is `admin`. Your initial password and other configurations can be found in `/root/UTMStack.yml`.
+Post installation, the first time you get access to UTMStack, its going to be required that enter the old password and establish the new one.The default username is `admin`. Your initial password and other configurations can be found in `/root/utmstack.yml`.
  
  After that you need to configure the email setting
  

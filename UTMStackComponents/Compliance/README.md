@@ -26,16 +26,34 @@ For example, if you wish to monitor the Office 365 Account Activity regarding su
 ![vm settings](./../Images/Components/../../../Images/Components/Compliance/compliancedash.png)
 
 ## Supported Compliance Standards
-Our module supports several critical compliance standards, ensuring that your organization stays compliant in various sectors:
+Compliance with the latest regulations often requires generating reports for internal use and auditors.
+UTMStack simplifies compliance management by combining essential security tools into a single database
+and providing several built-in reports and interactive dashboards. It is reinforced by an event and logs
+explorer for advanced analysis and a report/dashboard builder that helps visualize and display data.
 
 ### 1. Health Insurance Portability and Accountability Act (HIPAA)
-HIPAA is a U.S. federal law that sets national standards to protect sensitive patient health information from unauthorized disclosure. The HIPAA section within the Compliance Management module incorporates reports specifically designed to monitor compliance with critical HIPAA provisions, such as sections §164.308(a)(1)(ii)(A)(D), §164.312(b), and others. Each report aims to facilitate the implementation of policies and procedures to detect and manage security violations effectively.
+Security management process and audit controls
+report include accounts validation, relevant
+security alerts, login reports, relevant windows
+events, file and system access, cloud reports
+(Azure, AWS), Office365 threat Intelligence,
+account validations, firewall relevant activity,
+relevant system statistics, unsuccessful logon,
+privilege escalation.
 
 ### 2. General Data Protection Regulation (GDPR)
-GDPR is a comprehensive data protection law in the European Union (EU), which regulates the processing of personal data. The software offers pre-configured reports to ensure that your data processing operations adhere to GDPR's core principles.
+Logon Activity, Logon failure, vulnerability report,
+potential data exposure, relevant Security alerts,
+data retention, and potential data privacy
+compromises.
 
 ### 3. Gramm-Leach-Bliley Act (GLBA)
-GLBA, also known as the Financial Modernization Act of 1999, controls how financial institutions handle the private information of individuals. The GLBA section in the module contains reports tailored to key GLBA provisions, assisting you in maintaining GLBA compliance.
+§§6801(b)(3) Successful Login / Logoff,
+§§6801(b)(1) File Access,
+§§6801(b)(2) Policy Changes in Active Directory,
+§§6801(b)(2) New and enabled user Accounts in
+Active Directory,
+§§501B(2)(3) GLBA Login section
 
 ### 4. System and Organization Controls 2 (SOC 2)
 SOC 2 report focuses on a business’s non-financial reporting controls relating to security, availability, processing integrity, confidentiality, and privacy of a system. The software provides essential reports aligned with the Control Criteria (CC) of SOC 2 to facilitate the achievement and maintenance of SOC 2 compliance.

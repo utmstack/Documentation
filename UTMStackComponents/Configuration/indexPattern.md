@@ -15,7 +15,7 @@ Examples of patterns and their uses:
 
 - `log-*` - Matches all indices that start with `log-`.
 - `alert-*` - Matches all indices that start with `alert-`.
-- `log-winventlog-*` - Used for indices related to Windows event logs.
+- `log-wineventlog-*` - Used for indices related to Windows event logs.
 - `log-o365-*` - Used for Office 365 logs.
 - `log-firewall-*` - Matches indices for various firewall logs.
 
