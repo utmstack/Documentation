@@ -50,15 +50,15 @@ How often in seconds the alert should be checked.
 
 This field declares that the iterations will occur on the cache of the correlation engine and contains the definition of said iterations. When this field is used, the search field is not used and vice versa.
 
-**cache -> allOff**
+**cache -> allOf**
 
 All comparisons within this field must be met for the rule to generate an alert.
 
-**cache -> oneOff**
+**cache -> oneOf**
 
 Any comparison within this field must be met for the rule to generate an alert.
 
-**cache -> \[allOff | oneOff\] -> field**
+**cache -> \[allOf | oneOf\] -> field**
 
 The field on which the comparison will be applied.
 
@@ -99,13 +99,13 @@ This description also applies to \[cache | search\] -> save -> field
 "friends.#(nets.#(=="fb"))#.first"    >> ["Dale","Roger"]
 ```
 
-**cache -> \[allOff | oneOff\] -> operator**
+**cache -> \[allOf | oneOf\] -> operator**
 
 Operator to use in the comparison. See information about the operators in [Operators](https://github.com/AtlasInsideCorp/UTMStackCorrelationRules/blob/master/README.md#:~:text=simple%20quotation%20marks.-,Operators,-%3D%3D)
 
-**cache -> \[allOff | oneOff\] -> value**
+**cache -> \[allOf | oneOf\] -> value**
 
-Value to compare the content of "cache -> \[allOff | oneOff\] -> field". In the second iteration case or onwards, you can use an alias to use the content of that alias as a value.
+Value to compare the content of "cache -> \[allOf | oneOf\] -> field". In the second iteration case or onwards, you can use an alias to use the content of that alias as a value.
 
 **cache -> timeLapse**
 
