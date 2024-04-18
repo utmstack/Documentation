@@ -9,17 +9,6 @@ nav_order: 4
 
 UTMStack offers a comprehensive configuration module where administrators can adjust various settings to customize the application according to their organizational preferences. Here's a detailed breakdown:
 
-## SMS Notifications using Twilio
-
-UTMStack has integrated with Twilio, a renowned cloud communications platform, to facilitate SMS notifications. To ensure timely and accurate SMS delivery, it's crucial to configure the following parameters:
-
-- **Twilio Authentication Token**: This secret token is used to authenticate your Twilio account. Ensure you enter the correct token to maintain seamless communication.
-  
-- **Twilio Account SID**: Your unique Twilio Account identifier. It's crucial for distinguishing and authorizing your Twilio account.
-
-- **Twilio Virtual Phone Number**: This is the dedicated phone number from which SMS notifications will be sent. It must be procured from your Twilio dashboard.
-
-
 ## Email Notifications
 
 Configure the email settings to send emails notifications for the alerts and incidents:
