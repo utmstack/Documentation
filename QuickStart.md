@@ -8,15 +8,15 @@ nav_order: 2
 
 Getting started with UTMStack is straightforward. Follow this 3-step process:
 
-1. **Installation**: Deploy UTMStack on your Master Server.
+1. **Installation**: Deploy UTMStack on your Server.
 2. **Initial Configuration**: Set up essential settings, including SSL and email configurations.
 3. **DataSource Setup**: Configure a Windows Agent as a data source.
 
 ## 1. Install UTMStack
 
-Before you begin, ensure your system meets the minimum requirements: **4 cores**, **12 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
+Before you begin, ensure your system meets the minimum requirements: **4 cores**, **16 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
 
-Deploy the UTMStack Master Server, which oversees security operations and data collection.
+Deploy the UTMStack Server, which oversees security operations and data collection.
 
 ### **Procedure**:
 
