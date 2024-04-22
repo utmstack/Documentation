@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Introduction
-nav_order: 1
-permalink: /
+title: 
+nav_order: 
+permalink: 
 
 ---
 
