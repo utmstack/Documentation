@@ -31,6 +31,10 @@ The server undertakes the task of overseeing and orchestrating the UTMStack plat
 
 You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration.
 
+*** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
+
+*** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
+
 ## Supported Operating Systems:
 
 The UTMStack installation guide provides instructions specifically for Ubuntu 22.04 LTS. It is recommended to use one of these supported operating systems for compatibility and optimal performance.

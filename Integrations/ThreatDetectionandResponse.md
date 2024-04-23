@@ -16,6 +16,11 @@ Enabling an integration allows UTMStack to correlate logs coming from the corres
 Each specific integration has its own guide.
 Our team is always working on a new integration, but here is the list of what we have developed so far:
 
+*** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
+
+*** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
+
+
 | No. | Name                          |                                                                                                                                  |
 | :-: | :---------------------------- | :------------------------------------------------------------------------------------------------------------------------------: |
 |  1  | VMWare Syslog                 |                          <img title="VMWare" alt="VMWare" src="../Images/Integrations/logovmware.svg">                           |

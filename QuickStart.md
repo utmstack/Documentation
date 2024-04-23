@@ -16,6 +16,10 @@ Getting started with UTMStack is straightforward. Follow this 3-step process:
 
 Before you begin, ensure your system meets the minimum requirements: **4 cores**, **16 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
 
+*** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
+
+*** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
+
 Deploy the UTMStack Server, which oversees security operations and data collection.
 
 ### **Procedure**:
