@@ -63,4 +63,10 @@ sudo chmod +x utm_fs_installer.sh
 
 10. Enter the provided username and password to log in to the UTMStackFS panel.
 
+## Upgrade Server
+
+Upgrade Server steps:
+
+ - Remove the old installation script and do the installation process again.
+
 By following these steps, you will have successfully installed the UTMStack Federation Service (UTMStackFS) on your Ubuntu 20.04 LTS system. You can now access the UTMStackFS panel and begin using it for your cybersecurity needs.

@@ -81,8 +81,8 @@ Post installation, the first time you get access to UTMStack, its going to be re
 - **Mail Server Username**: The username for your email server.
 
 - **Encryption type**: Choose the encryption protocol for your email server. Options include:
-  - TLS
-  - SSL
+  - STARTTLS
+  - SSL/TLS
   - NONE 
 
  Refer to the [Email Configuration Section](./UTMStackComponents/Configuration/ApplicationSetting) for a detailed walkthrough.
