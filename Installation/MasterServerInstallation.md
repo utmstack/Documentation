@@ -6,7 +6,7 @@ nav_order: 3
 ---
 # UTMStack Server Setup Guide
 
-This guide will walk you through the process of setting up the UTMStack Server. The server is the central component of UTMStack and is responsible for managing the security operations and data collection.
+This guide will walk you through the process of setting up the UTMStack Master Server. The Master Server is the central component of UTMStack and is responsible for managing the security operations and data collection.
 
 # Linux Installation Guide
 
@@ -82,7 +82,7 @@ To learn more about the specific firewall rules you need to create for UTMStack,
 Go to **<a href="./SSLConfiguration">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
 
 ## Step 7: Accessing the UTMStack Platform
-Once you have successfully installed the UTMStack server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform:
+Once you have successfully installed the UTMStack master server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform:
 
 Open your preferred web browser.
 

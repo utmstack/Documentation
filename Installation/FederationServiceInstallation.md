@@ -7,7 +7,7 @@ nav_order: 7
 
 # UTMStack Federation Service Installation Guide
 
-Welcome to the installation page for the Federated Deployment of UTMStack! If you're an MSP (Managed Service Provider) with the mission of managing multiple instances of UTMStack across various customer networks, you're in the right place. Our federated deployment model is meticulously designed to provide a streamlined management experience, presenting a holistic view of activities across multiple clients and organizations.
+Welcome to the installation page for the Federated Master Deployment of UTMStack! If you're an MSP (Managed Service Provider) with the mission of managing multiple instances of UTMStack across various customer networks, you're in the right place. Our federated master deployment model is meticulously designed to provide a streamlined management experience, presenting a holistic view of activities across multiple clients and organizations.
 
 This guide will walk you through the process of installing the UTMStack Federation Service (UTMStackFS) on an Ubuntu 20.04 LTS system. Please follow the steps below to ensure a successful installation.
 

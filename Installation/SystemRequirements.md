@@ -21,7 +21,7 @@ It's assumed that 60 data sources (devices) roughly produce 100 GB of data month
 
 ## UTMStack Server Specifications:
 
-The server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
+The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
 
 | Data Sources (Approx. Monthly Data) | Cores | RAM   | Disk Space |
 | ----------------------------------- | ------| ------| -----------|

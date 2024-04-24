@@ -5,9 +5,9 @@ parent: Installation
 nav_order: 6
 ---
 
-# UTMStack Installation Guide for Azure
+# UTMStack Master Installation Guide for Azure
 
-This guide will walk you through the step-by-step process of installing UTMStack on Azure. Please follow the instructions carefully to ensure a successful installation.
+This guide will walk you through the step-by-step process of installing UTMStack Master on Azure. Please follow the instructions carefully to ensure a successful installation.
 
 ## Prerequisites
 Before you begin the installation, make sure you have the following prerequisites:
@@ -58,13 +58,13 @@ Before you begin the installation, make sure you have the following prerequisite
 
 ## Step 4: Install UTMStack
 
-1. Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack. You can find the installation guide at [UTMStack Installation Guide](./MasterServerInstallation).
+1. Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack Master. You can find the installation guide at [UTMStack Installation Guide](./MasterServerInstallation).
 2. Make sure to carefully follow the instructions provided in the guide, including the configuration settings and any additional dependencies or packages required.
 3. Complete the installation process as per the guide's instructions.
 
 ## Step 5: Post-Installation Configuration
 
-1. After the UTMStack installation is complete, you can access the UTMStack web interface by opening a web browser and navigating to the IP address or DNS name of the virtual machine, followed by the appropriate port (usually port 443 for HTTPS).
+1. After the UTMStack Master installation is complete, you can access the UTMStack web interface by opening a web browser and navigating to the IP address or DNS name of the virtual machine, followed by the appropriate port (usually port 443 for HTTPS).
 2. Follow any further configuration steps provided in the UTMStack documentation to set up the system according to your requirements.
 
-Congratulations! You have successfully installed UTMStack on Azure. You can now begin utilizing the UTMStack platform for your network management and monitoring needs.
+Congratulations! You have successfully installed UTMStack Master on Azure. You can now begin utilizing the UTMStack platform for your network management and monitoring needs.
