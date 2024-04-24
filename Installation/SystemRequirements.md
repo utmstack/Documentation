@@ -17,7 +17,7 @@ Before diving in, be aware that UTMStack approaches data retention in two distin
 
 ## Assumptions:
 
-It's assumed that 60 data sources (devices) roughly produce 100 GB of data monthly.
+It's assumed that 50 data sources (devices) roughly produce 100 GB of data monthly.
 
 ## UTMStack Server Specifications:
 
