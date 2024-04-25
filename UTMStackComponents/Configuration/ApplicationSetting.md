@@ -26,9 +26,9 @@ Configure the email settings to send emails notifications for the alerts and inc
 - **Mail Server Username**: The username for your email server.
 
 - **Encryption type**: Choose the encryption protocol for your email server. Options include:
-  - TLS
-  - SSL
-  - NONE
+  - STARTTLS
+  - SSL/TLS
+  - NONE 
 
 
 

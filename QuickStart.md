@@ -8,15 +8,19 @@ nav_order: 2
 
 Getting started with UTMStack is straightforward. Follow this 3-step process:
 
-1. **Installation**: Deploy UTMStack on your Master Server.
+1. **Installation**: Deploy UTMStack on your server.
 2. **Initial Configuration**: Set up essential settings, including SSL and email configurations.
 3. **DataSource Setup**: Configure a Windows Agent as a data source.
 
 ## 1. Install UTMStack
 
-Before you begin, ensure your system meets the minimum requirements: **4 cores**, **12 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
+Before you begin, ensure your system meets the minimum requirements: **8 cores**, **16 GB of RAM**, and **150 GB of disk storage** to monitor up to **50 devices**.
 
-Deploy the UTMStack Master Server, which oversees security operations and data collection.
+*** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
+
+*** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
+
+Deploy the UTMStack Server, which oversees security operations and data collection.
 
 ### **Procedure**:
 
@@ -77,8 +81,8 @@ Post installation, the first time you get access to UTMStack, its going to be re
 - **Mail Server Username**: The username for your email server.
 
 - **Encryption type**: Choose the encryption protocol for your email server. Options include:
-  - TLS
-  - SSL
+  - STARTTLS
+  - SSL/TLS
   - NONE 
 
  Refer to the [Email Configuration Section](./UTMStackComponents/Configuration/ApplicationSetting) for a detailed walkthrough.

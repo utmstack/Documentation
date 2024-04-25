@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Master Installation Guide for Azure
+title: Installation Guide for Azure
 parent: Installation
 nav_order: 6
 ---
@@ -56,7 +56,7 @@ Before you begin the installation, make sure you have the following prerequisite
 2. Open an SSH client, and connect to the virtual machine using the public IP address or DNS name.
 3. Provide your Azure credentials and SSH into the virtual machine.
 
-## Step 4: Install UTMStack Master
+## Step 4: Install UTMStack
 
 1. Inside the SSH session, follow the official UTMStack installation guide for Ubuntu to install UTMStack Master. You can find the installation guide at [UTMStack Installation Guide](./MasterServerInstallation).
 2. Make sure to carefully follow the instructions provided in the guide, including the configuration settings and any additional dependencies or packages required.

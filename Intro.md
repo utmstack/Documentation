@@ -33,11 +33,6 @@ auditing and reporting.
 - Spam, malware, botnets,service abuse IP related.
 - Denial ofservice and Brute force attack and scanner IPs.
 
-### Vulnerability Scanner
-- Application vulnerability assessments.
-- Network devices Vulnerability Assessment.
-- Azure and AWS Vulnerability scans.
-
 ### Log Management (SIEM)
 - Log collection and correlation in real-time.
 - Log management.
@@ -51,16 +46,15 @@ auditing and reporting.
 
 ### Incident response and Endpoint Protection 
 - Automated and On-demand Host lockdown, IP block, and remote-control console.
-- Antivirus, OSSEC and Wazuh Integration.
+- Antivirus Integration.
 
 ### Network and Host Intrusion detection
 - Rule-based Network Intrusion Detection.
 - Rule-based and heuristic analysis-based Host Intrusion detection System with ATP capabilities.
 - Network traffic, protocol, and DNS analysis.
 
-### Access Rights Auditor
-- Active Directory Explorer.
-- User Activity and permissions tracking.
+### User Auditor
+- User Activity monitoring.
 - Suspicious activity monitoring.
 
 ### File Classification
@@ -114,8 +108,8 @@ provides the flexibility to build the entire stack from the ground by any advanc
 
 ### Audit and compliance support 
 - Generate custom reportsfor audits or compliance checks and assessments.
-- Create compliance dashboardsfor continuous monitoring.
-- Leverage existing reportsforHIPAA, GLBA, GPDR, and SOC compliance.
+- Create compliance dashboards for continuous monitoring.
+- Leverage existing reports for HIPAA, GLBA, GPDR, and SOC compliance.
 
 ### Monitor and analyze security data
 - Build customized dashboards or use existing ones.
@@ -123,7 +117,7 @@ provides the flexibility to build the entire stack from the ground by any advanc
 
 ### Reduce downtime
 - Create up-time reports.
-- Review proactive alertsformisconfigurations or misconfigured systems.
+- Review proactive alerts for mis configurations or mis configured systems.
 - Monitor and analyze devices performance and resources utilization.
 
 ### Integrations

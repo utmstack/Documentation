@@ -7,7 +7,7 @@ nav_order: 3
 
 # UTMStack System Resources
 
-To guarantee a seamless installation and peak performance of UTMStack, adhere to the given system specifications for both Master and Probe/Proxy servers.
+To ensure a seamless installation and maximum performance of UTMStack, adhere to the system specifications for both the UTMStack server and the Probe/Proxy server.
 
 Before diving in, be aware that UTMStack approaches data retention in two distinct methods:
 
@@ -17,19 +17,23 @@ Before diving in, be aware that UTMStack approaches data retention in two distin
 
 ## Assumptions:
 
-It's assumed that 60 data sources (devices) roughly produce 100 GB of data monthly.
+It's assumed that 50 data sources (devices) roughly produce 100 GB of data monthly.
 
-## Master Server Specifications:
+## UTMStack Server Specifications:
 
-The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
+The server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
 
 | Data Sources (Approx. Monthly Data) | Cores | RAM   | Disk Space |
 | ----------------------------------- | ------| ------| -----------|
-| **50 (100 GB)**                     | 4     | 12 GB  | 150 GB    |
-| **120 (250 GB)**                    | 8     | 16 GB | 250 GB    |
-| **240 (500 GB)**                    | 16    | 32 GB | 450 GB    |
+| **50 (100 GB)**                     | 8     | 16 GB | 150 GB    |
+| **120 (250 GB)**                    | 16    | 32 GB | 250 GB    |
+| **240 (500 GB)**                    | 32    | 64 GB | 450 GB    |
 
 You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration.
+
+*** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
+
+*** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
 
 ## Supported Operating Systems:
 
