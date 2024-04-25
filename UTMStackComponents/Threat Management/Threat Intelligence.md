@@ -1,8 +1,7 @@
 ---
 layout: default
-title: Alert Management
-parent: Threat Intelligence
-nav_order: 1
+title: Threat Intelligence
+parent: Threat Management
 ---
 
 # Galaxy View
