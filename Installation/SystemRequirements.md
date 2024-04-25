@@ -7,7 +7,7 @@ nav_order: 3
 
 # UTMStack System Resources
 
-To guarantee a seamless installation and peak performance of UTMStack, adhere to the given system specifications for both Master and Probe/Proxy servers.
+To ensure a seamless installation and maximum performance of UTMStack, adhere to the system specifications for both the UTMStack server and the Probe/Proxy server.
 
 Before diving in, be aware that UTMStack approaches data retention in two distinct methods:
 
@@ -21,7 +21,7 @@ It's assumed that 50 data sources (devices) roughly produce 100 GB of data month
 
 ## UTMStack Server Specifications:
 
-The Master server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
+The server undertakes the task of overseeing and orchestrating the UTMStack platform. Below is a tabulation of the recommended specifications for the **hot log storage**:
 
 | Data Sources (Approx. Monthly Data) | Cores | RAM   | Disk Space |
 | ----------------------------------- | ------| ------| -----------|

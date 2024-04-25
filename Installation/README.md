@@ -23,9 +23,9 @@ The UTMStack installation process consists of three main steps:
   If you have chosen the Federated architecture in Step 1, follow the instructions in the  **<a href="./FederationServiceInstallation">Federated Server Installation Guide</a>** after ensuring your system meets the recommended specifications mentioned in the **<a href="SystemRequirements">Federated Service Requirements</a>** page.
   <br>
 
-1. **Setting up the Master Servers**: The master server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services.
+1. **Setting up the Servers**: The server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services.
  
-    To set up the master server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of **8 cores**, **16 GB of RAM** and **256 GB of disk storage** for each **50 devices**. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system **Ubuntu Server 22.04 LTS**.
+    To set up the server, you need to create a virtual machine (VM) or physical machine that will host the UTMStack software. The VM should have a requirements of **8 cores**, **16 GB of RAM** and **256 GB of disk storage** for each **50 devices**. (Assuming you will retain 30 days of live logs). Once the VM is created, it needs to be configured with the operating system **Ubuntu Server 22.04 LTS**.
    
    *** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
 
@@ -48,9 +48,6 @@ The UTMStack installation process consists of three main steps:
     4. **Personalize UTMStack**: Explore the various settings modules available, such as license, data retention, compliance, user access audit, and more. Customize these settings according to your organization's needs and security policies.
 
     <img title="setting capture" alt="setting capture" src="./Images/Images/../../../Images/settingcapture2.png">
-
-    <br>For more detailed instructions on settings , please refer to the **<a href="../UTMStackComponents/Configuration/Readme">Configuration Section</a>** in the UTMStack documentation.
-    <br>
 
 
     5. **Save and Verify**: Save the configurations and ensure that all UTMStack services are running correctly. Verify that the desired functionality is achieved and that the system is operating optimally.

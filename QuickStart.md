@@ -8,7 +8,7 @@ nav_order: 2
 
 Getting started with UTMStack is straightforward. Follow this 3-step process:
 
-1. **Installation**: Deploy UTMStack on your Master Server.
+1. **Installation**: Deploy UTMStack on your server.
 2. **Initial Configuration**: Set up essential settings, including SSL and email configurations.
 3. **DataSource Setup**: Configure a Windows Agent as a data source.
 
