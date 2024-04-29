@@ -7,7 +7,7 @@ nav_order: 3
 
 # UTMStack System Resources
 
-To ensure a seamless installation and maximum performance of UTMStack, adhere to the system specifications for both the UTMStack server and the Probe/Proxy server.
+To ensure a perfect installation and maximum performance of UTMStack, respect the system specifications for UTMStack server
 
 Before diving in, be aware that UTMStack approaches data retention in two distinct methods:
 
