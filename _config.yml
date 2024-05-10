@@ -24,3 +24,9 @@ callouts:
   warning:
     title: Warning
     color: red
+
+# External navigation links
+nav_external_links:
+  - title: API Documentation
+    url: /api-doc.html
+    opens_in_new_tab: true 
