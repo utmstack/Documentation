@@ -17,13 +17,13 @@ In the Alert Management Module, users have the ability to tag alerts as "False P
 
 
 
-## Practical Example: Geo-based False Positive Tagging
+## Practical Example: False Positive Tagging
 
 Consider an user that belonw to your organization.The Alert Management System, based on certain conditions, might see unusual activity and raise alerts. However, given that the organization is aware of this benign interaction, these alerts are, in fact, false positives.
 
 To handle such a scenario, the organization can set a false positive rule:
 
-### Step-by-Step Guide to Create a Geo-based False Positive Tag
+### Step-by-Step Guide to Create a False Positive Tag
 
 1. Navigate to the `Alert Management Data Grid ` section in the Alert Management Module.
 2. Select the alert that you can extract the condicions to convert it in a false positive tag rule.
