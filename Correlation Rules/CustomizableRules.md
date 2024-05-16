@@ -23,7 +23,6 @@ UTMStack allows users to define customizable rules to enhance the monitoring and
 4. Check that they are correctly placed and that their names match the system rules you want to modify.
 
 ## Modifying system rules:
-
 If you need to adjust a system rule, simply create a new custom rule with the same name as the system rule you wish to modify. This will allow your custom rule to take precedence over the original system rule. The custom rule must be placed inside the "custom" folder, and if the folder does not exist, it must be created.
 
 ## Rule Priority:
