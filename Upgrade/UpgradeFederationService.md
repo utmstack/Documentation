@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Upgrade Federation Service
-parent: Upgrade
+parent: Update
 nav_order: 5
 ---
 
