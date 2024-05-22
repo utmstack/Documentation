@@ -67,10 +67,10 @@ Our team is always working on a new integration, but here is the list of what we
 | 42  | Nginx                         |                            <img title="Nginx" alt="Nginx" src="../Images/Integrations/logonginx.svg">                            |
 | 43  | Sophos Central                |               <img title="Sophos Central" alt="Sophos Central" src="../Images/Integrations/logosophoscentral.svg">               |
 | 44  | SentinelOne Endpoint Security | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logosentinelone.svg"> |
-| 45  | PfSense                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/pfsenselogo.png" width="300" height="300">     |
-| 46  | IBM AIX                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/IBMAIXlogo.png" width="300" height="300">  |
+| 45  | PfSense                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/pfsenselogo.png" width="200" height="200">     |
+| 46  | IBM AIX                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/IBMAIXlogo.png" width="200" height="200">  |
 | 47  | FortiWeb                      | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logofortigate.svg">   |
-| 48  | NetFlow                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/netflowlogo.png" width="150" height="150">     |
+| 48  | NetFlow                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/netflowlogo.png" width="100" height="100">     |
 
 
 
