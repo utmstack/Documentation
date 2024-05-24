@@ -11,7 +11,7 @@ permalink:
 Welcome to the UTMStack documentation - your passport to the future of cybersecurity. 
 
 ## [Experience UTMStack in Action!](https://utmstack.com/demo)
-![UTMStack Interface](./Images/utmstack.jpg)
+![UTMStack Interface](./Images/architecture.png)
 
 ## Unleashing Power and Precision
 UTMStack is not just another security tool; it is a revolutionary system blending SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies, transforming them into a powerhouse of real-time correlation and threat intelligence. 
