@@ -10,7 +10,7 @@ permalink: /
 Welcome to the UTMStack documentation - your passport to the future of cybersecurity
 
 ## [Experience UTMStack in Action!](https://utmstack.com/demo)
-![UTMStack Interface](./Images/utmstack.jpg)
+![UTMStack Interface](./Images/architecture.png)
 
 [UTMStack®](https://utmstack.com) is a Unified Threat Management Platform that delivers all essential security services. It includes
 Log Management (SIEM), Threat Detection and Response, Real-time Correlation, Reporting, Compliance
