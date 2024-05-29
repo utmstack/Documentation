@@ -36,7 +36,8 @@ To handle such a scenario, the organization can set a false positive rule:
 3. Set the condition as `Equals` and enter the name of the pc.
 4. Save the rule.
 
-![Tag Rule Creation](./../Images/../../Images/Components/ThreatManagment/tagrule.png)
+![Tag Rule Creation](./../Images/../../Images/rules1.jpeg)
+![Tag Rule Creation](./../Images/../../Images/rules1.jpeg)
 
 Once this rule is saved, any alert generated from activity originating from that PC will automatically be tagged as a false positive, ensuring that the security team is not inundated with unnecessary alerts.
 
