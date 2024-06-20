@@ -30,7 +30,7 @@ Our team is always working on a new integration, but here is the list of what we
 |  5  | SOC AI                        |                           <img title="SOC AI" alt="SOC AI" src="../Images/Integrations/logosocai.svg">                           |
 |  6  | ESET Endpoint Protection      |     <img title="ESET Endpoint Protection" alt="ESET Endpoint Protection" src="../Images/Integrations/logoesetendpoint.svg">      |
 |  7  | Kaspersky Security            |         <img title="Kaspersky Security" alt="Kaspersky Security" src="../Images/Integrations/logokasperskysecurity.svg">         |
-|  8  | Bitdefender                   |                   <img title="Bitdefender" alt="Bitdefender" src="../Images/Integrations/logobitdefender.svg">                   |
+|  8  | Bitdefender GravityZone       |                   <img title="Bitdefender" alt="Bitdefender" src="../Images/Integrations/logobitdefender.svg">                   |
 |  9  | Traefik                       |                         <img title="Traefik" alt="Traefik" src="../Images/Integrations/logotraefik.svg">                         |
 | 10  | Google Cloud Platform         |         <img title="Google Cloud Platform" alt="Google Cloud Platform" src="../Images/Integrations/logogooglecloud.svg">         |
 | 11  | AWS Cloudwatch                |                 <img title="AWS Cloudwatch" alt="AWS Cloudwatch" src="../Images/Integrations/logoawscloud.svg">                  |
@@ -71,5 +71,6 @@ Our team is always working on a new integration, but here is the list of what we
 | 46  | IBM AIX                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/IBMAIXlogo.png" width="200" height="200">  |
 | 47  | FortiWeb                      | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/logofortigate.svg">   |
 | 48  | NetFlow                       | <img title="SentinelOne Endpoint Security" alt="SentinelOne Endpoint Security" src="../Images/Integrations/netflowlogo.png" width="100" height="100">     |
+| 49  | IBM AS/400                    | <img title="IBM AS/400" alt="IBM AS/400" src="../Images/Integrations/logoibmas400.jpg" width="100" height="100">     |
 
 
