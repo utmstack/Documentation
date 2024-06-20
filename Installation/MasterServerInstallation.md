@@ -92,7 +92,7 @@ Press Enter to load the UTMStack login page.
 
 <img title="UTMStack Installer Capture" alt="UTMStack Installer Capture" src="./Images/Images/../../../Images/UTMStacklogin.png">
 
-Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/UTMStack.
+Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/utmstack.yml
 
 {: .note}
 Note: Use HTTPS in front of your server name or IP to access the login page.
