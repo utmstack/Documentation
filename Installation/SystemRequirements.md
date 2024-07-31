@@ -31,6 +31,11 @@ The server undertakes the task of overseeing and orchestrating the UTMStack plat
 
 You have the flexibility to mix and match these tiers based on the number of devices you have and your preferred hot log storage duration.
 
+*** Achitecture Requirements ***
+To ensure optimal performance and full compatibility when running UTMStack, the hardware must meet the following specifications:
+**CPU: Processor with support for x86-64 v2 architecture.**
+It is essential to verify that your system's processor is compatible with this architecture to guarantee the proper functioning of UTMStack.
+
 *** Integration Requirements *** : To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
 
 *** Logging Volume Considerations ***: Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
