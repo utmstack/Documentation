@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Install Federation Service
-parent: Update
+parent: Installation
 nav_order: 5
 ---
 
