@@ -2,7 +2,7 @@
 layout: default
 title: Installation Guide for Azure
 parent: Installation
-nav_order: 6
+nav_order: 7
 ---
 
 # UTMStack Master Installation Guide for Azure
