@@ -20,7 +20,7 @@ The UTMStack installation process consists of three main steps:
     <br>
 
 2. **Installing the Federated Service (Optional)**:
-  If you have chosen the Federated architecture in Step 1, follow the instructions in the  **<a href="./FederationServiceInstallation">Federated Server Installation Guide</a>** after ensuring your system meets the recommended specifications mentioned in the **<a href="SystemRequirements">Federated Service Requirements</a>** page.
+  If you have chosen the Federated architecture in Step 1, follow the instructions in the  **<a href="./InstallFederationService">Federated Server Installation Guide</a>** after ensuring your system meets the recommended specifications mentioned in the **<a href="SystemRequirements">Federated Service Requirements</a>** page.
   <br>
 
 1. **Setting up the Servers**: The server is the central component of the UTMStack architecture, responsible for managing and coordinating all other UTMStack components and services.
