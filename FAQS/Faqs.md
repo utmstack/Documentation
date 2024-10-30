@@ -6,8 +6,6 @@ nav_order: 18
 
 ## Frequently Asked Questions (FAQ)
 
-## FAQs for Documentation (English Version)
-
 1. **What should we do if the master server's hard disk becomes full?**  
    We recommend using a disk with a minimum capacity of 1 TB for data storage. This recommendation aligns with the platform's backup retention policies, typically set to one year.
 
@@ -30,12 +28,12 @@ nav_order: 18
    UTMStack supports multiple log sources and allows the receipt of non-integrated app logs via Syslog and HTTP Post.
 
 8. **Can we install the Windows Agent on Windows Server 2008?**  
-   No, the Windows Agent is compatible with Windows Server 2012R2 or higher. Alternatively, use NXLog to send logs via Syslog.
+   No, the Windows Agent is compatible with Windows Server 2016R2 or higher. Alternatively, use NXLog to send logs via Syslog.
 
 9. **Do you offer older versions of the current agent?**  
    No, older versions are not compatible with UTMStack V10.
 
-10. **How do we change the time zone settings on the federal server?**  
+10. **How do we change the time zone settings on the federation server?**  
     Go to **Settings > Application Settings** via the right-side hamburger menu, where you will find the option to change the platform’s time zone.
 
 11. **How can we generate reports of processed and closed incidents?**  
