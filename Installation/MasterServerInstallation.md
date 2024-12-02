@@ -69,7 +69,7 @@ Trubleshooting:
 If you find any errors during the installation, please check the installation log for more details: /var/log/utm-setup.log
 
 {: .note}
-You can find the password and other generated configurations in /root/UTMStack.yml
+You can find the password and other generated configurations in /root/utmstack.yml
 
 ## Step 5: Configuration of UTMStack
 After successfully installing UTMStack on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack's capabilities.
