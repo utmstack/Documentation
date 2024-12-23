@@ -24,6 +24,12 @@ To ensure proper communication and functionality of UTMStack, it is important to
 - Port: 9090/TCP
   - Purpose: Cockpit Web-based Graphical Interface for Servers (We recommend creating a firewall rule to allow it only from the admin workstation).
 
+- Port: 9000/TCP
+  - Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+
+- Port: 50051/TCP
+  - Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+
 Other ports will be required during the configuration of UTMStack's integrations to receive logs. Please follow the security recommendations given in the integration guide if it exists.
 
 By configuring the firewall rules as specified above, you ensure that the necessary network traffic is allowed for UTMStack components to function properly. Make sure to update your network devices' firewall settings accordingly to enable seamless communication within the UTMStack environment.
