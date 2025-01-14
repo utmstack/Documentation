@@ -57,6 +57,20 @@ sudo mount -a
 ```
 
 ### 3. Restoring Data Using Cerebro:
+To allow Cerebro to communicate with OpenSearch during the restoration process, you must open the port. Use the following commands to open and close the port securely:
+
+Open port 9200:
+```bash
+docker service update --publish-add 9200:9200 utmstack_node1
+```
+
+Once the restoration is complete, immediately close the port to minimize security risks:
+```bash
+docker service update --publish-rm 9200:9200 utmstack_node1
+```
+
+{: .important}
+Leaving the port open exposes your OpenSearch data to potential risks. Ensure you close the port after completing the restoration process.
 
 While UTMStack doesn't include Cerebro, the tool is crucial for snapshot management and restoration, enabling the transition of data from cold to hot storage.
 
