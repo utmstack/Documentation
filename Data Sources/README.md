@@ -27,8 +27,8 @@ The table displays detailed information for each data source:
   - `linux`: Linux log source.
 - **Last Input**: Date and time of the last received input.
 - **Action**: Manage each source:
-  - Delete (`X`) a source.
-  - View source details (`screen icon`).
+  - **Delete** (`X`): Remove the source.
+  - **View Details** (`screen icon`): This option is **only available for agents**, showing detailed information about the agent's configuration and status.
 
 ## Actions and Management
 - **Manage source view**: Customize the table view.
@@ -46,22 +46,22 @@ In the example shown:
 - Sources of type `generic`, `wineventlog`, and `linux` are used.
 - Last input is displayed for each source, helping identify inactive sources.
 
-## Automatic Hostname and IP Address Update
+## Automatic Hostname and Preferred IP Selection
 
 ### Feature Description
-In UTMStack, **agents** now have the capability to automatically update the **hostname** when the machine name changes. Additionally, it is now possible to **update the IP address** directly from the agent's detail screen.
+In UTMStack, **agents** now have the capability to automatically update the **hostname** when the machine name changes. Additionally, users can **select a preferred IP address** for the agent, which will be used in visualizations and data entries.
 
 ### How It Works
 1. **Hostname Update**:
    - When the machine's name is changed, the agent automatically detects the change and updates the **hostname** in the host list without manual intervention.
    - This change is immediately reflected in the **sources table**.
 
-2. **IP Address Update**:
-   - In the agent detail screen, a list of **IP addresses** associated with the agent is displayed.
-   - To update the monitoring IP:
-     - Select the **desired IP** from the list.
-     - The selected IP is automatically updated in the **corresponding host**.
-     - This ensures the agent continues to be monitored correctly without restarting the service or making additional configurations.
+2. **Preferred IP Selection**:
+   - In the agent detail screen, a list of **IP addresses** available on the machine is displayed.
+   - Users can **select the preferred IP** from the list.
+   - The selected IP becomes the **primary IP** used in dashboards and data entries.
+     - This feature is designed to **prioritize the selected IP** for monitoring purposes without changing the device's actual IP settings.
+     - It ensures accurate representation in visualizations and logs.
 
 <img title="Collectors" alt="Collectors" src="../Images/selectip.png">
 
@@ -69,9 +69,14 @@ In UTMStack, **agents** now have the capability to automatically update the **ho
 
 <img title="Collectors" alt="Collectors" src="../Images/selectipchanges.png">
 
+### Important Notes
+- This feature **does not** modify the network configuration of the device.
+- The **preferred IP** is only used for **monitoring and visualization** within UTMStack.
+- **View Details** is only available for agents, and the preferred IP selection can only be configured from this screen.
+
 ### Benefits
 - **Automation**: No need for manual updates of hostname or IP.
-- **Continuous Monitoring**: The updated IP ensures continuous security monitoring.
+- **Accurate Monitoring**: The selected IP ensures accurate data representation.
 - **Efficiency**: Reduces human errors by automating the update process.
 
 This section allows efficient management of data sources for continuous and effective security monitoring.
