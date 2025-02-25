@@ -63,11 +63,11 @@ In UTMStack, **agents** now have the capability to automatically update the **ho
      - This feature is designed to **prioritize the selected IP** for monitoring purposes without changing the device's actual IP settings.
      - It ensures accurate representation in visualizations and logs.
 
-<img title="Collectors" alt="Collectors" src="../Images/selectip.png">
+<img title="Select Ip Data Source" alt="Select Ip Data Source" src="../Images/selectip.png">
 
 ### Result
 
-<img title="Collectors" alt="Collectors" src="../Images/selectipchanges.png">
+<img title="Select Ip Data Source" alt="Select Ip Data Source" src="../Images/selectipchanges.png">
 
 ### Important Notes
 - This feature **does not** modify the network configuration of the device.
