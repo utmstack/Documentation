@@ -7,24 +7,24 @@ has_children: true
 
 # Data Sources in UTMStack
 
-The **Data Sources** section in UTMStack allows managing and monitoring data collectors from various devices and platforms. The interface includes the following features:
+The **Data Sources** section in UTMStack allows managing and monitoring data origins from various devices, cloud services, and agents. These sources provide logs and security events for analysis and threat detection. The interface includes the following features:
 
 ## Filters
 - **Group**: Filter sources by assigned group.
-- **Type**: Filter by collector type (e.g., `generic`, `wineventlog`, `linux`).
+- **Type**: Filter by source type (e.g., `generic`, `wineventlog`, `linux`).
 - **Search in values**: Search sources by name or IP address.
 
 ## Sources Table
-The table displays detailed information for each source:
+The table displays detailed information for each data source:
 - **Status**: Indicates connection status:
   - `All connected`: All sources are connected.
-  - `Connected`: Source is connected and sending data.
+  - `Connected`: Source is active and sending data.
   - `Disconnected`: Source is offline or not sending data.
-- **Source**: Name or IP address of the source.
-- **Types**: Collector type:
-  - `generic`: Generic data source.
-  - `wineventlog`: Windows event log collector.
-  - `linux`: Linux log collector.
+- **Source**: Name or IP address of the origin.
+- **Types**: Type of data source:
+  - `generic`: General data origin.
+  - `wineventlog`: Windows event log source.
+  - `linux`: Linux log source.
 - **Last Input**: Date and time of the last received input.
 - **Action**: Manage each source:
   - Delete (`X`) a source.
@@ -42,12 +42,9 @@ The table displays detailed information for each source:
 
 ## Usage Example
 In the example shown:
-- Sources are monitored with different statuses (`Connected`, `Disconnected`).
-- Collectors of type `generic`, `wineventlog`, and `linux` are used.
+- Data origins are monitored with different statuses (`Connected`, `Disconnected`).
+- Sources of type `generic`, `wineventlog`, and `linux` are used.
 - Last input is displayed for each source, helping identify inactive sources.
-
-This section allows efficient management of data sources for continuous and effective security monitoring.
-
 
 ## Automatic Hostname and IP Address Update
 
@@ -76,3 +73,5 @@ In UTMStack, **agents** now have the capability to automatically update the **ho
 - **Automation**: No need for manual updates of hostname or IP.
 - **Continuous Monitoring**: The updated IP ensures continuous security monitoring.
 - **Efficiency**: Reduces human errors by automating the update process.
+
+This section allows efficient management of data sources for continuous and effective security monitoring.
