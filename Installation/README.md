@@ -13,6 +13,10 @@ Welcome to the UTMStack installation guide. This guide will walk you through the
 
 Before proceeding with the installation, it is important to ensure that your system meets the minimum requirements to run UTMStack effectively. Please refer to the **<a href="./SystemRequirements">System Requirements</a>** page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
 
+## ISO Download Size
+**Important:** The UTMStack installation ISO file is **12 GB**. Ensure you have sufficient disk space and a stable internet connection before initiating the download. This is crucial to avoid interruptions and ensure a successful download process.
+
+
 ## Installation Steps
 The UTMStack installation process consists of three main steps:
 
