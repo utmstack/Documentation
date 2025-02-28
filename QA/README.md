@@ -11,23 +11,31 @@ has_children: false
 
 To ensure a thorough and trouble-free uninstallation of client agents, please execute the steps below:
 
-1. **Log into the Client System**: Begin by accessing the client system with the installed UTMStack agent.
+1. **Uninstalling UTMStack Agent on Windows**:
+  
+   **Prerequisites**
+   - Ensure you have administrative privileges.
 
-2. **Launch Command Line Interface (CLI)**:
-   - For **Windows**:
-     Navigate to `Command Prompt` and execute it as an administrator.
-   - For **Linux**:
-     Open `Terminal` ensuring you possess the requisite permissions for system commands.
+   **Steps**:
+   1. Open PowerShell as Administrator:
+   2. Execute the Uninstallation Command
+         ```shell
+      Start-Process "C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_installer.exe" -ArgumentList 'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Write-Host "Removing UTMStack Agent dependencies..."; Start-Sleep -Seconds 10; Remove-Item 'C:\Program Files\UTMStack\UTMStack Agent' -Recurse -Force -ErrorAction Stop; Write-Host "UTMStack Agent removed successfully."
+      ```
 
-3. **Commence Uninstallation**:
-   - On **Windows**, type the following command and hit Enter:
-     ```shell
-     utmstackagent-windows.exe uninstall
-     ```
-   - On **Linux**, input this command:
-     ```shell
-     sudo utmstackagent-linux uninstall
-     ```
+2. **Uninstalling UTMStack Agent on Linux**:
+   **Prerequisites**
+   - Ensure you have root privileges.
+   - Close any running UTMStack processes.
+
+   **Steps**:
+   1. Open Terminal:
+      - Access the terminal as a user with sudo permissions.
+   2. Execute the Uninstallation Command:
+      - Copy and paste the following command into the terminal and press Enter:
+         ```shell
+      sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true; systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; rm /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; systemctl stop UTMStackRedline 2>/dev/null || true; systemctl disable UTMStackRedline 2>/dev/null || true; rm /etc/systemd/system/UTMStackRedline.service 2>/dev/null || true; systemctl stop UTMStackUpdater 2>/dev/null || true; systemctl disable UTMStackUpdater 2>/dev/null || true; rm /etc/systemd/system/UTMStackUpdater.service 2>/dev/null || true; systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; rm /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; systemctl daemon-reload 2>/dev/null || true; echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent && echo 'UTMStack Agent dependencies removed successfully.'"
+      ```
 
 ## Addressing Alerts Without User Identification in UTMStack
 
