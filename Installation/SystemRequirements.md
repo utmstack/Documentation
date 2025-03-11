@@ -38,7 +38,7 @@ It is essential to verify that your system's processor is compatible with this a
 
 ### Supported CPU Architectures for Virtualized Environments
 
-#### CPU configuration in virtualized environments can impact system performance and compatibility. UTMStack supports the following CPU architectures in QEMU/KVM environments:
+### CPU configuration in virtualized environments can impact system performance and compatibility. UTMStack supports the following CPU architectures in QEMU/KVM environments:
 
 1.	**86-64-v2** (QEMU): Based on the 64-bit x86 architecture with a second-generation instruction set, offering improved compatibility and optimized performance.
 2. **86-64-v2-AES (QEMU)**: Similar to x86-64-v2, but with support for encryption acceleration through the AES-NI (Intel Advanced Encryption Standard New Instructions) instruction set, enhancing security and encryption speed for sensitive applications.
