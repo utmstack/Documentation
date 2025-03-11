@@ -10,6 +10,15 @@ This section guides you through the step-by-step process of installing UTMStack 
 
 For detailed information on the prerequisites, refer to the **<a href="./SystemRequirements">System Requirements</a>** section before proceeding with the steps outlined in this guide.
 
+### Supported CPU Architectures for Virtualized Environments
+
+#### CPU configuration in virtualized environments can impact system performance and compatibility. UTMStack supports the following CPU architectures in QEMU/KVM environments:
+
+1.	**86-64-v2** (QEMU): Based on the 64-bit x86 architecture with a second-generation instruction set, offering improved compatibility and optimized performance.
+2. **86-64-v2-AES (QEMU)**: Similar to x86-64-v2, but with support for encryption acceleration through the AES-NI (Intel Advanced Encryption Standard New Instructions) instruction set, enhancing security and encryption speed for sensitive applications.
+3. **86-64-v4 (QEMU)**: A fourth-generation architecture incorporating a broader set of advanced instructions and performance improvements compared to previous versions.
+4. **Host (KVM)**: This option allows the virtual machine to use the host processor’s features directly, maximizing performance and compatibility with specific hardware.
+
 ### Step 1: Download the ISO
 - Visit the official download page and get the latest ISO file. [Download ISO](https://utmstack.com/install/).
 

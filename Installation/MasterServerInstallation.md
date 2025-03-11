@@ -8,6 +8,15 @@ nav_order: 3
 
 This guide will walk you through the process of configuring the UTMStack Main Server. The Main Server is the central component of UTMStack and is responsible for managing security operations and data collection.
 
+### Supported CPU Architectures for Virtualized Environments
+
+#### CPU configuration in virtualized environments can impact system performance and compatibility. UTMStack supports the following CPU architectures in QEMU/KVM environments:
+
+1.	**86-64-v2** (QEMU): Based on the 64-bit x86 architecture with a second-generation instruction set, offering improved compatibility and optimized performance.
+2. **86-64-v2-AES (QEMU)**: Similar to x86-64-v2, but with support for encryption acceleration through the AES-NI (Intel Advanced Encryption Standard New Instructions) instruction set, enhancing security and encryption speed for sensitive applications.
+3. **86-64-v4 (QEMU)**: A fourth-generation architecture incorporating a broader set of advanced instructions and performance improvements compared to previous versions.
+4. **Host (KVM)**: This option allows the virtual machine to use the host processor’s features directly, maximizing performance and compatibility with specific hardware.
+
 # Linux Installation Guide
 
 This guide will walk you through the process of installing UTMStack on a Linux system using the official installer script. Please follow the steps below to ensure a successful installation.
@@ -58,15 +67,22 @@ Execute the installer without parameters:
 ./installer
 ```
 
-
 The installer script will take care of downloading the necessary packages.
 
 Please note that the installation process may take some time depending on the system and the options selected.
 
-
 {: .important}
 Trubleshooting:
 If you find any errors during the installation, please check the installation log for more details: /var/log/utm-setup.log
+
+{: .important}
+Error During UTMStack Installation: Issue Regenerating the Geo-IP Index
+
+{: .note}
+Problem Description: During the installation of UTMStack, an error may occur related to regenerating the Geo-IP index. This issue prevents the system from properly completing the configuration of the geographical location database, which can impact certain functionalities that rely on this information.
+
+{: .note}
+Solution: To resolve this issue, you need to rerun the UTMStack installer. Restarting the installation process will properly regenerate the Geo-IP index, ensuring that location data is correctly processed and stored.
 
 {: .note}
 You can find the password and other generated configurations in /root/utmstack.yml
