@@ -22,6 +22,9 @@ For detailed information on the prerequisites, refer to the **<a href="./SystemR
 ### Step 1: Download the ISO
 - Visit the official download page and get the latest ISO file. [Download ISO](https://utmstack.com/install/).
 
+## ISO Download Size
+**Important:** The UTMStack installation ISO file is **12 GB**. Ensure you have sufficient disk space and a stable internet connection before initiating the download. This is crucial to avoid interruptions and ensure a successful download process.
+
 ### Step 2: Start the Installation Process
 
 1. Once booted, you'll see the **installation menu**. Choose the **Install UTMStack Server** option to begin.

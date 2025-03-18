@@ -27,9 +27,6 @@ It is essential to verify that your system's processor is compatible with this a
 
 Deploy the UTMStack Server, which oversees security operations and data collection.
 
-## ISO Download Size
-**Important:** The UTMStack installation ISO file is **12 GB**. Ensure you have sufficient disk space and a stable internet connection before initiating the download. This is crucial to avoid interruptions and ensure a successful download process.
-
 ### **Procedure**:
 
 Use the UTMStack installer for Ubuntu Linux 22.04 LTS.
