@@ -56,6 +56,9 @@ Ensure the following ports are correctly configured on your firewall for UTM Sta
 - **80/TCP**: Web-based GUI Redirector (Restrict to admin and security analyst workstations).
 - **443/TCP**: Web-based GUI (Restrict to admin and security analyst workstations).
 - **9090/TCP**: Cockpit Web-based Interface (Restrict to admin workstation).
+- **9000/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+- **9001/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+- **50051/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 
 ### Setup SSL with Certbot (Optional, but recommended):
 If you haven't manually installed an SSL certificate, use Certbot to generate one for your domain. This ensures encrypted connections for your users.
