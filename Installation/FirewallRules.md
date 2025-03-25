@@ -27,6 +27,9 @@ To ensure proper communication and functionality of UTMStack, it is important to
 - Port: 9000/TCP
   - Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 
+- Port: 9001/TCP
+  - Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+
 - Port: 50051/TCP
   - Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 
