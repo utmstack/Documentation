@@ -1,32 +1,4 @@
-theme: just-the-docs
+theme: jekyll-theme-cayman
 
 title: Documentation
 description: UTMStack documentation.
-
-
-kramdown:
-  math_engine: mathjax
-  syntax_highlighter: rouge
-
-back_to_top: true
-back_to_top_text: "Back to top"
-
-callouts:
-  important:
-    title: Important
-    color: yellow
-  new:
-    title: New
-    color: green
-  note:
-    title: Note
-    color: blue
-  warning:
-    title: Warning
-    color: red
-
-# External navigation links
-nav_external_links:
-  - title: API Documentation
-    url: /api-doc.html
-    opens_in_new_tab: true 
