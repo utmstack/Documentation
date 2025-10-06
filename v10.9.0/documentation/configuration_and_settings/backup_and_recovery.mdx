@@ -1,0 +1,84 @@
+# Backup and Recovery
+
+## Introduction
+
+This guide provides detailed instructions on configuring system backups and disaster recovery for UTMStack version 10.9.0. It focuses on data retention strategies, including index rollover, snapshot archiving, and data restoration using Cerebro. These features ensure compliance with security regulations, optimize storage efficiency, and maintain system performance.
+
+## Data Retention
+
+Data retention in UTMStack involves managing how long data is stored within the platform. This is crucial for optimizing log storage, complying with regulations, and maintaining system performance.
+
+### Index Rollover
+
+Index rollover is a feature that automatically deletes indices based on specific conditions such as data size or age. This helps in managing storage space and ensuring system performance.
+
+#### How to Configure Index Rollover
+
+1. Navigate to `Application Management` &gt; `Data Retention`.
+2. Set the desired retention period in days.
+3. Click ‘Save’ to confirm your changes.
+
+**Key Features**:
+- **Delete Days**: Define how long data will be kept. After this period, data is flagged for deletion.
+- The system automatically manages disk usage, taking action when it reaches 85% to prevent performance issues.
+
+### Snapshot Archiving
+
+Snapshot archiving allows for long-term data retention by saving snapshots to a specified path, which can be configured for remote storage. This ensures that data is safeguarded over extended periods, even as indices are removed based on retention settings.
+
+#### Understanding Hot and Cold Storage
+
+- **Hot Storage**: Designed for real-time access, where actively accessed data resides.
+- **Cold Storage**: Used for archived data, which is not regularly accessed but is critical for audits and compliance.
+
+#### Configuring Snapshot Path in Linux
+
+To redirect snapshots to another drive or remote location:
+
+1. **Mount the Remote Drive or Different Drive**:
+   ```bash
+sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
+   ```
+   Replace `REMOTE-SERVER:/remote/path` with your actual server and path details.
+
+2. **Add to `/etc/fstab` for Persistence**:
+   - Add the mount details to `/etc/fstab` to ensure the remote drive remains mounted after system reboots.
+
+3. **Test the Configuration**:
+   ```bash
+sudo mount -a
+   ```
+
+### Restoring Data Using Cerebro
+
+Cerebro is an essential external tool for managing snapshots and restoring data in UTMStack. It enables efficient data transition from cold to hot storage.
+
+#### Working with Cerebro
+
+1. **Installation & Access**:
+   - Use the [official Cerebro installation guide](https://github.com/lmenezes/cerebro).
+   - Access its interface at [http://localhost:9000](http://localhost:9000).
+
+2. **Restoration Process**:
+   - Link Cerebro with your OpenSearch node for seamless data restoration.
+   - In the Cerebro interface, select “snapshot” from the dropdown menu and choose a repository to restore the backup.
+
+#### Opening Ports for Restoration
+
+To allow Cerebro to communicate with OpenSearch during the restoration process:
+
+- Open port 9200:
+  ```bash
+docker service update --publish-add 9200:9200 utmstack_node1
+  ```
+
+- Close the port immediately after restoration to minimize security risks:
+  ```bash
+docker service update --publish-rm 9200:9200 utmstack_node1
+  ```
+
+## Summary
+
+This guide covered the essential aspects of configuring backups and disaster recovery in UTMStack. Key features include index rollover for efficient data management, snapshot archiving for long-term data retention, and data restoration using Cerebro. Proper configuration of these features ensures compliance, optimizes storage, and maintains system performance.
+
+For more detailed information, refer to the [UTMStack Data Retention Documentation](https://documentation.utmstack.com/v10/configuration/data_retention).

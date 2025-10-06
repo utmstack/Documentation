@@ -1,0 +1,78 @@
+# Cloud Deployment Guide for UTMStack v10.9.0
+
+Welcome to the UTMStack Cloud Deployment Guide. This document provides comprehensive instructions for deploying UTMStack on major cloud platforms such as AWS, Azure, and GCP. UTMStack is an open-source security platform designed for Ubuntu 22.04 LTS, offering encrypted communications, containerized microservices, and strong authentication mechanisms.
+
+## System Requirements
+
+Before deploying UTMStack, ensure that your system meets the necessary hardware and software prerequisites. Detailed system requirements can be found in the [System Requirements Documentation](https://documentation.utmstack.com/v10/Installation/system_requirements).
+
+### Recommended System Resources
+
+- **Operating System**: Ubuntu 22.04 LTS
+- **Resource Allocation**:
+  - For 50 data sources (120 GB of hot log storage): 4 Cores, 16 GB RAM, 150 GB Disk Space
+  - For 120 data sources (250 GB of hot log storage): 8 Cores, 16 GB RAM, 250 GB Disk Space
+  - For 240 data sources (500 GB of hot log storage): 16 Cores, 32 GB RAM, 500 GB Disk Space
+  - For 500 data sources (1000 GB of hot log storage): 32 Cores, 64 GB RAM, 1000 GB Disk Space
+- **Scaling**: For more than 500 data sources, consider adding secondary nodes for horizontal scaling.
+
+## Installation Steps
+
+UTMStack can be installed using an installer file or an ISO image. Below are the steps for installation using the installer file.
+
+### Preparing for Installation
+
+1. Update packages list:
+   ```bash
+sudo apt update
+   ```
+2. Install WGET:
+   ```bash
+sudo apt install wget
+   ```
+3. Download the latest version of the installer:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. Change to root user:
+   ```bash
+sudo su
+   ```
+5. Set execution permissions:
+   ```bash
+chmod +x installer
+   ```
+
+### Running the Installation
+
+Execute the installer without parameters:
+```bash
+./installer
+```
+
+Once installed, use `admin` as the user and the password generated during the installation for the default login. The password and other configurations can be found in `/root/utmstack.yml`. Access the login page using HTTPS in front of your server name or IP.
+
+### Required Ports
+
+- **22/TCP**: Secure Shell (SSH)
+- **80/TCP**: UTMStack Web-based GUI Redirector
+- **443/TCP**: UTMStack Web-based GUI
+- **9090/TCP**: Cockpit Web-based GUI for Servers
+
+## Integration with Federation Service
+
+For centralized management and enhanced security monitoring, UTMStack can be integrated into the Federation Service. Follow the [step-by-step guide](https://documentation.utmstack.com/v10/Installation/import_federation_server) to import your UTMStack instance into the Federation Service.
+
+## Compliance Management
+
+UTMStack streamlines compliance management by providing built-in reports and dashboards for standards like HIPAA, GDPR, and GLBA. For more information, visit the [Compliance Management Documentation](https://documentation.utmstack.com/v10/compliance/compliance_management).
+
+## Summary
+
+This guide provides a structured approach to deploying UTMStack on cloud platforms, ensuring that you meet the necessary system requirements and follow the recommended installation steps. For further details on specific configurations and integrations, refer to the respective sections in the UTMStack documentation.
+
+For additional support, visit the [UTMStack Support Page](https://support.utmstack.com) or explore the [Online Demo](https://utmstack.com/demo).
+
+---
+
+For more detailed guides and resources, visit the [UTMStack Documentation Home Page](https://documentation.utmstack.com/v10/Getting%20started/introduction).

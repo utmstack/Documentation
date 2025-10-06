@@ -1,0 +1,60 @@
+# System Requirements for UTMStack v10.9.0
+
+Welcome to the UTMStack system requirements documentation. This page provides essential information on the hardware, software, and configuration prerequisites necessary for installing and running UTMStack effectively.
+
+## Data Storage Overview
+
+UTMStack utilizes two primary methods for data retention:
+
+- **Hot Log Storage**: Data that is not archived and can be accessed anytime for immediate analysis.
+- **Cold Storage**: Archived data that requires restoration before access.
+
+For example, 50 data sources (devices) generate approximately 100 GB of data per month.
+
+## UTMStack Server Specifications
+
+The following table outlines the recommended hardware specifications for managing hot log storage based on the volume of data sources:
+
+| Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space |
+| ------------------------------------- | ------- | ------ | ------------ |
+| 50 (100 GB) | 8 | 16 GB | 150 GB |
+| 120 (250 GB) | 16 | 32 GB | 250 GB |
+| 240 (500 GB) | 32 | 64 GB | 450 GB |
+
+&gt; **Scalability:** These tiers can be adjusted based on the number of devices and desired log retention period.
+
+## Architecture Requirements
+
+To ensure optimal performance, your hardware must meet the following minimum specifications:
+
+- **Processor**: Must support x86-64 v2 architecture.
+- **For Virtualized Environments**: UTMStack supports the following CPU architectures in QEMU/KVM environments:
+  - x86-64-v2 (QEMU)
+  - x86-64-v2-AES (QEMU)
+  - x86-64-v4 (QEMU)
+  - Host (KVM)
+
+## Integration and Logging Volume Considerations
+
+- **Integration Requirements**: Each integration requires at least 1GB of reserved space to maintain efficient system operation.
+- **Log Volume Considerations**: If logs exceed 1GB within a 10-minute interval, immediate contact with the support team is required to maintain stability and performance.
+
+## Supported Operating Systems
+
+UTMStack is officially supported on Ubuntu 22.04 LTS. For installation instructions, refer to the [UTMStack Installation Guide](https://documentation.utmstack.com/v10/Installation/setup_guide).
+
+## Federated Server Requirements
+
+For federated installations, the following minimum system requirements apply:
+
+- **Recommended Operating System**: Ubuntu 22.04 LTS
+- **Resources for Master**:
+  - Cores: 4
+  - RAM: 16 GB
+  - Disk Space: 100 GB
+
+## Summary
+
+This documentation outlines the necessary system requirements for deploying UTMStack version 10.9.0. It covers data storage methods, server specifications, architecture requirements, integration considerations, and supported operating systems. Ensure your hardware and software configurations align with these requirements to achieve optimal performance and stability.
+
+For more detailed information, visit the [UTMStack System Requirements documentation](https://documentation.utmstack.com/v10/Installation/system_requirements).

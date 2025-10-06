@@ -1,0 +1,70 @@
+# Offline Installation of UTMStack
+
+## Introduction
+
+This guide provides instructions for installing UTMStack in air-gapped environments, specifically for version 10.9.0. UTMStack is an open-source security platform designed for Ubuntu 22.04 LTS, utilizing encrypted communications, containerized microservices, and strong authentication mechanisms.
+
+## System Requirements
+
+To ensure optimal performance and installation of UTMStack, your hardware must meet the following minimum specifications:
+
+- **Operating System**: Ubuntu 22.04 LTS
+- **CPU Requirements**:
+  - Must support x86-64 v2 architecture
+  - For virtualized environments, support for x86-64-v2, x86-64-v2-AES, x86-64-v4, or Host (KVM) architectures
+- **Minimum Hardware**:
+  - 4 CPU cores
+  - 16 GB RAM
+  - 100 GB Disk Space for federated servers
+  - 1 GB reserved space per integration
+
+## Installation Steps
+
+### Preparing for Installation
+
+1. **Update Packages List**:
+   ```bash
+sudo apt update
+   ```
+2. **Install WGET**:
+   ```bash
+sudo apt install wget
+   ```
+3. **Download the Installer**:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. **Change to Root User**:
+   ```bash
+sudo su
+   ```
+5. **Set Execution Permissions**:
+   ```bash
+chmod +x installer
+   ```
+
+### Running the Installation
+
+- Execute the installer without parameters:
+  ```bash
+./installer
+  ```
+
+After installation, use `admin` as the user and the password generated during the installation to log in. The password and other configurations can be found in `/root/utmstack.yml`. Access the login page using HTTPS in front of your server name or IP.
+
+## Network Configuration
+
+### Required Ports
+
+- **22/TCP**: Secure Shell (SSH) - Recommended to allow only from the admin workstation.
+- **80/TCP**: UTMStack Web-based GUI Redirector - Recommended to allow only from admin and security analyst workstations.
+- **443/TCP**: UTMStack Web-based GUI - Recommended to allow only from admin and security analyst workstations.
+- **9090/TCP**: Cockpit Web-based GUI for Servers - Recommended to allow only from admin workstation.
+
+Additional ports will be required for UTMStack's integrations to receive logs. Follow the security recommendations provided in the integration guide.
+
+## Summary
+
+This guide outlines the offline installation process for UTMStack in air-gapped environments, focusing on system requirements, preparation steps, and network configuration. UTMStack is optimized for Ubuntu 22.04 LTS and requires specific hardware and network settings to ensure secure and efficient operation.
+
+For more detailed information on system requirements, visit the [UTMStack System Requirements](https://documentation.utmstack.com/v10/Installation/system_requirements) page.

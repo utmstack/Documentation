@@ -1,0 +1,93 @@
+# Resource Allocation Guide
+
+**Version:** v10.9.0
+**Group:** Performance and Optimization
+**Page Type:** Guide
+**Description:** Allocate CPU, memory, and disk resources effectively for UTMStack
+
+---
+
+## Introduction
+
+This guide provides essential information on resource allocation for optimizing the performance and scaling of UTMStack. It covers the allocation of CPU, memory, and disk resources, ensuring that UTMStack operates efficiently across various environments.
+
+## System Requirements
+
+### Data Storage Overview
+
+UTMStack utilizes two primary methods for data retention:
+
+- **Hot Log Storage**: Data that is readily accessible for immediate analysis.
+- **Cold Storage**: Archived data that requires restoration before access.
+
+### UTMStack Server Specifications
+
+The server specifications for managing UTMStack operations are based on the volume of data sources:
+
+| Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space |
+| ------------------------------------- | ------- | ------- | ------------ |
+| 50 (100 GB) | 8 | 16 GB | 150 GB |
+| 120 (250 GB) | 16 | 32 GB | 250 GB |
+| 240 (500 GB) | 32 | 64 GB | 450 GB |
+
+### Architecture Requirements
+
+To ensure optimal performance, the following CPU requirements must be met:
+
+- **Processor**: Must support x86-64 v2 architecture.
+- **Virtualized Environments**: Supports x86-64-v2, x86-64-v2-AES, x86-64-v4, and Host architectures in QEMU/KVM environments.
+
+### Integration and Logging Volume Considerations
+
+- **Integration Requirements**: Each integration requires at least 1GB of reserved space.
+- **Log Volume Considerations**: If logs exceed 1GB within a 10-minute interval, contact support to maintain stability.
+
+### Supported Operating Systems
+
+UTMStack is officially supported on Ubuntu 22.04 LTS.
+
+## Data Retention
+
+### Index Rollover
+
+UTMStack's Index Rollover feature manages data by automatically deleting indices based on specific conditions, such as data size or age. This helps in optimizing space and maintaining system performance.
+
+### Snapshot Archiving
+
+Snapshot archiving allows for long-term data retention by saving snapshots to a specified path, which can be configured for remote storage. This ensures data is safeguarded over extended periods.
+
+### Configuring Snapshot Path in Linux
+
+To redirect snapshots to a remote or different drive:
+
+```bash
+sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
+```
+
+Add the mount details to `/etc/fstab` for persistence and test the configuration with:
+
+```bash
+sudo mount -a
+```
+
+### Restoring Data Using Cerebro
+
+To restore data using Cerebro, open port 9200:
+
+```bash
+docker service update --publish-add 9200:9200 utmstack_node1
+```
+
+Close the port after restoration to minimize security risks:
+
+```bash
+docker service update --publish-rm 9200:9200 utmstack_node1
+```
+
+## Summary
+
+This guide outlines the necessary steps and considerations for effectively allocating resources in UTMStack. By following the recommended specifications and configurations, users can ensure optimal performance and scalability of their UTMStack installations.
+
+For more detailed information, refer to the [UTMStack System Requirements](https://documentation.utmstack.com/v10/Installation/system_requirements) and [Data Retention](https://documentation.utmstack.com/v10/configuration/data_retention) documentation.
+
+---

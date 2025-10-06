@@ -1,0 +1,70 @@
+# Installation FAQ for UTMStack v10.9.0
+
+Welcome to the Installation FAQ for UTMStack version 10.9.0. This page addresses common questions and provides guidance on the installation and setup of UTMStack, including system requirements, installation steps, and frequently asked questions.
+
+## System Requirements
+
+Before installing UTMStack, ensure that your system meets the necessary hardware, software, and configuration prerequisites. Detailed system requirements can be found in the [System Requirements Documentation](https://documentation.utmstack.com/v10/Installation/system_requirements).
+
+## Preparing for Installation
+
+To install UTMStack using the installer file on Ubuntu Server, follow these steps:
+
+1. **Update Packages List**:
+   ```bash
+sudo apt update
+   ```
+2. **Install WGET**:
+   ```bash
+sudo apt install wget
+   ```
+3. **Download the Installer**:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. **Change to Root User**:
+   ```bash
+sudo su
+   ```
+5. **Set Execution Permissions**:
+   ```bash
+chmod +x installer
+   ```
+
+## Running the Installation
+
+Execute the installer without parameters:
+
+```bash
+./installer
+```
+
+Once UTMStack is installed, use `admin` as the user and the password generated during the installation to log in. The password and other configurations can be found in `/root/utmstack.yml`. Access the login page using HTTPS in front of your server name or IP.
+
+## Required Ports
+
+Ensure the following ports are open and properly configured:
+
+- **22/TCP**: Secure Shell (SSH) - Recommended to allow only from the admin workstation.
+- **80/TCP**: UTMStack Web-based GUI Redirector - Recommended to allow only from admin and security analyst workstations.
+- **443/TCP**: UTMStack Web-based GUI - Recommended to allow only from admin and security analyst workstations.
+- **9090/TCP**: Cockpit Web-based GUI for Servers - Recommended to allow only from the admin workstation.
+
+Additional ports may be required for UTMStack's integrations to receive logs. Follow security recommendations in the integration guide if available.
+
+## Frequently Asked Questions
+
+- **Is UTMStack based on Grafana, Kibana, or a similar tool?**
+  - No, UTMStack is a standalone SIEM/XDR built from the ground up for simplicity and intuitiveness.
+
+- **Does UTMStack use ELK for log correlation?**
+  - No, UTMStack's correlation engine is custom-built to analyze data before ingestion and optimize real-time correlation.
+
+- **What is the difference between the Open Source and Enterprise versions?**
+  - The Enterprise version includes additional features beneficial for enterprises and MSPs.
+
+## Summary
+
+This FAQ provides essential information for installing and setting up UTMStack v10.9.0. For more detailed guides and resources, visit the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).
+
+For any further assistance, please visit [UTMStack Support](https://support.utmstack.com) or try the [Online Demo](https://utmstack.com/demo).

@@ -1,0 +1,106 @@
+# Docker Installation Guide for UTMStack
+
+## Introduction
+
+This guide provides detailed instructions on deploying UTMStack using Docker containers. UTMStack is an open-source security platform designed for Ubuntu 22.04 LTS, offering features like encrypted communications, containerized microservices, and strong authentication. This document outlines the system requirements, installation steps, and configuration recommendations for deploying UTMStack effectively.
+
+## System Requirements
+
+To ensure optimal performance, your system must meet the following minimum specifications:
+
+- **Operating System**: Ubuntu 22.04 LTS
+- **CPU**: 64-bit x86-64 v2 architecture
+- **RAM**: At least 16 GB
+- **Disk Space**: Minimum of 100 GB for federated servers
+- **Additional Requirements**: Each integration requires at least 1 GB of reserved space.
+
+For virtualized environments, UTMStack supports the following CPU architectures:
+
+- **x86-64-v2 (QEMU)**
+- **x86-64-v2-AES (QEMU)**
+- **x86-64-v4 (QEMU)**
+- **Host (KVM)**
+
+## Installation Steps
+
+### Preparing for Installation
+
+1. **Update Packages List**:
+   ```bash
+sudo apt update
+   ```
+
+2. **Install WGET**:
+   ```bash
+sudo apt install wget
+   ```
+
+3. **Download the Installer**:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+
+4. **Change to Root User**:
+   ```bash
+sudo su
+   ```
+
+5. **Set Execution Permissions**:
+   ```bash
+chmod +x installer
+   ```
+
+### Running the Installation
+
+Execute the installer without parameters:
+
+```bash
+./installer
+```
+
+Once UTMStack is installed, use `admin` as the user and the password generated during the installation for the default user login. This information can be found in `/root/utmstack.yml`. Use HTTPS in front of your server name or IP to access the login page.
+
+## Network Configuration
+
+### Required Ports
+
+- **22/TCP**: Secure Shell (SSH)
+- **80/TCP**: UTMStack Web-based GUI Redirector
+- **443/TCP**: UTMStack Web-based GUI
+- **9090/TCP**: Cockpit Web-based GUI for Servers
+
+&gt; **Note**: It is recommended to create firewall rules to restrict access to these ports to specific workstations.
+
+### Snapshot Archiving
+
+To enable long-term data retention, UTMStack supports snapshot archiving. Snapshots are saved to `/utmstack/opensearch/backups` and can be redirected to a remote location by mounting a remote drive:
+
+```bash
+sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
+```
+
+Add the mount details to `/etc/fstab` for persistence:
+
+```bash
+sudo mount -a
+```
+
+## Data Restoration
+
+To restore data using Cerebro, open and close port 9200 securely:
+
+Open port 9200:
+```bash
+docker service update --publish-add 9200:9200 utmstack_node1
+```
+
+Close port 9200 after restoration:
+```bash
+docker service update --publish-rm 9200:9200 utmstack_node1
+```
+
+## Summary
+
+This guide covered the installation of UTMStack using Docker containers on Ubuntu 22.04 LTS. It detailed the system requirements, installation steps, and network configurations necessary for a successful deployment. By following these instructions, you can effectively deploy UTMStack and leverage its comprehensive security features.
+
+For further assistance, please refer to the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction) or contact support.

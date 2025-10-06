@@ -1,0 +1,56 @@
+# Incident Workflow Overview
+
+## Introduction
+
+This document provides an overview of the incident management lifecycle as part of the UTMStack platform, version 10.9.0. UTMStack is a comprehensive cybersecurity platform designed for hybrid environments, offering services such as SIEM, threat detection, incident response, and more. This page focuses on understanding the workflow involved in managing and investigating security incidents.
+
+## Incident Management Lifecycle
+
+### Incident History Tracking
+
+The incident management process involves tracking various actions and events related to incidents. The schema for incident history includes several required fields and action types, such as:
+
+- **Action Types**:
+  - INCIDENT_CREATED
+  - INCIDENT_MERGED
+  - INCIDENT_COMPLETED
+  - INCIDENT_ALERT_ADD
+  - INCIDENT_ALERT_DELETED
+  - INCIDENT_ALERT_STATUS_CHANGED
+  - INCIDENT_ALERT_MOVED
+  - INCIDENT_ASSIGNED_TO
+  - INCIDENT_ASSIGNED_CHANGE
+  - INCIDENT_STATUS_CHANGE
+  - INCIDENT_NOTE_ADD
+  - INCIDENT_NOTE_CHANGE
+  - INCIDENT_COMMAND_EXECUTED
+
+These actions are critical for maintaining a detailed history of incident responses and changes.
+
+### Incident Notes and Jobs
+
+Managing incident notes and jobs is an integral part of the incident workflow. The API provides endpoints to create and retrieve incident notes and jobs, ensuring that all actions are documented and traceable.
+
+- **Incident Notes**:
+  - Create and retrieve notes associated with incidents.
+  - Notes include fields like `incidentId`, `noteText`, `noteSendDate`, and `noteSendBy`.
+
+- **Incident Jobs**:
+  - Manage jobs related to incidents, including creating, retrieving, and deleting jobs.
+  - Jobs include fields such as `actionId`, `params`, `agent`, `status`, and `jobResult`.
+
+### Incident Alerts and Actions
+
+Incident alerts and actions are defined through structured schemas, specifying properties and data types. Alerts are associated with incidents and include details like `alertId`, `alertName`, `alertSeverity`, and `alertStatus`.
+
+- **Alert Criteria**:
+  - Define criteria for filtering alerts based on properties like `alertId`, `alertName`, `alertStatus`, and `alertSeverity`.
+
+- **Action Criteria**:
+  - Specify criteria for incident actions, including `actionCommand`, `actionDescription`, `actionParams`, and `actionType`.
+
+## Summary
+
+The incident management lifecycle in UTMStack involves a comprehensive approach to tracking, documenting, and managing incidents. By utilizing structured schemas and API endpoints, UTMStack ensures a detailed and traceable workflow for incident response. This documentation provides an overview of the key components involved in managing incidents, including history tracking, notes, jobs, alerts, and actions.
+
+For more detailed information on the API endpoints and schemas, refer to the [API Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

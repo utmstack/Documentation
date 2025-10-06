@@ -1,0 +1,96 @@
+# UTMStack Version Upgrade Guide
+
+Welcome to the UTMStack Version Upgrade Guide for version 10.9.0. This guide is part of the Migration and Upgrades documentation group and provides essential information for upgrading UTMStack to newer versions.
+
+## Introduction
+
+UTMStack is an open-source security platform designed for Ubuntu 22.04 LTS. It utilizes encrypted communications, containerized microservices, and strong authentication to ensure secure operations. This guide will walk you through the necessary steps and considerations for upgrading your UTMStack installation.
+
+## System Requirements
+
+Before proceeding with the upgrade, ensure that your system meets the necessary hardware and software requirements. For detailed information on system prerequisites, please refer to the [System Requirements documentation](https://documentation.utmstack.com/v10/Installation/system_requirements).
+
+### Recommended System Resources
+
+- **For 50 data sources (120 GB of hot log storage):**
+  - 4 Cores
+  - 16 GB RAM
+  - 150 GB Disk Space
+
+- **For 120 data sources (250 GB of hot log storage):**
+  - 8 Cores
+  - 16 GB RAM
+  - 250 GB Disk Space
+
+- **For 240 data sources (500 GB of hot log storage):**
+  - 16 Cores
+  - 32 GB RAM
+  - 500 GB Disk Space
+
+- **For 500 data sources (1000 GB of hot log storage):**
+  - 32 Cores
+  - 64 GB RAM
+  - 1000 GB Disk Space
+
+&gt; **Note:** For more than 500 data sources, additional nodes are required for horizontal scaling.
+
+## Installation and Upgrade Steps
+
+### Preparing for Installation
+
+1. **Update Packages List:**
+   ```bash
+sudo apt update
+   ```
+
+2. **Install WGET:**
+   ```bash
+sudo apt install wget
+   ```
+
+3. **Download the Installer:**
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+
+4. **Change to Root User:**
+   ```bash
+sudo su
+   ```
+
+5. **Set Execution Permissions:**
+   ```bash
+chmod +x installer
+   ```
+
+### Running the Installation
+
+- Execute the installer:
+  ```bash
+./installer
+  ```
+
+After installation, use the admin credentials and the generated password found in `/root/utmstack.yml` to log in. Access the login page using HTTPS with your server's IP or hostname.
+
+## Firewall and Port Configuration
+
+Ensure that the following ports are configured correctly:
+
+- **22/TCP:** Secure Shell (restricted to admin workstation)
+- **80/TCP:** UTMStack Web-based GUI Redirector (restricted to admin and security analyst workstations)
+- **443/TCP:** UTMStack Web-based GUI (restricted to admin and security analyst workstations)
+- **9090/TCP:** Cockpit Web-based Interface for Servers (restricted to admin workstation)
+
+Additional ports may be required for UTMStack integrations. Refer to the integration guide for specific security recommendations.
+
+## Additional Resources
+
+- [Import the UTMStack instance into the Federation Service](https://documentation.utmstack.com/v10/Installation/import_federation_server)
+- [Compliance Management](https://documentation.utmstack.com/v10/compliance/compliance_management)
+- [Data Retention](https://documentation.utmstack.com/v10/configuration/data_retention)
+
+## Summary
+
+This guide provides an overview of the steps necessary to upgrade UTMStack to version 10.9.0. Ensure your system meets the recommended requirements, follow the installation steps, and configure your firewall and ports as specified. For further assistance, refer to the provided resources and documentation links.
+
+For more detailed guides and support, visit the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

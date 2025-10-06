@@ -1,0 +1,56 @@
+# Rule Development Guidelines
+
+## Introduction
+
+This guide provides best practices for creating effective detection rules within UTMStack, a comprehensive cybersecurity platform. UTMStack integrates rule-based, heuristic, and machine learning threat detection, offering a robust environment for monitoring user and file activity, managing compliance, and correlating threat intelligence. This documentation will help you understand how to develop rules that leverage UTMStack's capabilities to enhance security and compliance.
+
+## Rule-Based Detection
+
+UTMStack employs a rule-based network intrusion detection system (NIDS) and a host intrusion detection system (HIDS) with heuristic analysis and advanced threat protection (ATP) capabilities. These systems analyze network traffic, protocols, and DNS activities to detect potential threats.
+
+### Key Features
+
+- **Network Intrusion Detection**: Utilizes predefined rules to monitor and analyze network traffic for suspicious activities.
+- **Host Intrusion Detection**: Applies heuristic and rule-based analysis to identify anomalies and threats on host systems.
+
+## Heuristic and Machine Learning Analysis
+
+UTMStack's heuristic and machine learning engines enhance threat detection by learning from the environment to identify abnormal behaviors. This adaptive approach allows for the creation of custom rules and baselines that improve the detection of sophisticated threats.
+
+### Components
+
+- **Heuristic Analysis Engine**: Aggregates and correlates log data, network traffic, and system activities using over 154,000 detection rules.
+- **Machine Learning Engine**: Defines custom rules and baselines by analyzing environmental data, enabling the identification of new and evolving threats.
+
+## Threat Intelligence Correlation
+
+UTMStack integrates threat intelligence to correlate data from various security IP feeds, focusing on online attacks, malware, botnets, and other cybercrime activities. This correlation enhances the detection and response capabilities of the platform.
+
+## Compliance Management
+
+UTMStack simplifies compliance management by providing built-in reports and interactive dashboards for major standards like HIPAA, GDPR, and GLBA. Users can monitor security alerts, account activities, and generate necessary reports for auditors.
+
+### Supported Standards
+
+- **HIPAA**: Includes reports on security alerts, login activities, and file access.
+- **GDPR**: Focuses on logon activities, data exposure, and privacy compromises.
+- **GLBA**: Monitors successful logins, file access, and policy changes.
+
+## Advanced Data Visualization and Reporting
+
+UTMStack offers customizable dashboards and reports, allowing organizations to tailor their monitoring and compliance reporting to specific needs. This flexibility supports a wide range of use cases and compliance requirements.
+
+## API Integration
+
+UTMStack provides an API for managing alert rules, specifying execution criteria, and handling alert responses. The API supports filtering based on rule execution status and non-execution causes, such as agent offline or not found.
+
+### API Features
+
+- **Rule Execution Status**: Allows filtering of rules by execution status (EXECUTED, PENDING, FAILED).
+- **Non-Execution Causes**: Identifies reasons for rule non-execution, such as agent issues.
+
+## Summary
+
+UTMStack's integrated approach to rule-based detection, heuristic analysis, and machine learning provides a comprehensive framework for developing effective detection rules. By leveraging threat intelligence and compliance management features, users can enhance their security posture and meet regulatory requirements. The platform's advanced data visualization and API integration further support the customization and automation of security operations.
+
+For more detailed information, please refer to the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

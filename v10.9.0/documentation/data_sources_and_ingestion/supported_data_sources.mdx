@@ -1,0 +1,92 @@
+# Supported Data Sources
+
+**Version:** v10.9.0
+**Tab:** Documentation - Main product documentation and guides
+**Group:** Data Sources and Ingestion - Configure and manage log data sources
+**Page Type:** Reference
+**Page Description:** Complete list of supported log sources and formats
+**Priority:** High
+
+## Introduction
+
+This documentation provides a comprehensive overview of the supported data sources and formats for log ingestion in the UTMStack platform. It outlines the various modules and schemas used to manage and analyze log data, ensuring efficient data integration and analysis.
+
+## Supported Data Sources
+
+UTMStack supports a wide range of data sources, enabling comprehensive log management and analysis. Below is a list of supported modules:
+
+- **File Integrity**
+- **Netflow**
+- **Windows Agent**
+- **Syslog**
+- **Linux Logs**
+- **VMware**
+- **AWS Traffic Mirror**
+- **AWS IAM User**
+- **AWS CloudTrail**
+- **AIX**
+- **AWS SQL Server**
+- **AWS PostgreSQL**
+- **AWS Beanstalk**
+- **AWS Fargate**
+- **AWS Lambda**
+- **AD Audit**
+- **Sophos**
+- **Azure**
+- **O365**
+- **IIS**
+- **GCP**
+- **JSON**
+- **MacOS Agent**
+- **Linux Agent**
+- **Apache**
+- **Apache2**
+- **Auditd**
+- **Elasticsearch**
+- **HAProxy**
+- **Kafka**
+- **Kibana**
+- **Logstash**
+- **MongoDB**
+- **MySQL**
+- **NATS**
+- **NGINX**
+- **Osquery**
+- **PostgreSQL**
+- **Redis**
+- **Traefik**
+- **Cisco**
+- **Meraki**
+- **ESET**
+- **Kaspersky**
+- **Sentinel One**
+
+## Data Ingestion and Management
+
+UTMStack utilizes various schemas and configurations to manage data ingestion effectively. Key components include:
+
+- **Input Configurations:** Define how data is ingested, including properties like `inputPrettyName`, `inputPlugin`, and `inputWithSsl`.
+- **Logstash Pipelines:** Use `UtmLogstashPipelineDTO` to process and route log data.
+- **Filters:** `UtmLogstashFilter` objects allow for customization and management of data filtering processes.
+- **Data Columns:** Define the structure of data with properties such as `label`, `field`, and `type`.
+
+## Log Analysis and Query Management
+
+The platform supports robust log analysis capabilities through:
+
+- **Log Analyzer Queries:** Manage queries with properties like `name`, `description`, `owner`, and `creationDate`.
+- **Policy Settings:** Configure data retention and snapshot policies using `PolicySettings`.
+- **Audit Events:** Retrieve and manage audit events through defined API endpoints.
+
+## Visualization and Reporting
+
+UTMStack provides multiple visualization options to represent data effectively:
+
+- **Chart Types:** Includes `TAG_CLOUD_CHART`, `HORIZONTAL_BAR_CHART`, `VERTICAL_BAR_CHART`, `LINE_CHART`, `AREA_CHART`, `HEATMAP_CHART`, and more.
+- **Table and Chart Structures:** Use `TableType`, `BarType`, and `PieType` to structure data for visual representation.
+
+## Summary
+
+UTMStack supports a diverse array of data sources and formats, enabling comprehensive log management and analysis. With robust schemas and configurations, the platform facilitates efficient data ingestion, processing, and visualization. This documentation serves as a reference for configuring and managing these data sources within UTMStack.
+
+For more detailed information on specific configurations and schemas, refer to the [API documentation](https://documentation.utmstack.com/v10/Installation/system_requirements).

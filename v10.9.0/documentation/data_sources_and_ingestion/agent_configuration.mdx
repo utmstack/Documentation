@@ -1,0 +1,86 @@
+# Agent Configuration Guide for UTMStack v10.9.0
+
+## Introduction
+
+This guide provides detailed instructions on installing and configuring UTMStack agents. UTMStack is an open-source security platform designed for Ubuntu 22.04 LTS. It leverages encrypted communications, containerized microservices, and strong authentication to ensure secure data management and analysis. This documentation will help you configure and manage log data sources effectively.
+
+## Installation Recommendations
+
+### Operating System
+
+UTMStack is optimized for installation on Ubuntu 22.04 LTS. Ensure your system meets this requirement before proceeding with the installation.
+
+### System Resources
+
+For optimal performance, allocate resources based on the number of data sources and desired log storage retention:
+
+- **50 data sources (120 GB)**: 4 Cores, 16 GB RAM, 150 GB Disk Space
+- **120 data sources (250 GB)**: 8 Cores, 16 GB RAM, 250 GB Disk Space
+- **240 data sources (500 GB)**: 16 Cores, 32 GB RAM, 500 GB Disk Space
+- **500 data sources (1000 GB)**: 32 Cores, 64 GB RAM, 1000 GB Disk Space
+
+For configurations exceeding 500 data sources, consider adding secondary nodes for horizontal scaling.
+
+## Installation Steps
+
+### Preparing for Installation
+
+1. **Update packages list**:
+   ```bash
+sudo apt update
+   ```
+2. **Install WGET**:
+   ```bash
+sudo apt install wget
+   ```
+3. **Download the latest installer**:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. **Change to root user**:
+   ```bash
+sudo su
+   ```
+5. **Set execution permissions**:
+   ```bash
+chmod +x installer
+   ```
+
+### Running Installation
+
+Execute the installer without parameters:
+```bash
+./installer
+```
+
+After installation, use `admin` as the user and the password generated during the installation to log in. The password and other configurations are stored in `/root/utmstack.yml`. Access the login page using HTTPS in front of your server name or IP.
+
+### Required Ports
+
+- **22/TCP**: Secure Shell (SSH) - Recommended to allow only from admin workstation.
+- **80/TCP**: UTMStack Web-based GUI Redirector - Recommended to allow only from admin and security analyst workstations.
+- **443/TCP**: UTMStack Web-based GUI - Recommended to allow only from admin and security analyst workstations.
+- **9090/TCP**: Cockpit Web-based Interface for Servers - Recommended to allow only from admin workstation.
+
+Additional ports may be required for UTMStack integrations to receive logs. Follow security recommendations provided in the integration guide.
+
+## Data Retention
+
+UTMStack manages data retention through index rollover, snapshot archiving, and hot/cold storage configurations to optimize log storage and maintain system performance.
+
+### Index Rollover
+
+- Automatically deletes indices based on data size or age.
+- Configure via `Application Management` &gt; `Data Retention`.
+- Set the retention period in days and save changes.
+
+### Snapshot Archiving
+
+- **Hot Storage**: For real-time access.
+- **Cold Storage**: Archived data requiring restoration.
+
+## Summary
+
+This guide covered the installation and configuration of UTMStack agents, focusing on system requirements, installation steps, and data retention strategies. By following these instructions, you can efficiently manage and analyze log data using UTMStack's robust security platform.
+
+For more detailed information, refer to the [UTMStack documentation](https://documentation.utmstack.com/v10/configuration/data_retention).

@@ -1,0 +1,81 @@
+# Setting Up Log Sources
+
+This tutorial provides step-by-step instructions for configuring common log sources in UTMStack, an open-source security platform designed for Ubuntu 22.04 LTS. UTMStack uses encrypted communications, containerized microservices, and strong authentication to ensure secure and scalable log management.
+
+## Introduction
+
+UTMStack is a comprehensive security platform that supports centralized management and enhanced security monitoring through its Federation Service. This guide will help you set up log sources effectively, ensuring optimal performance and data retention.
+
+## System Requirements
+
+Before setting up log sources, ensure your system meets the following requirements:
+
+- **Operating System**: Ubuntu 22.04 LTS
+- **Hardware Specifications**:
+  - For 50 data sources (100 GB/month): 8 Cores, 16 GB RAM, 150 GB Disk Space
+  - For 120 data sources (250 GB/month): 16 Cores, 32 GB RAM, 250 GB Disk Space
+  - For 240 data sources (500 GB/month): 32 Cores, 64 GB RAM, 450 GB Disk Space
+
+## Installation Steps
+
+### Preparing for Installation
+
+1. Update the package list:
+   ```bash
+sudo apt update
+   ```
+2. Install WGET:
+   ```bash
+sudo apt install wget
+   ```
+3. Download the latest installer:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. Change to root user:
+   ```bash
+sudo su
+   ```
+5. Set execution permissions:
+   ```bash
+chmod +x installer
+   ```
+
+### Running the Installer
+
+Execute the installer without parameters:
+```bash
+./installer
+```
+
+Once installed, use `admin` as the username and the password generated during installation to log in. Access the login page using HTTPS in front of your server name or IP.
+
+## Data Retention and Storage
+
+UTMStack manages data retention through index rollover and snapshot archiving to optimize log storage:
+
+- **Hot Log Storage**: Data that can be accessed anytime for immediate analysis.
+- **Cold Storage**: Archived data that requires restoration before access.
+
+### Configuring Index Rollover
+
+1. Navigate to `Application Management` &gt; `Data Retention`.
+2. Set the desired retention period in days.
+3. Click ‘Save’ to confirm changes.
+
+## Integration with Federation Service
+
+To integrate UTMStack with the Federation Service for centralized management:
+
+1. Log in to your UTMStack Federation Service instance.
+2. Go to the **Integrations** menu and click on **+ Enable Integration**.
+
+## Summary
+
+This guide covered the essential steps for setting up log sources in UTMStack. By ensuring your system meets the necessary requirements and following the installation and configuration steps, you can effectively manage and retain log data. For more detailed information, refer to the UTMStack documentation.
+
+For further assistance, visit the [UTMStack Support](https://support.utmstack.com) page or explore the [Online Demo](https://utmstack.com/demo).
+
+---
+
+For more detailed guides and resources, visit the [UTMStack Documentation](https://documentation.utmstack.com/v10/Installation/import_federation_server).

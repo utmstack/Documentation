@@ -1,0 +1,83 @@
+# Incident Reporting
+
+## Introduction
+
+This guide provides an overview of incident reporting within the UTMStack platform, focusing on generating incident reports and documentation. UTMStack is an open-source Unified Threat Management platform that offers comprehensive security services, including incident response and advanced reporting capabilities.
+
+## Incident Schema Definitions
+
+### Incident History
+
+The incident history schema is designed to track the history of incidents, specifying required fields and allowed action types. The following action types are supported:
+
+- `INCIDENT_CREATED`
+- `INCIDENT_MERGED`
+- `INCIDENT_COMPLETED`
+- `INCIDENT_ALERT_ADD`
+- `INCIDENT_ALERT_DELETED`
+- `INCIDENT_ALERT_STATUS_CHANGED`
+- `INCIDENT_ALERT_MOVED`
+- `INCIDENT_ASSIGNED_TO`
+- `INCIDENT_ASSIGNED_CHANGE`
+- `INCIDENT_STATUS_CHANGE`
+- `INCIDENT_NOTE_ADD`
+- `INCIDENT_NOTE_CHANGE`
+- `INCIDENT_COMMAND_EXECUTED`
+
+### Incident Details
+
+The `UtmIncident` object includes the following required fields:
+
+- `incidentCreatedDate`
+- `incidentDescription`
+- `incidentName`
+- `incidentSeverity`
+- `incidentStatus`
+
+The `incidentStatus` can be one of the following:
+
+- `OPEN`
+- `IN_REVIEW`
+- `COMPLETED`
+- `MERGED`
+
+### Incident Notes
+
+Incident notes are managed using the `UtmIncidentNote` object, which requires:
+
+- `incidentId`
+- `noteSendBy`
+- `noteSendDate`
+- `noteText`
+
+### Incident Alerts
+
+The `UtmIncidentAlert` object requires the following fields:
+
+- `alertId`
+- `alertName`
+- `alertSeverity`
+- `alertStatus`
+- `incidentId`
+
+## API Endpoints
+
+### Managing Incident Notes
+
+To create and retrieve incident notes, the following API endpoints are available:
+
+- **Create Incident Note**: Use the `POST` method with the `NewIncidentNoteDTO` schema.
+- **Retrieve Incident Notes**: Use the `GET` method with criteria specified by `UtmIncidentNoteCriteria`.
+
+### Managing Incident Jobs
+
+Incident jobs can be managed through the following endpoints:
+
+- **Create Incident Job**: Use the `POST` method with the `UtmIncidentJob` schema.
+- **Retrieve Incident Jobs**: Use the `GET` method with criteria specified by `UtmIncidentJobCriteria`.
+
+## Summary
+
+This documentation provides an overview of the schemas and API endpoints used for incident reporting in UTMStack. The platform supports comprehensive incident management, including tracking incident history, managing incident notes and alerts, and utilizing API endpoints for creating and retrieving incident-related data. UTMStack's integrated approach simplifies incident response and enhances reporting capabilities.
+
+For more detailed information, please refer to the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

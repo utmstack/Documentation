@@ -1,0 +1,58 @@
+# Custom Log Parsers
+
+## Introduction
+
+In the realm of log management, creating custom parsers is essential for handling proprietary log formats. This guide provides an overview of how to configure and manage custom log parsers within UTMStack, focusing on schema definitions and API interactions.
+
+## Schema Definitions
+
+Custom log parsers in UTMStack are defined using a variety of schema components. These include:
+
+- **ParserMethodOptions**: Defines options for parser methods.
+- **ParserNamePart**: Represents parts of a parser's name.
+- **ParserOneofDescriptorProto**: Describes a oneof field in a parser.
+- **ParserReservedRange**: Specifies reserved ranges within a parser.
+- **ParserServiceDescriptorProto**: Describes a parser service.
+- **ParserServiceOptions**: Options for parser services.
+- **ParserSourceCodeInfo**: Information about the source code of a parser.
+- **ParserUninterpretedOption**: Represents uninterpreted options in a parser.
+
+### Reserved Range Structure
+
+The `ReservedRange` object is a critical component, detailing the following properties:
+
+- **unknownFields**: References unknown fields.
+- **initialized**: A boolean indicating initialization status.
+- **parserForType**: Links to `ParserReservedRange`.
+- **defaultInstanceForType**: Links to `ReservedRange`.
+- **serializedSize**: Integer indicating serialized size.
+- **start** and **end**: Integers defining the range.
+- **allFields**: An object containing additional properties.
+- **initializationErrorString**: String detailing initialization errors.
+- **descriptorForType**: References a descriptor.
+- **memoizedSerializedSize**: Integer for memoized serialized size (write-only).
+
+## API Endpoints
+
+UTMStack provides several API endpoints for managing log parsers and related components:
+
+- **Log Analyzer Queries**: Endpoints for creating, updating, and retrieving log analyzer queries.
+- **Logstash Pipelines**: Validate Logstash pipelines using specified schemas.
+- **Menu Structure**: Save menu structures through API calls.
+- **Incident Action Commands**: Retrieve incident action commands with specified criteria.
+
+### Example API Endpoint
+
+To retrieve all log analyzer queries, use the following endpoint:
+
+```http
+GET /api/log-analyzer/queries
+```
+
+This endpoint requires query parameters such as `criteria` and `pageable`, and returns an array of `LogAnalyzerQuery` objects.
+
+## Summary
+
+This guide outlines the components and API interactions necessary for creating custom log parsers in UTMStack. By leveraging schema definitions and utilizing the provided API endpoints, users can effectively manage proprietary log formats within their log management system.
+
+For further details, refer to the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

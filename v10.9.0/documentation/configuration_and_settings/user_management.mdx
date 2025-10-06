@@ -1,0 +1,47 @@
+# User Management Guide
+
+Version: v10.9.0
+
+## Introduction
+
+This guide provides comprehensive instructions for managing users, groups, and permissions within the UTMStack platform. It is part of the Configuration and Settings group, focusing on system configuration and administrative settings. This document is intended for administrators who need to configure and manage user access and permissions effectively.
+
+## User Management Overview
+
+User management in UTMStack involves creating and managing user accounts, updating group configurations, and setting permissions. This section outlines the key components and processes involved in user management.
+
+### Creating Users
+
+To create a new user, the UTMStack platform provides an API endpoint for user creation. The endpoint requires a JSON request body that conforms to the `UserDTO` schema. Upon successful creation, the API returns a response confirming the operation.
+
+### Updating Groups
+
+Groups can be updated using the `/api/updateGroup` endpoint. This operation requires a JSON request body that follows the `UpdateGroupRequestBody` schema. The response confirms the successful update of the group configuration.
+
+### Module Group Configuration
+
+The `/api/module-group-configurations/update` endpoint allows for updating module group configurations. This operation is essential for managing the settings and permissions associated with different user groups within the platform.
+
+### Retrieving Menu Items
+
+Administrators can retrieve menu items using the `/api/menu` endpoint. This endpoint supports querying with criteria specified in the `UtmMenuCriteria` schema and returns a list of menu items available to the user.
+
+## Configuration
+
+### Connection Key
+
+The connection key is a critical component for secure communication between different modules of the UTMStack platform. Detailed configuration settings can be found in the [Connection Key documentation](https://documentation.utmstack.com/v10/configuration/conection_key).
+
+### Application Settings
+
+Application settings allow administrators to customize the behavior and appearance of the UTMStack platform. For more information, refer to the [Application Settings documentation](https://documentation.utmstack.com/v10/configuration/application_settings).
+
+### User Access Audit
+
+User access auditing is an essential feature for tracking and monitoring user activities within the platform. This feature helps ensure compliance with security policies and standards. Details are available in the [User Access Audit documentation](https://documentation.utmstack.com/v10/configuration/user_access_audit).
+
+## Summary
+
+This guide provides an overview of user management within the UTMStack platform, focusing on user creation, group updates, and configuration management. By leveraging the API endpoints and configuration settings, administrators can effectively manage user access and permissions, ensuring a secure and compliant environment.
+
+For further details and additional configuration options, please refer to the [UTMStack documentation](https://documentation.utmstack.com/v10/configuration/index_management).

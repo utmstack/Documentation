@@ -1,0 +1,66 @@
+# Alert and Detection Issues
+
+## Introduction
+
+This guide provides troubleshooting steps for common issues related to alert and detection in UTMStack. It focuses on debugging detection rules and resolving alert generation problems. UTMStack is a unified threat management platform that integrates SIEM and XDR technologies for real-time threat detection and response.
+
+## Alert Rule Execution
+
+Alert rule execution in UTMStack involves several key components and statuses. Understanding these can help diagnose issues related to alert generation and rule execution.
+
+### Execution Criteria
+
+The execution of alert rules is governed by specific criteria, which include:
+
+- **ID**: Unique identifier for the execution.
+- **Rule ID**: Identifier for the specific rule being executed.
+- **Alert ID**: Identifier for the alert generated.
+- **Agent**: The agent responsible for executing the rule.
+- **Execution Date**: The date and time when the rule was executed.
+- **Execution Status**: The current status of the rule execution, which can be `EXECUTED`, `PENDING`, or `FAILED`.
+- **Non-Execution Cause**: Reasons for non-execution, such as `AGENT_OFFLINE`, `AGENT_NOT_FOUND`, or `UNKNOWN`.
+
+### Rule Execution Object
+
+The `UtmAlertResponseRuleExecution` object defines the properties required for rule execution:
+
+- **ID**: Integer format.
+- **Rule ID**: Integer format.
+- **Alert ID**: String with a maximum length of 150 characters.
+- **Command**: The command executed by the rule.
+- **Command Result**: The result of the executed command.
+- **Agent**: String with a maximum length of 150 characters.
+- **Execution Date**: Date-time format.
+- **Execution Status**: Enum values include `EXECUTED`, `PENDING`, `FAILED`.
+- **Non-Execution Cause**: Enum values include `AGENT_OFFLINE`, `AGENT_NOT_FOUND`, `UNKNOWN`.
+- **Execution Retries**: Integer format.
+
+## Incident and Alert Management
+
+### Incident Status Changes
+
+The `AlertIncidentStatusChangeDTO` object handles changes in incident status:
+
+- **Incident ID**: Integer format.
+- **Alert IDs**: Array of strings.
+- **Status**: Integer format indicating the status of the incident.
+
+### Alert Tags and Updates
+
+Alerts can be managed and updated through various schemas:
+
+- **UtmAlertTag**: Defines properties such as `tagName`, `tagColor`, and `systemOwner`.
+- **UpdateAlertTagsRequestBody**: Allows updating alert tags with properties like `alertIds`, `tags`, and `createRule`.
+
+## Threat Detection and Compliance
+
+UTMStack provides comprehensive threat detection and compliance management features:
+
+- **Threat Detection Technology**: Utilizes rule-based, heuristic, and machine learning engines for threat detection.
+- **Compliance Management**: Offers built-in reports and dashboards for standards like HIPAA, GDPR, and GLBA.
+
+## Summary
+
+This guide outlines the key components and processes involved in alert and detection within UTMStack. By understanding the execution criteria, incident management, and compliance features, users can effectively troubleshoot and resolve issues related to alert generation and detection rules.
+
+For more detailed information, refer to the [UTMStack Documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

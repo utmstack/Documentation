@@ -1,0 +1,79 @@
+# High Availability Setup for UTMStack
+
+## Introduction
+
+This guide provides instructions for configuring UTMStack for high availability and redundancy on Ubuntu 22.04 LTS. UTMStack is an open-source security platform that leverages encrypted communications, containerized microservices, and strong authentication to ensure secure and scalable operations.
+
+## System Requirements
+
+To ensure optimal performance and reliability of UTMStack in a high availability setup, it is crucial to adhere to the following system specifications:
+
+### Hardware Specifications
+
+- **Processor**: Must support x86-64 v2 architecture.
+- **RAM**: Minimum of 16 GB.
+- **Disk Space**: Minimum of 100 GB for federated servers.
+- **Cores**: At least 4 CPU cores.
+
+### Storage Considerations
+
+UTMStack uses two types of data storage:
+
+- **Hot Log Storage**: Data that can be accessed immediately for analysis.
+- **Cold Storage**: Archived data that requires restoration before access.
+
+### Integration and Logging Volume
+
+- Each integration requires at least 1GB of reserved space.
+- If log volume exceeds 1GB within a 10-minute interval, contact support to maintain stability.
+
+## Installation Steps
+
+### Preparing for Installation
+
+1. **Update Packages List**:
+   ```bash
+sudo apt update
+   ```
+2. **Install WGET**:
+   ```bash
+sudo apt install wget
+   ```
+3. **Download Installer**:
+   ```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+   ```
+4. **Switch to Root User**:
+   ```bash
+sudo su
+   ```
+5. **Set Execution Permissions**:
+   ```bash
+chmod +x installer
+   ```
+
+### Running Installation
+
+Execute the installer without parameters:
+```bash
+./installer
+```
+
+After installation, use `admin` as the username and the generated password found in `/root/utmstack.yml` to log in. Access the login page using HTTPS in front of your server name or IP.
+
+### Required Ports
+
+- **22/TCP**: Secure Shell (SSH) - Recommended to allow only from admin workstation.
+- **80/TCP**: UTMStack Web-based GUI Redirector - Recommended to allow only from admin and security analyst workstations.
+- **443/TCP**: UTMStack Web-based GUI - Recommended to allow only from admin and security analyst workstations.
+- **9090/TCP**: Cockpit Web-based Interface for Servers - Recommended to allow only from admin workstation.
+
+## Summary
+
+Configuring UTMStack for high availability involves ensuring that your hardware meets specific requirements, particularly in terms of CPU architecture, RAM, and disk space. Proper setup of storage methods and integration considerations are essential for maintaining system stability and performance. Follow the installation steps carefully, ensuring that necessary ports are configured according to security best practices.
+
+For more detailed installation instructions and support, refer to the [UTMStack Installation Guide](https://documentation.utmstack.com/v10/Installation/setup_guide).
+
+---
+
+For further assistance, visit the [UTMStack Support](https://support.utmstack.com) page or explore the [Online Demo](https://utmstack.com/demo) for a hands-on experience.

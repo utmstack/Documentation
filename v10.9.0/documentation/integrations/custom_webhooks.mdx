@@ -1,0 +1,89 @@
+# Custom Webhooks Integration Guide
+
+## Introduction
+
+This guide provides an overview of creating custom webhook integrations within the UTMStack platform. UTMStack offers flexible integration capabilities, allowing users to connect with various platforms and systems without the need for custom coding or complex configurations. This document will guide you through the available API endpoints and their functionalities related to custom webhooks.
+
+## API Endpoints for UTM Integrations
+
+UTMStack provides several API endpoints to manage UTM integrations, which can be utilized to create, update, retrieve, and delete integration records. These endpoints offer a robust framework for managing integrations efficiently.
+
+### Retrieve All UTM Integrations
+
+- **Endpoint**: `/api/utm-integrations`
+- **Method**: GET
+- **Parameters**:
+  - `criteria`: Query parameter for filtering results.
+  - `pageable`: Query parameter for pagination.
+- **Response**: Returns an array of UTM integration objects.
+
+### Create a New UTM Integration
+
+- **Endpoint**: `/api/utm-integrations`
+- **Method**: POST
+- **Request Body**: JSON schema of the UTM integration.
+- **Response**: Returns the created UTM integration object.
+
+### Update an Existing UTM Integration
+
+- **Endpoint**: `/api/utm-integrations`
+- **Method**: PUT
+- **Request Body**: JSON schema of the UTM integration.
+- **Response**: Returns the updated UTM integration object.
+
+### Retrieve a UTM Integration by ID
+
+- **Endpoint**: `/api/utm-integrations/{id}`
+- **Method**: GET
+- **Parameters**:
+  - `id`: Path parameter specifying the integration ID.
+- **Response**: Returns the specified UTM integration object.
+
+### Delete a UTM Integration
+
+- **Endpoint**: `/api/utm-integrations/{id}`
+- **Method**: DELETE
+- **Parameters**:
+  - `id`: Path parameter specifying the integration ID.
+- **Response**: Confirms deletion of the specified integration.
+
+### Count UTM Integrations
+
+- **Endpoint**: `/api/utm-integrations/count`
+- **Method**: GET
+- **Parameters**:
+  - `criteria`: Query parameter for filtering results.
+- **Response**: Returns the count of UTM integrations.
+
+## UTM Integration Configurations
+
+UTMStack also provides endpoints to manage integration configurations, allowing users to create, update, and retrieve configuration objects.
+
+### Retrieve All UTM Integration Configurations
+
+- **Endpoint**: `/api/utm-integration-confs`
+- **Method**: GET
+- **Parameters**:
+  - `criteria`: Query parameter for filtering results.
+  - `pageable`: Query parameter for pagination.
+- **Response**: Returns an array of UTM integration configuration objects.
+
+### Create a New UTM Integration Configuration
+
+- **Endpoint**: `/api/utm-integration-confs`
+- **Method**: POST
+- **Request Body**: JSON schema of the UTM integration configuration.
+- **Response**: Returns the created configuration object.
+
+### Update an Existing UTM Integration Configuration
+
+- **Endpoint**: `/api/utm-integration-confs`
+- **Method**: PUT
+- **Request Body**: JSON schema of the UTM integration configuration.
+- **Response**: Returns the updated configuration object.
+
+## Summary
+
+This guide outlines the API endpoints available in UTMStack for managing custom webhook integrations. Users can leverage these endpoints to efficiently create, update, retrieve, and delete UTM integrations and their configurations. UTMStack's integration capabilities provide a flexible and no-code solution for connecting with various platforms and systems, enhancing security monitoring and compliance efforts.
+
+For further assistance, please contact [support@utmstack.com](mailto:support@utmstack.com) or visit the [UTMStack documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).

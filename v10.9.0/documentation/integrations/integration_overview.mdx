@@ -1,0 +1,49 @@
+# Integration Overview
+
+Welcome to the Integration Overview for UTMStack version 10.9.0. This document provides an overview of the available integrations and their capabilities within the UTMStack platform. UTMStack is a comprehensive cybersecurity platform offering advanced threat detection, log management, and compliance features. It supports a wide range of integrations, enabling seamless communication and data sharing across various environments.
+
+## Available Integrations
+
+UTMStack offers broad integration support for various platforms and systems, allowing for flexible and no-code customizable dashboards and reports. The integrations can be configured inside the system panel without requiring custom coding or complicated configurations. Here are some of the key integrations supported by UTMStack:
+
+- **Cloud Platforms**: Azure and AWS
+- **Virtualization**: Hypervisors such as KVM, HyperV, and VMWare
+- **Physical Infrastructure**: Datacenter equipment
+- **Software**: Applications like SharePoint and SQL Server
+- **Operating Systems**: Windows and Linux servers and endpoints
+- **Applications**: PaaS and SaaS applications like Office365
+- **Network Devices**: Proprietary devices like CISCO and Sophos
+- **Container Orchestration**: Kubernetes and Docker
+
+For more detailed information on integrations, please refer to the [official documentation](https://documentation.utmstack.com/v10/Getting%20started/introduction).
+
+## Integration Management
+
+UTMStack provides a set of API endpoints for managing integrations, which include operations to retrieve, delete, and count integrations, as well as fetch specific integration configurations by ID. These endpoints facilitate the management of UTM integrations efficiently.
+
+### API Endpoints
+
+- **Retrieve Integration by ID**: `/api/utm-integrations/{id}`
+- **Delete Integration by ID**: `/api/utm-integrations/{id}`
+- **Count Integrations**: `/api/utm-integrations/count`
+- **Retrieve All Integrations**: `/api/utm-integrations`
+- **Create or Update Integration**: `/api/utm-integrations`
+
+For more technical details on API usage, refer to the API documentation available in the system.
+
+## Integration with Federation Service
+
+Integrating a UTMStack instance into the Federation Service enables centralized management and enhanced security monitoring across federated environments. The process involves several steps:
+
+1. **Log in to UTMStack Federation Service**: Access your instance using the credentials provided during installation.
+2. **Enable Integration**: Navigate to the Integrations menu and click on "+ Enable Integration".
+3. **Add Tenant**: Enter the necessary details to enable a UTMStack integration.
+4. **Verify Configuration**: Check the module configuration using a domain or IP and connection key to ensure successful communication.
+
+For a detailed guide on integrating UTMStack with the Federation Service, visit the [installation guide](https://documentation.utmstack.com/v10/Installation/import_federation_server).
+
+## Summary
+
+UTMStack's integration capabilities are designed to enhance its cybersecurity platform by supporting a wide range of systems and platforms. The integration management APIs and the ability to connect with the Federation Service provide users with powerful tools for centralized security management and data sharing. For further assistance, contact [support@utmstack.com](mailto:support@utmstack.com) or visit the [UTMStack website](https://utmstack.com).
+
+For additional resources and guides, please explore the [documentation links](https://documentation.utmstack.com/v10/dashboards/dashboard) provided in the UTMStack documentation portal.

@@ -1,0 +1,95 @@
+# Storage Optimization Guide
+
+## Introduction
+
+This guide provides comprehensive information on optimizing storage usage and performance in UTMStack version 10.9.0. It covers data retention strategies, index management, snapshot archiving, and system requirements to ensure efficient storage management and compliance with security regulations.
+
+## Data Retention
+
+UTMStack's data retention policies are designed to manage log data efficiently, ensuring compliance and optimizing storage. The key components include:
+
+### Index Rollover
+
+Index Rollover is a feature in UTMStack that automatically deletes indices based on specific conditions such as data size or age. This helps in maintaining optimal system performance by freeing up storage space.
+
+#### How to Configure Index Rollover:
+
+1. Navigate to `Application Management` &gt; `Data Retention`.
+2. Set the desired retention period in days.
+3. Click ‘Save’ to confirm your changes.
+
+**Key Feature:**
+
+- **Delete Days**: Define the duration for which data will be retained. After this period, data is flagged for deletion.
+
+### Snapshot Archiving
+
+Snapshot Archiving allows for long-term data retention by saving snapshots to a specified path. This feature supports secure data restoration using Cerebro, which requires temporarily opening necessary ports.
+
+#### Configuring Snapshot Path in Linux:
+
+1. **Mount the Remote Drive or Different Drive:**
+
+   ```bash
+sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
+   ```
+
+   Replace `REMOTE-SERVER:/remote/path` with your actual server and path details.
+
+2. **Add to `/etc/fstab` for Persistence**:
+   Ensure the remote drive remains mounted after system reboots.
+
+3. **Test the Configuration**:
+
+   ```bash
+sudo mount -a
+   ```
+
+#### Restoring Data Using Cerebro:
+
+To restore data, open port 9200 using the following command:
+
+```bash
+docker service update --publish-add 9200:9200 utmstack_node1
+```
+
+Close the port after restoration to minimize security risks:
+
+```bash
+docker service update --publish-rm 9200:9200 utmstack_node1
+```
+
+## Hot and Cold Storage
+
+Understanding the distinction between hot and cold storage is crucial for effective data management:
+
+- **Hot Storage**: Stores data that is actively accessed and available for real-time analysis.
+- **Cold Storage**: Contains archived data that must be restored before access, useful for audits and compliance.
+
+## System Requirements
+
+To ensure optimal performance, UTMStack requires specific hardware configurations based on data volume:
+
+| Data Sources (Approx. Monthly Data) | Cores | RAM | Disk Space |
+| ------------------------------------- | ------- | ------ | ------------ |
+| 50 (100 GB) | 8 | 16 GB | 150 GB |
+| 120 (250 GB) | 16 | 32 GB | 250 GB |
+| 240 (500 GB) | 32 | 64 GB | 450 GB |
+
+## Index Management
+
+Efficient index management is essential for maintaining system performance. UTMStack provides tools for managing indices, including deletion and monitoring.
+
+### Managing Indices
+
+To delete an index, click the delete action (❌) next to the desired index. Note that this action is irreversible.
+
+### Searching Within an Index
+
+Use the search bar at the top of the index table to filter and search for specific indices. Regular monitoring of index size and document count is recommended for optimal performance.
+
+## Summary
+
+This guide outlines the essential practices for optimizing storage in UTMStack, including data retention, snapshot archiving, and index management. By adhering to these guidelines, users can ensure efficient storage usage and maintain system performance.
+
+For more detailed information, refer to the [UTMStack Data Retention Documentation](https://documentation.utmstack.com/v10/configuration/data_retention) and [System Requirements](https://documentation.utmstack.com/v10/Installation/system_requirements).
