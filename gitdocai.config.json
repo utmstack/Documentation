@@ -1,0 +1,42 @@
+{
+    "name": "UTMSTACK",
+    "description": "UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself. This seamless integration of SIEM and XDR capabilities sets UTMStack apart from competitors, providing organizations with an effective, holistic cybersecurity suite that enhances threat detection, response, and remediation across clients’ valuable digital infrastructure. Correlation happens before data ingestion, reducing workload and improving response times.",
+    "theme": "",
+    "colors": {
+        "dark": "#655DC6",
+        "light": "#3A8DDE"
+    },
+    "defaultThemeMode": "light",
+    "logo": {
+        "light": "/assets/light.svg",
+        "dark": "/assets/dark.svg",
+        "reference": ""
+    },
+    "favicon": "/assets/favicon.svg",
+    "background": {
+        "colors": {
+            "dark": "#0a0f1c",
+            "light": "#fafbfc"
+        },
+        "image": null
+    },
+    "navbar": [
+        {
+            "type": "link",
+            "label": "Support",
+            "reference": "https://support.utmstack.com"
+        },
+        {
+            "type": "button",
+            "label": "Online Demo",
+            "reference": "https://utmstack.com/demo"
+        }
+    ],
+    "navigation": {},
+    "footer": [
+        {
+            "type": "github",
+            "reference": "https://github.com/utmstack/UTMStack"
+        }
+    ]
+}
