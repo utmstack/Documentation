@@ -1,0 +1,172 @@
+# API Documentation Overview
+
+
+## Introduction
+
+The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
+
+<Note>
+All API endpoints require authentication via Bearer tokens. See the [Authentication](/v10/apidoc/authentication) section for details on obtaining access tokens.
+</Note>
+
+
+## Quick Start Guide
+
+Get up and running with the UTMStack API in just a few steps:
+
+<Steps>
+  <Step title="Authenticate">
+    Use your UTMStack credentials to obtain a JWT token
+    ```bash
+    curl -X POST https://your-utmstack-instance.com/api/authenticate \
+      -H "Content-Type: application/json" \
+      -d '{"username":"your_username","password":"your_password"}'
+    ```
+  </Step>
+  
+  <Step title="Store Token">
+    Save the returned `id_token` for use in subsequent requests
+    ```json
+    {
+      "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "authenticated": true
+    }
+    ```
+  </Step>
+  
+  <Step title="Make API Calls">
+    Use the token in the Authorization header for protected endpoints
+    ```bash
+    curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search" \
+      -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+      -H "Content-Type: application/json"
+    ```
+  </Step>
+</Steps>
+
+
+## 📦 Postman Collection
+
+Get started quickly by importing our complete Postman collection that includes all API endpoints with pre-configured examples, authentication, and test scripts.
+
+<Card 
+  title="Download UTMStack Alerts API Collection" 
+  icon="download"
+  href="/images/downloads/postman.json"
+>
+  **Complete Postman Collection (JSON)**  
+  Includes all 9 API endpoints with examples, authentication setup, and automated tests.
+  
+  <br/>
+  
+  **What's included:**
+  - 🔐 JWT authentication with automatic token management
+  - 📋 Pre-configured examples for all endpoints
+  - 🧪 Automated test scripts for response validation
+  - 📊 Multiple scenarios for each API call
+  - 🔧 Environment variables for easy configuration
+  
+  <Tip>
+  **Download Tip**: If your browser displays the JSON instead of downloading it, right-click the link above and select "Save link as..." to save the file to your computer.
+  </Tip>
+</Card>
+
+### How to Import
+
+<Steps>
+  <Step title="Download Collection">
+    Click the download link above to get the JSON file
+  </Step>
+  
+  <Step title="Open Postman">
+    Launch Postman application or visit [web.postman.co](https://web.postman.co)
+  </Step>
+  
+  <Step title="Import Collection">
+    - Click "Import" button in Postman
+    - Select "Upload Files" 
+    - Choose the downloaded JSON file
+    - Click "Import"
+  </Step>
+  
+  <Step title="Configure Environment">
+    Set up collection variables:
+    - `baseUrl`: Your UTMStack instance URL
+    - `bearerToken`: Will be set automatically after authentication
+    - `alertId`: Sample alert ID for testing
+  </Step>
+  
+  <Step title="Start Testing">
+    Run the "Authentication" request first, then explore other endpoints
+  </Step>
+</Steps>
+
+<Tip>
+**Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
+</Tip>
+
+
+## Common Response Codes
+
+<AccordionGroup>
+  <Accordion title="2xx Success Codes">
+    - **200 OK**: Request completed successfully
+    - **201 Created**: Resource created successfully
+    - **204 No Content**: Request successful, no response body
+  </Accordion>
+
+  <Accordion title="4xx Client Error Codes">
+    - **400 Bad Request**: Invalid request format or parameters
+    - **401 Unauthorized**: Missing or invalid authentication token
+    - **403 Forbidden**: Insufficient permissions for the requested operation
+    - **404 Not Found**: Requested resource does not exist
+    - **429 Too Many Requests**: Rate limit exceeded
+  </Accordion>
+
+  <Accordion title="5xx Server Error Codes">
+    - **500 Internal Server Error**: Unexpected server error
+    - **502 Bad Gateway**: Upstream service unavailable
+    - **503 Service Unavailable**: Service temporarily unavailable
+  </Accordion>
+</AccordionGroup>
+
+
+## Rate Limiting
+
+<Info>
+UTMStack implements rate limiting to ensure API stability. If you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
+</Info>
+
+### Best Practices
+
+- **Implement exponential backoff** for retries
+- **Cache authentication tokens** instead of re-authenticating for each request
+- **Batch operations** when possible to reduce API calls
+- **Use appropriate page sizes** for search operations
+
+
+## SDK and Libraries
+
+<Note>
+Currently, UTMStack provides REST API endpoints. Community SDKs and libraries may be available for specific programming languages.
+</Note>
+
+### Recommended HTTP Clients
+
+- **JavaScript**: `fetch`, `axios`
+- **Python**: `requests`, `httpx`
+- **Java**: `OkHttp`, `Apache HttpClient`
+- **C#**: `HttpClient`
+- **Go**: `net/http`
+- **PHP**: `Guzzle`, `cURL`
+
+
+## Version Information
+
+- **API Version**: v1.0
+- **Documentation Version**: 2025.10
+- **Last Updated**: October 2025
+
+<Tip>
+This documentation is actively maintained. Check back regularly for updates and new endpoint additions.
+</Tip>

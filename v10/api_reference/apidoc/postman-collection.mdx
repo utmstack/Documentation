@@ -1,0 +1,206 @@
+# Postman Collection Download
+
+
+## 📦 UTMStack Alerts API - Postman Collection
+
+Get started with the UTMStack API instantly by downloading our comprehensive Postman collection. This collection includes all API endpoints, authentication setup, example requests, and automated testing scripts.
+
+<Card 
+  title="🚀 One-Click Download" 
+  icon="download"
+  href="/images/downloads/postman.json"
+>
+  **Download Complete Collection (JSON)**  
+  Ready-to-use Postman collection with all 9 API endpoints  
+</Card>
+
+
+## 🛠️ Import Instructions
+
+<Steps>
+  <Step title="Download the Collection">
+    Click the download button above to save the JSON file to your computer
+    
+    **Alternative download link**: [UTMStack_Alerts_API.postman_collection.json](/images/downloads/UTMStack_Alerts_API.postman_collection.json)
+  </Step>
+  
+  <Step title="Open Postman">
+    Launch the Postman application or visit [web.postman.co](https://web.postman.co) for the web version
+  </Step>
+  
+  <Step title="Import the Collection">
+    - Click the **"Import"** button in Postman
+    - Select **"Upload Files"** or drag and drop the JSON file
+    - Choose the downloaded `UTMStack_Alerts_API.postman_collection.json` file
+    - Click **"Import"** to add the collection to your workspace
+  </Step>
+  
+  <Step title="Configure Variables">
+    Set up the collection variables in Postman:
+    - **baseUrl**: `https://your-utmstack-instance.com` (replace with your actual URL)
+    - **bearerToken**: Leave empty (will be set automatically after authentication)
+    - **alertId**: `c1c4e32c-dd9f-4a15-98c4-0dac2af40740` (sample alert ID for testing)
+  </Step>
+  
+  <Step title="Authenticate">
+    Run the **"Authenticate User"** request in the Authentication folder to get your JWT token
+  </Step>
+  
+  <Step title="Start Testing">
+    Explore all endpoints! The bearer token will be automatically applied to subsequent requests
+  </Step>
+</Steps>
+
+
+## 🎯 Pre-configured Examples
+
+Each endpoint includes multiple real-world scenarios:
+
+### Authentication Examples
+- ✅ Basic username/password authentication
+- ✅ Token extraction and storage
+- ✅ Error handling for invalid credentials
+
+### Alert Management Examples
+- ✅ Search alerts by severity, status, time range
+- ✅ Update status with observations
+- ✅ Add tags with false positive rules
+- ✅ Add investigation notes
+
+### Analytics Examples  
+- ✅ Get alert counts for dashboards
+- ✅ Analyze severity distribution
+- ✅ Export data for compliance reports
+- ✅ Generate field statistics
+
+### Incident Management Examples
+- ✅ Convert single high-priority alert
+- ✅ Create incident from multiple related alerts
+- ✅ Batch processing workflows
+
+
+## 🔧 Environment Setup
+
+### Quick Setup Variables
+
+Copy these variables into your Postman environment or collection variables:
+
+```json
+{
+  "baseUrl": "https://your-utmstack-instance.com",
+  "bearerToken": "",
+  "alertId": "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+  "username": "your_username",
+  "password": "your_password"
+}
+```
+
+### Advanced Configuration
+
+For enterprise environments, you can customize:
+
+<CodeGroup>
+
+```json Production Environment
+{
+  "baseUrl": "https://utmstack-prod.company.com",
+  "bearerToken": "",
+  "alertId": "real-alert-id-from-your-system",
+  "username": "api_user",
+  "password": "secure_password",
+  "timeout": 30000,
+  "maxRetries": 3
+}
+```
+
+```json Development Environment  
+{
+  "baseUrl": "https://utmstack-dev.company.com",
+  "bearerToken": "",
+  "alertId": "test-alert-id",
+  "username": "dev_user", 
+  "password": "dev_password",
+  "debugMode": true
+}
+```
+
+```json Demo Environment
+{
+  "baseUrl": "https://demo.utmstack.com",
+  "bearerToken": "",
+  "alertId": "demo-alert-id",
+  "username": "demo_user",
+  "password": "demo_password"
+}
+```
+
+</CodeGroup>
+
+
+## 📚 Additional Resources
+
+<CardGroup cols={2}>
+  <Card 
+    title="API Documentation" 
+    icon="book"
+    href="/v10/apidoc/overview"
+  >
+    Complete API reference with detailed examples
+  </Card>
+  
+  <Card 
+    title="Authentication Guide" 
+    icon="key"
+    href="/v10/apidoc/authentication"
+  >
+    Detailed JWT authentication documentation
+  </Card>
+  
+  <Card 
+    title="Postman Learning Center" 
+    icon="graduation-cap"
+    href="https://learning.postman.com"
+  >
+    Learn Postman basics and advanced features
+  </Card>
+  
+  <Card 
+    title="UTMStack Support" 
+    icon="life-ring"
+    href="https://support.utmstack.com"
+  >
+    Get help with UTMStack and API issues
+  </Card>
+</CardGroup>
+
+
+## 📝 Version Information
+
+<AccordionGroup>
+  <Accordion title="Collection Version 1.0.0">
+    **Current Release**
+    - All 9 API endpoints included
+    - Comprehensive test coverage
+    - Automated authentication management
+    - Multi-environment support
+    - Updated: October 2025
+  </Accordion>
+
+  <Accordion title="Changelog">
+    **v1.0.0 - October 2025**
+    - ✅ Initial release with complete API coverage
+    - ✅ Authentication workflow implementation
+    - ✅ All CRUD operations for alerts
+    - ✅ Analytics and export functionality
+    - ✅ Incident management features
+    - ✅ Automated testing scripts
+  </Accordion>
+
+  <Accordion title="Compatibility">
+    **Requirements**
+    - Postman v10.0+ (recommended)
+    - UTMStack API v10.9.0+
+    - Valid UTMStack user account
+    - Network access to UTMStack instance
+  </Accordion>
+</AccordionGroup>

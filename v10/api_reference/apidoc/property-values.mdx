@@ -1,0 +1,299 @@
+# Property Values with Count API
+
+
+## Overview
+
+This endpoint returns unique values for a specified alert property (field) along with the count of how many times each value appears. It's useful for creating filter dropdowns, analytics dashboards, and understanding data distribution in your alerts.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+
+## Request Body
+
+<ParamField body="field" type="string" required>
+  The alert property field to analyze (e.g., "status", "severity", "dataSource")
+</ParamField>
+
+<ParamField body="filters" type="array">
+  Optional filters to apply before analyzing the field values
+</ParamField>
+
+<ParamField body="index" type="string" required>
+  Elasticsearch index pattern to search (typically "alert-*")
+</ParamField>
+
+<ParamField body="top" type="integer" default="10">
+  Maximum number of unique values to return
+</ParamField>
+
+<ParamField body="orderByCount" type="boolean" default="true">
+  Whether to order results by count (true) or alphabetically (false)
+</ParamField>
+
+<ParamField body="sortAsc" type="boolean" default="false">
+  Sort order: true for ascending, false for descending
+</ParamField>
+
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-count" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "field": "severity",
+    "filters": [
+      {
+        "field": "@timestamp",
+        "operator": "IS_BETWEEN",
+        "value": ["now-7d", "now"]
+      }
+    ],
+    "index": "alert-*",
+    "top": 10,
+    "orderByCount": true,
+    "sortAsc": false
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+[
+  {
+    "value": "2",
+    "count": 156
+  },
+  {
+    "value": "3", 
+    "count": 89
+  },
+  {
+    "value": "1",
+    "count": 45
+  },
+  {
+    "value": "4",
+    "count": 23
+  },
+  {
+    "value": "5",
+    "count": 8
+  }
+]
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const getPropertyValuesWithCount = async (field, options = {}) => {
+  const token = "<your_access_token>";
+  
+  const payload = {
+    field: field,
+    filters: options.filters || [],
+    index: options.index || "alert-*",
+    top: options.top || 10,
+    orderByCount: options.orderByCount !== false,
+    sortAsc: options.sortAsc || false
+  };
+
+  try {
+    const response = await axios.post(
+      "https://demo.utmstack.com/api/elasticsearch/property/values-with-count",
+      payload,
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    
+    console.log(`Top ${field} values:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting property values:", error.response?.data || error.message);
+  }
+};
+
+// Usage examples
+await getPropertyValuesWithCount("severity");
+await getPropertyValuesWithCount("dataSource", { top: 20 });
+```
+
+```python Python
+import requests
+
+def get_property_values_with_count(field, filters=None, index="alert-*", top=10, order_by_count=True, sort_asc=False):
+    url = "https://demo.utmstack.com/api/elasticsearch/property/values-with-count"
+    
+    payload = {
+        "field": field,
+        "filters": filters or [],
+        "index": index,
+        "top": top,
+        "orderByCount": order_by_count,
+        "sortAsc": sort_asc
+    }
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        data = response.json()
+        print(f"Top {field} values:")
+        for item in data:
+            print(f"  {item['value']}: {item['count']} occurrences")
+        return data
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return None
+
+# Usage examples
+get_property_values_with_count("severity")
+get_property_values_with_count("status", filters=[
+    {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-24h", "now"]}
+])
+```
+
+</CodeGroup>
+
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Successfully retrieved property values and counts
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid field name, malformed filters, or invalid parameters
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error during analysis
+</ResponseField>
+
+
+## Advanced Filtering Examples
+
+### Time-based Analysis
+
+```json
+{
+  "field": "severity",
+  "filters": [
+    {
+      "field": "@timestamp",
+      "operator": "IS_BETWEEN",
+      "value": ["now-24h", "now"]
+    },
+    {
+      "field": "status",
+      "operator": "IS_IN",
+      "value": [2, 3]
+    }
+  ],
+  "index": "alert-*",
+  "top": 5,
+  "orderByCount": true,
+  "sortAsc": false
+}
+```
+
+### Exclude False Positives
+
+```json
+{
+  "field": "dataSource",
+  "filters": [
+    {
+      "field": "tags",
+      "operator": "IS_NOT",
+      "value": "False positive"
+    },
+    {
+      "field": "severity",
+      "operator": "GREATER_EQUAL",
+      "value": 3
+    }
+  ],
+  "index": "alert-*",
+  "top": 15,
+  "orderByCount": true,
+  "sortAsc": false
+}
+```
+
+### Category Analysis
+
+```json
+{
+  "field": "category",
+  "filters": [
+    {
+      "field": "@timestamp",
+      "operator": "IS_BETWEEN",
+      "value": ["now-30d", "now"]
+    }
+  ],
+  "index": "alert-*",
+  "top": 25,
+  "orderByCount": true,
+  "sortAsc": false
+}
+```
+
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Field Selection">
+    **Commonly analyzed fields:**
+    - `severity` - Alert severity levels
+    - `status` - Alert status distribution  
+    - `dataSource` - Top alert sources
+    - `category` - Alert categories
+    - `tactic` - MITRE ATT&CK tactics
+    - `tags` - Applied tags
+  </Accordion>
+
+  <Accordion title="Filter Strategy">
+    **Effective filtering:**
+    - Always include time filters to limit scope
+    - Exclude false positives for meaningful analysis
+    - Filter by status to focus on actionable alerts
+    - Use severity filters for priority analysis
+  </Accordion>
+
+  <Accordion title="Result Limits">
+    **Appropriate limits:**
+    - Dropdowns: 10-20 items
+    - Dashboard charts: 5-15 items
+    - Reports: 20-50 items
+    - Avoid requesting more than 100 items
+  </Accordion>
+</AccordionGroup>
+

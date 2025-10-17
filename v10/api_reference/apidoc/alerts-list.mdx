@@ -1,0 +1,210 @@
+# List Alerts API
+
+
+## Overview
+
+This endpoint retrieves alerts from UTMStack's Elasticsearch index. It supports advanced filtering, pagination, and sorting, allowing analysts to query alerts within specific time ranges or by defined conditions.
+
+<Note>
+**Authorization Required:** All requests must include a valid Bearer Token obtained from the authentication endpoint.
+</Note>
+
+
+## Query Parameters
+
+<ParamField query="page" type="integer" required>
+  Current page number (starts at 1)
+</ParamField>
+
+<ParamField query="size" type="integer" required>
+  Number of results per page (e.g., 25)
+</ParamField>
+
+<ParamField query="top" type="integer" required>
+  Maximum number of records to retrieve (e.g., 100000000)
+</ParamField>
+
+<ParamField query="indexPattern" type="string" required>
+  Elasticsearch index pattern (e.g., `alert-*`)
+</ParamField>
+
+<ParamField query="sort" type="string">
+  Sorting field and direction (e.g., `@timestamp,desc`)
+</ParamField>
+
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"field": "status", "operator": "IS_NOT", "value": 1},
+    {"field": "tags", "operator": "IS_NOT", "value": "False positive"},
+    {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"]}
+  ]'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+[
+  {
+    "severity": 3,
+    "severityLabel": "High",
+    "status": 2,
+    "statusLabel": "Open",
+    "name": "Windows: Multiple Windows logon failures",
+    "description": "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained.",
+    "tactic": "Brute Force",
+    "category": "Potentially Malicious Activity",
+    "dataSource": "dev-wsrv-2016",
+    "@timestamp": "2024-10-15T10:30:00.000Z",
+    "source": {
+      "ip": "192.168.1.100",
+      "hostname": "workstation-01"
+    },
+    "destination": {
+      "ip": "192.168.1.10",
+      "hostname": "domain-controller"
+    }
+  }
+]
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from 'axios';
+
+const searchAlerts = async () => {
+  const url = 'https://demo.utmstack.com/api/elasticsearch/search';
+  const params = {
+    page: 1,
+    size: 25,
+    top: 100000000,
+    indexPattern: 'alert-*',
+    sort: '@timestamp,desc'
+  };
+  
+  const filters = [
+    { field: 'status', operator: 'IS_NOT', value: 1 },
+    { field: 'tags', operator: 'IS_NOT', value: 'False positive' },
+    { field: '@timestamp', operator: 'IS_BETWEEN', value: ['now-7d', 'now'] }
+  ];
+
+  try {
+    const response = await axios.post(url, filters, {
+      params,
+      headers: {
+        'Authorization': 'Bearer <your_access_token>',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching alerts:', error);
+  }
+};
+```
+
+```python Python
+import requests
+
+def search_alerts():
+    url = "https://demo.utmstack.com/api/elasticsearch/search"
+    
+    params = {
+        "page": 1,
+        "size": 25,
+        "top": 100000000,
+        "indexPattern": "alert-*",
+        "sort": "@timestamp,desc"
+    }
+    
+    filters = [
+        {"field": "status", "operator": "IS_NOT", "value": 1},
+        {"field": "tags", "operator": "IS_NOT", "value": "False positive"},
+        {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"]}
+    ]
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=filters, params=params, headers=headers)
+    return response.json()
+```
+
+</CodeGroup>
+
+
+## Filter Operators
+
+<AccordionGroup>
+  <Accordion title="Basic Operators">
+    - **IS**: Exact match
+    - **IS_NOT**: Not equal to
+    - **CONTAINS**: Contains substring
+    - **STARTS_WITH**: Begins with value
+    - **ENDS_WITH**: Ends with value
+  </Accordion>
+
+  <Accordion title="Numeric Operators">
+    - **GREATER_THAN**: Greater than value
+    - **LESS_THAN**: Less than value
+    - **GREATER_EQUAL**: Greater than or equal to
+    - **LESS_EQUAL**: Less than or equal to
+  </Accordion>
+
+  <Accordion title="Range Operators">
+    - **IS_BETWEEN**: Between two values (requires array)
+    - **IS_IN**: Value in list (requires array)
+    - **IS_NOT_IN**: Value not in list (requires array)
+  </Accordion>
+</AccordionGroup>
+
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Search completed successfully. Returns array of alerts.
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid request parameters or malformed filter syntax.
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token.
+</ResponseField>
+
+<ResponseField name="403" type="Forbidden">
+  Insufficient permissions to access alerts.
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Elasticsearch service error or internal server issue.
+</ResponseField>
+
+
+## Performance Considerations
+
+<Warning>
+**Performance Tips:**
+- Use specific time ranges to limit search scope
+- Apply filters to reduce the result set size
+- Avoid very large `top` values unless necessary
+- Consider using field-specific filters for better query performance
+</Warning>

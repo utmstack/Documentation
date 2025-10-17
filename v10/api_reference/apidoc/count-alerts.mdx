@@ -1,0 +1,157 @@
+# Count Open Alerts API
+
+
+## Overview
+
+This endpoint provides a quick way to retrieve the total number of open alerts currently in the UTMStack system. It's commonly used for dashboard widgets, monitoring displays, and alert metrics.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
+  -H "Authorization: Bearer <your_access_token>"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+42
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const getOpenAlertsCount = async () => {
+  const token = "<your_access_token>";
+
+  try {
+    const response = await axios.get(
+      "https://demo.utmstack.com/api/utm-alerts/count-open-alerts",
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    
+    console.log("Open alerts count:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting count:", error.response?.data || error.message);
+  }
+};
+```
+
+```python Python
+import requests
+
+def get_open_alerts_count():
+    url = "https://demo.utmstack.com/api/utm-alerts/count-open-alerts"
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>"
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        count = response.json()
+        print(f"Open alerts count: {count}")
+        return count
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return None
+```
+
+```bash Shell Script
+#!/bin/bash
+
+TOKEN="your_access_token"
+BASE_URL="https://demo.utmstack.com"
+
+# Get open alerts count
+count=$(curl -s -H "Authorization: Bearer $TOKEN" \
+  "$BASE_URL/api/utm-alerts/count-open-alerts")
+
+echo "Current open alerts: $count"
+
+# Use in monitoring script
+if [ "$count" -gt 100 ]; then
+  echo "HIGH ALERT: More than 100 open alerts!"
+fi
+```
+
+</CodeGroup>
+
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Successfully retrieved the count of open alerts
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error while retrieving count
+</ResponseField>
+
+
+## Performance Considerations
+
+<Info>
+**Performance Notes:**
+- This endpoint is optimized for frequent polling
+- Response time is typically under 100ms
+- Safe to call every 30-60 seconds for real-time dashboards
+- Uses database indexing for fast count operations
+- Minimal server resources required
+</Info>
+
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Polling Frequency">
+    **Recommended intervals:**
+    - Real-time dashboards: 30-60 seconds
+    - Monitoring systems: 2-5 minutes
+    - Reporting systems: 15-30 minutes
+    - Avoid polling more frequently than every 15 seconds
+  </Accordion>
+
+  <Accordion title="Error Handling">
+    **Handle failures gracefully:**
+    - Cache the last known count during outages
+    - Implement exponential backoff for retries
+    - Set timeout values for requests
+    - Log failures for troubleshooting
+  </Accordion>
+
+  <Accordion title="Alerting Thresholds">
+    **Establish meaningful thresholds:**
+    - 0 alerts: All clear status
+    - 1-10 alerts: Normal operational level
+    - 11-50 alerts: Elevated attention needed
+    - 50+ alerts: High volume investigation required
+  </Accordion>
+</AccordionGroup>
+

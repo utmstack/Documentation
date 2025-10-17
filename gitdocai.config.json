@@ -38,7 +38,7 @@
         "version": "v10.9.0",
         "tabs": [
           {
-            "tab": "Documentation",
+            "tab": "Guides",
             "items": [
               {
                 "type": "group",
@@ -46,28 +46,28 @@
                 "children": [
                   {
                     "type": "page",
-                    "title": "Platform Overview",
-                    "page": "/v10.9.0/documentation/getting_started/platform_overview.mdx"
+                    "title": "Introduction",
+                    "page": "/v10/documentation/getting_started/introduction.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "System Requirements",
-                    "page": "/v10.9.0/documentation/getting_started/system_requirements.mdx"
+                    "title": "Use Case",
+                    "page": "/v10/documentation/getting_started/use_case.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Quick Start Guide",
-                    "page": "/v10.9.0/documentation/getting_started/quick_start_guide.mdx"
+                    "title": "Quick Start",
+                    "page": "/v10/documentation/getting_started/quick_start.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "First Time Setup",
-                    "page": "/v10.9.0/documentation/getting_started/first_time_setup.mdx"
+                    "title": "Getting Started",
+                    "page": "/v10/documentation/getting_started/getting_started.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "License Management",
-                    "page": "/v10.9.0/documentation/getting_started/license_management.mdx"
+                    "title": "API Overview",
+                    "page": "/v10/documentation/getting_started/api.mdx"
                   }
                 ]
               },
@@ -77,671 +77,442 @@
                 "children": [
                   {
                     "type": "page",
-                    "title": "Docker Installation",
-                    "page": "/v10.9.0/documentation/installation/docker_installation.mdx"
+                    "title": "Architecture",
+                    "page": "/v10/documentation/installation/architecture.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Bare Metal Installation",
-                    "page": "/v10.9.0/documentation/installation/bare_metal_installation.mdx"
+                    "title": "System Requirements",
+                    "page": "/v10/documentation/installation/system_requirements.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Cloud Deployment",
-                    "page": "/v10.9.0/documentation/installation/cloud_deployment.mdx"
+                    "title": "Firewall Rules",
+                    "page": "/v10/documentation/installation/firewall_rules.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "High Availability Setup",
-                    "page": "/v10.9.0/documentation/installation/high_availability_setup.mdx"
+                    "title": "Setup Guide",
+                    "page": "/v10/documentation/installation/setup_guide.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Offline Installation",
-                    "page": "/v10.9.0/documentation/installation/offline_installation.mdx"
+                    "title": "Update Guide",
+                    "page": "/v10/documentation/installation/update_guide.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SSL Certificate",
+                    "page": "/v10/documentation/installation/ssl_certificate.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SSL Certificate Certbot",
+                    "page": "/v10/documentation/installation/ssl_certificate_cerbot.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Federation Server",
+                    "page": "/v10/documentation/installation/federation_server.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Import Federation Server",
+                    "page": "/v10/documentation/installation/import_federation_server.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Guide for Azure",
+                    "page": "/v10/documentation/installation/guide_for_azure.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Install from ISO",
+                    "page": "/v10/documentation/installation/install_from_iso.mdx"
                   }
                 ]
               },
               {
                 "type": "group",
-                "title": "Core Concepts",
+                "title": "Configuration",
                 "children": [
                   {
                     "type": "page",
-                    "title": "SIEM and XDR Integration",
-                    "page": "/v10.9.0/documentation/core_concepts/siem_and_xdr_integration.mdx"
+                    "title": "Connection Key",
+                    "page": "/v10/documentation/configuration/conection_key.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Real-time Correlation Engine",
-                    "page": "/v10.9.0/documentation/core_concepts/real-time_correlation_engine.mdx"
+                    "title": "Application Settings",
+                    "page": "/v10/documentation/configuration/application_settings.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Data Flow and Processing",
-                    "page": "/v10.9.0/documentation/core_concepts/data_flow_and_processing.mdx"
+                    "title": "Custom Logos Report",
+                    "page": "/v10/documentation/configuration/custom_logos_report.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Threat Intelligence Framework",
-                    "page": "/v10.9.0/documentation/core_concepts/threat_intelligence_framework.mdx"
+                    "title": "Menu Management",
+                    "page": "/v10/documentation/configuration/menu_management.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Alert Lifecycle",
-                    "page": "/v10.9.0/documentation/core_concepts/alert_lifecycle.mdx"
+                    "title": "User Access Audit",
+                    "page": "/v10/documentation/configuration/user_access_audit.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Data Retention",
+                    "page": "/v10/documentation/configuration/data_retention.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Logs Overview",
+                    "page": "/v10/documentation/configuration/logs_overview.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Index Management",
+                    "page": "/v10/documentation/configuration/index_management.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Patterns Management",
+                    "page": "/v10/documentation/configuration/patterns_management.mdx"
                   }
                 ]
               },
               {
                 "type": "group",
-                "title": "Dashboard and Interface",
+                "title": "Dashboards",
                 "children": [
                   {
                     "type": "page",
-                    "title": "Main Dashboard Overview",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/main_dashboard_overview.mdx"
+                    "title": "Dashboard",
+                    "page": "/v10/documentation/dashboards/dashboard.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Security Operations Center",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/security_operations_center.mdx"
+                    "title": "Dashboard List",
+                    "page": "/v10/documentation/dashboards/dashboard_list.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Alert Management Interface",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/alert_management_interface.mdx"
+                    "title": "Creating Dashboard",
+                    "page": "/v10/documentation/dashboards/creatingdashboard.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Log Search and Analysis",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/log_search_and_analysis.mdx"
+                    "title": "Visualization List",
+                    "page": "/v10/documentation/dashboards/visualizationlist.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Custom Dashboards",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/custom_dashboards.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Reporting Interface",
-                    "page": "/v10.9.0/documentation/dashboard_and_interface/reporting_interface.mdx"
+                    "title": "Creating Visualization",
+                    "page": "/v10/documentation/dashboards/creatingvisualization.mdx"
                   }
                 ]
               },
               {
                 "type": "group",
-                "title": "Data Sources and Ingestion",
+                "title": "Data Sources",
                 "children": [
                   {
                     "type": "page",
-                    "title": "Supported Data Sources",
-                    "page": "/v10.9.0/documentation/data_sources_and_ingestion/supported_data_sources.mdx"
+                    "title": "Data Sources",
+                    "page": "/v10/documentation/data_sources/data_sources.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Agent Configuration",
-                    "page": "/v10.9.0/documentation/data_sources_and_ingestion/agent_configuration.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Network Device Integration",
-                    "page": "/v10.9.0/documentation/data_sources_and_ingestion/network_device_integration.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Cloud Service Integration",
-                    "page": "/v10.9.0/documentation/data_sources_and_ingestion/cloud_service_integration.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Custom Log Parsers",
-                    "page": "/v10.9.0/documentation/data_sources_and_ingestion/custom_log_parsers.mdx"
+                    "title": "Collectors",
+                    "page": "/v10/documentation/data_sources/collectors.mdx"
                   }
                 ]
               },
               {
                 "type": "group",
-                "title": "Threat Detection and Response",
+                "title": "Log Explorer",
                 "children": [
                   {
                     "type": "page",
-                    "title": "Detection Rules Overview",
-                    "page": "/v10.9.0/documentation/threat_detection_and_response/detection_rules_overview.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Creating Custom Rules",
-                    "page": "/v10.9.0/documentation/threat_detection_and_response/creating_custom_rules.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Automated Response Actions",
-                    "page": "/v10.9.0/documentation/threat_detection_and_response/automated_response_actions.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Threat Hunting",
-                    "page": "/v10.9.0/documentation/threat_detection_and_response/threat_hunting.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "False Positive Management",
-                    "page": "/v10.9.0/documentation/threat_detection_and_response/false_positive_management.mdx"
+                    "title": "Log Explorer",
+                    "page": "/v10/documentation/logexplorer/logexplorer.mdx"
                   }
                 ]
               },
               {
                 "type": "group",
-                "title": "Incident Management",
+                "title": "Correlation Rules",
                 "children": [
                   {
                     "type": "page",
-                    "title": "Incident Workflow",
-                    "page": "/v10.9.0/documentation/incident_management/incident_workflow.mdx"
+                    "title": "Correlation Rules",
+                    "page": "/v10/documentation/correlation_rules/correlation_rules.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Case Management",
-                    "page": "/v10.9.0/documentation/incident_management/case_management.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Evidence Collection",
-                    "page": "/v10.9.0/documentation/incident_management/evidence_collection.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Timeline Analysis",
-                    "page": "/v10.9.0/documentation/incident_management/timeline_analysis.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Collaboration Tools",
-                    "page": "/v10.9.0/documentation/incident_management/collaboration_tools.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Incident Reporting",
-                    "page": "/v10.9.0/documentation/incident_management/incident_reporting.mdx"
+                    "title": "Customizable Rules",
+                    "page": "/v10/documentation/correlation_rules/customizable_rules.mdx"
                   }
                 ]
               },
+              {
+                "type": "group",
+                "title": "Threat Management",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Alert Management",
+                    "page": "/v10/documentation/threat_management/alertmanagement.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "False Positive",
+                    "page": "/v10/documentation/threat_management/falsepositive.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Threat Intelligence",
+                    "page": "/v10/documentation/threat_management/threatintelligence.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Compliances",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Compliance Management",
+                    "page": "/v10/documentation/compliance/compliance_management.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Compliance Schedule",
+                    "page": "/v10/documentation/compliance/compliance_schedule.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Features",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "SOC IA",
+                    "page": "/v10/documentation/soc_ia/soc_ia.mdx"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Integrations",
+            "items": [
               {
                 "type": "group",
                 "title": "Integrations",
                 "children": [
                   {
                     "type": "page",
-                    "title": "Integration Overview",
-                    "page": "/v10.9.0/documentation/integrations/integration_overview.mdx"
+                    "title": "Apache2",
+                    "page": "/v10/documentation/integrations/apache2.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Threat Intelligence Feeds",
-                    "page": "/v10.9.0/documentation/integrations/threat_intelligence_feeds.mdx"
+                    "title": "AWS",
+                    "page": "/v10/documentation/integrations/aws.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Custom Webhooks",
-                    "page": "/v10.9.0/documentation/integrations/custom_webhooks.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Configuration and Settings",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "System Configuration",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/system_configuration.mdx"
+                    "title": "Azure",
+                    "page": "/v10/documentation/integrations/azure.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "User Management",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/user_management.mdx"
+                    "title": "Cisco ASA",
+                    "page": "/v10/documentation/integrations/cisco_asa.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Authentication Settings",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/authentication_settings.mdx"
+                    "title": "Cisco Meraki",
+                    "page": "/v10/documentation/integrations/ciscomeraki.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Data Retention Policies",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/data_retention_policies.mdx"
+                    "title": "Cisco Switch",
+                    "page": "/v10/documentation/integrations/ciscosw.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Notification Settings",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/notification_settings.mdx"
+                    "title": "Config CURL",
+                    "page": "/v10/documentation/integrations/config_curl.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Backup and Recovery",
-                    "page": "/v10.9.0/documentation/configuration_and_settings/backup_and_recovery.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Performance and Optimization",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Performance Monitoring",
-                    "page": "/v10.9.0/documentation/performance_and_optimization/performance_monitoring.mdx"
+                    "title": "Elastic",
+                    "page": "/v10/documentation/integrations/elastic.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Scaling Guidelines",
-                    "page": "/v10.9.0/documentation/performance_and_optimization/scaling_guidelines.mdx"
+                    "title": "Firepower",
+                    "page": "/v10/documentation/integrations/firepower.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Storage Optimization",
-                    "page": "/v10.9.0/documentation/performance_and_optimization/storage_optimization.mdx"
+                    "title": "Fortigate",
+                    "page": "/v10/documentation/integrations/fortigate.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Query Performance Tuning",
-                    "page": "/v10.9.0/documentation/performance_and_optimization/query_performance_tuning.mdx"
+                    "title": "Fortiweb",
+                    "page": "/v10/documentation/integrations/fortiweb.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Resource Allocation",
-                    "page": "/v10.9.0/documentation/performance_and_optimization/resource_allocation.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Security and Compliance",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Security Hardening",
-                    "page": "/v10.9.0/documentation/security_and_compliance/security_hardening.mdx"
+                    "title": "Google Cloud",
+                    "page": "/v10/documentation/integrations/googlecloud.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Compliance Frameworks",
-                    "page": "/v10.9.0/documentation/security_and_compliance/compliance_frameworks.mdx"
+                    "title": "HAProxy",
+                    "page": "/v10/documentation/integrations/haproxy.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Audit Logging",
-                    "page": "/v10.9.0/documentation/security_and_compliance/audit_logging.mdx"
+                    "title": "IBM AIX",
+                    "page": "/v10/documentation/integrations/ibm_aix.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Data Privacy and GDPR",
-                    "page": "/v10.9.0/documentation/security_and_compliance/data_privacy_and_gdpr.mdx"
+                    "title": "IBM AS400",
+                    "page": "/v10/documentation/integrations/ibmas400.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Encryption and Key Management",
-                    "page": "/v10.9.0/documentation/security_and_compliance/encryption_and_key_management.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Troubleshooting",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Installation Problems",
-                    "page": "/v10.9.0/documentation/troubleshooting/installation_problems.mdx"
+                    "title": "IIS",
+                    "page": "/v10/documentation/integrations/iis.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Performance Issues",
-                    "page": "/v10.9.0/documentation/troubleshooting/performance_issues.mdx"
+                    "title": "Kafka",
+                    "page": "/v10/documentation/integrations/kafka.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Data Ingestion Problems",
-                    "page": "/v10.9.0/documentation/troubleshooting/data_ingestion_problems.mdx"
+                    "title": "Kibana",
+                    "page": "/v10/documentation/integrations/kibana.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Alert and Detection Issues",
-                    "page": "/v10.9.0/documentation/troubleshooting/alert_and_detection_issues.mdx"
+                    "title": "Linux Agent",
+                    "page": "/v10/documentation/integrations/linuxagent.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Log Collection and Analysis",
-                    "page": "/v10.9.0/documentation/troubleshooting/log_collection_and_analysis.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Migration and Upgrades",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Migration Overview",
-                    "page": "/v10.9.0/documentation/migration_and_upgrades/migration_overview.mdx"
+                    "title": "Logstash",
+                    "page": "/v10/documentation/integrations/logstash.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Migrating from QRadar",
-                    "page": "/v10.9.0/documentation/migration_and_upgrades/migrating_from_qradar.mdx"
+                    "title": "macOS",
+                    "page": "/v10/documentation/integrations/macos.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Version Upgrade Guide",
-                    "page": "/v10.9.0/documentation/migration_and_upgrades/version_upgrade_guide.mdx"
+                    "title": "Mikrotik",
+                    "page": "/v10/documentation/integrations/mikrotik.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Data Migration Tools",
-                    "page": "/v10.9.0/documentation/migration_and_upgrades/data_migration_tools.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Best Practices",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Deployment Best Practices",
-                    "page": "/v10.9.0/documentation/best_practices/deployment_best_practices.mdx"
+                    "title": "MongoDB",
+                    "page": "/v10/documentation/integrations/mongodb.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Security Operations Best Practices",
-                    "page": "/v10.9.0/documentation/best_practices/security_operations_best_practices.mdx"
+                    "title": "MySQL",
+                    "page": "/v10/documentation/integrations/mysql.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Rule Development Guidelines",
-                    "page": "/v10.9.0/documentation/best_practices/rule_development_guidelines.mdx"
+                    "title": "Netflow",
+                    "page": "/v10/documentation/integrations/netflow.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Incident Response Procedures",
-                    "page": "/v10.9.0/documentation/best_practices/incident_response_procedures.mdx"
+                    "title": "Nginx",
+                    "page": "/v10/documentation/integrations/nginx.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Maintenance and Monitoring",
-                    "page": "/v10.9.0/documentation/best_practices/maintenance_and_monitoring.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Tutorials",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Getting Started Tutorial",
-                    "page": "/v10.9.0/documentation/tutorials/getting_started_tutorial.mdx"
+                    "title": "Office365",
+                    "page": "/v10/documentation/integrations/office365.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Building Your First Dashboard",
-                    "page": "/v10.9.0/documentation/tutorials/building_your_first_dashboard.mdx"
+                    "title": "Oracle",
+                    "page": "/v10/documentation/integrations/oracle.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Creating Detection Rules",
-                    "page": "/v10.9.0/documentation/tutorials/creating_detection_rules.mdx"
+                    "title": "Palo Alto",
+                    "page": "/v10/documentation/integrations/paloalto.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Investigating Security Incidents",
-                    "page": "/v10.9.0/documentation/tutorials/investigating_security_incidents.mdx"
+                    "title": "pfSense",
+                    "page": "/v10/documentation/integrations/pfsense.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Setting Up Log Sources",
-                    "page": "/v10.9.0/documentation/tutorials/setting_up_log_sources.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "FAQ",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "General FAQ",
-                    "page": "/v10.9.0/documentation/faq/general_faq.mdx"
+                    "title": "PostgreSQL",
+                    "page": "/v10/documentation/integrations/pgsql.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Installation FAQ",
-                    "page": "/v10.9.0/documentation/faq/installation_faq.mdx"
+                    "title": "Redis",
+                    "page": "/v10/documentation/integrations/redis.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Configuration FAQ",
-                    "page": "/v10.9.0/documentation/faq/configuration_faq.mdx"
+                    "title": "SentinelOne",
+                    "page": "/v10/documentation/integrations/sentinelone.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Performance FAQ",
-                    "page": "/v10.9.0/documentation/faq/performance_faq.mdx"
+                    "title": "SonicWall",
+                    "page": "/v10/documentation/integrations/sonicwall.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Licensing FAQ",
-                    "page": "/v10.9.0/documentation/faq/licensing_faq.mdx"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "Support",
-            "items": [
-              {
-                "type": "group",
-                "title": "Getting Help",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Support Overview",
-                    "page": "/v10.9.0/support/getting_help/support_overview.mdx"
+                    "title": "Sophos XG",
+                    "page": "/v10/documentation/integrations/sophos_xg.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Contact Support",
-                    "page": "/v10.9.0/support/getting_help/contact_support.mdx"
+                    "title": "Sophos Central",
+                    "page": "/v10/documentation/integrations/sophoscentral.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Emergency Support",
-                    "page": "/v10.9.0/support/getting_help/emergency_support.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Community Resources",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Community Forum",
-                    "page": "/v10.9.0/support/community_resources/community_forum.mdx"
+                    "title": "Syslog",
+                    "page": "/v10/documentation/integrations/syslog.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Knowledge Base",
-                    "page": "/v10.9.0/support/community_resources/knowledge_base.mdx"
+                    "title": "Traefik",
+                    "page": "/v10/documentation/integrations/taefik.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Feature Requests",
-                    "page": "/v10.9.0/support/community_resources/feature_requests.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Professional Services",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Implementation Services",
-                    "page": "/v10.9.0/support/professional_services/implementation_services.mdx"
+                    "title": "VMware",
+                    "page": "/v10/documentation/integrations/vmware.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "Managed Services",
-                    "page": "/v10.9.0/support/professional_services/managed_services.mdx"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "API Reference",
-            "items": [
-              {
-                "type": "group",
-                "title": "Log Management",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get Logs",
-                    "method": "GET",
-                    "reference": "/management/logs",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Change Log Level",
-                    "method": "PUT",
-                    "reference": "/management/logs",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "UTM Visualizations",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get All UTM Visualizations",
-                    "method": "GET",
-                    "reference": "/api/utm-visualizations",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Update UTM Visualization",
-                    "method": "PUT",
-                    "reference": "/api/utm-visualizations",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Create UTM Visualization",
-                    "method": "POST",
-                    "reference": "/api/utm-visualizations",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "UTM Servers",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get All UTM Servers",
-                    "method": "GET",
-                    "reference": "/api/utm-servers",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Update UTM Server",
-                    "method": "PUT",
-                    "reference": "/api/utm-servers",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Create UTM Server",
-                    "method": "POST",
-                    "reference": "/api/utm-servers",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "UTM Server Modules",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get All UTM Server Modules",
-                    "method": "GET",
-                    "reference": "/api/utm-server-modules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Update UTM Server Module",
-                    "method": "PUT",
-                    "reference": "/api/utm-server-modules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Create UTM Server Module",
-                    "method": "POST",
-                    "reference": "/api/utm-server-modules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "UTM Schedules",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get All UTM Schedules",
-                    "method": "GET",
-                    "reference": "/api/utm-schedules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Update UTM Schedule",
-                    "method": "PUT",
-                    "reference": "/api/utm-schedules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  },
-                  {
-                    "type": "openapi",
-                    "title": "Create UTM Schedule",
-                    "method": "POST",
-                    "reference": "/api/utm-schedules",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "UTM Reports",
-                "children": [
-                  {
-                    "type": "openapi",
-                    "title": "Get All UTM Reports",
-                    "method": "GET",
-                    "reference": "/api/utm-reports",
-                    "path": "/v10.9.0/api_reference/api-docs.json"
+                    "title": "Windows Agent",
+                    "page": "/v10/documentation/integrations/windowsagent.mdx"
                   }
                 ]
               }
