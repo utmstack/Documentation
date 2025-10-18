@@ -517,6 +517,101 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "API Documentation",
+            "items": [
+              {
+                "type": "group",
+                "title": "Getting Started",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Overview",
+                    "page": "/v10/apidoc/overview.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Postman Collection",
+                    "page": "/v10/apidoc/postman-collection.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "API",
+                    "page": "/v10/documentation/getting_started/api.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Authentication",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Authentication",
+                    "page": "/v10/apidoc/authentication.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Alert Management",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Alerts List",
+                    "page": "/v10/apidoc/alerts-list.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Status",
+                    "page": "/v10/apidoc/update-status.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Tags",
+                    "page": "/v10/apidoc/update-tags.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Notes",
+                    "page": "/v10/apidoc/update-notes.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Incident Management",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Convert Incident",
+                    "page": "/v10/apidoc/convert-incident.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Analytics & Utilities",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Count Alerts",
+                    "page": "/v10/apidoc/count-alerts.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Property Values",
+                    "page": "/v10/apidoc/property-values.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "CSV Export",
+                    "page": "/v10/apidoc/csv-export.mdx"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }

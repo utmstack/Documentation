@@ -1,0 +1,396 @@
+---
+title: Update Alert Tags API
+sidebarTitle: "Update Tags"
+description: "Add or update tags for one or multiple alerts with optional automatic rule creation and auditing capabilities."
+---
+
+## Overview
+
+Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts, help in filtering, and optionally trigger **automatic rules** based on tag creation. Supports auditing for traceability.
+
+> **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
+---
+
+## Endpoint Details
+
+### 🏷️ [POST /api/utm-alerts/tags](#)
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Response:** HTTP 200 OK (no body)
+
+---
+
+## Request Body
+
+- **alertIds** `array` (required)
+  Array of alert UUIDs to update with tags
+  #### Example
+    ```json
+    ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"]
+    ```
+  
+
+- **tags** `array`
+  Array of tag strings to assign to the alerts (can be empty to remove tags)
+  #### Examples
+    ```json
+    ["Investigation Needed", "SOC Review", "False Positive"]
+    ```
+  
+
+- **createRule** `boolean` (required)
+  Whether to automatically create a tag rule when assigning tags
+
+---
+
+## JSON Schema
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "alertIds": {
+      "type": "array",
+      "items": { 
+        "type": "string", 
+        "format": "uuid" 
+      },
+      "description": "List of alert UUIDs to update"
+    },
+    "tags": {
+      "type": "array",
+      "items": { 
+        "type": "string" 
+      },
+      "description": "List of tags to assign"
+    },
+    "createRule": { 
+      "type": "boolean",
+      "description": "Create automatic tag rule"
+    }
+  },
+  "required": ["alertIds", "createRule"]
+}
+```
+
+---
+
+## Request & Response Examples
+
+**Request:**
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"],
+    "tags": ["Investigation Needed", "SOC Review"],
+    "createRule": true
+  }'
+```
+
+**Response:**
+
+```json Response
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+### Additional Code Examples
+
+```javascript Node.js
+import axios from "axios";
+
+const updateAlertTags = async () => {
+  const token = "<your_access_token>";
+  
+  const payload = {
+    alertIds: [
+      "c1c4e32c-dd9f-4a15-98c4-0dac2af40740", 
+      "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"
+    ],
+    tags: ["Investigation Needed", "SOC Review"],
+    createRule: true
+  };
+
+  try {
+    const response = await axios.post(
+      "https://demo.utmstack.com/api/utm-alerts/tags", 
+      payload, 
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    
+    console.log("Tags updated successfully", response.status);
+    return response;
+  } catch (error) {
+    console.error("Error updating tags:", error.response?.data || error.message);
+  }
+};
+```
+
+```python Python
+import requests
+
+def update_alert_tags():
+    url = "https://demo.utmstack.com/api/utm-alerts/tags"
+    
+    payload = {
+        "alertIds": [
+            "c1c4e32c-dd9f-4a15-98c4-0dac2af40740", 
+            "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"
+        ],
+        "tags": ["Investigation Needed", "SOC Review"],
+        "createRule": True
+    }
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        print("Tags updated successfully")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return response
+```
+
+---
+
+## Response Details
+
+### Successful Update
+
+  #### Success Response
+    ```http
+    HTTP/1.1 200 OK
+    Content-Length: 0
+    Date: Wed, 16 Oct 2024 10:30:00 GMT
+    ```
+  
+  #### Error Response
+    ```json
+    {
+      "error": "Invalid request",
+      "message": "Alert IDs cannot be empty",
+      "timestamp": "2024-10-16T10:30:00.000Z",
+      "status": 400
+    }
+    ```
+  
+
+> **Note:** The API returns **HTTP 200 OK** with no response body when tags are successfully updated.
+
+---
+
+## Status Codes
+
+- **200** `OK`
+  Tags updated successfully
+
+- **400** `Bad Request`
+  Invalid request payload or malformed JSON
+
+- **401** `Unauthorized`
+  Missing or invalid Bearer token
+
+- **404** `Not Found`
+  One or more alerts not found
+
+- **500** `Internal Server Error`
+  Internal server error during tag update
+
+---
+
+## Usage Examples
+
+### Add Investigation Tags
+
+```json
+{
+  "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
+  "tags": ["Under Investigation", "Priority High", "Escalated"],
+  "createRule": false
+}
+```
+
+### Mark as False Positive with Rule Creation
+
+```json
+{
+  "alertIds": ["d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"],
+  "tags": ["False Positive", "Reviewed"],
+  "createRule": true
+}
+```
+
+### Remove All Tags
+
+```json
+{
+  "alertIds": ["7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"],
+  "tags": [],
+  "createRule": false
+}
+```
+
+### Bulk Tag Assignment
+
+```json
+{
+  "alertIds": [
+    "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+    "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f",
+    "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"
+  ],
+  "tags": ["Batch Processed", "Weekly Review"],
+  "createRule": false
+}
+```
+
+---
+
+## Tag Categories
+
+  ### Investigation Tags
+    - **Under Investigation**: Alert is being actively investigated
+    - **Escalated**: Alert has been escalated to senior analysts
+    - **Pending Response**: Waiting for additional information
+    - **External Consultation**: Requires input from external sources
+  
+
+  ### Classification Tags
+    - **False Positive**: Alert determined to be benign
+    - **True Positive**: Confirmed security incident
+    - **Suspicious**: Requires further analysis
+    - **Informational**: For awareness only
+  
+
+  ### Priority Tags
+    - **Critical**: Immediate attention required
+    - **High Priority**: Urgent investigation needed
+    - **Medium Priority**: Standard priority
+    - **Low Priority**: Can be addressed later
+  
+
+  ### Workflow Tags
+    - **SOC Review**: Requires SOC team review
+    - **Management Review**: Needs management attention
+    - **Completed**: Investigation finished
+    - **Archived**: Historical reference
+  
+
+---
+
+## Automatic Rule Creation
+
+> **ℹ️ Info:** When `createRule` is set to `true`, UTMStack automatically creates tag rules that will apply the same tags to future alerts matching similar criteria. This helps automate recurring tagging scenarios.
+
+### Rule Creation Behavior
+
+- **Triggers**: Based on alert patterns, source IPs, or rule names
+- **Scope**: Applied to future alerts matching criteria
+- **Management**: Rules can be viewed and modified in the UTMStack interface
+- **Audit**: Rule creation is logged for compliance
+
+---
+
+## Security Considerations
+
+> **⚠️ Warning:** **Security Notes:**
+- Requires Bearer token authentication
+- All tag changes are **audited** for traceability
+- Tag rules creation requires appropriate permissions
+- Users without proper permissions will receive 401 Unauthorized
+- Alert IDs must be valid UUIDs that exist in the system
+
+---
+
+## Best Practices
+
+  ### Tag Naming Conventions
+    Use consistent, descriptive tag names:
+    - Use title case: "False Positive" not "false positive"
+    - Be specific: "Network Scan" not "Scan"
+    - Use standard terminology: "Under Investigation" not "Looking at it"
+  
+
+  ### Rule Creation Strategy
+    Be selective with automatic rule creation:
+    - Use for repetitive, well-defined scenarios
+    - Avoid for one-off or complex cases
+    - Monitor rule effectiveness regularly
+    - Review and clean up unused rules
+  
+
+  ### Tag Management
+    Maintain tag hygiene:
+    - Remove outdated or incorrect tags
+    - Standardize tag vocabulary across teams
+    - Use hierarchical tags when appropriate
+    - Document tag meanings and usage
+  
+
+---
+
+## OpenAPI Specification
+
+```yaml
+post:
+  summary: "Update alert tags"
+  tags:
+    - Alerts
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/UpdateAlertTagsRequest'
+  responses:
+    '200':
+      description: "Tags updated successfully"
+    '400':
+      description: "Invalid request payload"
+    '401':
+      description: "Unauthorized"
+    '404':
+      description: "Alert not found"
+    '500':
+      description: "Internal server error"
+
+components:
+  schemas:
+    UpdateAlertTagsRequest:
+      type: object
+      required:
+        - alertIds
+        - createRule
+      properties:
+        alertIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: "List of alert UUIDs to update"
+        tags:
+          type: array
+          items:
+            type: string
+          description: "List of tags to assign"
+        createRule:
+          type: boolean
+          description: "Create automatic tag rule"
+```
