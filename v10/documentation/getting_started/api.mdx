@@ -8,8 +8,8 @@ description: "Complete guide for authenticating with the UTMStack API using Bear
 
 UTMStack API supports two authentication methods:
 
-1. **Bearer Token Authentication**: Uses username/password to obtain a Bearer token for API requests
-2. **API Key Authentication**: Uses an internal API key sent in request headers
+1. Bearer Token Authentication: Uses username/password to obtain a Bearer token for API requests
+2. API Key Authentication: Uses an internal API key sent in request headers
 
 Choose the authentication method that best fits your use case and security requirements.
 
@@ -20,7 +20,7 @@ Choose the authentication method that best fits your use case and security requi
 ###  Step 1: Authentication Request
 
 <Tip>
-    Use the **/api/authenticate** endpoint to log in and receive a Bearer token.
+  Use the /api/authenticate endpoint to log in and receive a Bearer token.
 </Tip>
 
 > 🔧 Request Example:
@@ -32,7 +32,7 @@ curl -X POST https://demo.utmstack.com/api/authenticate \
 ````
 
 <Note>
-    Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.    
+  Make sure to replace the credentials (username and password) with the actual user credentials for your environment.    
 </Note>
 
 
@@ -52,10 +52,10 @@ curl -X POST https://demo.utmstack.com/api/authenticate \
 > Include the token in the Authorization header when making requests to protected endpoints.
 
 <Tip>
-    Use the **/api/elasticsearch/search** endpoint to test your Bearer token authentication.
+  Use the /api/elasticsearch/search endpoint to test your Bearer token authentication.
 </Tip>
 
-> **Request Example:**
+> Request Example:
 
 ````
 curl -X 'POST' \
@@ -85,7 +85,7 @@ curl -X 'POST' \
   ]'
 ````
 
-> **Response:**
+> Response:
 
 `````
 {
@@ -119,7 +119,7 @@ curl -X 'POST' \
     What happens when you don't include the Authorization header when making requests to protected endpoints.
 </Warning>
 
-> **Request without Authorization:**
+> Request without Authorization:
 
 ````
 curl -X 'POST' \
@@ -148,7 +148,7 @@ curl -X 'POST' \
   ]'
 ````
 
-> **Response:**
+> Response:
 
 ````
 {
@@ -163,11 +163,11 @@ curl -X 'POST' \
 ## Method 2: API Key Authentication
 
 <Tip>
-    Use the **Utm-Internal-Key** header for server-to-server authentication without requiring user credentials.
+  Use the Utm-Internal-Key header for server-to-server authentication without requiring user credentials.
 </Tip>
 
 <Warning>
-    **Important Security Notice**: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
+  Important Security Notice: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
 </Warning>
 
 ### Step 1: Obtain the API Key
@@ -197,12 +197,12 @@ backend:
 
 Include the API key in the `Utm-Internal-Key` header when making requests:
 
-> **Header Configuration:**
-- **Name**: `Utm-Internal-Key`
-- **Location**: Header
-- **Value**: The internal key obtained from `compose.yml`
+> Header Configuration:
+- Name: `Utm-Internal-Key`
+- Location: Header
+- Value: The internal key obtained from `compose.yml`
 
-> **Request Example:**
+> Request Example:
 
 ````bash
 curl -X 'POST' \
@@ -274,10 +274,10 @@ When using the correct API key, you'll receive the same successful response as w
 
 | Feature | Bearer Token | API Key (Utm-Internal-Key) |
 |---------|-------------|----------------------------|
-| **Use Case** | User-based authentication | Server-to-server communication |
-| **Security** | Token expires, user-specific | Long-lived, instance-specific |
-| **Setup** | Requires user credentials | Requires server access |
-| **Best For** | Interactive applications | Automated scripts, integrations |
+| Use Case | User-based authentication | Server-to-server communication |
+| Security | Token expires, user-specific | Long-lived, instance-specific |
+| Setup | Requires user credentials | Requires server access |
+| Best For | Interactive applications | Automated scripts, integrations |
 
 <Note>
     Choose Bearer Token for user-facing applications and API Key for backend integrations and automated systems.
