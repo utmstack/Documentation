@@ -3,7 +3,7 @@
 
 ## How to Create a New Visualization
 
-### 1. Navigate to the **Dashboard Editor** or **Visualization Menu** and click on the **New Visualization** button. This action opens the New Visualization window.
+### 1. Navigate to the Dashboard Editor or Visualization Menu and click on the New Visualization button. This action opens the New Visualization window.
 
 <img
   height="200"
@@ -14,40 +14,40 @@
 
 ### 2. The New Visualization window requires two primary parameters to create a visualization:
 
-   1. **Source**: The data source for your visualization can be any set of logs, events, or alarms that UTMStack has aggregated.
+   1. Source: The data source for your visualization can be any set of logs, events, or alarms that UTMStack has aggregated.
 
-   2. **Chart Type**:
+   2. Chart Type:
         <Note>        
             UTMStack supports various chart types, each catering to different data representation requirements:
         </Note>
 
-       * **Line**: Depicts data trends over time.
+       * Line: Depicts data trends over time.
 
-       * **Area**: Similar to line charts, but the area beneath the line is filled, indicating volume.
+       * Area: Similar to line charts, but the area beneath the line is filled, indicating volume.
 
-       * **Bar**:  Useful for comparing quantities or frequencies across categories.
+       * Bar:  Useful for comparing quantities or frequencies across categories.
 
-       * **Horizontal Bar**: Similar to bar charts but oriented horizontally, these are particularly useful when category labels are long or numerous.
+       * Horizontal Bar: Similar to bar charts but oriented horizontally, these are particularly useful when category labels are long or numerous.
 
-       * **Tag Cloud**:Displays textual data, with the size of each tag corresponding to its frequency or significance.
+       * Tag Cloud:Displays textual data, with the size of each tag corresponding to its frequency or significance.
 
-       * **Table**: Tables organize data into columns and rows, making it easy to compare multiple data points.
+       * Table: Tables organize data into columns and rows, making it easy to compare multiple data points.
 
-       * **List**: Lists present data in an ordered or unordered format, perfect for simple, unstructured data.
+       * List: Lists present data in an ordered or unordered format, perfect for simple, unstructured data.
 
-       * **Gauge**: Gauge charts are excellent for displaying progress or performance against a set goal.
+       * Gauge: Gauge charts are excellent for displaying progress or performance against a set goal.
 
-       * **Goal**: Goal charts show the progress towards a single, numeric target.
+       * Goal: Goal charts show the progress towards a single, numeric target.
 
-       * **Metric**: Metric visualizations display a single, large number. It's useful for highlighting a key figure.
+       * Metric: Metric visualizations display a single, large number. It's useful for highlighting a key figure.
 
-       * **Region Map**: Region maps show the coordinates in a geographic areas according to associated data values.
+       * Region Map: Region maps show the coordinates in a geographic areas according to associated data values.
 
-       * **Heat Map**: Represents numeric tabular data, with cell colors indicating the value.
-       * **Text**: Text allows you to add descriptive text, titles, or notes to your dashboard.
+       * Heat Map: Represents numeric tabular data, with cell colors indicating the value.
+       * Text: Text allows you to add descriptive text, titles, or notes to your dashboard.
 
  <Tip>
-    After determining the source and chart type, click **Create Visualization** to customize your visualization.
+    After determining the source and chart type, click Create Visualization to customize your visualization.
  </Tip>
 
  ## Navigating the Visualization Editor
@@ -149,7 +149,7 @@ In UTMStack, crafting the right visualization involves the careful selection and
   alt="Dashobard"
 />
 
-### 1. **Metric Aggregation**
+### 1. Metric Aggregation
 Choose the right metric aggregations for your chart. UTMStack offers several aggregations options:
 
 * **Count**: Returns a raw count of the elements in the selected index pattern.
@@ -164,12 +164,12 @@ For each aggregation, you can change the default display label by entering a cus
 
 The **Add Metrics** button and the red cross symbol allow you to add or remove aggregations as per your needs.
 
-### 2. **Bucket Aggregation**
+### 2. Bucket Aggregation
 Bucket aggregation serves to categorize data based on specific criteria, enabling meaningful insights. The two bucket aggregation types in UTMStack are:
 
 * **Date Histogram**:  This type constructs a date-wise distribution based on a numeric field. Here, you need to pick a field representing the timeline and stipulate a minimum time frame (options include minute, hourly, daily, weekly, monthly, or yearly) in the **Minimum intervals**. For a custom interval frame, select the **Custom interval** option and specify a time unit. Time units can be milliseconds (ms), seconds (s), minutes (m), hours (h), or days (d). The **Custom Label** field allows you to modify the display label.
 
-* **Terms**
+* Terms
 Terms bucket aggregation categorizes data into buckets based on distinct values present in a specified field. These buckets are dynamically generated, each corresponding to a term found in the data field. This approach is beneficial when you want to analyze and visualize data with distinct or categorical values.
 
 <Note>
