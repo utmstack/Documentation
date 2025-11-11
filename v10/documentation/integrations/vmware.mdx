@@ -29,7 +29,7 @@
 
     ```bash
     esxcli system syslog config get
-```bash
+```
 
     11. Set new host configuration, specifying options to change, by running a command: 
 
@@ -39,7 +39,7 @@
 
     ```bash
     esxcli system syslog config set --logdir=/scratch/log --loghost=your_utmstack_agent_ip --logdir-unique=true
-```bash
+```
 
     12. After making configuration changes, load the new configuration by running this command:
 
@@ -51,7 +51,7 @@
 
         ```bash
         esxcli network firewall ruleset set --ruleset-id=syslog --enabled=true
-```bash
+```
 
         ```bash
         esxcli network firewall refresh
@@ -61,7 +61,7 @@
 
      ```bash
         nc -z your_utmstack_agent_ip 7002
-```bash
+```
 
     15. Enable log collector.
 
@@ -93,5 +93,3 @@
         />
 
     16. Click on the button shown below, to activate the UTMStack features related to this integration
-
-```

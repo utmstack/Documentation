@@ -45,7 +45,7 @@ Snapshots are automatically saved to `/utmstack/opensearch/backups`. To redirect
 
 ```bash
 sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
-```bash
+```
 
 Ensure to replace `REMOTE-SERVER:/remote/path` with your actual server and path details.
 
@@ -67,7 +67,7 @@ Open port 9200:
 
 ```bash
 docker service update --publish-add 9200:9200 utmstack_node1
-```bash
+```
 
 Once the restoration is complete, immediately close the port to minimize security risks:
 

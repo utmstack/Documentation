@@ -30,7 +30,7 @@ Updates the **status** of one or more alerts. Allows analysts to change the aler
   <Expandable title="Example">
     ```json
     ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"]
-```bash
+```
   </Expandable>
 </ParamField>
 
@@ -119,7 +119,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
     "statusObservation": "Reviewed and confirmed as false positive",
     "addFalsePositiveTag": true
   }'
-```bash
+```
 
 </RequestExample>
 
@@ -167,7 +167,7 @@ const updateAlertStatus = async () => {
     console.error("Error updating status:", error.response?.data || error.message);
   }
 };
-```bash
+```
 
 ```python Python
 import requests
@@ -214,7 +214,7 @@ def update_alert_status():
     HTTP/1.1 200 OK
     Content-Length: 0
     Date: Wed, 16 Oct 2024 10:30:00 GMT
-```bash
+```
 
   
 #### Error Response
@@ -272,7 +272,7 @@ def update_alert_status():
   "statusObservation": "Confirmed false positive after investigation",
   "addFalsePositiveTag": true
 }
-```bash
+```
 
 ### Move Alert to Review
 
@@ -296,7 +296,7 @@ def update_alert_status():
   "status": 5,
   "statusObservation": "Bulk closure after investigation completed"
 }
-```bash
+```
 
 ---
 

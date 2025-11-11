@@ -85,7 +85,7 @@ The request body is a JSON array of filter definitions used to refine the search
     "value": ["now-7d", "now"] 
   }
 ]
-```bash
+```
 
 ---
 
@@ -131,7 +131,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&
     }
   }
 ]
-```bash
+```
 
 </ResponseExample>
 
@@ -201,7 +201,7 @@ def search_alerts():
     
     response = requests.post(url, json=filters, params=params, headers=headers)
     return response.json()
-```bash
+```
 
 </CodeGroup>
 
@@ -254,7 +254,7 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 ```json
     []
-```bash
+```
 
   
 #### Error Response
@@ -371,7 +371,7 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 [
   { "field": "severity", "operator": "GREATER_EQUAL", "value": 3 }
 ]
-```bash
+```
 
 ### Filter by Time Range (Last 24 hours)
 
@@ -387,7 +387,7 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 [
   { "field": "status", "operator": "IS_IN", "value": [2, 3] }
 ]
-```bash
+```
 
 ### Filter by Data Source
 

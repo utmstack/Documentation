@@ -27,7 +27,7 @@ Choose the authentication method that best fits your use case and security requi
 curl -X POST https://demo.utmstack.com/api/authenticate \
 -H "Content-Type: application/json" \
 -d '{"username":"demo","password":"your_password"}'
-```bash
+```
 
 
 > **Note:** Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.
@@ -81,7 +81,7 @@ curl -X 'POST' \
       ]
     }
   ]'
-```bash
+```
 
 > **Response:**
 
@@ -144,7 +144,7 @@ curl -X 'POST' \
       ]
     }
   ]'
-```bash
+```
 
 > **Response:**
 
@@ -177,7 +177,7 @@ To get the internal API key, you need access to your UTMStack server instance:
 
 ```bash
 cat compose.yml
-```bash
+```
 
 3. Look for the `backend:` section, then under `environment:`, find the value:
 
@@ -185,7 +185,7 @@ cat compose.yml
 backend:
   environment:
     INTERNAL_KEY: your_api_key_value_here
-```bash
+```
 
 
 > **Note:** Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
@@ -228,7 +228,7 @@ curl -X 'POST' \
       ]
     }
   ]'
-```bash
+```
 
 
 > **⚠️ Warning:** Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.

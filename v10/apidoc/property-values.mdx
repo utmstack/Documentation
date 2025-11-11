@@ -92,7 +92,7 @@ This endpoint returns unique values for a specified alert property (field) along
   },
   "required": ["field", "index"]
 }
-```bash
+```
 
 ---
 
@@ -147,7 +147,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
     "count": 8
   }
 ]
-```bash
+```
 
 </ResponseExample>
 
@@ -232,7 +232,7 @@ get_property_values_with_count("severity")
 get_property_values_with_count("status", filters=[
     {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-24h", "now"]}
 ])
-```bash
+```
 
 </CodeGroup>
 
@@ -267,7 +267,7 @@ get_property_values_with_count("status", filters=[
       {"value": "web-server-prod", "count": 92},
       {"value": "database-cluster", "count": 56}
     ]
-```bash
+```
 
   
 #### Empty Result
@@ -320,7 +320,7 @@ const populateSeverityFilter = async () => {
     dropdown.appendChild(option);
   });
 };
-```bash
+```
 
 ### Analytics Dashboard
 
@@ -377,7 +377,7 @@ def generate_top_offenders_report():
         print(f"{i:2d}. {source['value']:<30} {source['count']:>6} alerts ({percentage:.1f}%)")
     
     return sources
-```bash
+```
 
 ---
 
@@ -429,7 +429,7 @@ def generate_top_offenders_report():
   "orderByCount": true,
   "sortAsc": false
 }
-```bash
+```
 
 ### Category Analysis
 
@@ -583,5 +583,4 @@ components:
           type: boolean
           default: false
           description: "Sort direction"
-```bash
 ```

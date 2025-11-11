@@ -126,7 +126,7 @@ This endpoint allows you to export alert data in CSV format. You can apply filte
   },
   "required": ["fields"]
 }
-```bash
+```
 
 ---
 
@@ -182,7 +182,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
 2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection","Malware","Known malware signature detected in file"
 2024-01-15 13:45:18,"Privilege Escalation",4,2,"linux-server-02","System","Unauthorized privilege escalation attempt"
 2024-01-15 13:22:07,"SQL Injection Attempt",4,3,"web-app-prod","Application","SQL injection pattern in HTTP request"
-```bash
+```
 
 </ResponseExample>
 
@@ -334,7 +334,7 @@ critical_alerts = export_alerts_to_csv(
 )
 
 print(f"Exported {len(df)} alerts to CSV")
-```bash
+```
 
 </CodeGroup>
 
@@ -363,7 +363,7 @@ print(f"Exported {len(df)} alerts to CSV")
     @timestamp;name;severity;status;dataSource
     2024-01-15 14:32:15;"Suspicious Login Attempt";4;2;"windows-server-01"
     2024-01-15 14:28:42;"Port Scan Detected";3;2;"firewall-main"
-```bash
+```
 
   
 #### No Headers
@@ -438,7 +438,7 @@ const exportSecurityIncidents = async () => {
     size: 5000
   });
 };
-```bash
+```
 
 ### Compliance Reports
 
@@ -504,7 +504,7 @@ const exportForAnalysis = async () => {
     dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
   });
 };
-```bash
+```
 
 ---
 
@@ -599,7 +599,7 @@ yyyy-MM-dd HH:mm:ss.SSS → 2024-01-15 14:32:15.123
 E, MMM dd yyyy          → Mon, Jan 15 2024
 yyyy-DDD                → 2024-015 (day of year)
 yyyy-'W'ww              → 2024-W03 (week number)
-```bash
+```
 
 </CodeGroup>
 
@@ -658,7 +658,7 @@ const exportLargeDataset = async (totalRecords, batchSize = 10000) => {
 
 // Export 50,000 records in 5 batches
 await exportLargeDataset(50000, 10000);
-```bash
+```
 
 ### Custom Field Mapping
 
@@ -758,7 +758,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   }' > "$EXPORT_DIR/$DATE/daily_summary.csv"
 
 echo "Daily export completed: $EXPORT_DIR/$DATE"
-```bash
+```
 
 ---
 

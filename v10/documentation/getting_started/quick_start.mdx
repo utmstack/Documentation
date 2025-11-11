@@ -4,30 +4,31 @@
 
 ## 1. Install UTMStack
 
-
 > **Note:** Please refer to the [System Requirements](../Installation/system_requirements) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
 
+### **Integration Requirements** :
 
-### **Integration Requirements** : 
 To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
 
 ### **Procedure**:
 
 Use the UTMStack installer for Ubuntu Linux 22.04 LTS.
 
-- **Download and Prepare**:  
-    ```bash
+- **Download and Prepare**:
+
+```markdown
     sudo apt update
     sudo apt install wget
     wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
     sudo su
     chmod +x installer
-```bash
+```
 
-- **Install**:  
-    ```bash
+- **Install**:
+
+```bash
     ./installer
-    ```
+```
 
 ### **Configure Firewall and Ports**:
 
@@ -41,26 +42,26 @@ Ensure the following ports are correctly configured on your firewall for UTM Sta
 - **9001/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 - **50051/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 
-
 ### Setup SSL with Certbot (Optional, but recommended):
+
 If you haven't manually installed an SSL certificate, use Certbot to generate one for your domain. This ensures encrypted connections for your users.
 
-
 > **💡 Tip:** Follow the provided guide: [Generate SSL with Certbot](../Installation/ssl_certificate).
-
 
 ## 2. Initial Configuration
 
 Post installation, the first time you get access to UTMStack, its going to be required that enter the old password and establish the new one.The default username is `admin`. Your initial password and other configurations can be found in `/root/utmstack.yml`.
- 
- After that you need to configure the email setting
- 
-###  **Email Configuration**
+
+After that you need to configure the email setting
+
+### **Email Configuration**
 
 1. **Access Email Settings**:
-    - Navigate to `Settings` > `Email Configuration` within the UTMStack platform.
 
-2. **SMTP Setup**:
+- Navigate to `Settings` > `Email Configuration` within the UTMStack platform.
+
+1. **SMTP Setup**:
+
 - **Mail Server Password**: The password for your email server to authenticate and send out notifications.
 
 - **UTMStack email address**: The official UTMStack email address that will be used to send out notifications.
@@ -74,28 +75,23 @@ Post installation, the first time you get access to UTMStack, its going to be re
 - **Mail Server Username**: The username for your email server.
 
 - **Encryption type**: Choose the encryption protocol for your email server. Options include:
-  - STARTTLS
-  - SSL/TLS
-  - NONE 
-
+- STARTTLS
+- SSL/TLS
+- NONE
 
 > **💡 Tip:** Refer to the [Email Configuration Section](../configuration/application_settings) for a detailed walkthrough.
 
-
 ## 3. Configure a Windows Agent DataSource
-
 
 > **Note:** Add a Windows agent to forward logs and data to UTMStack.
 
-
 ### 1. Pre-installation Requirements:
-   * **Compatibility:** Ensure that the system is running Windows 10/11, Windows Server version 2016 R2 or later.
-   * **Network:** Ensure ports 9000, 90001 and 50051 are open.
+
+- **Compatibility:** Ensure that the system is running Windows 10/11, Windows Server version 2016 R2 or later.
+- **Network:** Ensure ports 9000, 90001 and 50051 are open.
 
 ### 2. Installation Steps:
-   1. Go to `Integrations` and select `Windows Agent`.
-   2. Open a Windows PowerShell terminal with "Administrator" privileges and execute the provided command from the instructions.
 
-
-
+1. Go to `Integrations` and select `Windows Agent`.
+2. Open a Windows PowerShell terminal with "Administrator" privileges and execute the provided command from the instructions.
 
