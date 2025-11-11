@@ -1,19 +1,22 @@
-# Integration guide for Azure
-
+---
+title: Integration guide for Azure
+sidebarTitle: "Azure"
+description: "At its core, Azure is a public cloud computing platform—with solutions including Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS) that can be used for services such as analytics, virtual computing, storage, networking, and much more."
+---
 
 ## Installing Azure
 
 ### 1. Create "Event Hub" 
-<Note>
-    Using the official Azure documentation [Quickstart: Create an event hub using Azure portal](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-create)
-</Note>
+
+> **Note:** Using the official Azure documentation [Quickstart: Create an event hub using Azure portal](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-create)
+
 
 ### 2. Create a new "Shared access policy" to allow access to the Event Hub created, make sure you select the "Listen" permission.
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/evenhubaccesspolicy.png"
+  src="/images/integrations/azure/evenhubaccesspolicy.png"
   alt="Azure"
 />
 
@@ -22,7 +25,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/aacess_shared_policy.png"
+  src="/images/integrations/azure/aacess_shared_policy.png"
   alt="Azure"
 />
 
@@ -31,7 +34,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/examplekey.png"
+  src="/images/integrations/azure/examplekey.png"
   alt="Azure"
 />
 
@@ -41,19 +44,19 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/consumer_group.png"
+  src="/images/integrations/azure/consumer_group.png"
   alt="Azure"
 />
 
-<Note>
-    Create a new consumer group specifically for Logstash. Do not use the $default or any other consumer group that might already be in use. Reusing consumer groups among non-related consumers can cause unexpected behavior and possibly lost events. All Logstash instances should use the same consumer group so that they can work together for processing events.
-</Note>
+
+> **Note:** Create a new consumer group specifically for Logstash. Do not use the $default or any other consumer group that might already be in use. Reusing consumer groups among non-related consumers can cause unexpected behavior and possibly lost events. All Logstash instances should use the same consumer group so that they can work together for processing events.
+
 
 ### 5. Create a "Storage Account"
 
-<Note>
-    Using the official Azure documentation [Quickstart: Create a storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)
-</Note>
+
+> **Note:** Using the official Azure documentation [Quickstart: Create a storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)
+
 
 ### 6. Get the "Storage Container Name" 
 > In: All services -> Storage accounts -> Your_Storage_Account -> Containers. It will be used to configure your tenant.
@@ -61,7 +64,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/container_name.png"
+  src="/images/integrations/azure/container_name.png"
   alt="Azure"
 />
 
@@ -73,7 +76,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/account_storage.png"
+  src="/images/integrations/azure/account_storage.png"
   alt="Azure"
 />
 
@@ -82,7 +85,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/samplestring.png"
+  src="/images/integrations/azure/samplestring.png"
   alt="Azure"
 />
 
@@ -93,7 +96,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/eventgrid.png"
+  src="/images/integrations/azure/eventgrid.png"
   alt="Azure"
 />
 
@@ -102,7 +105,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/eventsubs.png"
+  src="/images/integrations/azure/eventsubs.png"
   alt="Azure"
 />
 
@@ -111,25 +114,25 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/eventhubselection.png"
+  src="/images/integrations/azure/eventhubselection.png"
   alt="Azure"
 />
 
 
 ### 11. Use the data collected in the previous steps to fill the form as documented below. You can add more than one Event Hub configuration by clicking on the Add tenant button.
 
-<Note>
->
+
+> **Note:** >
     * The input field Event Hub Shared access policies - Connection string refers to Azure's Event Hub Shared Access Policies - Connection string-primary key: Value obtained in step 3
     + Consumer Group Name: Value obtained in step 4
     * Storage Container Name: Value obtained in step 6
     * Storage Account Connection string with key: Value obtained in step 7
-</Note>
+
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/azure/step11.png"
+  src="/images/integrations/azure/step11.png"
   alt="Azure"
 />
 

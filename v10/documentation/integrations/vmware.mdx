@@ -1,11 +1,14 @@
-# Integration guide for VMWare Syslog
-
+---
+title: Integration guide for VMWare Syslog
+sidebarTitle: "VMWare Syslog"
+description: "VMWare allows businesses to run multiple application and operating system workloads on the one server. You can use the Syslog Service to redirect and store ESXi messages to UTMStack"
+---
 
 ## Installing VMWare Syslog
 
-<Warning>
-    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
-</Warning>
+
+> **⚠️ Warning:** This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+
 
     1. Log in to your VMware vSphere Client.
     2. Select the host that manages your VMware inventory.
@@ -69,25 +72,25 @@
         <img
             height="200"
             className="block rounded-xl"
-            src="/assets/images/integrations/syslog/step1.png"
+            src="/images/integrations/syslog/step1.png"
             alt="VMWare"
         />
 
-        <Tip>
-            Execute command according to the selected platform
-        </Tip>
+        
+> **💡 Tip:** Execute command according to the selected platform
 
-        <Warning>
-            Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+
+        
+> **⚠️ Warning:** Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
             This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
-        </Warning>
+
 
         #### Example:
 
         <img
             height="200"
             className="block rounded-xl"
-            src="/assets/images/integrations/vmware/step2.png"
+            src="/images/integrations/vmware/step2.png"
             alt="VMWare"
         />
 

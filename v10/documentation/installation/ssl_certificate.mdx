@@ -1,5 +1,8 @@
-# SSL Certificate Management in UTMStack
-
+---
+title: SSL Certificate Management in UTMStack
+sidebarTitle: "SSL Certificate Management in UTMStack"
+description: "This guide provides comprehensive steps on installing, generating, and renewing SSL certificates for UTMStack."
+---
 
 ### Manual SSL Certificate Installation
 
@@ -28,17 +31,17 @@ systemctl restart docker
 
 5. Allow approximately 10 minutes for the stack to restart.
 
-<Note>
-    Once these steps are completed, your SSL certificate will be installed and configured for UTMStack. For any issues or questions during the installation, please contact our support team.
-</Note>
+
+> **Note:** Once these steps are completed, your SSL certificate will be installed and configured for UTMStack. For any issues or questions during the installation, please contact our support team.
+
 
 ### Generate SSL with Certbot in UTMStack without DNS Change
 
 **Install Certbot**
 
-<Note>
-    Install the necessary tools and dependencies:
-</Note>
+
+> **Note:** Install the necessary tools and dependencies:
+
 
 ```
 sudo apt install certbot python3-certbot-nginx

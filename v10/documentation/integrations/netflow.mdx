@@ -1,11 +1,14 @@
-# Integration guide for Netflow
-
+---
+title: Integration guide for Netflow
+sidebarTitle: "Netflow"
+description: "Integrating NetFlow you can redirect all logs of the network traffic to UTMStack, allowing you to monitor and analyze this logs more efficiently and effectively."
+---
 
 ## Installing Netflow
 
-<Warning>
-   This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
-</Warning>
+
+> **⚠️ Warning:** This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+
 
 > This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
 
@@ -15,25 +18,25 @@
 
 ### 2. Enable log collector.
 
-<Note>
-    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
-</Note>
 
-<Tip>
-    Execute command according to the selected platform
-</Tip>
+> **Note:** To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
 
-<Warning>
-    Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+
+
+> **💡 Tip:** Execute command according to the selected platform
+
+
+
+> **⚠️ Warning:** Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
     This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
-</Warning>
+
 
 #### Example:
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/netflow/step2.png"
+  src="/images/integrations/netflow/step2.png"
   alt="Netflow"
 />
 

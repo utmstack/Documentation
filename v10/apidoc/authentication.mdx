@@ -8,17 +8,20 @@ description: "UTMStack Authentication API for issuing JWT tokens to authenticate
 
 The **UTMStack Authentication API** issues **JWT tokens** to clients who provide valid credentials. Clients must authenticate using this endpoint before calling any protected resource in the UTMStack platform.
 
+
 > **Note:** This endpoint does **not** require authentication. It returns a **JWT access token** that must be used for subsequent requests.
+
 
 ---
 
 ## Endpoint Details
 
-### 🔒 [POST /api/authenticate](#)
+<Card title="POST /api/authenticate" icon="lock">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Not required  
   **Response:** JWT token for API access
+</Card>
 
 ---
 
@@ -26,14 +29,17 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 
 ### Request Body
 
-- **username** `string` (required)
+<ParamField body="username" type="string" required>
   User login name or email address
+</ParamField>
 
-- **password** `string` (required)
+<ParamField body="password" type="string" required>
   User password
+</ParamField>
 
-- **rememberMe** `boolean` (default: false)
+<ParamField body="rememberMe" type="boolean" default="false">
   Optional. Keeps the session active for a longer period
+</ParamField>
 
 ### JSON Schema (Request)
 
@@ -65,34 +71,44 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 
 ### Successful Authentication (TFA disabled)
 
-  #### Response
-    ```json
+
+
+  
+#### Response
+
+```json
     {
       "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
       "authenticated": true
     }
     ```
+
   
-  #### Headers
-    ```http
+#### Headers
+
+```http
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 245
     ```
-  
+
+
+
 
 ### TFA Challenge (TFA enabled)
 
-**Response:**
-
+<ResponseExample>
 ```json
 {
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
   "authenticated": false
 }
 ```
+</ResponseExample>
+
 
 > **ℹ️ Info:** When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
+
 
 ### JSON Schema (Response)
 
@@ -118,7 +134,7 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST https://utmstack.example.com/api/authenticate \
@@ -130,7 +146,9 @@ curl -X POST https://utmstack.example.com/api/authenticate \
   }'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 {
@@ -139,7 +157,11 @@ curl -X POST https://utmstack.example.com/api/authenticate \
 }
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -168,53 +190,81 @@ token = response.json()["id_token"]
 print(f"Token: {token}")
 ```
 
+</CodeGroup>
+
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Authentication successful. Token returned.
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Invalid username or password.
+</ResponseField>
 
-- **403** `Forbidden`
+<ResponseField name="403" type="Forbidden">
   Login blocked (too many attempts).
+</ResponseField>
 
-- **429** `Too Many Requests`
+<ResponseField name="429" type="Too Many Requests">
   Rate limit exceeded.
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Unexpected issue during authentication.
+</ResponseField>
 
 ---
 
 ## Error Handling
 
-  ### 401 Unauthorized
-    **Description:** Invalid credentials  
+
+
+  
+<details>
+<summary>401 Unauthorized</summary>
+
+**Description:** Invalid credentials  
     **Resolution:** Verify username/password and try again.
-  
 
-  ### 403 Forbidden
-    **Description:** Login temporarily blocked due to multiple failed attempts  
+</details>
+
+
+  
+<details>
+<summary>403 Forbidden</summary>
+
+**Description:** Login temporarily blocked due to multiple failed attempts  
     **Resolution:** Wait for cooldown period or contact admin.
-  
 
-  ### 500 Internal Server Error
-    **Description:** Unexpected backend error  
-    **Resolution:** Check logs or contact UTMStack support.
+</details>
+
+
   
+<details>
+<summary>500 Internal Server Error</summary>
+
+**Description:** Unexpected backend error  
+    **Resolution:** Check logs or contact UTMStack support.
+
+</details>
+
+
+
 
 ---
 
 ## Security Considerations
+
 
 > **⚠️ Warning:** **Important Security Notes:**
 - Always use **HTTPS (TLS)** when sending credentials
 - Do not store plain-text passwords or tokens locally
 - Implement **token expiration** and **refresh mechanisms** in clients
 - If TFA is enabled, a second verification code is sent by email
+
 
 ---
 
@@ -226,7 +276,9 @@ After successful authentication, include the JWT token in the Authorization head
 Authorization: Bearer <jwt_token>
 ```
 
+
 > **💡 Tip:** Test your authentication by making a request to `/api/elasticsearch/search` with your Bearer token to verify it's working correctly.
+
 
 ---
 

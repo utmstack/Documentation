@@ -1,7 +1,7 @@
 ---
-title: API Documentation Overview
-sidebarTitle: "Overview"
-description: "Complete guide to UTMStack's API endpoints for managing alerts, authentication, and security operations programmatically."
+
+title: API Documentation Overview sidebarTitle: "Overview" description: "Complete guide to UTMStack's API endpoints for managing alerts, authentication, and security operations programmatically."
+
 ---
 
 ## Introduction
@@ -16,7 +16,7 @@ The UTMStack API provides comprehensive access to security operations and alert 
 
 The UTMStack API is available at:
 
-```
+```javascript
 https://your-utmstack-instance.com/api
 ```
 
@@ -28,73 +28,76 @@ https://your-utmstack-instance.com/api
 
 Get up and running with the UTMStack API in just a few steps:
 
-  ### Authenticate
-    Use your UTMStack credentials to obtain a JWT token
-    ```bash
+1. **Authenticate**
+
+Use your UTMStack credentials to obtain a JWT token
+
+```bash
     curl -X POST https://your-utmstack-instance.com/api/authenticate \
       -H "Content-Type: application/json" \
       -d '{"username":"your_username","password":"your_password"}'
-    ```
-  
-  
-  ### Store Token
-    Save the returned `id_token` for use in subsequent requests
-    ```json
+```
+
+1. **Store Token**
+
+Save the returned `id_token` for use in subsequent requests
+
+```json
     {
       "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       "authenticated": true
     }
-    ```
-  
-  
-  ### Make API Calls
-    Use the token in the Authorization header for protected endpoints
-    ```bash
+```
+
+1. **Make API Calls**
+
+Use the token in the Authorization header for protected endpoints
+
+```bash
     curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search" \
       -H "Authorization: Bearer YOUR_TOKEN_HERE" \
       -H "Content-Type: application/json"
-    ```
-  
+```
 
 ---
 
 ## Available Endpoints
 
-  ### 🔒 [Authentication](/v10/apidoc/authentication)
-    Obtain JWT tokens for API access
-  
-  
-  ### 🔍 [List Alerts](/v10/apidoc/alerts-list)
-    Search and retrieve alerts with filtering
-  
-  
-  ### 🔄 [Update Status](/v10/apidoc/update-status)
-    Change alert status (Open, In Review, Completed)
-  
-  
-  ### 🏷️ [Update Tags](/v10/apidoc/update-tags)
-    Add or modify alert tags and create rules
-  
-  
-  ### 📝 [Update Notes](/v10/apidoc/update-notes)
-    Add investigation notes to alerts
-  
-  
-  ### 🔗 [Convert to Incident](/v10/apidoc/convert-incident)
-    Convert alerts into security incidents
-  
-  
-  ### 📊 [Count Alerts](/v10/apidoc/count-alerts)
-    Get count of open alerts for dashboards
-  
-  
-  ### 📊 [Property Values](/v10/apidoc/property-values)
-    Analyze field values and their distributions
-  
-  
-  ### 💾 [CSV Export](/v10/apidoc/csv-export)
-    Export alert data to CSV for reporting
-  
+### [Authentication](/v10/apidoc/authentication)
+
+Obtain JWT tokens for API access
+
+### [List Alerts](/v10/apidoc/alerts-list)
+
+Search and retrieve alerts with filtering
+
+### [Update Status](/v10/apidoc/update-status)
+
+Change alert status (Open, In Review, Completed)
+
+### [Update Tags](/v10/apidoc/update-tags)
+
+Add or modify alert tags and create rules
+
+### [Update Notes](/v10/apidoc/update-notes)
+
+Add investigation notes to alerts
+
+### [Convert to Incident](/v10/apidoc/convert-incident)
+
+Convert alerts into security incidents
+
+### [Count Alerts](/v10/apidoc/count-alerts)
+
+Get count of open alerts for dashboards
+
+### [Property Values](/v10/apidoc/property-values)
+
+Analyze field values and their distributions
+
+### [CSV Export](/v10/apidoc/csv-export)
+
+Export alert data to CSV for reporting
 
 ---
 
@@ -102,48 +105,50 @@ Get up and running with the UTMStack API in just a few steps:
 
 Get started quickly by importing our complete Postman collection that includes all API endpoints with pre-configured examples, authentication, and test scripts.
 
-### 💾 [Download UTMStack Alerts API Collection](/images/downloads/postman.json)
-  **Complete Postman Collection (JSON)**  
-  Includes all 9 API endpoints with examples, authentication setup, and automated tests.
-  
-  
-  
-  **What's included:**
-  - 🔐 JWT authentication with automatic token management
-  - 📋 Pre-configured examples for all endpoints
-  - 🧪 Automated test scripts for response validation
-  - 📊 Multiple scenarios for each API call
-  - 🔧 Environment variables for easy configuration
-  
-  > **💡 Tip:** **Download Tip**: If your browser displays the JSON instead of downloading it, right-click the link above and select "Save link as..." to save the file to your computer.
+### [Download UTMStack Alerts API Collection](/images/downloads/postman.json)
+
+**Complete Postman Collection (JSON)** Includes all 9 API endpoints with examples, authentication setup, and automated tests.
+
+<br/>
+
+**What's included:**
+
+- 🔐 JWT authentication with automatic token management
+- 📋 Pre-configured examples for all endpoints
+- 🧪 Automated test scripts for response validation
+- 📊 Multiple scenarios for each API call
+- 🔧 Environment variables for easy configuration
+
+> **💡 Tip:** **Download Tip**: If your browser displays the JSON instead of downloading it, right-click the link above and select "Save link as..." to save the file to your computer.
 
 ### How to Import
 
-  ### Download Collection
-    Click the download link above to get the JSON file
-  
-  
-  ### Open Postman
-    Launch Postman application or visit [web.postman.co](https://web.postman.co)
-  
-  
-  ### Import Collection
-    - Click "Import" button in Postman
-    - Select "Upload Files" 
-    - Choose the downloaded JSON file
-    - Click "Import"
-  
-  
-  ### Configure Environment
-    Set up collection variables:
-    - `baseUrl`: Your UTMStack instance URL
-    - `bearerToken`: Will be set automatically after authentication
-    - `alertId`: Sample alert ID for testing
-  
-  
-  ### Start Testing
-    Run the "Authentication" request first, then explore other endpoints
-  
+1. **Download Collection**
+
+Click the download link above to get the JSON file
+
+1. **Open Postman**
+
+Launch Postman application or visit [web.postman.co](https://web.postman.co)
+
+1. **Import Collection**
+
+- Click "Import" button in Postman
+- Select "Upload Files"
+- Choose the downloaded JSON file
+- Click "Import"
+
+1. **Configure Environment**
+
+Set up collection variables:
+
+- `baseUrl`: Your UTMStack instance URL
+- `bearerToken`: Will be set automatically after authentication
+- `alertId`: Sample alert ID for testing
+
+1. **Start Testing**
+
+Run the "Authentication" request first, then explore other endpoints
 
 > **💡 Tip:** **Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
 
@@ -159,15 +164,13 @@ Authorization: Bearer <your_jwt_token>
 
 ### Quick Start Example
 
-**Request:**
-
 ```bash Authenticate
 curl -X POST https://your-utmstack-instance.com/api/authenticate \
   -H "Content-Type: application/json" \
   -d '{"username":"your_username","password":"your_password"}'
 ```
 
-**Response:**
+</RequestExample>
 
 ```json Authentication Response
 {
@@ -176,67 +179,42 @@ curl -X POST https://your-utmstack-instance.com/api/authenticate \
 }
 ```
 
+</ResponseExample>
+
 ### Additional Language Examples
 
-```bash curl
-# 1. Get authentication token
-curl -X POST https://your-utmstack-instance.com/api/authenticate \
-  -H "Content-Type: application/json" \
-  -d '{"username":"your_username","password":"your_password"}'
-
-# 2. Use token in requests
-curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search?page=1&size=25&indexPattern=alert-*" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -H "Content-Type: application/json" \
-  -d '[{"field":"status","operator":"IS","value":2}]'
-```
-
-```javascript JavaScript
-// 1. Authenticate and get token
-const authResponse = await fetch('https://your-utmstack-instance.com/api/authenticate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    username: 'your_username',
-    password: 'your_password'
-  })
-});
-
-const { id_token } = await authResponse.json();
-
-// 2. Use token for API requests
-const alertsResponse = await fetch('https://your-utmstack-instance.com/api/elasticsearch/search?page=1&size=25&indexPattern=alert-*', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${id_token}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify([
-    { field: 'status', operator: 'IS', value: 2 }
-  ])
-});
-```
+<CodeGroup>
+</CodeGroup>
 
 ---
 
 ## Common Response Codes
 
-### 2xx Success Codes
+<details> <summary>2xx Success Codes</summary>
+
 - **200 OK**: Request completed successfully
 - **201 Created**: Resource created successfully
 - **204 No Content**: Request successful, no response body
 
-### 4xx Client Error Codes
+</details>
+
+<details> <summary>4xx Client Error Codes</summary>
+
 - **400 Bad Request**: Invalid request format or parameters
 - **401 Unauthorized**: Missing or invalid authentication token
 - **403 Forbidden**: Insufficient permissions for the requested operation
 - **404 Not Found**: Requested resource does not exist
 - **429 Too Many Requests**: Rate limit exceeded
 
-### 5xx Server Error Codes
+</details>
+
+<details> <summary>5xx Server Error Codes</summary>
+
 - **500 Internal Server Error**: Unexpected server error
 - **502 Bad Gateway**: Upstream service unavailable
 - **503 Service Unavailable**: Service temporarily unavailable
+
+</details>
 
 ---
 
@@ -302,64 +280,8 @@ Successful responses typically return:
 
 ### Error Handling Example
 
-```javascript JavaScript
-try {
-  const response = await fetch('/api/utm-alerts/status', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`API Error ${response.status}: ${errorData.message}`);
-  }
-
-  console.log('Success!');
-} catch (error) {
-  console.error('Failed to update alert:', error.message);
-  
-  // Handle specific error codes
-  if (error.message.includes('401')) {
-    // Token expired, re-authenticate
-    await refreshAuthToken();
-  } else if (error.message.includes('429')) {
-    // Rate limited, wait and retry
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-}
-```
-
-```python Python
-import requests
-import time
-
-def handle_api_request(url, payload, token):
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response
-        
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            # Token expired, re-authenticate
-            print("Token expired, please re-authenticate")
-        elif e.response.status_code == 429:
-            # Rate limited, wait and retry
-            print("Rate limited, waiting before retry...")
-            time.sleep(5)
-        else:
-            print(f"API Error {e.response.status_code}: {e.response.text}")
-        raise e
-```
+<CodeGroup>
+</CodeGroup>
 
 ---
 
@@ -380,16 +302,20 @@ def handle_api_request(url, payload, token):
 
 ## Support and Resources
 
-### 🎧 [Support Portal](https://support.utmstack.com)
+### [Support Portal](https://support.utmstack.com)
+
 Get help with API integration and troubleshooting
 
-### 📋 [Status Codes Reference](#common-response-codes)
+### [Status Codes Reference](#common-response-codes)
+
 Complete list of HTTP status codes and meanings
 
-### 🔑 [Authentication Guide](/v10/apidoc/authentication)
+### [Authentication Guide](/v10/apidoc/authentication)
+
 Detailed authentication setup and token management
 
-### 💻 [Examples Repository](#)
+### [Examples Repository](#)
+
 Sample code and integration examples
 
 ---
@@ -401,3 +327,4 @@ Sample code and integration examples
 - **Last Updated**: October 2025
 
 > **💡 Tip:** This documentation is actively maintained. Check back regularly for updates and new endpoint additions.
+

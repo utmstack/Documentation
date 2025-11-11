@@ -1,5 +1,8 @@
-# UTMStack Server Setup Guide
-
+---
+title: UTMStack Server Setup Guide
+sidebarTitle: "Server Setup Guide"
+description: "This guide will walk you through the process of configuring the UTMStack Main Server."
+---
 
 The Main Server is the central component of UTMStack and is responsible for managing security operations and data collection.
 
@@ -7,9 +10,9 @@ The Main Server is the central component of UTMStack and is responsible for mana
 
 Before starting the installation, make sure that your system meets the minimum requirements and is up to date. 
 
-<Note>
-Please refer to the [System Requirements](../Installation/system_requirements) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
-</Note>
+
+> **Note:** Please refer to the [System Requirements](../Installation/system_requirements) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
+
 
 ## Linux Installation Guide
 
@@ -59,20 +62,20 @@ Please note that the installation process may take some time depending on the sy
 
 ### Step 4. Trubleshooting
 
-<Warning>
-    **Trubleshooting:**
-    If you find any errors during the installation, please check the installation log for more details: `/var/log/utm-setup.log`
-</Warning>
 
-<Warning>
-  **Error During UTMStack Installation: Issue Regenerating the Geo-IP Index**
+> **⚠️ Warning:** **Trubleshooting:**
+    If you find any errors during the installation, please check the installation log for more details: `/var/log/utm-setup.log`
+
+
+
+> **⚠️ Warning:** **Error During UTMStack Installation: Issue Regenerating the Geo-IP Index**
 
   **Problem Description:** During the installation of UTMStack, an error may occur related to regenerating the Geo-IP index. This issue prevents the system from properly completing the configuration of the geographical location database, which can impact certain functionalities that rely on this information.
-</Warning>
 
-<Tip>
-    **Solution:** To resolve this issue, you need to rerun the UTMStack installer. Restarting the installation process will properly regenerate the `Geo-IP index`, ensuring that location data is correctly processed and stored.
-</Tip>
+
+
+> **💡 Tip:** **Solution:** To resolve this issue, you need to rerun the UTMStack installer. Restarting the installation process will properly regenerate the `Geo-IP index`, ensuring that location data is correctly processed and stored.
+
     
 
 ### Step 5: Configuration of UTMStack
@@ -98,20 +101,20 @@ Press Enter to load the UTMStack login page.
   height="200"
   noZoom
   className="block rounded-xl"
-  src="/assets/images/setup guide/login_utmstack.png"
+  src="/images/setup guide/login_utmstack.png"
   alt="Access the Threat Management Menu"
 />
 
 Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/utmstack.yml
 
-<Note>
-    Note: Use HTTPS in front of your server name or IP to access the login page.
-</Note>
 
-<Tip>
-    * Default credentials for Ubuntu Server when using the ISO installer:
+> **Note:** Note: Use HTTPS in front of your server name or IP to access the login page.
+
+
+
+> **💡 Tip:** * Default credentials for Ubuntu Server when using the ISO installer:
         * **User:** utmstack
         * **Password:** utmstack
-</Tip>
+
 
 Click on the "Sign In" button to authenticate and access the UTMStack platform.

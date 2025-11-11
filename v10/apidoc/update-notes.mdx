@@ -8,17 +8,20 @@ description: "Add or update notes for a specific alert to document observations,
 
 Adds or updates **notes** for a specific alert. Notes allow analysts to document observations, investigations, or remediation steps related to an alert. Supports auditing for traceability.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 📝 [POST /api/utm-alerts/notes](#)
+<Card title="POST /api/utm-alerts/notes" icon="note-sticky">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Bearer Token required  
   **Query Parameter:** alertId (required)
+</Card>
 
 ---
 
@@ -26,21 +29,23 @@ Adds or updates **notes** for a specific alert. Notes allow analysts to document
 
 ### Query Parameters
 
-- **parameter** `string` (required)
+<ParamField query="alertId" type="string" required>
   UUID of the alert to update with notes
+</ParamField>
 
 ### Request Body
 
 The request body should contain the notes as a plain JSON string.
 
-- **notes** `string`
+<ParamField body="notes" type="string">
   Text notes for the alert. Can be empty to clear existing notes.
+</ParamField>
 
 ---
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd9f-4a15-98c4-0dac2af40740" \
@@ -49,7 +54,9 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd
   -d '"Investigated alert, determined as false positive after analyzing network traffic patterns."'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 {
@@ -57,7 +64,11 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd
 }
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -125,45 +136,60 @@ update_alert_notes(
 )
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Response
 
-  #### Success
-    ```json
+
+
+  
+#### Success
+
+```json
     {
       "message": "Notes updated successfully"
     }
     ```
+
   
-  #### Empty Notes
-    ```json
+#### Empty Notes
+
+```json
     {
       "message": "Notes cleared successfully"
     }
     ```
-  
+
+
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Notes updated successfully
+</ResponseField>
 
-- **400** `Bad Request`
+<ResponseField name="400" type="Bad Request">
   Invalid alert ID format or malformed request body
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **404** `Not Found`
+<ResponseField name="404" type="Not Found">
   Alert not found with the specified ID
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error while updating notes
+</ResponseField>
 
 ---
 
@@ -218,32 +244,51 @@ update_alert_notes("alert-101", "")
 
 ## Best Practices
 
-  ### Note Content Guidelines
-    **Structured Documentation:**
+
+
+  
+<details>
+<summary>Note Content Guidelines</summary>
+
+**Structured Documentation:**
     - Include timestamp and analyst name
     - Describe investigation steps taken
     - Document evidence found or lack thereof
     - Specify next actions or resolution
     - Use clear, professional language
-  
 
-  ### False Positive Handling
-    **Best Practices:**
+</details>
+
+
+  
+<details>
+<summary>False Positive Handling</summary>
+
+**Best Practices:**
     - Clearly mark as "FALSE POSITIVE" 
     - Explain the root cause
     - Document prevention measures taken
     - Reference any rules or exceptions added
     - Include confidence level in assessment
-  
 
-  ### Investigation Workflow
-    **Recommended Flow:**
+</details>
+
+
+  
+<details>
+<summary>Investigation Workflow</summary>
+
+**Recommended Flow:**
     1. Initial triage notes with priority assessment
     2. Investigation progress updates
     3. Evidence collection documentation
     4. Final resolution and lessons learned
     5. Handoff notes if escalating to other teams
-  
+
+</details>
+
+
+
 
 ---
 
@@ -295,11 +340,13 @@ await createInvestigationNote("alert-123", {
 
 ## Security Considerations
 
+
 > **⚠️ Warning:** **Security Notes:**
 - All note changes are audited for compliance
 - Notes are stored in plain text - avoid sensitive data
 - Users need proper permissions to update alert notes
 - Alert ID must be a valid UUID that exists in the system
+
 
 ---
 

@@ -8,35 +8,44 @@ description: "Get the total count of open alerts in the system for dashboard dis
 
 This endpoint provides a quick way to retrieve the total number of open alerts currently in the UTMStack system. It's commonly used for dashboard widgets, monitoring displays, and alert metrics.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 📊 [GET /api/utm-alerts/count-open-alerts](#)
+<Card title="GET /api/utm-alerts/count-open-alerts" icon="calculator">
   **Method:** GET  
   **Authentication:** Bearer Token required  
   **Response:** Integer count of open alerts
+</Card>
 
 ---
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
   -H "Authorization: Bearer <your_access_token>"
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 42
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -102,26 +111,36 @@ if [ "$count" -gt 100 ]; then
 fi
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Response
 
-  #### Success Response
-    ```json
+
+
+  
+#### Success Response
+
+```json
     42
     ```
     The response is a simple integer representing the total count of open alerts.
+
   
-  #### Zero Alerts
-    ```json
+#### Zero Alerts
+
+```json
     0
     ```
     When no open alerts exist, the response is `0`.
+
   
-  #### Error Response
-    ```json
+#### Error Response
+
+```json
     {
       "error": "Internal server error",
       "message": "Unable to retrieve alert count",
@@ -129,20 +148,25 @@ fi
       "status": 500
     }
     ```
-  
+
+
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Successfully retrieved the count of open alerts
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error while retrieving count
+</ResponseField>
 
 ---
 
@@ -244,12 +268,14 @@ done
 
 ## Performance Considerations
 
+
 > **ℹ️ Info:** **Performance Notes:**
 - This endpoint is optimized for frequent polling
 - Response time is typically under 100ms
 - Safe to call every 30-60 seconds for real-time dashboards
 - Uses database indexing for fast count operations
 - Minimal server resources required
+
 
 ---
 
@@ -358,29 +384,48 @@ while ($true) {
 
 ## Best Practices
 
-  ### Polling Frequency
-    **Recommended intervals:**
+
+
+  
+<details>
+<summary>Polling Frequency</summary>
+
+**Recommended intervals:**
     - Real-time dashboards: 30-60 seconds
     - Monitoring systems: 2-5 minutes
     - Reporting systems: 15-30 minutes
     - Avoid polling more frequently than every 15 seconds
-  
 
-  ### Error Handling
-    **Handle failures gracefully:**
+</details>
+
+
+  
+<details>
+<summary>Error Handling</summary>
+
+**Handle failures gracefully:**
     - Cache the last known count during outages
     - Implement exponential backoff for retries
     - Set timeout values for requests
     - Log failures for troubleshooting
-  
 
-  ### Alerting Thresholds
-    **Establish meaningful thresholds:**
+</details>
+
+
+  
+<details>
+<summary>Alerting Thresholds</summary>
+
+**Establish meaningful thresholds:**
     - 0 alerts: All clear status
     - 1-10 alerts: Normal operational level
     - 11-50 alerts: Elevated attention needed
     - 50+ alerts: High volume investigation required
-  
+
+</details>
+
+
+
 
 ---
 

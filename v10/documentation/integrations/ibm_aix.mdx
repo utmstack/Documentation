@@ -1,11 +1,14 @@
-# Integration guide for IBM AIX
-
+---
+title: Integration guide for IBM AIX
+sidebarTitle: "IBM AIX"
+description: "AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms."
+---
 
 ## Installing IBM AIX
 
-<Warning>
-    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
-</Warning>
+
+> **⚠️ Warning:** This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+
 
 > This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
 
@@ -16,25 +19,25 @@
 
 ### 2. Enable log collector.
 
-<Note>
-    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
-</Note>
 
-<Tip>
-    Execute command according to the selected platform
-</Tip>
+> **Note:** To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
 
-<Warning>
-    Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+
+
+> **💡 Tip:** Execute command according to the selected platform
+
+
+
+> **⚠️ Warning:** Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
     This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
-</Warning>
+
 
 #### Example:
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/ibmaix/step2.png"
+  src="/images/integrations/ibmaix/step2.png"
   alt="IBM AIX"
 />
 

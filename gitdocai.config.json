@@ -38,7 +38,7 @@
         "version": "v10.9.0",
         "tabs": [
           {
-            "tab": "Guidess",
+            "tab": "Guides",
             "items": [
               {
                 "type": "group",
@@ -63,11 +63,6 @@
                     "type": "page",
                     "title": "Getting Started",
                     "page": "/v10/documentation/getting_started/getting_started.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "API Overview",
-                    "page": "/v10/documentation/getting_started/api.mdx"
                   }
                 ]
               },
@@ -275,6 +270,11 @@
                     "type": "page",
                     "title": "Threat Intelligence",
                     "page": "/v10/documentation/threat_management/threatintelligence.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Incident Response",
+                    "page": "/v10/documentation/threat_management/incident_response.mdx"
                   }
                 ]
               },
@@ -312,62 +312,12 @@
             "items": [
               {
                 "type": "group",
-                "title": "Integrations",
+                "title": "Cloud",
                 "children": [
-                  {
-                    "type": "page",
-                    "title": "Apache2",
-                    "page": "/v10/documentation/integrations/apache2.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "AWS",
-                    "page": "/v10/documentation/integrations/aws.mdx"
-                  },
                   {
                     "type": "page",
                     "title": "Azure",
                     "page": "/v10/documentation/integrations/azure.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Cisco ASA",
-                    "page": "/v10/documentation/integrations/cisco_asa.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Cisco Meraki",
-                    "page": "/v10/documentation/integrations/ciscomeraki.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Cisco Switch",
-                    "page": "/v10/documentation/integrations/ciscosw.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Config CURL",
-                    "page": "/v10/documentation/integrations/config_curl.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Elastic",
-                    "page": "/v10/documentation/integrations/elastic.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Firepower",
-                    "page": "/v10/documentation/integrations/firepower.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Fortigate",
-                    "page": "/v10/documentation/integrations/fortigate.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Fortiweb",
-                    "page": "/v10/documentation/integrations/fortiweb.mdx"
                   },
                   {
                     "type": "page",
@@ -376,8 +326,75 @@
                   },
                   {
                     "type": "page",
-                    "title": "HAProxy",
-                    "page": "/v10/documentation/integrations/haproxy.mdx"
+                    "title": "Office365",
+                    "page": "/v10/documentation/integrations/office365.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "AWS",
+                    "page": "/v10/documentation/integrations/aws.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Traefik",
+                    "page": "/v10/documentation/integrations/taefik.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Agents and Syslog",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "macOS",
+                    "page": "/v10/documentation/integrations/macos.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Windows Agent",
+                    "page": "/v10/documentation/integrations/windowsagent.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Linux Agent",
+                    "page": "/v10/documentation/integrations/linuxagent.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Syslog",
+                    "page": "/v10/documentation/integrations/syslog.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "VMware",
+                    "page": "/v10/documentation/integrations/vmware.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Devices",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Cisco ASA",
+                    "page": "/v10/documentation/integrations/cisco_asa.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Fortigate",
+                    "page": "/v10/documentation/integrations/fortigate.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Sophos XG",
+                    "page": "/v10/documentation/integrations/sophos_xg.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SonicWall",
+                    "page": "/v10/documentation/integrations/sonicwall.mdx"
                   },
                   {
                     "type": "page",
@@ -391,8 +408,74 @@
                   },
                   {
                     "type": "page",
-                    "title": "IIS",
-                    "page": "/v10/documentation/integrations/iis.mdx"
+                    "title": "Fortiweb",
+                    "page": "/v10/documentation/integrations/fortiweb.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "pfSense",
+                    "page": "/v10/documentation/integrations/pfsense.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Palo Alto",
+                    "page": "/v10/documentation/integrations/paloalto.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Mikrotik",
+                    "page": "/v10/documentation/integrations/mikrotik.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Cisco Switch",
+                    "page": "/v10/documentation/integrations/ciscosw.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Firepower",
+                    "page": "/v10/documentation/integrations/firepower.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Cisco Meraki",
+                    "page": "/v10/documentation/integrations/ciscomeraki.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Databases",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Oracle",
+                    "page": "/v10/documentation/integrations/oracle.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "MySQL",
+                    "page": "/v10/documentation/integrations/mysql.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "PostgreSQL",
+                    "page": "/v10/documentation/integrations/pgsql.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "MongoDB",
+                    "page": "/v10/documentation/integrations/mongodb.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Elastic",
+                    "page": "/v10/documentation/integrations/elastic.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Redis",
+                    "page": "/v10/documentation/integrations/redis.mdx"
                   },
                   {
                     "type": "page",
@@ -406,89 +489,36 @@
                   },
                   {
                     "type": "page",
-                    "title": "Linux Agent",
-                    "page": "/v10/documentation/integrations/linuxagent.mdx"
-                  },
-                  {
-                    "type": "page",
                     "title": "Logstash",
                     "page": "/v10/documentation/integrations/logstash.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Web Server",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "IIS",
+                    "page": "/v10/documentation/integrations/iis.mdx"
                   },
                   {
                     "type": "page",
-                    "title": "macOS",
-                    "page": "/v10/documentation/integrations/macos.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Mikrotik",
-                    "page": "/v10/documentation/integrations/mikrotik.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "MongoDB",
-                    "page": "/v10/documentation/integrations/mongodb.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "MySQL",
-                    "page": "/v10/documentation/integrations/mysql.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Netflow",
-                    "page": "/v10/documentation/integrations/netflow.mdx"
+                    "title": "Apache2",
+                    "page": "/v10/documentation/integrations/apache2.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Nginx",
                     "page": "/v10/documentation/integrations/nginx.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Office365",
-                    "page": "/v10/documentation/integrations/office365.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Oracle",
-                    "page": "/v10/documentation/integrations/oracle.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Palo Alto",
-                    "page": "/v10/documentation/integrations/paloalto.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "pfSense",
-                    "page": "/v10/documentation/integrations/pfsense.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "PostgreSQL",
-                    "page": "/v10/documentation/integrations/pgsql.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Redis",
-                    "page": "/v10/documentation/integrations/redis.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "SentinelOne",
-                    "page": "/v10/documentation/integrations/sentinelone.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "SonicWall",
-                    "page": "/v10/documentation/integrations/sonicwall.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Sophos XG",
-                    "page": "/v10/documentation/integrations/sophos_xg.mdx"
-                  },
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "XDR",
+                "children": [
                   {
                     "type": "page",
                     "title": "Sophos Central",
@@ -496,23 +526,41 @@
                   },
                   {
                     "type": "page",
-                    "title": "Syslog",
-                    "page": "/v10/documentation/integrations/syslog.mdx"
-                  },
+                    "title": "SentinelOne",
+                    "page": "/v10/documentation/integrations/sentinelone.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Network",
+                "children": [
                   {
                     "type": "page",
-                    "title": "Traefik",
-                    "page": "/v10/documentation/integrations/taefik.mdx"
-                  },
+                    "title": "Netflow",
+                    "page": "/v10/documentation/integrations/netflow.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Proxy",
+                "children": [
                   {
                     "type": "page",
-                    "title": "VMware",
-                    "page": "/v10/documentation/integrations/vmware.mdx"
-                  },
+                    "title": "HAProxy",
+                    "page": "/v10/documentation/integrations/haproxy.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Configurations",
+                "children": [
                   {
                     "type": "page",
-                    "title": "Windows Agent",
-                    "page": "/v10/documentation/integrations/windowsagent.mdx"
+                    "title": "Config CURL",
+                    "page": "/v10/documentation/integrations/config_curl.mdx"
                   }
                 ]
               }
@@ -621,6 +669,22 @@
     {
       "type": "github",
       "reference": "https://github.com/utmstack/UTMStack"
+    },
+    {
+      "type": "x",
+      "reference": "https://x.com/stackutm"
+    },
+    {
+      "type": "linkedin",
+      "reference": "https://www.linkedin.com/showcase/utmstack/about/"
+    },
+    {
+      "type": "facebook",
+      "reference": "https://www.facebook.com/people/UTMStack/100063645996409/"
+    },
+    {
+      "type": "youtube",
+      "reference": "https://www.youtube.com/@utmstack4489"
     }
   ]
 }

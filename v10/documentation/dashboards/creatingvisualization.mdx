@@ -1,5 +1,8 @@
-# Creating a Visualization
-
+---
+title: Creating a Visualization
+sidebarTitle: "Creating a Visualization"
+description: "UTMStack is a powerful solution that leverages the data capabilities of OpenSearch and Logstash to deliver impactful data visualization. By translating your organization's data into visually appealing charts and graphs, UTMStack empowers users to derive meaningful insights seamlessly. This guide provides step-by-step instructions on creating a new visualization in UTMStack."
+---
 
 ## How to Create a New Visualization
 
@@ -8,7 +11,7 @@
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/newvisualization.png"
+  src="/images/dashboards/newvisualization.png"
   alt="Dashobard"
 />
 
@@ -17,9 +20,9 @@
    1. **Source**: The data source for your visualization can be any set of logs, events, or alarms that UTMStack has aggregated.
 
    2. **Chart Type**:
-        <Note>        
-            UTMStack supports various chart types, each catering to different data representation requirements:
-        </Note>
+        
+> **Note:** UTMStack supports various chart types, each catering to different data representation requirements:
+
 
        * **Line**: Depicts data trends over time.
 
@@ -46,16 +49,16 @@
        * **Heat Map**: Represents numeric tabular data, with cell colors indicating the value.
        * **Text**: Text allows you to add descriptive text, titles, or notes to your dashboard.
 
- <Tip>
-    After determining the source and chart type, click **Create Visualization** to customize your visualization.
- </Tip>
+ 
+> **💡 Tip:** After determining the source and chart type, click **Create Visualization** to customize your visualization.
+
 
  ## Navigating the Visualization Editor
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/visualizationeditor.png"
+  src="/images/dashboards/visualizationeditor.png"
   alt="Dashobard"
 />
 
@@ -66,7 +69,7 @@ By default, UTMStack generates a generalized visualization based on the chosen a
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/filervisualizationcreation.png"
+  src="/images/dashboards/filervisualizationcreation.png"
   alt="Dashobard"
 />
 
@@ -111,13 +114,13 @@ The applied filters appear at the top of the interface, where they can be edited
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/filterlist.png"
+  src="/images/dashboards/filterlist.png"
   alt="Dashobard"
 />
 
-<Tip>
-    Having selected your chart type and set up your filters, the next step involves adjusting specific parameters to your chosen chart type. For detailed instructions on how to proceed with each type of chart, please refer to the respective sections <a href="#chartType">Chart Types</a>.
-</Tip>
+
+> **💡 Tip:** Having selected your chart type and set up your filters, the next step involves adjusting specific parameters to your chosen chart type. For detailed instructions on how to proceed with each type of chart, please refer to the respective sections <a href="#chartType">Chart Types</a>.
+
 
 ## Navigating the Visualization Editor Menu
 When you open the Visualization Editor, you will find a menu on the left side of the interface:
@@ -125,7 +128,7 @@ When you open the Visualization Editor, you will find a menu on the left side of
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/menu.png"
+  src="/images/dashboards/menu.png"
   alt="Dashobard"
 />
 
@@ -145,7 +148,7 @@ In UTMStack, crafting the right visualization involves the careful selection and
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/dashboards/datasections.png"
+  src="/images/dashboards/datasections.png"
   alt="Dashobard"
 />
 
@@ -172,9 +175,9 @@ Bucket aggregation serves to categorize data based on specific criteria, enablin
 * **Terms**
 Terms bucket aggregation categorizes data into buckets based on distinct values present in a specified field. These buckets are dynamically generated, each corresponding to a term found in the data field. This approach is beneficial when you want to analyze and visualize data with distinct or categorical values.
 
-<Note>
-    Here's how you can configure the Terms bucket aggregation in UTMStack:
-</Note>
+
+> **Note:** Here's how you can configure the Terms bucket aggregation in UTMStack:
+
 
 * **Field**: Choose the field from which the terms for the buckets will be derived. This field will be the basis for categorizing the data into different buckets.
 * **Order By**: Decide how the buckets should be ordered. You can order them based on a metric (e.g., count, sum, average, min, max, etc.) or alphabetically (by term). The bucket with the highest value in the selected metric or alphabetical term will be presented first, depending on your chosen sort direction.

@@ -1,10 +1,13 @@
-# Data Retention
-
+---
+title: Data Retention
+sidebarTitle: Data Retention
+description: "Defines policies for storing and managing log data in UTMStack, ensuring compliance with security regulations and optimizing storage efficiency"
+---
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/configuration/rollover.png"
+  src="/images/configuration/rollover.png"
   alt="Data Sources Overview"
 />
 
@@ -22,10 +25,10 @@ UTMStack’s Index Rollover feature ensures optimal data management by automatic
 
 - **Delete Days**: This allows you to define how long the data will be kept. After this period, data is flagged for deletion, which can help in optimizing space and maintaining system performance.
 
-<Note>
-  **Note**: The system automatically takes action when the disk usage reaches
+
+> **Note:** **Note**: The system automatically takes action when the disk usage reaches
   85%, ensuring it doesn't affect system performance.
-</Note>
+
 
 ### 2. Snapshot Archiving
 
@@ -74,10 +77,10 @@ Once the restoration is complete, immediately close the port to minimize securit
 docker service update --publish-rm 9200:9200 utmstack_node1
 ```
 
-<Warning>
-  Leaving the port open exposes your OpenSearch data to potential risks. Ensure
+
+> **⚠️ Warning:** Leaving the port open exposes your OpenSearch data to potential risks. Ensure
   you close the port after completing the restoration process.
-</Warning>
+
 
 While UTMStack doesn't include Cerebro, the tool is crucial for snapshot management and restoration, enabling the transition of data from cold to hot storage.
 
@@ -95,7 +98,7 @@ While UTMStack doesn't include Cerebro, the tool is crucial for snapshot managem
      <img
        height="200"
        className="block rounded-xl"
-       src="/assets/images/configuration/cerebro.png"
+       src="/images/configuration/cerebro.png"
        alt="Data Sources Overview"
      />
 
@@ -105,7 +108,7 @@ While UTMStack doesn't include Cerebro, the tool is crucial for snapshot managem
    <img
      height="200"
      className="block rounded-xl"
-     src="/assets/images/configuration/cerebro2.png"
+     src="/images/configuration/cerebro2.png"
      alt="Data Sources Overview"
    />
    
