@@ -11,13 +11,13 @@
 
 > Linux
 
-```
+```bash
 cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable haproxy
 ```
 
 > Windows
 
-```
+```bash
 cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable haproxy
 ```
 
@@ -26,12 +26,12 @@ cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat module
 > Configure the module configuration file according to the image below. You can find it in the path:
 
 > Linux
-```
+```bash
 /opt/utmstack-linux-agent/beats/filebeat/modules.d/haproxy.yml
 ```
 
 > Windows
-```
+```bash
 C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\haproxy.yml
 ```
 
@@ -48,13 +48,13 @@ C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\haproxy.yml
 
 > Linux
 
-```
+```bash
 sudo systemctl restart UTMStackModulesLogsCollector
 ```
 
 > Windows
 
-```
+```bash
 sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
 ```
 

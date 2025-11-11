@@ -45,7 +45,7 @@ Immediately disconnect a compromised system from the network to prevent lateral 
     
     ```powershell
     Get-NetAdapter | Disable-NetAdapter -Confirm:$false
-    ```
+```bash
     
     **What it does:**
     - Lists all network adapters on the system
@@ -82,7 +82,7 @@ Immediately disconnect a compromised system from the network to prevent lateral 
     for interface in $(ip link show | grep -E '^[0-9]+:' | grep -v 'lo:' | awk -F: '{print $2}' | tr -d ' '); do 
       ip link set $interface down
     done
-    ```
+```bash
 
   
   
@@ -106,7 +106,7 @@ Immediately disconnect a compromised system from the network to prevent lateral 
     for interface in $(networksetup -listallnetworkservices | grep -v "asterisk"); do 
       networksetup -setnetworkserviceenabled "$interface" off
     done
-    ```
+```bash
     
     **What it does:**
     - Lists all network services
@@ -134,7 +134,7 @@ Immediately disable a compromised or suspicious user account to prevent unauthor
     **Example:**
     ```powershell
     net user test_user /active:no
-    ```
+```bash
     
     
 > **ℹ️ Info:** Replace [username] with the actual username. UTMStack can automatically substitute variables from alert context.
@@ -152,7 +152,7 @@ Immediately disable a compromised or suspicious user account to prevent unauthor
     **Example:**
     ```bash
     usermod -s /sbin/nologin test_user
-    ```
+```bash
     
     **What it does:**
     - Changes the user shell to nologin
@@ -172,7 +172,7 @@ Immediately disable a compromised or suspicious user account to prevent unauthor
     **Example:**
     ```bash
     usermod -s /sbin/nologin test_user
-    ```
+```bash
 
   
   
@@ -187,7 +187,7 @@ Immediately disable a compromised or suspicious user account to prevent unauthor
     **Example:**
     ```bash
     usermod -s /sbin/nologin test_user
-    ```
+```bash
 
   
   
@@ -202,7 +202,7 @@ Immediately disable a compromised or suspicious user account to prevent unauthor
     **Example:**
     ```bash
     chsh -s /usr/bin/false test_user
-    ```
+```bash
 
 
 
@@ -225,7 +225,7 @@ Block incoming traffic from a malicious IP address to prevent further attacks.
     **Example:**
     ```powershell
     netsh advfirewall firewall add rule name="Block-Attack-8.8.8.8" dir=in action=block remoteip="8.8.8.8" enable=yes
-    ```
+```bash
     
     
 > **Note:** This creates a permanent firewall rule that persists across reboots.
@@ -245,7 +245,7 @@ Block incoming traffic from a malicious IP address to prevent further attacks.
     ```bash
     firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.100" drop' --permanent
     firewall-cmd --reload
-    ```
+```bash
 
   
   
@@ -260,7 +260,7 @@ Block incoming traffic from a malicious IP address to prevent further attacks.
     **Example:**
     ```bash
     iptables -A INPUT -s "10.34.22.55" -j DROP
-    ```
+```bash
     
     
 > **⚠️ Warning:** This rule is not persistent by default. Use iptables-save to make it permanent.
@@ -284,7 +284,7 @@ Block incoming traffic from a malicious IP address to prevent further attacks.
     
     ```bash
     echo "block drop in from [IP] to any" | pfctl -f - && pfctl -e
-    ```
+```bash
     
     **Example:**
     ```bash
@@ -307,7 +307,7 @@ Terminate a suspicious or malicious process immediately.
     
     ```powershell
     taskkill /F /IM [process-name.exe]
-    ```
+```bash
     
     **Example:**
     ```powershell
@@ -326,7 +326,7 @@ Terminate a suspicious or malicious process immediately.
     
     ```bash
     pkill -9 [process-name]
-    ```
+```bash
     
     **Examples:**
     ```bash
@@ -345,7 +345,7 @@ Terminate a suspicious or malicious process immediately.
     
     ```bash
     pkill -9 [process-name]
-    ```
+```bash
 
 
 
@@ -368,7 +368,7 @@ Stop a compromised or suspicious system service.
     **Example:**
     ```powershell
     Stop-Service -Name "Spooler" -Force
-    ```
+```bash
     
     
 > **ℹ️ Info:** The -Force parameter stops the service even if it has dependent services.
@@ -386,7 +386,7 @@ Stop a compromised or suspicious system service.
     **Example:**
     ```bash
     systemctl stop suspicious_service
-    ```
+```bash
     
     **To prevent restart on reboot:**
     ```bash
@@ -402,7 +402,7 @@ Stop a compromised or suspicious system service.
     
     ```bash
     launchctl stop [service-name]
-    ```
+```bash
     
     **Example:**
     ```bash
@@ -425,7 +425,7 @@ Permanently remove a malicious file from the system.
     
     ```powershell
     Remove-Item -LiteralPath "[file-path]" -Force -Recurse
-    ```
+```bash
     
     **Example:**
     ```powershell
@@ -435,7 +435,7 @@ Permanently remove a malicious file from the system.
     **Alternative (CMD):**
     ```cmd
     del /f "[file-path]"
-    ```
+```bash
 
   
   
@@ -450,7 +450,7 @@ Permanently remove a malicious file from the system.
     **Example:**
     ```bash
     rm -f /tmp/malware-file.txt
-    ```
+```bash
     
     
 > **⚠️ Warning:** The -f flag forces deletion without confirmation. Verify the path before execution.
@@ -468,7 +468,7 @@ Permanently remove a malicious file from the system.
     **Example:**
     ```bash
     sudo rm -f /tmp/suspicious-file.sh
-    ```
+```bash
 
 
 
@@ -491,7 +491,7 @@ Prevent a compromised server from communicating with external malicious infrastr
     **Example:**
     ```powershell
     netsh advfirewall firewall add rule name="Block-Outbound-203.0.113.45" dir=out action=block remoteip="203.0.113.45"
-    ```
+```bash
 
   
   
@@ -506,7 +506,7 @@ Prevent a compromised server from communicating with external malicious infrastr
     **Example:**
     ```bash
     iptables -A OUTPUT -d "10.23.33.44" -j DROP
-    ```
+```bash
 
   
   
@@ -534,7 +534,7 @@ Block incoming connections from a specific malicious IP address.
     
     ```powershell
     netsh advfirewall firewall add rule name="Block-Inbound-[IP]" dir=in action=block remoteip="[IP]"
-    ```
+```bash
 
   
   
@@ -551,7 +551,7 @@ Block incoming connections from a specific malicious IP address.
     ```bash
     firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="8.8.8.8" drop' --permanent
     firewall-cmd --reload
-    ```
+```bash
 
   
   
@@ -566,7 +566,7 @@ Block incoming connections from a specific malicious IP address.
     **Example:**
     ```bash
     iptables -A INPUT -s "10.33.44.55" -j DROP
-    ```
+```bash
 
   
   
@@ -594,7 +594,7 @@ Remove a malicious or compromised application from the system.
     
     ```powershell
     Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*[app-name]*"} | ForEach-Object {Start-Process -FilePath $_.UninstallString -ArgumentList "/S" -Wait}
-    ```
+```bash
     
     **Example:**
     ```powershell
@@ -609,7 +609,7 @@ Remove a malicious or compromised application from the system.
     
     ```bash
     yum remove -y [package-name]
-    ```
+```bash
     
     **Example:**
     ```bash
@@ -624,7 +624,7 @@ Remove a malicious or compromised application from the system.
     
     ```bash
     apt-get remove -y [package-name]
-    ```
+```bash
     
     **Example:**
     ```bash
@@ -634,7 +634,7 @@ Remove a malicious or compromised application from the system.
     **For complete removal including config files:**
     ```bash
     apt-get purge -y [package-name]
-    ```
+```bash
 
   
   
@@ -654,7 +654,7 @@ Remove a malicious or compromised application from the system.
     
     ```bash
     brew uninstall --force [app-name] 2>/dev/null || find /Applications -iname "[app-name].app" -maxdepth 2 -type d -exec rm -rf {} + 2>/dev/null
-    ```
+```bash
     
     
 > **Note:** Attempts Homebrew uninstall first, then falls back to direct removal from Applications folder.
@@ -680,7 +680,7 @@ Strip all elevated permissions from a compromised user account.
     **Example:**
     ```powershell
     Get-LocalGroup | Where-Object { $_.Name -ne "Users" } | ForEach-Object { Remove-LocalGroupMember -Group $_.Name -Member "TestUser" -ErrorAction SilentlyContinue }
-    ```
+```bash
     
     
 > **Note:** Removes the user from all groups except the base Users group.
@@ -702,7 +702,7 @@ Strip all elevated permissions from a compromised user account.
     for grp in $(id -nG testuser | tr ' ' '\n' | grep -v "^testuser$"); do 
       gpasswd -d testuser "$grp"
     done
-    ```
+```bash
 
   
   
@@ -735,7 +735,7 @@ Forcefully terminate all active sessions of a compromised user account.
     
     ```cmd
     logoff [username]
-    ```
+```bash
     
     **Example:**
     ```cmd
@@ -753,7 +753,7 @@ Forcefully terminate all active sessions of a compromised user account.
     
     ```bash
     pkill -KILL -u [username]
-    ```
+```bash
     
     **Example:**
     ```bash
@@ -771,7 +771,7 @@ Forcefully terminate all active sessions of a compromised user account.
     
     ```bash
     pkill -KILL -u [username]
-    ```
+```bash
 
 
 
@@ -907,3 +907,5 @@ Ensure the UTMStack agent is running with appropriate privileges:
 - Commands can be integrated into automated response playbooks
 - Historical execution data available for compliance reporting
 
+
+```

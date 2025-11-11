@@ -61,7 +61,7 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
   },
   "required": ["username", "password"]
 }
-```
+```bash
 
 ---
 
@@ -88,7 +88,7 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 245
-    ```
+```bash
 
 
 
@@ -126,7 +126,7 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
   },
   "required": ["id_token", "authenticated"]
 }
-```
+```bash
 
 ---
 
@@ -153,7 +153,7 @@ curl -X POST https://utmstack.example.com/api/authenticate \
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
   "authenticated": true
 }
-```
+```bash
 
 </ResponseExample>
 
@@ -186,7 +186,7 @@ payload = {
 response = requests.post(url, json=payload)
 token = response.json()["id_token"]
 print(f"Token: {token}")
-```
+```bash
 
 </CodeGroup>
 
@@ -322,4 +322,5 @@ components:
       properties:
         id_token: { type: string }
         authenticated: { type: boolean }
+```bash
 ```

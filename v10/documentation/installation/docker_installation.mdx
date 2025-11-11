@@ -28,7 +28,7 @@ For virtualized environments, UTMStack supports the following CPU architectures:
 1. **Update Packages List**:
    ```bash
 sudo apt update
-   ```
+```bash
 
 2. **Install WGET**:
    ```bash
@@ -38,7 +38,7 @@ sudo apt install wget
 3. **Download the Installer**:
    ```bash
 wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
-   ```
+```bash
 
 4. **Change to Root User**:
    ```bash
@@ -48,7 +48,7 @@ sudo su
 5. **Set Execution Permissions**:
    ```bash
 chmod +x installer
-   ```
+```bash
 
 ### Running the Installation
 
@@ -77,7 +77,7 @@ To enable long-term data retention, UTMStack supports snapshot archiving. Snapsh
 
 ```bash
 sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/opensearch/backups
-```
+```bash
 
 Add the mount details to `/etc/fstab` for persistence:
 
@@ -92,7 +92,7 @@ To restore data using Cerebro, open and close port 9200 securely:
 Open port 9200:
 ```bash
 docker service update --publish-add 9200:9200 utmstack_node1
-```
+```bash
 
 Close port 9200 after restoration:
 ```bash

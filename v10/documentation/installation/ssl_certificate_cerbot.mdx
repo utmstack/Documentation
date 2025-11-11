@@ -11,7 +11,7 @@
 ```bash
 sudo apt update
 sudo apt install certbot python3-certbot-nginx nginx  
-```
+```bash
 
 ### Pause the frontend container
 
@@ -23,7 +23,7 @@ sudo docker pause id_container_frontend
 
 ```bash
 sudo systemctl start nginx
-```
+```bash
 
 ## Method 1 – Certbot with Nginx (No DNS Validation), this is the recommended method for simplicity and automation.
 
@@ -40,7 +40,7 @@ sudo certbot certonly --manual \
   --server https://acme-v02.api.letsencrypt.org/directory \
   --agree-tos \
   -d <your-domain>
-```
+```bash
 
 ### Create the DNS TXT Record,  Access your DNS management console and add a TXT record:
 
@@ -69,7 +69,7 @@ sudo cp your_private_key.key /utmstack/cert/utm.key
 
 ```bash
 sudo docker stop id_container_frontend
-```
+```bash
 
 > **Note:** Restart the frontend container or related services if necessary.
 
@@ -86,7 +86,7 @@ sudo systemctl stop nginx
 
 ```bash
 sudo docker pause id_container_frontend  
-```
+```bash
 
 ### Start Nginx
 
@@ -98,7 +98,7 @@ sudo systemctl start nginx
 
 ```bash
 sudo certbot renew  
-```
+```bash
 
 ### Stop and Disable Nginx
 
@@ -112,7 +112,7 @@ sudo systemctl stop nginx
 ```bash
 sudo cp /etc/letsencrypt/live/<your-domain>/fullchain.pem /utmstack/cert/utm.crt  
 sudo cp /etc/letsencrypt/live/<your-domain>/privkey.pem /utmstack/cert/utm.key  
-```
+```bash
 
 ### Stop the frontend container
 
@@ -127,7 +127,9 @@ sudo docker stop id_container_frontend
 
 ```bash
 sudo certbot certificates 
-```
+```bash
 
 > **Note:** Ensure your DNS provider supports TXT records for Method 2 – DNS Validation.
 
+
+```
