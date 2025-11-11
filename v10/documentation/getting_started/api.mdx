@@ -1,8 +1,6 @@
----
-title: API Authentication Guide
-sidebarTitle: "API Authentication"
-description: "Complete guide for authenticating with the UTMStack API using Bearer Token or API Key methods. Learn how to access secured endpoints and find official API documentation."
----
+# API Authentication Guide
+
+*Complete guide for authenticating with the UTMStack API using Bearer Token or API Key methods. Learn how to access secured endpoints and find official API documentation.*
 
 ## Authentication Methods
 
@@ -19,45 +17,45 @@ Choose the authentication method that best fits your use case and security requi
 
 ###  Step 1: Authentication Request
 
-<Tip>
-    Use the **/api/authenticate** endpoint to log in and receive a Bearer token.
-</Tip>
+
+> **💡 Tip:** Use the **/api/authenticate** endpoint to log in and receive a Bearer token.
+
 
 > 🔧 Request Example:
 
-````
+```
 curl -X POST https://demo.utmstack.com/api/authenticate \
 -H "Content-Type: application/json" \
 -d '{"username":"demo","password":"your_password"}'
-````
+```
 
-<Note>
-    Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.    
-</Note>
+
+> **Note:** Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.
+
 
 
 ### Step 2: Parse the Response
 
 > The response will be a JSON object containing the Bearer token, usually under the key id_token or similar, for example:
 
-````
+```
 {
   "authenticated":true,
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
 }
-````
+```
 
 ### Step 3: Use the Bearer Token
 
 > Include the token in the Authorization header when making requests to protected endpoints.
 
-<Tip>
-    Use the **/api/elasticsearch/search** endpoint to test your Bearer token authentication.
-</Tip>
+
+> **💡 Tip:** Use the **/api/elasticsearch/search** endpoint to test your Bearer token authentication.
+
 
 > **Request Example:**
 
-````
+```
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
@@ -83,11 +81,11 @@ curl -X 'POST' \
       ]
     }
   ]'
-````
+```
 
 > **Response:**
 
-`````
+```
 {
   "severity": 3,
   "regDateRulebot": null,
@@ -113,15 +111,15 @@ curl -X 'POST' \
   "user": "Administrator",
   "san": 24505
 }
-`````
+```
 
-<Warning>
-    What happens when you don't include the Authorization header when making requests to protected endpoints.
-</Warning>
+
+> **⚠️ Warning:** What happens when you don't include the Authorization header when making requests to protected endpoints.
+
 
 > **Request without Authorization:**
 
-````
+```
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
@@ -146,29 +144,29 @@ curl -X 'POST' \
       ]
     }
   ]'
-````
+```
 
 > **Response:**
 
-````
+```
 {
   "timestamp": "2025-04-16T16:26:35.664+00:00",
   "status": 401,
   "error": "Unauthorized",
   "path": "/api/elasticsearch/search"
 }
-````
+```
 ----
 
 ## Method 2: API Key Authentication
 
-<Tip>
-    Use the **Utm-Internal-Key** header for server-to-server authentication without requiring user credentials.
-</Tip>
 
-<Warning>
-    **Important Security Notice**: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
-</Warning>
+> **💡 Tip:** Use the **Utm-Internal-Key** header for server-to-server authentication without requiring user credentials.
+
+
+
+> **⚠️ Warning:** **Important Security Notice**: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
+
 
 ### Step 1: Obtain the API Key
 
@@ -177,21 +175,21 @@ To get the internal API key, you need access to your UTMStack server instance:
 1. Connect to your UTMStack server terminal
 2. Run the following command:
 
-````bash
+```bash
 cat compose.yml
-````
+```
 
 3. Look for the `backend:` section, then under `environment:`, find the value:
 
-````yaml
+```yaml
 backend:
   environment:
     INTERNAL_KEY: your_api_key_value_here
-````
+```
 
-<Note>
-    Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
-</Note>
+
+> **Note:** Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
+
 
 ### Step 2: Use the API Key in Requests
 
@@ -204,7 +202,7 @@ Include the API key in the `Utm-Internal-Key` header when making requests:
 
 > **Request Example:**
 
-````bash
+```bash
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
@@ -230,17 +228,17 @@ curl -X 'POST' \
       ]
     }
   ]'
-````
+```
 
-<Warning>
-    Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.
-</Warning>
+
+> **⚠️ Warning:** Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.
+
 
 ### Step 3: API Key Response
 
 When using the correct API key, you'll receive the same successful response as with Bearer token authentication:
 
-````json
+```json
 {
   "severity": 3,
   "regDateRulebot": null,
@@ -266,7 +264,7 @@ When using the correct API key, you'll receive the same successful response as w
   "user": "Administrator",
   "san": 24505
 }
-````
+```
 
 ----
 
@@ -279,9 +277,9 @@ When using the correct API key, you'll receive the same successful response as w
 | **Setup** | Requires user credentials | Requires server access |
 | **Best For** | Interactive applications | Automated scripts, integrations |
 
-<Note>
-    Choose Bearer Token for user-facing applications and API Key for backend integrations and automated systems.
-</Note>
+
+> **Note:** Choose Bearer Token for user-facing applications and API Key for backend integrations and automated systems.
+
 
 ----
 
@@ -295,14 +293,14 @@ For hands-on testing and live API interaction, you can explore the Swagger UI pr
 
 [https://demo.utmstack.com/swagger-ui/index.html](https://demo.utmstack.com/swagger-ui/index.html)
 
-<Note>
-    Each client instance has its own unique Swagger URL, based on how their environment is configured.
-</Note>
+
+> **Note:** Each client instance has its own unique Swagger URL, based on how their environment is configured.
+
 
 Examples:
 - `https://<your-company>.utmstack.com/swagger-ui/index.html`
 - `https://utmstack.<your-domain>.com/swagger-ui/index.html`
 
-<Tip>
-    These tools make it easy to test endpoints, view required parameters, and understand the behavior of the platform's APIs.    
-</Tip>
+
+> **💡 Tip:** These tools make it easy to test endpoints, view required parameters, and understand the behavior of the platform's APIs.
+

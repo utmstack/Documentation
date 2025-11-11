@@ -1,46 +1,53 @@
----
-title: Property Values with Count API
-sidebarTitle: "Property Values & Count"
-description: "Get unique values for alert properties along with their occurrence counts for analytics and filtering purposes."
----
+# Property Values with Count API
+
+*Get unique values for alert properties along with their occurrence counts for analytics and filtering purposes.*
 
 ## Overview
 
 This endpoint returns unique values for a specified alert property (field) along with the count of how many times each value appears. It's useful for creating filter dropdowns, analytics dashboards, and understanding data distribution in your alerts.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 📊 [POST /api/elasticsearch/property/values-with-count](#)
+<Card title="POST /api/elasticsearch/property/values-with-count" icon="chart-bar">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Bearer Token required  
   **Response:** Array of value/count objects
+</Card>
 
 ---
 
 ## Request Body
 
-- **field** `string` (required)
+<ParamField body="field" type="string" required>
   The alert property field to analyze (e.g., "status", "severity", "dataSource")
+</ParamField>
 
-- **filters** `array`
+<ParamField body="filters" type="array">
   Optional filters to apply before analyzing the field values
+</ParamField>
 
-- **index** `string` (required)
+<ParamField body="index" type="string" required>
   Elasticsearch index pattern to search (typically "alert-*")
+</ParamField>
 
-- **top** `integer` (default: 10)
+<ParamField body="top" type="integer" default="10">
   Maximum number of unique values to return
+</ParamField>
 
-- **orderByCount** `boolean` (default: true)
+<ParamField body="orderByCount" type="boolean" default="true">
   Whether to order results by count (true) or alphabetically (false)
+</ParamField>
 
-- **sortAsc** `boolean` (default: false)
+<ParamField body="sortAsc" type="boolean" default="false">
   Sort order: true for ascending, false for descending
+</ParamField>
 
 ---
 
@@ -91,7 +98,7 @@ This endpoint returns unique values for a specified alert property (field) along
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-count" \
@@ -113,7 +120,9 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
   }'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 [
@@ -140,7 +149,11 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
 ]
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -221,14 +234,20 @@ get_property_values_with_count("status", filters=[
 ])
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Response
 
-  #### Severity Analysis
-    ```json
+
+
+  
+#### Severity Analysis
+
+```json
     [
       {"value": "3", "count": 156},
       {"value": "2", "count": 89},
@@ -237,9 +256,11 @@ get_property_values_with_count("status", filters=[
       {"value": "5", "count": 8}
     ]
     ```
+
   
-  #### Data Source Analysis
-    ```json
+#### Data Source Analysis
+
+```json
     [
       {"value": "windows-server-01", "count": 234},
       {"value": "firewall-main", "count": 178},
@@ -247,28 +268,36 @@ get_property_values_with_count("status", filters=[
       {"value": "database-cluster", "count": 56}
     ]
     ```
+
   
-  #### Empty Result
-    ```json
+#### Empty Result
+
+```json
     []
     ```
-  
+
+
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Successfully retrieved property values and counts
+</ResponseField>
 
-- **400** `Bad Request`
+<ResponseField name="400" type="Bad Request">
   Invalid field name, malformed filters, or invalid parameters
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error during analysis
+</ResponseField>
 
 ---
 
@@ -425,6 +454,7 @@ def generate_top_offenders_report():
 
 ## Performance Considerations
 
+
 > **⚠️ Warning:** **Performance Tips:**
 - Use appropriate `top` limits to avoid large result sets
 - Apply filters to reduce the data set being analyzed
@@ -432,35 +462,55 @@ def generate_top_offenders_report():
 - Use specific time ranges rather than analyzing all historical data
 - Monitor query performance for fields with high cardinality
 
+
 ---
 
 ## Best Practices
 
-  ### Field Selection
-    **Commonly analyzed fields:**
+
+
+  
+<details>
+<summary>Field Selection</summary>
+
+**Commonly analyzed fields:**
     - `severity` - Alert severity levels
     - `status` - Alert status distribution  
     - `dataSource` - Top alert sources
     - `category` - Alert categories
     - `tactic` - MITRE ATT&CK tactics
     - `tags` - Applied tags
-  
 
-  ### Filter Strategy
-    **Effective filtering:**
+</details>
+
+
+  
+<details>
+<summary>Filter Strategy</summary>
+
+**Effective filtering:**
     - Always include time filters to limit scope
     - Exclude false positives for meaningful analysis
     - Filter by status to focus on actionable alerts
     - Use severity filters for priority analysis
-  
 
-  ### Result Limits
-    **Appropriate limits:**
+</details>
+
+
+  
+<details>
+<summary>Result Limits</summary>
+
+**Appropriate limits:**
     - Dropdowns: 10-20 items
     - Dashboard charts: 5-15 items
     - Reports: 20-50 items
     - Avoid requesting more than 100 items
-  
+
+</details>
+
+
+
 
 ---
 

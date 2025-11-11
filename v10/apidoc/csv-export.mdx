@@ -1,58 +1,69 @@
----
-title: CSV Export API
-sidebarTitle: "CSV Export"
-description: "Export alert data to CSV format for reporting, analysis, and integration with external tools."
----
+# CSV Export API
+
+*Export alert data to CSV format for reporting, analysis, and integration with external tools.*
 
 ## Overview
 
 This endpoint allows you to export alert data in CSV format. You can apply filters, select specific fields, and control the format of the exported data. This is useful for creating reports, data analysis, and integrating with external business intelligence tools.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 💾 [POST /api/elasticsearch/alerts/export/csv](#)
+<Card title="POST /api/elasticsearch/alerts/export/csv" icon="download">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Bearer Token required  
   **Response:** CSV file download or CSV data
+</Card>
 
 ---
 
 ## Request Body
 
-- **filters** `array`
+<ParamField body="filters" type="array">
   Filters to apply when selecting alerts for export
+</ParamField>
 
-- **fields** `array` (required)
+<ParamField body="fields" type="array" required>
   List of field names to include in the CSV export
+</ParamField>
 
-- **from** `integer` (default: 0)
+<ParamField body="from" type="integer" default="0">
   Starting position for pagination (0-based)
+</ParamField>
 
-- **size** `integer` (default: 10000)
+<ParamField body="size" type="integer" default="10000">
   Maximum number of records to export
+</ParamField>
 
-- **orderBy** `string` (default: @timestamp)
+<ParamField body="orderBy" type="string" default="@timestamp">
   Field to sort results by
+</ParamField>
 
-- **sortDirection** `string` (default: desc)
+<ParamField body="sortDirection" type="string" default="desc">
   Sort direction: "asc" or "desc"
+</ParamField>
 
-- **includeHeaders** `boolean` (default: true)
+<ParamField body="includeHeaders" type="boolean" default="true">
   Whether to include column headers in the CSV
+</ParamField>
 
-- **dateFormat** `string` (default: yyyy-MM-dd HH:mm:ss)
+<ParamField body="dateFormat" type="string" default="yyyy-MM-dd HH:mm:ss">
   Format for date/time fields in the CSV
+</ParamField>
 
-- **separator** `string` (default: ,)
+<ParamField body="separator" type="string" default=",">
   Field separator character (comma, semicolon, tab)
+</ParamField>
 
-- **filename** `string`
+<ParamField body="filename" type="string">
   Optional filename for the CSV export
+</ParamField>
 
 ---
 
@@ -121,7 +132,7 @@ This endpoint allows you to export alert data in CSV format. You can apply filte
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
@@ -160,7 +171,9 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   }'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```csv Response
 @timestamp,name,severity,status,dataSource,category,description
@@ -171,7 +184,11 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
 2024-01-15 13:22:07,"SQL Injection Attempt",4,3,"web-app-prod","Application","SQL injection pattern in HTTP request"
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -319,53 +336,70 @@ critical_alerts = export_alerts_to_csv(
 print(f"Exported {len(df)} alerts to CSV")
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Response
 
-  #### Standard Export
-    ```csv
+
+
+  
+#### Standard Export
+
+```csv
     @timestamp,name,severity,status,dataSource
     2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
     2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
     2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
     ```
+
   
-  #### Custom Separator
-    ```csv
+#### Custom Separator
+
+```csv
     @timestamp;name;severity;status;dataSource
     2024-01-15 14:32:15;"Suspicious Login Attempt";4;2;"windows-server-01"
     2024-01-15 14:28:42;"Port Scan Detected";3;2;"firewall-main"
     ```
+
   
-  #### No Headers
-    ```csv
+#### No Headers
+
+```csv
     2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
     2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
     2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
     ```
-  
+
+
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   CSV data successfully exported
+</ResponseField>
 
-- **400** `Bad Request`
+<ResponseField name="400" type="Bad Request">
   Invalid field names, malformed filters, or invalid parameters
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **413** `Payload Too Large`
+<ResponseField name="413" type="Payload Too Large">
   Export size exceeds maximum allowed limit
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error during export
+</ResponseField>
 
 ---
 
@@ -476,8 +510,13 @@ const exportForAnalysis = async () => {
 
 ## Available Fields
 
-  ### Core Alert Fields
-    **Essential fields for most exports:**
+
+
+  
+<details>
+<summary>Core Alert Fields</summary>
+
+**Essential fields for most exports:**
     - `@timestamp` - Alert timestamp
     - `name` - Alert name/title
     - `severity` - Severity level (1-5)
@@ -485,10 +524,15 @@ const exportForAnalysis = async () => {
     - `category` - Alert category
     - `description` - Alert description
     - `dataSource` - Source system
-  
 
-  ### Network Fields
-    **Network-related alert fields:**
+</details>
+
+
+  
+<details>
+<summary>Network Fields</summary>
+
+**Network-related alert fields:**
     - `sourceIp` - Source IP address
     - `destIp` - Destination IP address
     - `sourcePort` - Source port
@@ -496,10 +540,15 @@ const exportForAnalysis = async () => {
     - `protocol` - Network protocol
     - `bytes` - Bytes transferred
     - `packets` - Packet count
-  
 
-  ### Security Fields
-    **Security-focused fields:**
+</details>
+
+
+  
+<details>
+<summary>Security Fields</summary>
+
+**Security-focused fields:**
     - `tactic` - MITRE ATT&CK tactic
     - `technique` - MITRE ATT&CK technique
     - `user` - Associated username
@@ -507,23 +556,34 @@ const exportForAnalysis = async () => {
     - `file` - File path
     - `hash` - File/process hash
     - `signature` - Detection signature
-  
 
-  ### Management Fields
-    **Alert management fields:**
+</details>
+
+
+  
+<details>
+<summary>Management Fields</summary>
+
+**Alert management fields:**
     - `assignedTo` - Assigned analyst
     - `tags` - Applied tags
     - `notes` - Investigation notes
     - `disposition` - Final disposition
     - `createdAt` - Creation time
     - `updatedAt` - Last update time
-  
+
+</details>
+
+
+
 
 ---
 
 ## Export Formats & Options
 
 ### Date Format Patterns
+
+<CodeGroup>
 
 ```text Standard Formats
 yyyy-MM-dd HH:mm:ss     → 2024-01-15 14:32:15
@@ -541,6 +601,8 @@ yyyy-DDD                → 2024-015 (day of year)
 yyyy-'W'ww              → 2024-W03 (week number)
 ```
 
+</CodeGroup>
+
 ### Separator Options
 
 ```json
@@ -555,12 +617,14 @@ yyyy-'W'ww              → 2024-W03 (week number)
 
 ### Size Limits
 
+
 > **⚠️ Warning:** **Export Limits:**
 - Maximum size: 100,000 records per request
 - Maximum file size: ~50MB 
 - Timeout: 5 minutes for large exports
 - Use pagination (`from` + `size`) for larger datasets
 - Consider filtering to reduce result set size
+
 
 ---
 

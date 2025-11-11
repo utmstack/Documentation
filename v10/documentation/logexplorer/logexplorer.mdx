@@ -1,13 +1,13 @@
 # Log Explorer Module
 
+*The Log Explorer Module, a central element of UTMStack, is purpose-built to deliver an exhaustive and comprehensive view of an organization's log data.*
 
-<Note>
-This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure.
-</Note>
+> **Note:** This dynamic, highly interactive tool is engineered to provide real-time visibility into log data, allowing for immediate filtering and nuanced analysis. Its central role in the proactive monitoring and effective management of network activities is indispensable to a well-maintained cybersecurity infrastructure.
+
 
 <img
   className="block rounded-xl"
-  src="/assets/images/logexplorer/logexplorerpanel.png"
+  src="/images/logexplorer/logexplorerpanel.png"
   alt="Log Explorer"
 />
 
@@ -22,7 +22,7 @@ In a concerted effort to make data analysis as user-friendly as possible, the Lo
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/sources_logexplorer.png"
+  src="/images/logexplorer/sources_logexplorer.png"
   alt="Log Explorer"
 />
 
@@ -37,29 +37,29 @@ Serving as the backbone of the Log Explorer, the filtering functionality offers 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/filters_logexplorer.png"
+  src="/images/logexplorer/filters_logexplorer.png"
   alt="Log Explorer"
 />
 
-<Note>
-  **New in filters**
+
+> **Note:** **New in filters**
 	-	A **clear filter** button has been added to the far left, allowing users to instantly remove all active filters with a single click.
 	-	A **default time filter** is now applied automatically. This filter appears on the right-hand side and defaults to the last 24 hours. It dynamically updates based on the selected time range.
   - The **maximum range for any selected time filter is 30 days**. This limitation ensures optimal system performance while allowing deep log exploration.
   -	Users can still add additional custom filters using the **Add Filter** button, providing even greater flexibility in log exploration.
-</Note>
+
 
 <img
   width="400"
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/timestamp_logexplorer.png"
+  src="/images/logexplorer/timestamp_logexplorer.png"
   alt="Log Explorer"
 />
 
-<Tip>
-The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process.    
-</Tip>
+
+> **💡 Tip:** The Log Explorer module simplifies filter creation by providing the option to add a filter based on a specific log field with a single click. This degree of simplicity ensures that users can focus more on the analysis and less on the process.
+
 
 ### 3. Data Grid
 
@@ -69,7 +69,7 @@ The Data Grid is where the bulk of log information can be viewed, offering users
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/chartmode.png"
+  src="/images/logexplorer/chartmode.png"
   alt="Log Explorer"
 />
 
@@ -81,13 +81,13 @@ The Log section offers a comprehensive view of all log information, ranging from
   width="800"
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/the_log.png"
+  src="/images/logexplorer/the_log.png"
   alt="Log Explorer"
 />
 
-<Note>
-The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field.
-</Note>
+
+> **Note:** The Table mode offers the added benefit of allowing the user to add filters based on the field and value of a specific log, or to create a column in the Data Grid table based on a specific field.
+
 
 ### 4.1 Options
 
@@ -100,7 +100,7 @@ Each log field within the Log Explorer module provides two key options for users
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/fields.png"
+  src="/images/logexplorer/fields.png"
   alt="Log Explorer"
 />
 
@@ -111,7 +111,7 @@ You can also add or remove columns in the Data Grid view, based on the fields of
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/colums.png"
+  src="/images/logexplorer/colums.png"
   alt="Log Explorer"
 />
 
@@ -122,7 +122,7 @@ Users can refresh their data, save the current query for future use, or export t
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/options.png"
+  src="/images/logexplorer/options.png"
   alt="Log Explorer"
 />
 
@@ -130,9 +130,9 @@ For example, a filter to view all Office365 log-in activities could be saved for
 
 The option to view and manage stored queries also ensures that past investigations can be revisited with ease.
 
-<Note>
-   By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it's streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience.
-</Note>
+
+> **Note:** By offering these customizable options, the Log Explorer module delivers an adaptable interface that caters to the specific requirements of individual users. Whether it's streamlining data analysis by focusing on certain values or enhancing visibility of crucial data, these options ensure a more efficient and tailored log exploration experience.
+
 
 ### Office 365 Login Failure Analysis: Step-by-Step Guide Example
 
@@ -144,7 +144,7 @@ In the Source field, type and select "log-o365-*" from the dropdown list. This s
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/0365_selection.png"
+  src="/images/logexplorer/0365_selection.png"
   alt="Log Explorer"
 />
 
@@ -162,13 +162,13 @@ d. Type **UserLoginFailed** in the Value input box, indicating a login failure i
   width="500"
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/filter_selection.png"
+  src="/images/logexplorer/filter_selection.png"
   alt="Log Explorer"
 />
 
-<Tip>    
-After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview.
-</Tip>
+
+> **💡 Tip:** After these steps, all the logs about User login failures in Office 365 are displayed. Users can now personalize the columns they see for an easy overview.
+
 
 ### Step 3. Column Selection
 
@@ -181,7 +181,7 @@ b. From the dropdown list, find and select "Userid", "Workload", and "Authentica
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/examplefields.png"
+  src="/images/logexplorer/examplefields.png"
   alt="Log Explorer"
 />
 
@@ -195,7 +195,7 @@ b. From the field list, find and press the table icon next to the fields "userid
   width="300"
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/examplecolums.png"
+  src="/images/logexplorer/examplecolums.png"
   alt="Log Explorer"
 />
 
@@ -204,7 +204,7 @@ These fields will be added to your Data Grid view.
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/exampleview.png"
+  src="/images/logexplorer/exampleview.png"
   alt="Log Explorer"
 />
 
@@ -217,17 +217,17 @@ b. In the pop-up box, give your query a unique name, such as "Office365 Login Fa
   width="500"
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/examplesavequery.png"
+  src="/images/logexplorer/examplesavequery.png"
   alt="Log Explorer"
 />
 
-<Tip>
-Now, you can go to the Query List view by clicking the **Queries** button in the top right corner and use that query whenever you need.
-</Tip>
+
+> **💡 Tip:** Now, you can go to the Query List view by clicking the **Queries** button in the top right corner and use that query whenever you need.
+
 
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/logexplorer/examplequerylist.png"
+  src="/images/logexplorer/examplequerylist.png"
   alt="Log Explorer"
 />

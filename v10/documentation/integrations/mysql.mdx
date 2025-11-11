@@ -1,9 +1,9 @@
 # Integration guide for MySQL
 
+*MySQL is a relational database management system based on SQL. The most common use for mySQL however, is for the purpose of a web database. It can be used to store anything from a single record of information to an entire inventory of available products for an online store.*
 
-<Warning>
-    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
-</Warning>
+> **⚠️ Warning:** This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+
 
 > MySQL is an open-source relational database management system (RDBMS)
 
@@ -38,13 +38,13 @@ C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\mysql.yml
 <img
   height="200"
   className="block rounded-xl"
-  src="/assets/images/integrations/mysql/config-mysql.png"
+  src="/images/integrations/mysql/config-mysql.png"
   alt="Mysql"
 />
 
-<Note>
-    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:   
-</Note>
+
+> **Note:** Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:
+
 
 > Linux
 
@@ -58,8 +58,8 @@ sudo systemctl restart UTMStackModulesLogsCollector
 sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
 ```
 
-<Warning>
-    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
-</Warning>
+
+> **⚠️ Warning:** Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
+
 
 ### 3. Click on the button shown below, to activate the UTMStack features related to this integration

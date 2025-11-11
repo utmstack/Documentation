@@ -1,64 +1,73 @@
----
-title: Update Alert Status API
-sidebarTitle: "Update Status"
-description: "Update the status of one or more alerts with auditing and optional false positive tagging capabilities."
----
+# Update Alert Status API
+
+*Update the status of one or more alerts with auditing and optional false positive tagging capabilities.*
 
 ## Overview
 
 Updates the **status** of one or more alerts. Allows analysts to change the alert state (e.g., Open, In Review, Completed) and optionally add an observation note. Supports auditing for traceability.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 🔄 [POST /api/utm-alerts/status](#)
+<Card title="POST /api/utm-alerts/status" icon="refresh">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Bearer Token required  
   **Response:** HTTP 200 OK (no body)
+</Card>
 
 ---
 
 ## Request Body
 
-- **alertIds** `array` (required)
+<ParamField body="alertIds" type="array" required>
   Array of alert UUIDs to update
-  #### Example
+  <Expandable title="Example">
     ```json
     ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"]
     ```
-  
+  </Expandable>
+</ParamField>
 
-- **status** `integer` (required)
+<ParamField body="status" type="integer" required>
   New status code for the alerts (see status codes below)
+</ParamField>
 
-- **statusObservation** `string`
+<ParamField body="statusObservation" type="string">
   Optional observation note about the status change
+</ParamField>
 
-- **addFalsePositiveTag** `boolean` (default: false)
+<ParamField body="addFalsePositiveTag" type="boolean" default="false">
   Whether to add a "False positive" tag to the alerts
+</ParamField>
 
 ---
 
 ## Status Codes Reference
 
-  ### 🔗 [OPEN](#)
+
+
+  <Card title="OPEN" icon="circle-exclamation">
     **Value:** 2  
     Alert is open and pending review
+  </Card>
   
-  
-  ### 🔗 [IN_REVIEW](#)
+  <Card title="IN_REVIEW" icon="eye">
     **Value:** 3  
     Alert is currently being reviewed
+  </Card>
   
-  
-  ### 🔗 [COMPLETED](#)
+  <Card title="COMPLETED" icon="circle-check">
     **Value:** 5  
     Alert has been resolved/completed
-  
+  </Card>
+
+
 
 ---
 
@@ -98,7 +107,7 @@ Updates the **status** of one or more alerts. Allows analysts to change the aler
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
@@ -112,14 +121,20 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
   }'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -182,21 +197,29 @@ def update_alert_status():
     return response
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Update
 
-  #### Success Response
-    ```http
+
+
+  
+#### Success Response
+
+```http
     HTTP/1.1 200 OK
     Content-Length: 0
     Date: Wed, 16 Oct 2024 10:30:00 GMT
     ```
+
   
-  #### Error Response
-    ```json
+#### Error Response
+
+```json
     {
       "error": "Invalid alert ID",
       "message": "Alert with ID 'invalid-uuid' not found",
@@ -204,28 +227,37 @@ def update_alert_status():
       "status": 404
     }
     ```
-  
+
+
+
+
 
 > **Note:** The API returns **HTTP 200 OK** with no response body when the status is successfully updated.
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Status updated successfully
+</ResponseField>
 
-- **400** `Bad Request`
+<ResponseField name="400" type="Bad Request">
   Invalid request payload or malformed JSON
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **404** `Not Found`
+<ResponseField name="404" type="Not Found">
   One or more alerts not found
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error during update
+</ResponseField>
 
 ---
 
@@ -270,36 +302,57 @@ def update_alert_status():
 
 ## Security Considerations
 
+
 > **⚠️ Warning:** **Security Notes:**
 - Requires Bearer token authentication
 - All status changes are **audited** using ApplicationEventService for traceability
 - Users without proper permissions will receive 401 Unauthorized
 - Alert IDs must be valid UUIDs that exist in the system
 
+
 ---
 
 ## Best Practices
 
-  ### Status Workflow
-    Follow a logical status progression:
+
+
+  
+<details>
+<summary>Status Workflow</summary>
+
+Follow a logical status progression:
     1. **OPEN** (2) - Initial alert state
     2. **IN_REVIEW** (3) - Under investigation
     3. **COMPLETED** (5) - Resolved or closed
-  
 
-  ### Observation Notes
-    Always include meaningful `statusObservation` notes:
+</details>
+
+
+  
+<details>
+<summary>Observation Notes</summary>
+
+Always include meaningful `statusObservation` notes:
     - Document the reason for status change
     - Include investigation findings
     - Reference any related tickets or incidents
-  
 
-  ### False Positive Handling
-    When marking alerts as false positives:
+</details>
+
+
+  
+<details>
+<summary>False Positive Handling</summary>
+
+When marking alerts as false positives:
     - Set `status` to 5 (COMPLETED)
     - Set `addFalsePositiveTag` to true
     - Include detailed reasoning in `statusObservation`
-  
+
+</details>
+
+
+
 
 ---
 

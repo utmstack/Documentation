@@ -1,9 +1,8 @@
 # Generating and Renewing SSL Certificates with Certbot
 
+*Guide to Installing, Generating, and Renewing SSL Certificates with Certbot and Third-Party CAs on UTMStack Servers*
 
-<Warning>
-    IMPORTANT: Replace **your-domain** with the actual domain of your UTMStack Service, e.g., .yourdomain.com.
-</Warning>
+> **⚠️ Warning:** IMPORTANT: Replace **your-domain** with the actual domain of your UTMStack Service, e.g., .yourdomain.com.
 
 ## 1. Generate SSL Certificate with Certbot
 
@@ -45,20 +44,17 @@ sudo certbot certonly --manual \
 
 ### Create the DNS TXT Record,  Access your DNS management console and add a TXT record:
 
- - Type: TXT
- - Name: _acme-challenge. **your-domain**
- - Value: (provided by Certbot)
+- Type: TXT
+- Name: _acme-challenge. **your-domain**
+- Value: (provided by Certbot)
 
-<Note>
- Wait for DNS propagation before continuing.   
-</Note>
+> **Note:** Wait for DNS propagation before continuing.
 
 ## Method 3 – Using Certificates from a Trusted Certificate Authority (CA)
 
-<Tip>
-Use this method if you already have an SSL certificate issued by a third-party CA (e.g., DigiCert, GoDaddy, etc.).
+> **💡 Tip:** Use this method if you already have an SSL certificate issued by a third-party CA (e.g., DigiCert, GoDaddy, etc.).
+
 This method does not require Nginx or Certbot.
-</Tip>
 
 ### Replace existing certificates
 
@@ -75,9 +71,7 @@ sudo cp your_private_key.key /utmstack/cert/utm.key
 sudo docker stop id_container_frontend
 ```
 
-<Note>
-    Restart the frontend container or related services if necessary.
-</Note>
+> **Note:** Restart the frontend container or related services if necessary.
 
 ### Stop and Disable Nginx (Only if used for Method 1 or 2)
 
@@ -122,20 +116,18 @@ sudo cp /etc/letsencrypt/live/<your-domain>/privkey.pem /utmstack/cert/utm.key
 
 ### Stop the frontend container
 
-
 ```bash
 sudo docker stop id_container_frontend  
 ```
 
 ## Final Notes
 
- - Certbot stores your certificates at:  /etc/letsencrypt/live/your-domain/
- - Check expiration with:
+- Certbot stores your certificates at:  /etc/letsencrypt/live/your-domain/
+- Check expiration with:
 
 ```bash
 sudo certbot certificates 
 ```
 
-<Note>
-  Ensure your DNS provider supports TXT records for Method 2 – DNS Validation.
-</Note>
+> **Note:** Ensure your DNS provider supports TXT records for Method 2 – DNS Validation.
+

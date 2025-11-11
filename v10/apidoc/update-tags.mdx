@@ -1,47 +1,51 @@
----
-title: Update Alert Tags API
-sidebarTitle: "Update Tags"
-description: "Add or update tags for one or multiple alerts with optional automatic rule creation and auditing capabilities."
----
+# Update Alert Tags API
+
+*Add or update tags for one or multiple alerts with optional automatic rule creation and auditing capabilities.*
 
 ## Overview
 
 Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts, help in filtering, and optionally trigger **automatic rules** based on tag creation. Supports auditing for traceability.
 
+
 > **Note:** **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+
 
 ---
 
 ## Endpoint Details
 
-### 🏷️ [POST /api/utm-alerts/tags](#)
+<Card title="POST /api/utm-alerts/tags" icon="tags">
   **Method:** POST  
   **Content-Type:** application/json  
   **Authentication:** Bearer Token required  
   **Response:** HTTP 200 OK (no body)
+</Card>
 
 ---
 
 ## Request Body
 
-- **alertIds** `array` (required)
+<ParamField body="alertIds" type="array" required>
   Array of alert UUIDs to update with tags
-  #### Example
+  <Expandable title="Example">
     ```json
     ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"]
     ```
-  
+  </Expandable>
+</ParamField>
 
-- **tags** `array`
+<ParamField body="tags" type="array">
   Array of tag strings to assign to the alerts (can be empty to remove tags)
-  #### Examples
+  <Expandable title="Examples">
     ```json
     ["Investigation Needed", "SOC Review", "False Positive"]
     ```
-  
+  </Expandable>
+</ParamField>
 
-- **createRule** `boolean` (required)
+<ParamField body="createRule" type="boolean" required>
   Whether to automatically create a tag rule when assigning tags
+</ParamField>
 
 ---
 
@@ -79,7 +83,7 @@ Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts,
 
 ## Request & Response Examples
 
-**Request:**
+<RequestExample>
 
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
@@ -92,14 +96,20 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
   }'
 ```
 
-**Response:**
+</RequestExample>
+
+<ResponseExample>
 
 ```json Response
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
 
+</ResponseExample>
+
 ### Additional Code Examples
+
+<CodeGroup>
 
 ```javascript Node.js
 import axios from "axios";
@@ -166,21 +176,29 @@ def update_alert_tags():
     return response
 ```
 
+</CodeGroup>
+
 ---
 
 ## Response Details
 
 ### Successful Update
 
-  #### Success Response
-    ```http
+
+
+  
+#### Success Response
+
+```http
     HTTP/1.1 200 OK
     Content-Length: 0
     Date: Wed, 16 Oct 2024 10:30:00 GMT
     ```
+
   
-  #### Error Response
-    ```json
+#### Error Response
+
+```json
     {
       "error": "Invalid request",
       "message": "Alert IDs cannot be empty",
@@ -188,28 +206,37 @@ def update_alert_tags():
       "status": 400
     }
     ```
-  
+
+
+
+
 
 > **Note:** The API returns **HTTP 200 OK** with no response body when tags are successfully updated.
+
 
 ---
 
 ## Status Codes
 
-- **200** `OK`
+<ResponseField name="200" type="OK">
   Tags updated successfully
+</ResponseField>
 
-- **400** `Bad Request`
+<ResponseField name="400" type="Bad Request">
   Invalid request payload or malformed JSON
+</ResponseField>
 
-- **401** `Unauthorized`
+<ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
+</ResponseField>
 
-- **404** `Not Found`
+<ResponseField name="404" type="Not Found">
   One or more alerts not found
+</ResponseField>
 
-- **500** `Internal Server Error`
+<ResponseField name="500" type="Internal Server Error">
   Internal server error during tag update
+</ResponseField>
 
 ---
 
@@ -263,39 +290,65 @@ def update_alert_tags():
 
 ## Tag Categories
 
-  ### Investigation Tags
-    - **Under Investigation**: Alert is being actively investigated
+
+
+  
+<details>
+<summary>Investigation Tags</summary>
+
+- **Under Investigation**: Alert is being actively investigated
     - **Escalated**: Alert has been escalated to senior analysts
     - **Pending Response**: Waiting for additional information
     - **External Consultation**: Requires input from external sources
-  
 
-  ### Classification Tags
-    - **False Positive**: Alert determined to be benign
+</details>
+
+
+  
+<details>
+<summary>Classification Tags</summary>
+
+- **False Positive**: Alert determined to be benign
     - **True Positive**: Confirmed security incident
     - **Suspicious**: Requires further analysis
     - **Informational**: For awareness only
-  
 
-  ### Priority Tags
-    - **Critical**: Immediate attention required
+</details>
+
+
+  
+<details>
+<summary>Priority Tags</summary>
+
+- **Critical**: Immediate attention required
     - **High Priority**: Urgent investigation needed
     - **Medium Priority**: Standard priority
     - **Low Priority**: Can be addressed later
-  
 
-  ### Workflow Tags
-    - **SOC Review**: Requires SOC team review
+</details>
+
+
+  
+<details>
+<summary>Workflow Tags</summary>
+
+- **SOC Review**: Requires SOC team review
     - **Management Review**: Needs management attention
     - **Completed**: Investigation finished
     - **Archived**: Historical reference
-  
+
+</details>
+
+
+
 
 ---
 
 ## Automatic Rule Creation
 
+
 > **ℹ️ Info:** When `createRule` is set to `true`, UTMStack automatically creates tag rules that will apply the same tags to future alerts matching similar criteria. This helps automate recurring tagging scenarios.
+
 
 ### Rule Creation Behavior
 
@@ -308,6 +361,7 @@ def update_alert_tags():
 
 ## Security Considerations
 
+
 > **⚠️ Warning:** **Security Notes:**
 - Requires Bearer token authentication
 - All tag changes are **audited** for traceability
@@ -315,32 +369,52 @@ def update_alert_tags():
 - Users without proper permissions will receive 401 Unauthorized
 - Alert IDs must be valid UUIDs that exist in the system
 
+
 ---
 
 ## Best Practices
 
-  ### Tag Naming Conventions
-    Use consistent, descriptive tag names:
+
+
+  
+<details>
+<summary>Tag Naming Conventions</summary>
+
+Use consistent, descriptive tag names:
     - Use title case: "False Positive" not "false positive"
     - Be specific: "Network Scan" not "Scan"
     - Use standard terminology: "Under Investigation" not "Looking at it"
-  
 
-  ### Rule Creation Strategy
-    Be selective with automatic rule creation:
+</details>
+
+
+  
+<details>
+<summary>Rule Creation Strategy</summary>
+
+Be selective with automatic rule creation:
     - Use for repetitive, well-defined scenarios
     - Avoid for one-off or complex cases
     - Monitor rule effectiveness regularly
     - Review and clean up unused rules
-  
 
-  ### Tag Management
-    Maintain tag hygiene:
+</details>
+
+
+  
+<details>
+<summary>Tag Management</summary>
+
+Maintain tag hygiene:
     - Remove outdated or incorrect tags
     - Standardize tag vocabulary across teams
     - Use hierarchical tags when appropriate
     - Document tag meanings and usage
-  
+
+</details>
+
+
+
 
 ---
 
