@@ -50,7 +50,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd
   -H "Authorization: Bearer <your_access_token>" \
   -H "Content-Type: application/json" \
   -d '"Investigated alert, determined as false positive after analyzing network traffic patterns."'
-```
+```bash
 
 </RequestExample>
 
@@ -99,7 +99,7 @@ await updateAlertNotes("c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
 
 await updateAlertNotes("d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f", 
   "False positive - internal system maintenance activity.");
-```
+```bash
 
 ```python Python
 import requests
@@ -151,7 +151,7 @@ update_alert_notes(
     {
       "message": "Notes updated successfully"
     }
-    ```
+```bash
 
   
 #### Empty Notes
@@ -205,7 +205,7 @@ await updateAlertNotes("alert-123",
   "- Determined as legitimate access from approved device\n" +
   "- No further action required"
 );
-```
+```bash
 
 ### False Positive Documentation
 
@@ -229,7 +229,7 @@ const escalationNote =
   "- Next steps: Full forensic investigation required";
 
 await updateAlertNotes("alert-789", escalationNote);
-```
+```bash
 
 ### Clear Notes
 
@@ -332,7 +332,7 @@ await createInvestigationNote("alert-123", {
   conclusion: "Legitimate user activity - false positive",
   nextActions: "Add travel notification to user profile. No further investigation needed."
 });
-```
+```bash
 
 ---
 

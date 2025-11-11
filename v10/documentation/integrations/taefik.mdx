@@ -11,12 +11,12 @@
 ### 1. Enable Filebeat module:
 
 > Linux
-```
+```bash
 cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable traefik 
 ```
 
 > Windows
-```
+```bash
 cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable traefik
 ```
 
@@ -27,12 +27,12 @@ cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat module
 
 
 > Linux
-```
+```bash
 /opt/utmstack-linux-agent/beats/filebeat/modules.d/traefik.yml
 ```
 
 > Windows
-```
+```bash
 C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\traefik.yml
 ```
 
@@ -48,12 +48,12 @@ C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\traefik.yml
 
 
 > Linux
-```
+```bash
 sudo systemctl restart UTMStackModulesLogsCollector
 ```
 
 > Windows
-```
+```bash
 sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
 ```
 

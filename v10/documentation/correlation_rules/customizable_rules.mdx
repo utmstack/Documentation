@@ -83,7 +83,7 @@ Below are a few examples of such customizable rules, each tailored for different
           alias: "DestinationPort"
         - field: "logx.wineventlog.event_data.TargetUserName"
           alias: "DestinationUser"
-```
+```bash
 
 ###  Example
 In this rule, users can define their whitelist of internal IPs. As an example, you have the internal IPs whitelist 10.0.2.27,192.168.22.128,fe80::97d1:5df4:10fe:7b8d Which you can change to your list
@@ -168,7 +168,7 @@ In this rule, users can define their whitelist of applications that are allowed 
         - field: "logx.o365.ClientIP"
           alias: "SourceIP"
 
-```
+```bash
 
 ###  Example
 In this rule, you can define their whitelist of IPs. As an example, you have the ips whitelist 163.225.184.79,92.22.1.40,19.144.24.179,37e4:dd49:a173:02f4:3164:1df0:8849:6ef9 which you can change to your list
@@ -236,6 +236,7 @@ In this rule, you can define your whitelist of users who can have activity. As a
           alias: "DestinationPort"
         - field: "logx.wineventlog.event_data.TargetUserName"
           alias: "DestinationUser"
-```
+```bash
 ###  Example
 In this rule, you can define your whitelist of users who can have activity. As an example, you have the whitelist of users ` cafroixeunnouxe-7608@yopmail.com `,`bineppohuno-6676@yopmail.com,keven_mohr@gmail.com ` which you can change to your list
+```

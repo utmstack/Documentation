@@ -16,7 +16,7 @@
 
 ### 1. Enable IIS module
 
-```
+```bash
 cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable iis
 ```
 
@@ -24,7 +24,7 @@ cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat module
 
 > Configure the module configuration file according to the image below. You can find it in the path:
 
-```
+```bash
 C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\iis.yml
 ```
 
@@ -39,7 +39,7 @@ C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\iis.yml
 > **Note:** Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:
 
 
-```
+```bash
 sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector
 ```
 

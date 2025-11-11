@@ -19,7 +19,7 @@ Before beginning, ensure you've downloaded your certificate files. After downloa
 ```bash
    mv utm.crt /UTMStack/cert/
    mv utm.key /UTMStack/cert/
-```
+```bash
 
 4. Restart Docker for the changes to take effect:
 
@@ -41,31 +41,31 @@ systemctl restart docker
 > **Note:** Install the necessary tools and dependencies:
 
 
-```
+```bash
 sudo apt install certbot python3-certbot-nginx
 ```
 
 **Manage Services pause utmstack_frontend services:**
 
-```
+```bash
 docker service scale utmstack_frontend=0
 docker ps | grep frontend
 ```
 Then, start Nginx:
 
-```
+```bash
 systemctl start nginx
 ```
 **Generate SSL Certificate**
 Replace "siem.domain.com" with your domain:
 
-```
+```bash
 sudo certbot --nginx -d siem.domain.com
 ```
 
 **Update SSL Certificate in UTMStack**
 
-```
+```bash
 cp /etc/letsencrypt/live/*/fullchain.pem /UTMStack/cert/utm.crt
 cp /etc/letsencrypt/live/*/privkey.pem /UTMStack/cert/utm.key
 docker service scale utmstack_frontend=1
@@ -77,13 +77,13 @@ systemctl restart docker
 
  **Manage Services pause utmstack_frontend services:**
    
-```
+```bash
 docker service scale utmstack_frontend=0
 ```
 
 **Renew SSL Certificate**
 
-```
+```bash
 certbot renew
 ```
 
@@ -91,7 +91,7 @@ certbot renew
 
 Replace "siem.domain.com" with your specific domain:
 
-```
+```bash
 cp /etc/letsencrypt/live/siem.domain.com/fullchain.pem /UTMStack/cert/utm.crt
 cp /etc/letsencrypt/live/siem.domain.com/privkey.pem /UTMStack/cert/utm.key
 docker service scale utmstack_frontend=1

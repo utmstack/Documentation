@@ -11,13 +11,13 @@
 
 > Linux
 
-```
+```bash
 cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable kafka
 ```
 
 > Windows
 
-```
+```bash
 cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable kafka
 ```
 
@@ -27,13 +27,13 @@ cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat module
 
 > Linux
 
-```
+```bash
 /opt/utmstack-linux-agent/beats/filebeat/modules.d/kafka.yml
 ```
 
 > Windows
 
-```
+```bash
 C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\kafka.yml
 ```
 
@@ -50,13 +50,13 @@ C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\kafka.yml
 
 > Linux
 
-```
+```bash
 sudo systemctl restart UTMStackModulesLogsCollector
 ```
 
 > Windows
 
-```
+```bash
 sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
 ```
 

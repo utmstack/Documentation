@@ -23,11 +23,11 @@ Choose the authentication method that best fits your use case and security requi
 
 > 🔧 Request Example:
 
-```
+```bash
 curl -X POST https://demo.utmstack.com/api/authenticate \
 -H "Content-Type: application/json" \
 -d '{"username":"demo","password":"your_password"}'
-```
+```bash
 
 
 > **Note:** Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.
@@ -38,7 +38,7 @@ curl -X POST https://demo.utmstack.com/api/authenticate \
 
 > The response will be a JSON object containing the Bearer token, usually under the key id_token or similar, for example:
 
-```
+```json
 {
   "authenticated":true,
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
@@ -55,7 +55,7 @@ curl -X POST https://demo.utmstack.com/api/authenticate \
 
 > **Request Example:**
 
-```
+```bash
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
@@ -81,11 +81,11 @@ curl -X 'POST' \
       ]
     }
   ]'
-```
+```bash
 
 > **Response:**
 
-```
+```json
 {
   "severity": 3,
   "regDateRulebot": null,
@@ -119,7 +119,7 @@ curl -X 'POST' \
 
 > **Request without Authorization:**
 
-```
+```bash
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
@@ -144,11 +144,11 @@ curl -X 'POST' \
       ]
     }
   ]'
-```
+```bash
 
 > **Response:**
 
-```
+```json
 {
   "timestamp": "2025-04-16T16:26:35.664+00:00",
   "status": 401,
@@ -177,7 +177,7 @@ To get the internal API key, you need access to your UTMStack server instance:
 
 ```bash
 cat compose.yml
-```
+```bash
 
 3. Look for the `backend:` section, then under `environment:`, find the value:
 
@@ -185,7 +185,7 @@ cat compose.yml
 backend:
   environment:
     INTERNAL_KEY: your_api_key_value_here
-```
+```bash
 
 
 > **Note:** Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
@@ -228,7 +228,7 @@ curl -X 'POST' \
       ]
     }
   ]'
-```
+```bash
 
 
 > **⚠️ Warning:** Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.

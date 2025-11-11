@@ -20,13 +20,13 @@
 
 ### 1. Run the following command to create the configuration file:
 
-```
+```bash
 sudo touch /etc/rsyslog.d/oracle-utmstack.conf
 ```
 
 ### 2. Open file “/etc/rsyslog.d/oracle-utmstack.conf” with your preferred editor and add the following configuration:
 
-```
+```bash
 input(type="imfile"
       File="BASEDIR/admin/*/adump/*.aud"
       Tag="oracle-audit"
@@ -56,19 +56,19 @@ local5.* @DESTINATION:7014
 > **Note:** Rsyslog will send logs by default using UDP protocol, however, it is possible to use TCP protocol by  adding an additional @ just before the agent IP or FQDN. Example:
 
 
-```
+```bash
 local5.* @@DESTINATION:7014
 ```
 
 ### 5. Restart rsyslog by running the following command
 
-```
+```bash
 sudo systemctl restart rsyslog
 ```
 
 ### 6. Validate the configuration by sending test logs by running the following commands
 
-```
+```bash
 logger -p local5.info "Test Oracle Audit log message"
 logger -p local5.info "Test Oracle Listener log message"
 logger -p local5.info "Test Oracle Alert log message"
