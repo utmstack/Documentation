@@ -16,7 +16,7 @@ The UTMStack API is available at:
 
 ```javascript
 https://your-utmstack-instance.com/api
-```bash
+```
 
 > **⚠️ Warning:** Replace `your-utmstack-instance.com` with your actual UTMStack instance URL.
 
@@ -45,7 +45,7 @@ Save the returned `id_token` for use in subsequent requests
       "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       "authenticated": true
     }
-```bash
+```
 
 1. **Make API Calls**
 
@@ -158,7 +158,7 @@ All API requests (except the authentication endpoint itself) require a valid Bea
 
 ```http
 Authorization: Bearer <your_jwt_token>
-```bash
+```
 
 ### Quick Start Example
 
@@ -175,7 +175,7 @@ curl -X POST https://your-utmstack-instance.com/api/authenticate \
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImF1dGgiOiJST0xFX0FETUlOIn0.signature",
   "authenticated": true
 }
-```bash
+```
 
 </ResponseExample>
 
@@ -238,7 +238,7 @@ Most endpoints expect JSON in the request body:
     "property": "value"
   }
 }
-```bash
+```
 
 ### Response Structure
 

@@ -30,7 +30,7 @@ This endpoint allows security analysts to convert selected alerts into a formal 
   <Expandable title="Example">
     ```json
     ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"]
-```bash
+```
   </Expandable>
 </ParamField>
 
@@ -95,7 +95,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" \
     "incidentId": 1001,
     "incidentSource": "UTMStack Alert Investigation"
   }'
-```bash
+```
 
 </RequestExample>
 
@@ -147,7 +147,7 @@ const convertToIncident = async () => {
     console.error("Error converting to incident:", error.response?.data || error.message);
   }
 };
-```bash
+```
 
 ```python Python
 import requests
@@ -198,7 +198,7 @@ def convert_alerts_to_incident():
       "alertsConverted": 1,
       "timestamp": "2024-10-16T10:30:00.000Z"
     }
-```bash
+```
 
   
 #### Error Response
@@ -252,7 +252,7 @@ def convert_alerts_to_incident():
   "incidentId": 2001,
   "incidentSource": "SOC Team Escalation"
 }
-```bash
+```
 
 ### Multiple Related Alerts
 
@@ -278,7 +278,7 @@ def convert_alerts_to_incident():
   "incidentId": 2003,
   "incidentSource": "Automated Threat Detection"
 }
-```bash
+```
 
 ---
 

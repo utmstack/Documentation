@@ -29,7 +29,7 @@ This endpoint provides a quick way to retrieve the total number of open alerts c
 ```bash Request
 curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
   -H "Authorization: Bearer <your_access_token>"
-```bash
+```
 
 </RequestExample>
 
@@ -67,7 +67,7 @@ const getOpenAlertsCount = async () => {
     console.error("Error getting count:", error.response?.data || error.message);
   }
 };
-```bash
+```
 
 ```python Python
 import requests
@@ -107,7 +107,7 @@ echo "Current open alerts: $count"
 if [ "$count" -gt 100 ]; then
   echo "HIGH ALERT: More than 100 open alerts!"
 fi
-```bash
+```
 
 </CodeGroup>
 
@@ -132,7 +132,7 @@ fi
 
 ```json
     0
-```bash
+```
     When no open alerts exist, the response is `0`.
 
   
@@ -198,7 +198,7 @@ async function updateAlertCountWidget() {
 
 // Update every 30 seconds
 setInterval(updateAlertCountWidget, 30000);
-```bash
+```
 
 ### Monitoring and Alerting
 
@@ -260,7 +260,7 @@ while true; do
   
   sleep 60
 done
-```bash
+```
 
 ---
 
@@ -376,7 +376,7 @@ while ($true) {
     
     Start-Sleep -Seconds 300  # Wait 5 minutes
 }
-```bash
+```
 
 ---
 
