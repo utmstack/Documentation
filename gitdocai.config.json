@@ -35,6 +35,448 @@
   "navigation": {
     "versions": [
       {
+        "version": "v11.0.0",
+        "tabs": [
+          {
+            "tab": "Guides",
+            "items": [
+              {
+                "type": "group",
+                "title": "Getting Started",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Introduction",
+                    "page": "/v11/introduction.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Installation",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Architecture",
+                    "page": "/v11/Installation/architecture.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "System Requirements",
+                    "page": "/v11/Installation/system-requirements.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Installation",
+                    "page": "/v11/Installation/installation.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Installation from ISO",
+                    "page": "/v11/Installation/installation-from-iso.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Firewall Rules",
+                    "page": "/v11/Installation/firewall_rules.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SSL Certificate",
+                    "page": "/v11/Installation/ssl_certificate.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Rules and Filters",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Overview",
+                    "page": "/v11/rules-and-filters/overview.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Implementing Rules",
+                    "page": "/v11/rules-and-filters/implementing-rules.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Implementing Filters",
+                    "page": "/v11/rules-and-filters/implementing-filters.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Adding Custom Filters",
+                    "page": "/v11/rules-and-filters/adding-custom-filters.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Best Practices",
+                    "page": "/v11/rules-and-filters/best-practices.mdx"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Integrations",
+            "items": [
+              {
+                "type": "group",
+                "title": "Cloud",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Azure",
+                    "page": "/v11/integrations/azure.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Google Cloud",
+                    "page": "/v11/integrations/googlecloud.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Office365",
+                    "page": "/v11/integrations/office365.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "AWS",
+                    "page": "/v11/integrations/aws.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Traefik",
+                    "page": "/v11/integrations/taefik.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Agents and Syslog",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "macOS",
+                    "page": "/v11/integrations/macos.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Windows Agent",
+                    "page": "/v11/integrations/windowsagent.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Linux Agent",
+                    "page": "/v11/integrations/linuxagent.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Syslog",
+                    "page": "/v11/integrations/syslog.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "VMware",
+                    "page": "/v11/integrations/vmware.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Devices",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Cisco ASA",
+                    "page": "/v11/integrations/cisco_asa.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Fortigate",
+                    "page": "/v11/integrations/fortigate.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Sophos XG",
+                    "page": "/v11/integrations/sophos_xg.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SonicWall",
+                    "page": "/v11/integrations/sonicwall.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "IBM AIX",
+                    "page": "/v11/integrations/ibm_aix.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "IBM AS400",
+                    "page": "/v11/integrations/ibmas400.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Fortiweb",
+                    "page": "/v11/integrations/fortiweb.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "pfSense",
+                    "page": "/v11/integrations/pfsense.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Palo Alto",
+                    "page": "/v11/integrations/paloalto.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Mikrotik",
+                    "page": "/v11/integrations/mikrotik.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Cisco Switch",
+                    "page": "/v11/integrations/ciscosw.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Firepower",
+                    "page": "/v11/integrations/firepower.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Databases",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Oracle",
+                    "page": "/v11/integrations/oracle.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "MySQL",
+                    "page": "/v11/integrations/mysql.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "PostgreSQL",
+                    "page": "/v11/integrations/pgsql.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "MongoDB",
+                    "page": "/v11/integrations/mongodb.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Elastic",
+                    "page": "/v11/integrations/elastic.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Redis",
+                    "page": "/v11/integrations/redis.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Kafka",
+                    "page": "/v11/integrations/kafka.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Kibana",
+                    "page": "/v11/integrations/kibana.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Logstash",
+                    "page": "/v11/integrations/logstash.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Web Server",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "IIS",
+                    "page": "/v11/integrations/iis.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Apache2",
+                    "page": "/v11/integrations/apache2.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Nginx",
+                    "page": "/v11/integrations/nginx.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "XDR",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Sophos Central",
+                    "page": "/v11/integrations/sophoscentral.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "SentinelOne",
+                    "page": "/v11/integrations/sentinelone.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Network",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Netflow",
+                    "page": "/v11/integrations/netflow.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Proxy",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "HAProxy",
+                    "page": "/v11/integrations/haproxy.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Configurations",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Config CURL",
+                    "page": "/v11/integrations/config_curl.mdx"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Documentation",
+            "items": [
+              {
+                "type": "group",
+                "title": "Getting Started",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Overview",
+                    "page": "/v11/apidoc/overview.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Postman Collection",
+                    "page": "/v11/apidoc/postman-collection.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "API",
+                    "page": "/v11/Getting started/api.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Authentication",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Authentication",
+                    "page": "/v11/apidoc/authentication.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "API Keys",
+                    "page": "/v11/apidoc/api-keys.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Alert Management",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Alerts List",
+                    "page": "/v11/apidoc/alerts-list.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Status",
+                    "page": "/v11/apidoc/update-status.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Tags",
+                    "page": "/v11/apidoc/update-tags.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Update Notes",
+                    "page": "/v11/apidoc/update-notes.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Incident Management",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Convert Incident",
+                    "page": "/v11/apidoc/convert-incident.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Analytics & Utilities",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Count Alerts",
+                    "page": "/v11/apidoc/count-alerts.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Property Values",
+                    "page": "/v11/apidoc/property-values.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "CSV Export",
+                    "page": "/v11/apidoc/csv-export.mdx"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         "version": "v10.9.0",
         "tabs": [
           {

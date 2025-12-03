@@ -1,0 +1,323 @@
+## 📦 UTMStack Alerts API - Postman Collection
+
+Get started with the UTMStack API instantly by downloading our comprehensive Postman collection. This collection includes all API endpoints, authentication setup, example requests, and automated testing scripts.
+
+<Card title="🚀 One-Click Download" icon="pi pi-download" iconAlign="left" href="/images/downloads/postman.json" content="**Download Complete Collection (JSON)**     Ready-to-use Postman collection with all 9 API endpoints" />
+
+---
+
+## 📋 What's Included
+
+<CardGroup cols={2}>
+  <Card title="🔐 Authentication" icon="pi pi-lock" iconAlign="left" content="JWT token management with automatic refresh and collection-wide authentication setup" />
+  
+  <Card title="📊 All Endpoints" icon="pi pi-api" iconAlign="left" content="Complete coverage of all 9 UTMStack API endpoints with multiple example scenarios" />
+  
+  <Card title="🧪 Test Scripts" icon="pi pi-flask" iconAlign="left" content="Automated response validation and testing scripts for each endpoint" />
+  
+  <Card title="🔧 Variables" icon="pi pi-gear" iconAlign="left" content="Pre-configured environment variables for easy setup and customization" />
+---
+
+## 🛠️ Import Instructions
+
+  ### Download the Collection
+
+    Click the download button above to save the JSON file to your computer
+    
+    **Alternative download link**: [UTMStack_Alerts_API.postman_collection.json](/images/downloads/UTMStack_Alerts_API.postman_collection.json)
+  ### Open Postman
+
+    Launch the Postman application or visit [web.postman.co](https://web.postman.co) for the web version
+  ### Import the Collection
+
+    - Click the **"Import"** button in Postman
+    - Select **"Upload Files"** or drag and drop the JSON file
+    - Choose the downloaded `UTMStack_Alerts_API.postman_collection.json` file
+    - Click **"Import"** to add the collection to your workspace
+  ### Configure Variables
+
+    Set up the collection variables in Postman:
+    - **baseUrl**: `https://your-utmstack-instance.com` (replace with your actual URL)
+    - **bearerToken**: Leave empty (will be set automatically after authentication)
+    - **alertId**: `c1c4e32c-dd9f-4a15-98c4-0dac2af40740` (sample alert ID for testing)
+  ### Authenticate
+
+    Run the **"Authenticate User"** request in the Authentication folder to get your JWT token
+  ### Start Testing
+
+    Explore all endpoints! The bearer token will be automatically applied to subsequent requests
+---
+
+## 📁 Collection Structure
+
+The collection is organized into logical folders for easy navigation:
+
+<Accordion multiple={true}>
+    <AccordionTab header="🔑 Authentication">
+
+    **JWT Token Management**
+    - User Authentication
+    - Automatic token storage in collection variables
+    - Token validation and refresh handling
+  
+  </AccordionTab>
+
+    <AccordionTab header="🔍 Alert Management">
+
+    **Core Alert Operations**
+    - List/Search Alerts (with filtering examples)
+    - Update Alert Status (Open, In Review, Completed, etc.)
+    - Update Alert Tags (add/remove tags, create rules)
+    - Update Alert Notes (add investigation comments)
+  
+  </AccordionTab>
+
+    <AccordionTab header="🚨 Incident Management">
+
+    **Incident Creation & Management**
+    - Convert Single Alert to Incident
+    - Convert Multiple Alerts to Incident
+    - Batch incident creation workflows
+  
+  </AccordionTab>
+
+    <AccordionTab header="📊 Analytics & Utilities">
+
+    **Data Analysis & Export**
+    - Count Open Alerts
+    - Get Property Values with Count (status, severity, sources)
+    - Export Alerts to CSV (basic and compliance reports)
+    - Field analysis for dashboards and reporting
+  
+  </AccordionTab>
+
+    <AccordionTab header="🔄 Alert Workflows">
+
+    **Complete Investigation Workflows**
+    - End-to-end investigation process examples
+    - Multi-step alert processing
+    - Status progression workflows
+  
+  </AccordionTab>
+</Accordion>
+
+---
+
+## 🎯 Pre-configured Examples
+
+Each endpoint includes multiple real-world scenarios:
+
+### Authentication Examples
+- ✅ Basic username/password authentication
+- ✅ Token extraction and storage
+- ✅ Error handling for invalid credentials
+
+### Alert Management Examples
+- ✅ Search alerts by severity, status, time range
+- ✅ Update status with observations
+- ✅ Add tags with false positive rules
+- ✅ Add investigation notes
+
+### Analytics Examples  
+- ✅ Get alert counts for dashboards
+- ✅ Analyze severity distribution
+- ✅ Export data for compliance reports
+- ✅ Generate field statistics
+
+### Incident Management Examples
+- ✅ Convert single high-priority alert
+- ✅ Create incident from multiple related alerts
+- ✅ Batch processing workflows
+
+---
+
+## 🧪 Automated Testing
+
+Every request includes comprehensive test scripts that automatically verify:
+
+<Tabs>
+  <Tab title="Response Validation">
+    ```javascript
+    pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+    });
+
+    pm.test('Response has valid structure', function () {
+        const response = pm.response.json();
+        pm.expect(response).to.have.property('data');
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Authentication Tests">
+    ```javascript
+    pm.test('Authentication successful', function () {
+        const response = pm.response.json();
+        pm.expect(response).to.have.property('id_token');
+        pm.expect(response.authenticated).to.be.true;
+        
+        // Auto-store token for subsequent requests
+        pm.collectionVariables.set('bearerToken', response.id_token);
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Data Integrity Tests">
+    ```javascript
+    pm.test('Alert data structure is valid', function () {
+        const alerts = pm.response.json().body;
+        pm.expect(alerts).to.be.an('array');
+        
+        alerts.forEach(alert => {
+            pm.expect(alert).to.have.property('id');
+            pm.expect(alert).to.have.property('name');
+            pm.expect(alert).to.have.property('severity');
+        });
+    });
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## 🔧 Environment Setup
+
+### Quick Setup Variables
+
+Copy these variables into your Postman environment or collection variables:
+
+```json
+{
+  "baseUrl": "https://your-utmstack-instance.com",
+  "bearerToken": "",
+  "alertId": "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+  "username": "your_username",
+  "password": "your_password"
+}
+```
+
+### Advanced Configuration
+
+For enterprise environments, you can customize:
+
+<CodeGroup>
+
+```json Production Environment
+{
+  "baseUrl": "https://utmstack-prod.company.com",
+  "bearerToken": "",
+  "alertId": "real-alert-id-from-your-system",
+  "username": "api_user",
+  "password": "secure_password",
+  "timeout": 30000,
+  "maxRetries": 3
+}
+```
+
+```json Development Environment  
+{
+  "baseUrl": "https://utmstack-dev.company.com",
+  "bearerToken": "",
+  "alertId": "test-alert-id",
+  "username": "dev_user", 
+  "password": "dev_password",
+  "debugMode": true
+}
+```
+
+```json Demo Environment
+{
+  "baseUrl": "https://demo.utmstack.com",
+  "bearerToken": "",
+  "alertId": "demo-alert-id",
+  "username": "demo_user",
+  "password": "demo_password"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 🚀 Quick Start Workflow
+
+Once you've imported the collection, follow this workflow to get started:
+
+  ### Test Connection
+
+    Run **Authentication → Authenticate User** to verify your credentials and get a token
+  ### Explore Data
+
+    Run **Alert Management → List Alerts** to see your alerts data
+  ### Try Analytics
+
+    Run **Analytics → Count Open Alerts** to get dashboard metrics
+  ### Test Updates
+
+    Use **Alert Management → Update Status** to modify an alert
+  ### Export Data
+
+    Try **Analytics → Export to CSV** to generate reports
+---
+
+## 📚 Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="API Documentation" icon="pi pi-book" iconAlign="left" href="/v10/apidoc/overview" content="Complete API reference with detailed examples" />
+  
+  <Card title="Authentication Guide" icon="pi pi-key" iconAlign="left" href="/v10/apidoc/authentication" content="Detailed JWT authentication documentation" />
+  
+  <Card title="Postman Learning Center" icon="pi pi-graduation-cap" iconAlign="left" href="https://learning.postman.com" content="Learn Postman basics and advanced features" />
+  
+  <Card title="UTMStack Support" icon="pi pi-life-ring" iconAlign="left" href="https://support.utmstack.com" content="Get help with UTMStack and API issues" />
+---
+
+## 📞 Support
+
+Need help with the Postman collection or API integration?
+
+<Note>
+**Contact Support:**
+- 📧 Email: [support@utmstack.com](mailto:support@utmstack.com)
+- 📖 Documentation: [UTMStack Docs](https://docs.utmstack.com)
+- 💬 Community: [UTMStack Community Forums](https://community.utmstack.com)
+</Note>
+
+---
+
+## 📝 Version Information
+
+<Accordion multiple={true}>
+    <AccordionTab header="Collection Version 1.0.0">
+
+    **Current Release**
+    - All 9 API endpoints included
+    - Comprehensive test coverage
+    - Automated authentication management
+    - Multi-environment support
+    - Updated: October 2025
+  
+  </AccordionTab>
+
+    <AccordionTab header="Changelog">
+
+    **v1.0.0 - October 2025**
+    - ✅ Initial release with complete API coverage
+    - ✅ Authentication workflow implementation
+    - ✅ All CRUD operations for alerts
+    - ✅ Analytics and export functionality
+    - ✅ Incident management features
+    - ✅ Automated testing scripts
+  
+  </AccordionTab>
+
+    <AccordionTab header="Compatibility">
+
+    **Requirements**
+    - Postman v10.0+ (recommended)
+    - UTMStack API v10.9.0+
+    - Valid UTMStack user account
+    - Network access to UTMStack instance
+  
+  </AccordionTab>
+</Accordion>

@@ -1,0 +1,327 @@
+This guide provides comprehensive instructions for installing UTMStack v11 on Ubuntu 24.04 LTS using the installer script.
+
+<Note>
+**Alternative Installation Method**: You can also install UTMStack using an automated ISO image. See the [Installation from ISO](/v11/Installation/installation-from-iso) guide for details.
+</Note>
+
+---
+
+## Prerequisites
+
+### Operating System
+
+<Info>
+This installation guide is designed for **Ubuntu 24.04 LTS**. UTMStack v11 also supports Red Hat systems.
+</Info>
+
+---
+
+## System Requirements
+
+The following recommendations are based on the number of data sources and desired hot log storage retention.
+
+### Definitions
+
+- **Hot log storage**: Non-archived data that can be accessed for analysis at any time
+- **Cold log storage**: Archived data that must be restored before accessing
+- **Data source**: Any individual source of logs (devices, agents, SaaS integrations)
+
+### Sizing Guidelines
+
+**Assumption**: 60 data sources generate approximately 100 GB of monthly data.
+
+<Tip>
+Resources needed for **one month of hot log storage**:
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Small Deployment" icon="pi pi-server" iconAlign="left" content="**50 data sources** (120 GB hot storage)     - 4 CPU Cores     - 16 GB RAM     - 150 GB Disk Space" />
+  
+  <Card title="Medium Deployment" icon="pi pi-server" iconAlign="left" content="**120 data sources** (250 GB hot storage)     - 8 CPU Cores     - 16 GB RAM     - 250 GB Disk Space" />
+  
+  <Card title="Large Deployment" icon="pi pi-server" iconAlign="left" content="**240 data sources** (500 GB hot storage)     - 16 CPU Cores     - 32 GB RAM     - 500 GB Disk Space" />
+  
+  <Card title="Enterprise Deployment" icon="pi pi-server" iconAlign="left" content="**500 data sources** (1000 GB hot storage)     - 32 CPU Cores     - 64 GB RAM     - 1000 GB Disk Space" />
+<Note>
+You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention.
+</Note>
+
+<Warning>
+**Horizontal Scaling Required**: Going above 500 data sources/devices requires adding secondary nodes (workers) for horizontal scaling. UTMStack v11's new architecture supports this seamlessly.
+</Warning>
+
+---
+
+## Required Network Ports
+
+The following ports must be accessible for UTMStack to function properly:
+
+### Administrative Access Ports
+
+<Accordion multiple={true}>
+    <AccordionTab header="Port 22/TCP - Secure Shell (SSH)">
+
+    **Purpose**: Remote server administration
+    
+    **Security Recommendation**: Create a firewall rule to allow access only from admin workstations
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Port 80/TCP - HTTP Redirector">
+
+    **Purpose**: UTMStack Web-based GUI redirector (redirects to HTTPS)
+    
+    **Security Recommendation**: Create a firewall rule to allow access only from admin and security analyst workstations
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Port 443/TCP - HTTPS">
+
+    **Purpose**: UTMStack Web-based Graphical User Interface
+    
+    **Security Recommendation**: Create a firewall rule to allow access only from admin and security analyst workstations
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Port 9090/TCP - Cockpit">
+
+    **Purpose**: Cockpit Web-based Server Management Interface
+    
+    **Security Recommendation**: Create a firewall rule to allow access only from admin workstations
+  
+  </AccordionTab>
+</Accordion>
+
+### Integration Ports
+
+<Info>
+Additional ports will be required during the configuration of UTMStack's integrations to receive logs. Please follow the security recommendations provided in each integration guide.
+</Info>
+
+---
+
+## Installation Steps
+
+### Step 1: Preparing for Installation
+
+Update the system and install required dependencies:
+
+```bash
+# Update packages list
+sudo apt update
+
+# Install WGET
+sudo apt install wget
+
+# Download the latest installer
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+
+# Switch to root user
+sudo su
+
+# Set execution permissions
+chmod +x installer
+```
+
+<Note>
+Make sure you have a stable internet connection during the installation process.
+</Note>
+
+---
+
+### Step 2: Running the Installation
+
+Execute the installer without parameters:
+
+```bash
+./installer
+```
+
+The installer will:
+1. Check system requirements
+2. Download necessary components
+3. Configure the system
+4. Set up containers and services
+5. Generate initial credentials
+
+<Info>
+The installation process may take 15-30 minutes depending on your internet connection and system resources.
+</Info>
+
+---
+
+### Step 3: Post-Installation Configuration
+
+Once UTMStack is installed, you can access the platform:
+
+#### Default Credentials
+
+- **Username**: `admin`
+- **Password**: Generated during installation
+
+<Warning>
+The password and other generated configurations can be found in `/root/utmstack.yml`
+
+**Important**: Store these credentials securely and change the default password immediately after first login.
+</Warning>
+
+#### Accessing the Platform
+
+Use HTTPS to access the login page:
+
+```
+https://your-server-ip
+```
+
+or
+
+```
+https://your-domain.com
+```
+
+<Note>
+UTMStack requires HTTPS for secure access. HTTP requests will be automatically redirected to HTTPS.
+</Note>
+
+---
+
+## Post-Installation Steps
+
+  ### Secure Your Credentials
+
+    1. Back up the `/root/utmstack.yml` file to a secure location
+    2. Change the default admin password
+    3. Enable and configure Multi-Factor Authentication (MFA) - **mandatory in v11**
+  ### Configure Firewall Rules
+
+    Set up firewall rules according to the port requirements and security recommendations above
+  ### Configure SSL Certificate
+
+    For production environments, configure a valid SSL certificate:
+    - Use Let's Encrypt with Certbot (recommended)
+    - Or import your own SSL certificate
+    
+    See the SSL Certificate configuration guide for detailed instructions
+  ### Connect Data Sources
+
+    Begin connecting your data sources and integrations:
+    - Install agents on endpoints
+    - Configure log forwarding from network devices
+    - Set up SaaS integrations
+  ### Configure Central Management (Optional)
+
+    If you're managing multiple UTMStack instances, configure central server connectivity for:
+    - Centralized updates
+    - Remote log submission
+    - Unified management
+---
+
+## Verification
+
+After installation, verify that UTMStack is running correctly:
+
+```bash
+# Check container status
+docker ps
+
+# Check system logs
+docker logs utmstack_backend
+
+# Verify web interface accessibility
+curl -k https://localhost
+```
+
+All containers should be in a "healthy" or "running" state.
+
+---
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+    <AccordionTab header="Installation fails due to insufficient resources">
+
+    Ensure your system meets the minimum requirements for your deployment size. Check available RAM, CPU, and disk space:
+    
+    ```bash
+    free -h
+    lscpu
+    df -h
+    ```
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Cannot access web interface">
+
+    1. Verify firewall rules allow ports 80 and 443
+    2. Check that containers are running: `docker ps`
+    3. Verify HTTPS is being used in the URL
+    4. Check system logs: `docker logs utmstack_backend`
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Forgot admin password">
+
+    The generated password is stored in `/root/utmstack.yml`. Access this file as root to recover the credentials.
+  
+  </AccordionTab>
+  
+    <AccordionTab header="Installation interrupted or failed">
+
+    1. Remove existing installation: `./installer --remove`
+    2. Clean up Docker resources: `docker system prune -a`
+    3. Restart the installation process
+  
+  </AccordionTab>
+</Accordion>
+
+---
+
+## Additional Installation Options
+
+### Red Hat Installation
+
+UTMStack v11 now supports Red Hat-based systems. The installation process is similar, but uses `dnf` instead of `apt`:
+
+```bash
+# Update packages
+sudo dnf update
+
+# Install WGET
+sudo dnf install wget
+
+# Continue with standard installation steps
+```
+
+---
+
+## Scaling Your Deployment
+
+UTMStack v11 introduces horizontal scaling capabilities with worker nodes.
+
+### Adding Worker Nodes
+
+To scale beyond 500 data sources or improve processing capacity:
+
+1. Install UTMStack on additional servers using the same installer
+2. Configure them as worker nodes during installation
+3. Connect workers to the manager node
+4. Distribute processing load automatically
+
+<Info>
+Worker nodes can run plugins and process data in parallel with the manager, eliminating bottlenecks and providing linear scalability.
+</Info>
+
+---
+
+## Support and Resources
+
+<CardGroup cols={2}>
+  <Card title="Official Documentation" icon="pi pi-book" iconAlign="left" href="https://documentation.utmstack.com/v11/introduction" content="Complete documentation library" />
+  <Card title="Community Forum" icon="pi pi-comments" iconAlign="left" href="https://github.com/utmstack/UTMStack/discussions" content="Ask questions and share knowledge" />
+  <Card title="GitHub Repository" icon="pi pi-github" iconAlign="left" href="https://github.com/utmstack/UTMStack/tree/v11" content="Source code and issue tracking" />
+  <Card title="Contact Support" icon="pi pi-headset" iconAlign="left" href="https://support.threatwinds.com/help/3252184849" content="Get professional assistance" />
+---
+
+<Warning>
+**Remember**: UTMStack v11 is not compatible with v10. If you're migrating from v10, do not attempt a direct upgrade. Wait for the official migration tool or contact support for assistance.
+</Warning>

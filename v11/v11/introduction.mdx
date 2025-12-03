@@ -1,0 +1,177 @@
+UTMStack has officially released version 11.0.0, a major stable update that transforms its SIEM platform. This release introduces a redesigned architecture, stronger security, and a more intuitive user experience—positioning UTMStack to meet the demands of modern cybersecurity operations.
+
+<img
+  src="/images/Diagrama claro.gif"
+  alt="UTMStack v11 Architecture Diagram"
+/>
+<img
+  src="/images/Diagrama oscuro.gif"
+  alt="UTMStack v11 Architecture Diagram"
+/>
+
+## Overview
+
+Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges **SIEM** (Security Information and Event Management) and **XDR** (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques.
+
+<Card title="Try Online Demo" icon="pi pi-globe" iconAlign="left" href="https://utmstack.com/demo" content="Experience UTMStack in action with our live demo" />
+
+---
+
+<Warning>
+## Important: Fresh Installation Required
+
+UTMStack v11 can only be installed on **new instances**.
+
+- Direct upgrades from v10 are not supported
+- v11 includes architectural changes incompatible with previous versions
+- If you're currently using v10, keep it running on its existing infrastructure
+- Deploy v11 on a separate, new server instance
+
+For migration planning and assistance, please contact UTMStack support.
+</Warning>
+
+---
+
+## What's New in v11
+
+### 1. Performance and Scalability
+
+<Accordion multiple={true}>
+  <AccordionTab header="Revolutionary Event Processing">
+
+    - Replaced Logstash with **EventProcessor** (developed by Threatwinds)
+    - Drastically reduced resource usage
+    - Improved log processing speed significantly
+    - New architecture using two container types: **manager** and **worker**
+    - Each container capable of running plugins and processing data in parallel
+    - Add additional workers to scale horizontally and eliminate bottlenecks
+  
+  </AccordionTab>
+</Accordion>
+
+### 2. Modular Plugin Architecture
+
+<Accordion multiple={true}>
+  <AccordionTab header="Official Plugin System">
+
+    - New official plugin system for independent feature integration
+    - Improved maintainability and code organization
+    - Easier platform expansion and customization
+    - Community-friendly architecture for contributions
+  
+  </AccordionTab>
+</Accordion>
+
+### 3. Enhanced Security
+
+<Accordion multiple={true}>
+  <AccordionTab header="Strengthened Security Protocols">
+
+    - Strengthened TLS protocols across all components
+    - **Multi-Factor Authentication (MFA) is now mandatory** for platform access
+    - Elevated protection against unauthorized access
+    - Enhanced encryption for all data in transit
+    - Daily code reviews for vulnerable dependencies
+    - Yearly penetration testing and testing after major releases
+  
+  </AccordionTab>
+</Accordion>
+
+### 4. SOC-AI with Custom Model Support
+
+<Accordion multiple={true}>
+  <AccordionTab header="AI-Powered Threat Detection">
+
+    - SOC-AI module now supports **user-defined machine learning models**
+    - Official models available out-of-the-box
+    - Tailor threat detection and response to your organization's needs
+    - Advanced analysis and automated insights
+  
+  </AccordionTab>
+</Accordion>
+
+### 5. Improved User Experience
+
+<Accordion multiple={true}>
+  <AccordionTab header="Redesigned Interface and Workflows">
+
+    - **Completely redesigned graphical interface** for better usability
+    - Incident Response module renamed to **SOAR** (Security Orchestration, Automation and Response)
+    - Automated workflows for alert handling
+    - Simplified rule creation with a **visual editor**
+    - Advanced YAML configurations still supported for power users
+    - Log filtering moved from complex Logstash syntax to **accessible YAML format**
+  
+  </AccordionTab>
+</Accordion>
+
+### 6. Centralized Management and Flexible Deployment
+
+<Accordion multiple={true}>
+  <AccordionTab header="Enterprise-Grade Management">
+
+    - All UTMStack instances can connect to a **central server**
+    - Remote log submission capabilities
+    - Centralized updates across all instances
+    - **Multi-platform support**: Ubuntu and Red Hat systems
+    - **Offline, on-premise deployments** supported with guided assistance
+    - **Automatic updates** can be scheduled from the central server
+    - No manual intervention required to keep systems current
+  
+  </AccordionTab>
+</Accordion>
+
+---
+
+## Core Features
+
+<CardGroup cols={2}>
+  <Card title="Log Management & Correlation" icon="pi pi-database" iconAlign="left" content="Advanced real-time log analysis and correlation engine" />
+  <Card title="Threat Detection & Response" icon="pi pi-shield" iconAlign="left" content="Identify and respond to threats in real-time" />
+  <Card title="Threat Intelligence" icon="pi pi-chart-line" iconAlign="left" content="Integrated threat intelligence feeds and analysis" />
+  <Card title="Alert Investigation" icon="pi pi-search" iconAlign="left" content="Comprehensive alert investigation and forensics" />
+  <Card title="File Classification" icon="pi pi-file" iconAlign="left" content="Automated file analysis and classification" />
+  <Card title="SOC AI-Powered Analysis" icon="pi pi-sitemap" iconAlign="left" content="Machine learning-driven security analysis" />
+  <Card title="Security Compliance" icon="pi pi-clipboard" iconAlign="left" content="Built-in compliance management and reporting" />
+  <Card title="SOAR Workflows" icon="pi pi-sitemap" iconAlign="left" content="Automated security orchestration and response" />
+---
+
+## Why Choose UTMStack v11?
+
+UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself.
+
+### Key Differentiators
+
+- **Real-time correlation before data ingestion** - reduces workload and improves response times
+- **Seamless SIEM and XDR integration** - unified threat management in a single platform
+- **Horizontal scalability** - add workers as your organization grows
+- **Open-source foundation** - transparent, community-driven development
+- **Enterprise-ready** - suitable for production environments and modern SOC operations
+
+---
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card title="Installation Guide" icon="pi pi-download" iconAlign="left" href="/v11/Installation/installation" content="Step-by-step instructions to install UTMStack v11" />
+  <Card title="Online Demo" icon="pi pi-play" iconAlign="left" href="https://utmstack.com/demo" content="Try UTMStack without installing anything" />
+  <Card title="Video Tutorials" icon="pi pi-video" iconAlign="left" href="https://www.youtube.com/watch?v=lKkydWFiu4Y" content="Watch our feature overview and tutorials" />
+  <Card title="API Documentation" icon="pi pi-code" iconAlign="left" href="/v11/apidoc/overview" content="Explore the complete API reference" />
+---
+
+## Community and Support
+
+<CardGroup cols={2}>
+  <Card title="Official Documentation" icon="pi pi-book" iconAlign="left" href="https://documentation.utmstack.com/v11/introduction" content="Complete documentation and guides" />
+  <Card title="Contributing Guide" icon="pi pi-code-pull-request" iconAlign="left" href="https://github.com/utmstack/UTMStack/blob/v11/CONTRIBUTING.md" content="Learn how to contribute to the project" />
+  <Card title="Correlation Rules Repository" icon="pi pi-git" iconAlign="left" href="https://github.com/utmstack/rules" content="Community-driven correlation rules" />
+  <Card title="Discord Community" icon="pi pi-discord" iconAlign="left" href="https://discord.gg/ZznvZ8xcHh" content="Join our community discussions" />
+---
+
+## Summary
+
+UTMStack v11.0.0 marks a major evolution of the platform. With improvements in performance, scalability, security, and usability, this version is ready for production environments and modern SOC operations.
+
+<Note>
+For technical documentation, migration assistance, or enterprise support, visit [https://docs.utmstack.com/](https://docs.utmstack.com/) or contact the UTMStack team.
+</Note>
