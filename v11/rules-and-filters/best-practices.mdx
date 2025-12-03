@@ -16,8 +16,6 @@ This guide provides optimization techniques, performance tips, and proven patter
 - Add complexity incrementally
 - Validate each addition before proceeding
 - Document reasoning for complex logic
-</Check>
-
 **Example**: Progressive Rule Development
 
 ```yaml
@@ -46,8 +44,6 @@ afterEvents:
 - Only include relevant data types
 - Avoid using too many data types in one rule
 - Create separate rules for different data sources when logic differs
-</Check>
-
 ```yaml
 # ❌ Too broad
 dataTypes:
@@ -70,8 +66,6 @@ dataTypes:
 - Use `safe()` with sensible defaults
 - Test with incomplete events
 - Consider what happens when fields are missing
-</Check>
-
 ```yaml
 # ❌ Unsafe - will fail if field missing
 where: origin.port > 1024
@@ -129,8 +123,6 @@ deduplicateBy:
 - CVE numbers
 - Security advisories
 - Internal documentation
-</Check>
-
 ```yaml
 description: |
   Detects multiple failed SSH authentication attempts from the same source IP
@@ -177,8 +169,6 @@ references:
 - Rules work with multiple data types
 - Dashboards work universally
 - Easier correlation
-</Check>
-
 ### 2. Parsing Strategy
 
 ```yaml
@@ -226,8 +216,6 @@ steps:
 - Test patterns with real data
 - Avoid greedy patterns when possible
 - Use built-in patterns
-</Check>
-
 ```yaml
 # ❌ Too greedy - captures everything
 - fieldName: message
@@ -301,8 +289,6 @@ steps:
 - Unexpected formats
 - Special characters
 - Encoding issues
-</Check>
-
 ```yaml
 # ✅ Robust parsing
 steps:
@@ -393,8 +379,6 @@ steps:
 - [ ] Implement proper deduplication
 - [ ] Avoid excessive regex patterns
 - [ ] Test with realistic event volumes
-</Check>
-
 ### Filter Optimization Checklist
 
 <Check>
@@ -406,8 +390,6 @@ steps:
 - [ ] Use efficient data type conversions
 - [ ] Remove debug/temporary fields
 - [ ] Test filter performance with real data
-</Check>
-
 ### Monitoring Performance
 
 ```yaml
