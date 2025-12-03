@@ -50,12 +50,12 @@ Copy both files to the UTMStack certificate directory:
 
 ```bash
 # Move certificate to UTMStack directory
-sudo mv utm.crt /UTMStack/cert/
-sudo mv utm.key /UTMStack/cert/
+sudo mv utm.crt /utmstack/cert/
+sudo mv utm.key /utmstack/cert/
 
 # Set proper permissions
-sudo chmod 600 /UTMStack/cert/utm.key
-sudo chmod 644 /UTMStack/cert/utm.crt
+sudo chmod 600 /utmstack/cert/utm.key
+sudo chmod 644 /utmstack/cert/utm.crt
 ```
 
 ### Step 3: Restart Services
@@ -74,7 +74,7 @@ Allow approximately 10 minutes for all services to restart completely.
 
 ```bash
 # Check certificate
-openssl x509 -in /UTMStack/cert/utm.crt -text -noout
+openssl x509 -in /utmstack/cert/utm.crt -text -noout
 
 # Verify web interface
 curl -I https://your-domain.com
@@ -141,12 +141,12 @@ Follow the prompts:
 
 ```bash
 # Copy certificate files to UTMStack directory
-sudo cp /etc/letsencrypt/live/*/fullchain.pem /UTMStack/cert/utm.crt
-sudo cp /etc/letsencrypt/live/*/privkey.pem /UTMStack/cert/utm.key
+sudo cp /etc/letsencrypt/live/*/fullchain.pem /utmstack/cert/utm.crt
+sudo cp /etc/letsencrypt/live/*/privkey.pem /utmstack/cert/utm.key
 
 # Set proper permissions
-sudo chmod 600 /UTMStack/cert/utm.key
-sudo chmod 644 /UTMStack/cert/utm.crt
+sudo chmod 600 /utmstack/cert/utm.key
+sudo chmod 644 /utmstack/cert/utm.crt
 ```
 
 ### Step 5: Restart UTMStack Services
@@ -213,8 +213,8 @@ sudo systemctl stop nginx
 Replace `siem.yourdomain.com` with your domain:
 
 ```bash
-sudo cp /etc/letsencrypt/live/siem.yourdomain.com/fullchain.pem /UTMStack/cert/utm.crt
-sudo cp /etc/letsencrypt/live/siem.yourdomain.com/privkey.pem /UTMStack/cert/utm.key
+sudo cp /etc/letsencrypt/live/siem.yourdomain.com/fullchain.pem /utmstack/cert/utm.crt
+sudo cp /etc/letsencrypt/live/siem.yourdomain.com/privkey.pem /utmstack/cert/utm.key
 ```
 
 #### Step 4: Restart Services
