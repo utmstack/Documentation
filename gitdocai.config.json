@@ -390,11 +390,6 @@
                     "type": "page",
                     "title": "Postman Collection",
                     "page": "/v11/apidoc/postman-collection.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "API",
-                    "page": "/v11/Getting started/api.mdx"
                   }
                 ]
               },
