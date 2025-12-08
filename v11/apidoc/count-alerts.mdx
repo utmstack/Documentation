@@ -16,22 +16,14 @@ This endpoint provides a quick way to retrieve the total number of open alerts c
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
   -H "Authorization: Bearer <your_access_token>"
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```json Response
 42
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -140,15 +132,12 @@ fi
 
 <ResponseField name="200" type="OK">
   Successfully retrieved the count of open alerts
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Internal server error while retrieving count
-</ResponseField>
 
 ---
 

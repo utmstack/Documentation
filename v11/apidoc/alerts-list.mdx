@@ -82,8 +82,6 @@ The request body is a JSON array of filter definitions used to refine the search
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" \
   -H "Authorization: Bearer <your_access_token>" \
@@ -94,10 +92,6 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&
     {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"]}
   ]'
 ```
-
-</RequestExample>
-
-<ResponseExample>
 
 ```json Response
 [
@@ -123,8 +117,6 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&
   }
 ]
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -258,47 +250,36 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 <ResponseField name="severity" type="integer">
   Alert severity level (1-5, where 5 is highest)
-</ResponseField>
 
 <ResponseField name="severityLabel" type="string">
   Human-readable severity label (Low, Medium, High, Critical)
-</ResponseField>
 
 <ResponseField name="status" type="integer">
   Alert status code (1=Ignored, 2=Open, 3=In Review, 5=Completed)
-</ResponseField>
 
 <ResponseField name="statusLabel" type="string">
   Human-readable status label
-</ResponseField>
 
 <ResponseField name="name" type="string">
   Alert rule name or title
-</ResponseField>
 
 <ResponseField name="description" type="string">
   Detailed description of the security event
-</ResponseField>
 
 <ResponseField name="solution" type="string">
   Recommended remediation steps
-</ResponseField>
 
 <ResponseField name="tactic" type="string">
   MITRE ATT&CK tactic classification
-</ResponseField>
 
 <ResponseField name="category" type="string">
   Alert category classification
-</ResponseField>
 
 <ResponseField name="dataSource" type="string">
   Source system that generated the alert
-</ResponseField>
 
 <ResponseField name="@timestamp" type="string">
   ISO 8601 timestamp when the alert was created
-</ResponseField>
 
 ---
 
@@ -375,23 +356,18 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 <ResponseField name="200" type="OK">
   Search completed successfully. Returns array of alerts.
-</ResponseField>
 
 <ResponseField name="400" type="Bad Request">
   Invalid request parameters or malformed filter syntax.
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token.
-</ResponseField>
 
 <ResponseField name="403" type="Forbidden">
   Insufficient permissions to access alerts.
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Elasticsearch service error or internal server issue.
-</ResponseField>
 
 ---
 

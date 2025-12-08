@@ -74,8 +74,6 @@ Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts,
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
   -H "Authorization: Bearer <your_access_token>" \
@@ -87,16 +85,10 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
   }'
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```json Response
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -205,23 +197,18 @@ The API returns **HTTP 200 OK** with no response body when tags are successfully
 
 <ResponseField name="200" type="OK">
   Tags updated successfully
-</ResponseField>
 
 <ResponseField name="400" type="Bad Request">
   Invalid request payload or malformed JSON
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
-</ResponseField>
 
 <ResponseField name="404" type="Not Found">
   One or more alerts not found
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Internal server error during tag update
-</ResponseField>
 
 ---
 

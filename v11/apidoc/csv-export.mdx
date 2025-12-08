@@ -123,8 +123,6 @@ This endpoint allows you to export alert data in CSV format. You can apply filte
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   -H "Authorization: Bearer <your_access_token>" \
@@ -162,10 +160,6 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   }'
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```csv Response
 @timestamp,name,severity,status,dataSource,category,description
 2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01","Authentication","Multiple failed login attempts detected"
@@ -174,8 +168,6 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
 2024-01-15 13:45:18,"Privilege Escalation",4,2,"linux-server-02","System","Unauthorized privilege escalation attempt"
 2024-01-15 13:22:07,"SQL Injection Attempt",4,3,"web-app-prod","Application","SQL injection pattern in HTTP request"
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -366,23 +358,18 @@ print(f"Exported {len(df)} alerts to CSV")
 
 <ResponseField name="200" type="OK">
   CSV data successfully exported
-</ResponseField>
 
 <ResponseField name="400" type="Bad Request">
   Invalid field names, malformed filters, or invalid parameters
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
-</ResponseField>
 
 <ResponseField name="413" type="Payload Too Large">
   Export size exceeds maximum allowed limit
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Internal server error during export
-</ResponseField>
 
 ---
 

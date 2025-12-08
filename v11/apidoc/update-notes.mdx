@@ -34,8 +34,6 @@ The request body should contain the notes as a plain JSON string.
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd9f-4a15-98c4-0dac2af40740" \
   -H "Authorization: Bearer <your_access_token>" \
@@ -43,17 +41,11 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd
   -d '"Investigated alert, determined as false positive after analyzing network traffic patterns."'
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```json Response
 {
   "message": "Notes updated successfully"
 }
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -156,23 +148,18 @@ update_alert_notes(
 
 <ResponseField name="200" type="OK">
   Notes updated successfully
-</ResponseField>
 
 <ResponseField name="400" type="Bad Request">
   Invalid alert ID format or malformed request body
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
-</ResponseField>
 
 <ResponseField name="404" type="Not Found">
   Alert not found with the specified ID
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Internal server error while updating notes
-</ResponseField>
 
 ---
 

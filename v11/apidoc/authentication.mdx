@@ -12,7 +12,7 @@ This endpoint does **not** require authentication. It returns a **JWT access tok
 
 <Card title="POST /api/authenticate" icon="pi pi-lock" iconAlign="left" content="**Method:** POST     **Content-Type:** application/json     **Authentication:** Not required     **Response:** JWT token for API access" />
 
----
+---Additional Code Examples
 
 ## Parameters
 
@@ -80,14 +80,12 @@ This endpoint does **not** require authentication. It returns a **JWT access tok
 
 ### TFA Challenge (TFA enabled)
 
-<ResponseExample>
 ```json
 {
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
   "authenticated": false
 }
 ```
-</ResponseExample>
 
 <Info>
 When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
@@ -117,8 +115,6 @@ When `authenticated` is `false`, you need to complete the two-factor authenticat
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST https://utmstack.example.com/api/authenticate \
   -H "Content-Type: application/json" \
@@ -129,10 +125,6 @@ curl -X POST https://utmstack.example.com/api/authenticate \
   }'
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```json Response
 {
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
@@ -140,64 +132,24 @@ curl -X POST https://utmstack.example.com/api/authenticate \
 }
 ```
 
-</ResponseExample>
-
-### Additional Code Examples
-
-<CodeGroup>
-
-```javascript Node.js
-import axios from "axios";
-
-const response = await axios.post("https://utmstack.example.com/api/authenticate", {
-  username: "admin",
-  password: "MySecurePassword123",
-  rememberMe: true
-});
-
-console.log("Token:", response.data.id_token);
-```
-
-```python Python
-import requests
-
-url = "https://utmstack.example.com/api/authenticate"
-payload = {
-    "username": "admin",
-    "password": "MySecurePassword123",
-    "rememberMe": True
-}
-
-response = requests.post(url, json=payload)
-token = response.json()["id_token"]
-print(f"Token: {token}")
-```
-
-</CodeGroup>
-
 ---
 
 ## Status Codes
 
 <ResponseField name="200" type="OK">
   Authentication successful. Token returned.
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Invalid username or password.
-</ResponseField>
 
 <ResponseField name="403" type="Forbidden">
   Login blocked (too many attempts).
-</ResponseField>
 
 <ResponseField name="429" type="Too Many Requests">
   Rate limit exceeded.
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Unexpected issue during authentication.
-</ResponseField>
 
 ---
 

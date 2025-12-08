@@ -85,8 +85,6 @@ Updates the **status** of one or more alerts. Allows analysts to change the aler
 
 ## Request & Response Examples
 
-<RequestExample>
-
 ```bash Request
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
   -H "Authorization: Bearer <your_access_token>" \
@@ -99,16 +97,10 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
   }'
 ```
 
-</RequestExample>
-
-<ResponseExample>
-
 ```json Response
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
-
-</ResponseExample>
 
 ### Additional Code Examples
 
@@ -213,23 +205,18 @@ The API returns **HTTP 200 OK** with no response body when the status is success
 
 <ResponseField name="200" type="OK">
   Status updated successfully
-</ResponseField>
 
 <ResponseField name="400" type="Bad Request">
   Invalid request payload or malformed JSON
-</ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
   Missing or invalid Bearer token
-</ResponseField>
 
 <ResponseField name="404" type="Not Found">
   One or more alerts not found
-</ResponseField>
 
 <ResponseField name="500" type="Internal Server Error">
   Internal server error during update
-</ResponseField>
 
 ---
 
