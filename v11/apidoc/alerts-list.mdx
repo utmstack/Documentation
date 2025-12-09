@@ -118,7 +118,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&
 ]
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -248,38 +248,27 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 ### Response Fields
 
-<ResponseField name="severity" type="integer">
-  Alert severity level (1-5, where 5 is highest)
+- **severity** (integer): Alert severity level (1-5, where 5 is highest)
 
-<ResponseField name="severityLabel" type="string">
-  Human-readable severity label (Low, Medium, High, Critical)
+- **severityLabel** (string): Human-readable severity label (Low, Medium, High, Critical)
 
-<ResponseField name="status" type="integer">
-  Alert status code (1=Ignored, 2=Open, 3=In Review, 5=Completed)
+- **status** (integer): Alert status code (1=Ignored, 2=Open, 3=In Review, 5=Completed)
 
-<ResponseField name="statusLabel" type="string">
-  Human-readable status label
+- **statusLabel** (string): Human-readable status label
 
-<ResponseField name="name" type="string">
-  Alert rule name or title
+- **name** (string): Alert rule name or title
 
-<ResponseField name="description" type="string">
-  Detailed description of the security event
+- **description** (string): Detailed description of the security event
 
-<ResponseField name="solution" type="string">
-  Recommended remediation steps
+- **solution** (string): Recommended remediation steps
 
-<ResponseField name="tactic" type="string">
-  MITRE ATT&CK tactic classification
+- **tactic** (string): MITRE ATT&CK tactic classification
 
-<ResponseField name="category" type="string">
-  Alert category classification
+- **category** (string): Alert category classification
 
-<ResponseField name="dataSource" type="string">
-  Source system that generated the alert
+- **dataSource** (string): Source system that generated the alert
 
-<ResponseField name="@timestamp" type="string">
-  ISO 8601 timestamp when the alert was created
+- **@timestamp** (string): ISO 8601 timestamp when the alert was created
 
 ---
 
@@ -354,20 +343,15 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Search completed successfully. Returns array of alerts.
+- **200** (OK): Search completed successfully. Returns array of alerts.
 
-<ResponseField name="400" type="Bad Request">
-  Invalid request parameters or malformed filter syntax.
+- **400** (Bad Request): Invalid request parameters or malformed filter syntax.
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token.
+- **401** (Unauthorized): Missing or invalid Bearer token.
 
-<ResponseField name="403" type="Forbidden">
-  Insufficient permissions to access alerts.
+- **403** (Forbidden): Insufficient permissions to access alerts.
 
-<ResponseField name="500" type="Internal Server Error">
-  Elasticsearch service error or internal server issue.
+- **500** (Internal Server Error): Elasticsearch service error or internal server issue.
 
 ---
 

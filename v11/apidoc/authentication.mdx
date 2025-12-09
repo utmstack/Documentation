@@ -12,7 +12,7 @@ This endpoint does **not** require authentication. It returns a **JWT access tok
 
 <Card title="POST /api/authenticate" icon="pi pi-lock" iconAlign="left" content="**Method:** POST     **Content-Type:** application/json     **Authentication:** Not required     **Response:** JWT token for API access" />
 
----Additional Code Examples
+---
 
 ## Parameters
 
@@ -136,20 +136,15 @@ curl -X POST https://utmstack.example.com/api/authenticate \
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Authentication successful. Token returned.
+- **200** (OK): Authentication successful. Token returned.
 
-<ResponseField name="401" type="Unauthorized">
-  Invalid username or password.
+- **401** (Unauthorized): Invalid username or password.
 
-<ResponseField name="403" type="Forbidden">
-  Login blocked (too many attempts).
+- **403** (Forbidden): Login blocked (too many attempts).
 
-<ResponseField name="429" type="Too Many Requests">
-  Rate limit exceeded.
+- **429** (Too Many Requests): Rate limit exceeded.
 
-<ResponseField name="500" type="Internal Server Error">
-  Unexpected issue during authentication.
+- **500** (Internal Server Error): Unexpected issue during authentication.
 
 ---
 

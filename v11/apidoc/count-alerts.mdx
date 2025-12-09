@@ -25,7 +25,7 @@ curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
 42
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -130,14 +130,11 @@ fi
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Successfully retrieved the count of open alerts
+- **200** (OK): Successfully retrieved the count of open alerts
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error while retrieving count
+- **500** (Internal Server Error): Internal server error while retrieving count
 
 ---
 

@@ -95,7 +95,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" \
 }
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -196,20 +196,15 @@ def convert_alerts_to_incident():
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Incident created successfully from the provided alerts
+- **200** (OK): Incident created successfully from the provided alerts
 
-<ResponseField name="400" type="Bad Request">
-  Invalid request payload, duplicate incident ID, or invalid alert IDs
+- **400** (Bad Request): Invalid request payload, duplicate incident ID, or invalid alert IDs
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="404" type="Not Found">
-  One or more alerts not found with the specified IDs
+- **404** (Not Found): One or more alerts not found with the specified IDs
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error during incident creation
+- **500** (Internal Server Error): Internal server error during incident creation
 
 ---
 

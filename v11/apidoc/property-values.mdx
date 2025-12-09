@@ -134,7 +134,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
 ]
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -258,17 +258,13 @@ get_property_values_with_count("status", filters=[
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Successfully retrieved property values and counts
+- **200** (OK): Successfully retrieved property values and counts
 
-<ResponseField name="400" type="Bad Request">
-  Invalid field name, malformed filters, or invalid parameters
+- **400** (Bad Request): Invalid field name, malformed filters, or invalid parameters
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error during analysis
+- **500** (Internal Server Error): Internal server error during analysis
 
 ---
 

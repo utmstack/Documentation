@@ -47,7 +47,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd
 }
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -146,20 +146,15 @@ update_alert_notes(
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Notes updated successfully
+- **200** (OK): Notes updated successfully
 
-<ResponseField name="400" type="Bad Request">
-  Invalid alert ID format or malformed request body
+- **400** (Bad Request): Invalid alert ID format or malformed request body
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="404" type="Not Found">
-  Alert not found with the specified ID
+- **404** (Not Found): Alert not found with the specified ID
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error while updating notes
+- **500** (Internal Server Error): Internal server error while updating notes
 
 ---
 

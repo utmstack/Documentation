@@ -90,7 +90,7 @@ HTTP/1.1 200 OK
 Content-Length: 0
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -195,20 +195,15 @@ The API returns **HTTP 200 OK** with no response body when tags are successfully
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Tags updated successfully
+- **200** (OK): Tags updated successfully
 
-<ResponseField name="400" type="Bad Request">
-  Invalid request payload or malformed JSON
+- **400** (Bad Request): Invalid request payload or malformed JSON
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="404" type="Not Found">
-  One or more alerts not found
+- **404** (Not Found): One or more alerts not found
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error during tag update
+- **500** (Internal Server Error): Internal server error during tag update
 
 ---
 

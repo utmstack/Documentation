@@ -169,7 +169,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
 2024-01-15 13:22:07,"SQL Injection Attempt",4,3,"web-app-prod","Application","SQL injection pattern in HTTP request"
 ```
 
-### Additional Code Examples
+### Code Examples
 
 <CodeGroup>
 
@@ -356,20 +356,15 @@ print(f"Exported {len(df)} alerts to CSV")
 
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  CSV data successfully exported
+- **200** (OK): CSV data successfully exported
 
-<ResponseField name="400" type="Bad Request">
-  Invalid field names, malformed filters, or invalid parameters
+- **400** (Bad Request): Invalid field names, malformed filters, or invalid parameters
 
-<ResponseField name="401" type="Unauthorized">
-  Missing or invalid Bearer token
+- **401** (Unauthorized): Missing or invalid Bearer token
 
-<ResponseField name="413" type="Payload Too Large">
-  Export size exceeds maximum allowed limit
+- **413** (Payload Too Large): Export size exceeds maximum allowed limit
 
-<ResponseField name="500" type="Internal Server Error">
-  Internal server error during export
+- **500** (Internal Server Error): Internal server error during export
 
 ---
 
