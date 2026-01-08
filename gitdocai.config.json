@@ -47,7 +47,7 @@
                   {
                     "type": "page",
                     "title": "Introduction",
-                    "page": "/v11/introduction.mdx"
+                    "page": "/v11/guides/getting_started/introduction.mdx"
                   }
                 ]
               },
@@ -58,32 +58,32 @@
                   {
                     "type": "page",
                     "title": "Architecture",
-                    "page": "/v11/Installation/architecture.mdx"
+                    "page": "/v11/guides/installation/architecture.mdx"
                   },
                   {
                     "type": "page",
                     "title": "System Requirements",
-                    "page": "/v11/Installation/system-requirements.mdx"
+                    "page": "/v11/guides/installation/system-requirements.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Installation",
-                    "page": "/v11/Installation/installation.mdx"
+                    "page": "/v11/guides/installation/installation.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Installation from ISO",
-                    "page": "/v11/Installation/installation-from-iso.mdx"
+                    "page": "/v11/guides/installation/installation-from-iso.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Firewall Rules",
-                    "page": "/v11/Installation/firewall_rules.mdx"
+                    "page": "/v11/guides/installation/firewall_rules.mdx"
                   },
                   {
                     "type": "page",
                     "title": "SSL Certificate",
-                    "page": "/v11/Installation/ssl_certificate.mdx"
+                    "page": "/v11/guides/installation/ssl_certificate.mdx"
                   }
                 ]
               },
