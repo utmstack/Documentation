@@ -130,27 +130,27 @@
                   {
                     "type": "page",
                     "title": "Azure",
-                    "page": "/v11/integrations/azure.mdx"
+                    "page": "/v11/integrations/cloud/azure.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Google Cloud",
-                    "page": "/v11/integrations/googlecloud.mdx"
+                    "page": "/v11/integrations/cloud/googlecloud.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Office365",
-                    "page": "/v11/integrations/office365.mdx"
+                    "page": "/v11/integrations/cloud/office365.mdx"
                   },
                   {
                     "type": "page",
                     "title": "AWS",
-                    "page": "/v11/integrations/aws.mdx"
+                    "page": "/v11/integrations/cloud/aws.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Traefik",
-                    "page": "/v11/integrations/taefik.mdx"
+                    "page": "/v11/integrations/cloud/taefik.mdx"
                   }
                 ]
               },
@@ -161,27 +161,27 @@
                   {
                     "type": "page",
                     "title": "macOS",
-                    "page": "/v11/integrations/macos.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/macos.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Windows Agent",
-                    "page": "/v11/integrations/windowsagent.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/windowsagent.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Linux Agent",
-                    "page": "/v11/integrations/linuxagent.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/linuxagent.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Syslog",
-                    "page": "/v11/integrations/syslog.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/syslog.mdx"
                   },
                   {
                     "type": "page",
                     "title": "VMware",
-                    "page": "/v11/integrations/vmware.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/vmware.mdx"
                   }
                 ]
               },
@@ -192,62 +192,67 @@
                   {
                     "type": "page",
                     "title": "Cisco ASA",
-                    "page": "/v11/integrations/cisco_asa.mdx"
+                    "page": "/v11/integrations/devices/cisco_asa.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Fortigate",
-                    "page": "/v11/integrations/fortigate.mdx"
+                    "page": "/v11/integrations/devices/fortigate.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Sophos XG",
-                    "page": "/v11/integrations/sophos_xg.mdx"
+                    "page": "/v11/integrations/devices/sophos_xg.mdx"
                   },
                   {
                     "type": "page",
                     "title": "SonicWall",
-                    "page": "/v11/integrations/sonicwall.mdx"
+                    "page": "/v11/integrations/devices/sonicwall.mdx"
                   },
                   {
                     "type": "page",
                     "title": "IBM AIX",
-                    "page": "/v11/integrations/ibm_aix.mdx"
+                    "page": "/v11/integrations/devices/ibm_aix.mdx"
                   },
                   {
                     "type": "page",
                     "title": "IBM AS400",
-                    "page": "/v11/integrations/ibmas400.mdx"
+                    "page": "/v11/integrations/devices/ibmas400.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Fortiweb",
-                    "page": "/v11/integrations/fortiweb.mdx"
+                    "page": "/v11/integrations/devices/fortiweb.mdx"
                   },
                   {
                     "type": "page",
                     "title": "pfSense",
-                    "page": "/v11/integrations/pfsense.mdx"
+                    "page": "/v11/integrations/devices/pfsense.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Palo Alto",
-                    "page": "/v11/integrations/paloalto.mdx"
+                    "page": "/v11/integrations/devices/paloalto.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Mikrotik",
-                    "page": "/v11/integrations/mikrotik.mdx"
+                    "page": "/v11/integrations/devices/mikrotik.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Cisco Switch",
-                    "page": "/v11/integrations/ciscosw.mdx"
+                    "page": "/v11/integrations/devices/ciscosw.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Firepower",
-                    "page": "/v11/integrations/firepower.mdx"
+                    "page": "/v11/integrations/devices/firepower.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Cisco Meraki",
+                    "page": "/v11/integrations/devices/ciscomeraki.mdx"
                   }
                 ]
               },
@@ -258,47 +263,47 @@
                   {
                     "type": "page",
                     "title": "Oracle",
-                    "page": "/v11/integrations/oracle.mdx"
+                    "page": "/v11/integrations/databases/oracle.mdx"
                   },
                   {
                     "type": "page",
                     "title": "MySQL",
-                    "page": "/v11/integrations/mysql.mdx"
+                    "page": "/v11/integrations/databases/mysql.mdx"
                   },
                   {
                     "type": "page",
                     "title": "PostgreSQL",
-                    "page": "/v11/integrations/pgsql.mdx"
+                    "page": "/v11/integrations/databases/pgsql.mdx"
                   },
                   {
                     "type": "page",
                     "title": "MongoDB",
-                    "page": "/v11/integrations/mongodb.mdx"
+                    "page": "/v11/integrations/databases/mongodb.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Elastic",
-                    "page": "/v11/integrations/elastic.mdx"
+                    "page": "/v11/integrations/databases/elastic.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Redis",
-                    "page": "/v11/integrations/redis.mdx"
+                    "page": "/v11/integrations/databases/redis.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Kafka",
-                    "page": "/v11/integrations/kafka.mdx"
+                    "page": "/v11/integrations/databases/kafka.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Kibana",
-                    "page": "/v11/integrations/kibana.mdx"
+                    "page": "/v11/integrations/databases/kibana.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Logstash",
-                    "page": "/v11/integrations/logstash.mdx"
+                    "page": "/v11/integrations/databases/logstash.mdx"
                   }
                 ]
               },
@@ -309,17 +314,17 @@
                   {
                     "type": "page",
                     "title": "IIS",
-                    "page": "/v11/integrations/iis.mdx"
+                    "page": "/v11/integrations/web_server/iis.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Apache2",
-                    "page": "/v11/integrations/apache2.mdx"
+                    "page": "/v11/integrations/web_server/apache2.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Nginx",
-                    "page": "/v11/integrations/nginx.mdx"
+                    "page": "/v11/integrations/web_server/nginx.mdx"
                   }
                 ]
               },
@@ -330,12 +335,12 @@
                   {
                     "type": "page",
                     "title": "Sophos Central",
-                    "page": "/v11/integrations/sophoscentral.mdx"
+                    "page": "/v11/integrations/xdr/sophoscentral.mdx"
                   },
                   {
                     "type": "page",
                     "title": "SentinelOne",
-                    "page": "/v11/integrations/sentinelone.mdx"
+                    "page": "/v11/integrations/xdr/sentinelone.mdx"
                   }
                 ]
               },
@@ -346,7 +351,7 @@
                   {
                     "type": "page",
                     "title": "Netflow",
-                    "page": "/v11/integrations/netflow.mdx"
+                    "page": "/v11/integrations/network/netflow.mdx"
                   }
                 ]
               },
@@ -357,7 +362,7 @@
                   {
                     "type": "page",
                     "title": "HAProxy",
-                    "page": "/v11/integrations/haproxy.mdx"
+                    "page": "/v11/integrations/proxy/haproxy.mdx"
                   }
                 ]
               },
@@ -368,7 +373,7 @@
                   {
                     "type": "page",
                     "title": "Config CURL",
-                    "page": "/v11/integrations/config_curl.mdx"
+                    "page": "/v11/integrations/configurations/config_curl.mdx"
                   }
                 ]
               }

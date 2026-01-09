@@ -1,0 +1,61 @@
+AWS Cloudwatch enables auditing, security monitoring, and operational troubleshooting by tracking user activity and API usage. CloudTrail logs, continuously monitors, and retains account activity related to actions across your AWS infrastructure, giving you control over storage, analysis, and remediation actions.
+
+### 1. Go to IAM configuration panel and click on "Users"
+
+![AWS](/images/integrations/aws/iam_config.png)
+
+### 2. Add a new user filling the name and marking the access type "Programmatic access". Then click on Next.
+
+![AWS](/images/integrations/aws/programmatic_access.png)
+
+### 3. Click on Attach existing policies directly. Find CloudWatchReadOnlyAccess and mark it. Then click on next.
+
+![AWS](/images/integrations/aws/policies_directly.png)
+
+### 4. In the tags page click on next.
+
+![AWS](/images/integrations/aws/tags.png)
+
+### 5. Create user and then download the csv file with the access and secret keys.
+
+![AWS](/images/integrations/aws/user_secret.png)
+
+### 6. Fill the following inputs with the info obtained in previous steps.
+
+![AWS](/images/integrations/aws/step6.png)
+
+## Configuring AWS Cloudwatch
+
+### 7. In the CloudTrail panel, select “Create trail”.
+
+![AWS](/images/integrations/aws/welcome-page.png)
+
+### 8. Fill in the "Trail name" field.
+
+![AWS](/images/integrations/aws/trail-name.png)
+
+### 9. Mark "Select all S3 buckets in your account".
+
+![AWS](/images/integrations/aws/s3-buckets.png)
+
+### 10. Fill in the "S3 bucket" field. The name of the bucket must be unique in S3. Then click on “Create”.
+
+![AWS](/images/integrations/aws/bucket-name.png)
+
+### 11. Click on the name of the trail to edit.
+
+![AWS](/images/integrations/aws/edit-trail.png)
+
+### 12. Configure CloudWatch Logs.
+
+![AWS](/images/integrations/aws/cloud-watch-config.png)
+
+### 13. Fill the group name and continue.
+
+![AWS](/images/integrations/aws/trial-group.png)
+
+### 14. Click on “Allow” to grant CloudTrail permissions.
+
+![AWS](/images/integrations/aws/trial-permissions.png)
+
+### 15. Click on the button shown below, to activate the UTMStack features related to this integration
