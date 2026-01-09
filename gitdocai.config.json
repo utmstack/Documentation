@@ -1,6 +1,6 @@
 {
   "name": "UTMSTACK",
-  "description": "UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself. This seamless integration of SIEM and XDR capabilities sets UTMStack apart from competitors, providing organizations with an effective, holistic cybersecurity suite that enhances threat detection, response, and remediation across clients\u2019 valuable digital infrastructure. Correlation happens before data ingestion, reducing workload and improving response times.",
+  "description": "UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself. This seamless integration of SIEM and XDR capabilities sets UTMStack apart from competitors, providing organizations with an effective, holistic cybersecurity suite that enhances threat detection, response, and remediation across clients’ valuable digital infrastructure. Correlation happens before data ingestion, reducing workload and improving response times.",
   "theme": "crystal",
   "colors": {
     "dark": "#655DC6",
@@ -389,12 +389,12 @@
                   {
                     "type": "page",
                     "title": "Overview",
-                    "page": "/v11/apidoc/overview.mdx"
+                    "page": "/v11/api_documentation/getting_started/overview.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Postman Collection",
-                    "page": "/v11/apidoc/postman-collection.mdx"
+                    "page": "/v11/api_documentation/getting_started/postman-collection.mdx"
                   }
                 ]
               },
@@ -405,12 +405,12 @@
                   {
                     "type": "page",
                     "title": "Authentication",
-                    "page": "/v11/apidoc/authentication.mdx"
+                    "page": "/v11/api_documentation/authentication/authentication.mdx"
                   },
                   {
                     "type": "page",
                     "title": "API Keys",
-                    "page": "/v11/apidoc/api-keys.mdx"
+                    "page": "/v11/api_documentation/authentication/api-keys.mdx"
                   }
                 ]
               },
@@ -1128,5 +1128,14 @@
       "type": "youtube",
       "reference": "https://www.youtube.com/@utmstack4489"
     }
-  ]
+  ],
+  "aiSearch": {
+    "triggerLabel": "Ask to AI",
+    "chatTitle": "UTMStack Assistant",
+    "welcomeMessage": "Hello! How can I help you today? Feel free to ask me anything about the documentation.",
+    "placeholder": "Ask a question...",
+    "suggestedQuestions": [
+      "How to install UTMStack?"
+    ]
+  }
 }

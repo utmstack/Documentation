@@ -2,33 +2,32 @@
 
 The **UTMStack Authentication API** issues **JWT tokens** to clients who provide valid credentials. Clients must authenticate using this endpoint before calling any protected resource in the UTMStack platform.
 
-<Note>
-This endpoint does **not** require authentication. It returns a **JWT access token** that must be used for subsequent requests.
-</Note>
-
+> [!NOTE]
+> This endpoint does **not** require authentication. It returns a **JWT access token** that must be used for subsequent requests.
 ---
-
 ## Endpoint Details
 
-<Card title="POST /api/authenticate" icon="pi pi-lock" iconAlign="left" content="**Method:** POST     **Content-Type:** application/json     **Authentication:** Not required     **Response:** JWT token for API access" />
+<Card title="POST /api/authenticate" icon="pi pi-lock">
 
+**Method:** POST  
+**Content-Type:** application/json  
+**Authentication:** Not required  
+**Response:** JWT token for API access 
+
+</Card>
 ---
-
 ## Parameters
 
 ### Request Body
 
-<ParamField body="username" type="string" required>
-  User login name or email address
-</ParamField>
+###   
+`username` `string`** **`required`
 
-<ParamField body="password" type="string" required>
-  User password
-</ParamField>
+[Unknown component: ParamField]
 
-<ParamField body="rememberMe" type="boolean" default="false">
-  Optional. Keeps the session active for a longer period
-</ParamField>
+[Unknown component: ParamField]
+
+[Unknown component: ParamField]
 
 ### JSON Schema (Request)
 
@@ -53,29 +52,33 @@ This endpoint does **not** require authentication. It returns a **JWT access tok
   "required": ["username", "password"]
 }
 ```
-
 ---
-
 ## Response Examples
 
 ### Successful Authentication (TFA disabled)
 
 <Tabs>
   <Tab title="Response">
+
     ```json
     {
       "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
       "authenticated": true
     }
     ```
+
   </Tab>
+
   <Tab title="Headers">
+
     ```http
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 245
     ```
+
   </Tab>
+
 </Tabs>
 
 ### TFA Challenge (TFA enabled)
@@ -87,9 +90,8 @@ This endpoint does **not** require authentication. It returns a **JWT access tok
 }
 ```
 
-<Info>
-When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
-</Info>
+> [!INFO]
+> When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
 
 ### JSON Schema (Response)
 
@@ -110,14 +112,12 @@ When `authenticated` is `false`, you need to complete the two-factor authenticat
   "required": ["id_token", "authenticated"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST https://utmstack.example.com/api/authenticate \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST https://utmstack.example.com/api/authenticate 
+  -H "Content-Type: application/json" 
   -d '{
     "username": "admin",
     "password": "MySecurePassword123",
@@ -125,68 +125,56 @@ curl -X POST https://utmstack.example.com/api/authenticate \
   }'
 ```
 
-```json Response
+```json
 {
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
   "authenticated": true
 }
 ```
-
 ---
-
 ## Status Codes
 
 - **200** (OK): Authentication successful. Token returned.
-
 - **401** (Unauthorized): Invalid username or password.
-
 - **403** (Forbidden): Login blocked (too many attempts).
-
 - **429** (Too Many Requests): Rate limit exceeded.
-
 - **500** (Internal Server Error): Unexpected issue during authentication.
-
 ---
-
 ## Error Handling
 
 <Accordion multiple={true}>
-    <AccordionTab header="401 Unauthorized">
+  <AccordionTab title="Accordion Item" >
 
     **Description:** Invalid credentials  
     **Resolution:** Verify username/password and try again.
-  
+
   </AccordionTab>
 
-    <AccordionTab header="403 Forbidden">
+  <AccordionTab title="Accordion Item" >
 
     **Description:** Login temporarily blocked due to multiple failed attempts  
     **Resolution:** Wait for cooldown period or contact admin.
-  
+
   </AccordionTab>
 
-    <AccordionTab header="500 Internal Server Error">
+  <AccordionTab title="Accordion Item" >
 
     **Description:** Unexpected backend error  
     **Resolution:** Check logs or contact UTMStack support.
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Security Considerations
 
-<Warning>
-**Important Security Notes:**
-- Always use **HTTPS (TLS)** when sending credentials
-- Do not store plain-text passwords or tokens locally
-- Implement **token expiration** and **refresh mechanisms** in clients
-- If TFA is enabled, a second verification code is sent by email
-</Warning>
-
+> [!WARNING]
+> **Important Security Notes:**
+> - Always use **HTTPS (TLS)** when sending credentials
+> - Do not store plain-text passwords or tokens locally
+> - Implement **token expiration** and **refresh mechanisms** in clients
+> - If TFA is enabled, a second verification code is sent by email
 ---
-
 ## Using the Token
 
 After successful authentication, include the JWT token in the Authorization header for subsequent API requests:
@@ -195,12 +183,9 @@ After successful authentication, include the JWT token in the Authorization head
 Authorization: Bearer <jwt_token>
 ```
 
-<Tip>
-Test your authentication by making a request to `/api/elasticsearch/search` with your Bearer token to verify it's working correctly.
-</Tip>
-
+> [!TIP]
+> Test your authentication by making a request to `/api/elasticsearch/search` with your Bearer token to verify it's working correctly.
 ---
-
 ## OpenAPI Specification
 
 ```yaml
