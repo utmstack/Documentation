@@ -1,11 +1,8 @@
 This documentation provides a comprehensive, practical reference for developers working with **rules for analysis** and **filters for data extraction, enrichment, and transformation** within the UTMStack v11 ecosystem powered by EventProcessor.
 
-<Note>
-**Target Audience**: This section is designed as a practical reference for developers implementing security detection logic and data transformation pipelines.
-</Note>
-
+> [!NOTE]
+> **Target Audience**: This section is designed as a practical reference for developers implementing security detection logic and data transformation pipelines.
 ---
-
 ## What is EventProcessor?
 
 **EventProcessor** is UTMStack v11's revolutionary security event processing engine that **replaced Logstash** in the new architecture. Developed by ThreatWinds, it provides:
@@ -16,34 +13,49 @@ This documentation provides a comprehensive, practical reference for developers 
 - **Real-time correlation** before data ingestion
 - **Native security analysis** capabilities
 
-<Info>
-**New in v11**: EventProcessor is the core component that processes all security events through a flexible plugin system, enabling UTMStack to scale horizontally and process data in parallel.
-</Info>
-
+> [!INFO]
+> **New in v11**: EventProcessor is the core component that processes all security events through a flexible plugin system, enabling UTMStack to scale horizontally and process data in parallel.
 ---
-
 ## Architecture Overview
 
 The EventProcessor and UTMStack v11 integration consists of several key components:
 
-<CardGroup cols={2}>
-  <Card title="EventProcessor Core" icon="pi pi-engine" iconAlign="left" content="Core engine that processes security events, loads plugins, and manages data flow" />
-  
-  <Card title="EventProcessor Plugins" icon="pi pi-puzzle-piece" iconAlign="left" content="Built-in plugins for input, parsing, and analysis tasks" />
-  
-  <Card title="UTMStack Plugins" icon="pi pi-plug" iconAlign="left" content="Integration plugins for cloud services, correlation, and notifications" />
-  
-  <Card title="go-sdk" icon="pi pi-code" iconAlign="left" content="Go SDK providing common functionality and interfaces" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="EventProcessor Core" icon="mi-engineering">
+    
+    Core engine that processes security events, loads plugins, and manages data flow
+    
+    </Card>
+    <Card title="UTMStack Plugins" icon="mi-hub">
+    
+    Integration plugins for cloud services, correlation, and notifications
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="EventProcessor Plugins" icon="hi-puzzlePiece-solid">
+    
+    Built-in plugins for input, parsing, and analysis tasks in the Event Processor
+    
+    </Card>
+    <Card title="go-sdk" icon="pi pi-code">
+    
+    Go SDK providing common functionality and interfaces
+    
+    </Card>
+  </Column>
+</Columns>
+
 ### Communication Architecture
 
 EventProcessor uses a **plugin architecture** where:
+
 - Plugins are **separate processes**
 - Communication via **gRPC over Unix sockets**
 - Allows **flexible and extensible** system
 - New functionality added **without modifying core engine**
-
 ---
-
 ## Core Components
 
 ### 1. EventProcessor Plugins
@@ -51,14 +63,17 @@ EventProcessor uses a **plugin architecture** where:
 Built-in plugins organized by function:
 
 **Input Plugins**
+
 - Collect or receive logs from external sources
 - Examples: `http-input`, `grpc-input`
 
 **Parsing Plugins**
+
 - Extract, enrich, and transform logs
 - Examples: `add`, `cast`, `csv`, `delete`, `expand`, `grok`, `json`, `kv`, `reformat`, `rename`, `trim`
 
 **Analysis Plugins**
+
 - Process logs to detect security attacks
 - Generate alerts based on correlation rules
 
@@ -67,81 +82,79 @@ Built-in plugins organized by function:
 Integration and specialized plugins:
 
 **Input Plugins**
+
 - `aws`, `azure`, `gcp`, `o365`, `sophos`, `bitdefender`
 - Custom data collection from various sources
 
 **Parsing Plugins**
+
 - `geolocation` - IP geolocation enrichment
 
 **Analysis Plugins**
+
 - `events` - Event processing and analysis
 
 **Correlation Plugins**
+
 - `alerts` - Alert correlation
 - `soc-ai` - AI-powered analysis
 
 **Notification Plugins**
+
 - `stats` - Statistics and notifications
 
 **Sidecar Plugins**
+
 - `config` - Configuration management
 - Background tasks for system health
-
 ---
-
 ## Rules vs Filters: Understanding the Difference
 
 ### Rules
 
 <Accordion multiple={true}>
-    <AccordionTab header="What are Rules?">
+  <AccordionTab title="What are Rules?" icon="hi-shieldCheck-solid">
 
     **Rules** are YAML files that define **how to analyze events to detect security threats**.
-    
     **Purpose**:
     - Detect security attacks and anomalies
     - Generate alerts when conditions are met
     - Correlate events across time windows
     - Deduplicate similar alerts
-    
     **Used by**: Analysis plugin to generate security alerts
-    
     **Example Use Cases**:
     - Brute force attack detection
     - Data exfiltration monitoring
     - Insider threat detection
     - Lateral movement detection
-  
+
   </AccordionTab>
+
 </Accordion>
 
 ### Filters
 
 <Accordion multiple={true}>
-    <AccordionTab header="What are Filters?">
+  <AccordionTab title="What are Filters?" icon="fa fa-filter">
 
     **Filters** are YAML files that define **how to extract and transform raw event data**.
-    
     **Purpose**:
     - Parse raw log data into structured format
     - Extract relevant fields from logs
     - Normalize field names
     - Enrich data with additional context
     - Transform data types
-    
     **Used by**: Parsing plugin to standardize events
-    
     **Example Use Cases**:
     - Parse Apache access logs
     - Extract fields from Cisco ASA logs
     - Normalize Windows Event logs
     - Enrich with geolocation data
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Data Flow Pipeline
 
 ```mermaid
@@ -157,54 +170,75 @@ graph LR
 
 ### Processing Stages
 
-  ### Data Collection
+### Data Collection
 
-    Input plugins collect raw logs from various sources (agents, syslog, APIs)
-  ### Parsing & Transformation
+Input plugins collect raw logs from various sources (agents, syslog, APIs)
 
-    Filters extract and transform raw data into standardized format using parsing plugins
-  ### Event Processing
+### Parsing & Transformation
 
-    EventProcessor routes events to appropriate plugins based on data type
-  ### Security Analysis
+Filters extract and transform raw data into standardized format using parsing plugins
 
-    Rules analyze events to detect threats and generate alerts
-  ### Alert Correlation
+### Event Processing
 
-    Correlation plugins detect relationships between alerts
-  ### Notification & Storage
+EventProcessor routes events to appropriate plugins based on data type
 
-    Alerts are stored and notifications sent to configured systems
+### Security Analysis
+
+Rules analyze events to detect threats and generate alerts
+
+### Alert Correlation
+
+Correlation plugins detect relationships between alerts
+
+### Notification & Storage
+
+Alerts are stored and notifications sent to configured systems
 ---
-
 ## Key Features
 
 ### Plugin-Based Architecture
 
-<CardGroup cols={2}>
-  <Card title="Modular Design" icon="pi pi-blocks" iconAlign="left" content="Each plugin serves a specific purpose in the processing pipeline" />
-  
-  <Card title="Independent Processes" icon="pi pi-server" iconAlign="left" content="Plugins run as separate processes, improving stability" />
-  
-  <Card title="gRPC Communication" icon="pi pi-comments" iconAlign="left" content="Fast, efficient communication via gRPC over Unix sockets" />
-  
-  <Card title="Hot Swappable" icon="pi pi-sync" iconAlign="left" content="Add or update plugins without restarting core engine" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Modular Design" icon="fa fa-object-ungroup">
+    
+    Each plugin serves a specific purpose in the processing pipeline
+    
+    </Card>
+    <Card title="gRPC Communication" icon="pi pi-comments">
+    
+    Fast, efficient communication via gRPC over Unix sockets
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Independent Processes" icon="pi pi-server">
+    
+    Plugins run as separate processes, improving stability
+    
+    </Card>
+    <Card title="Hot Swappable" icon="pi pi-sync">
+    
+    Add or update plugins without restarting core engine
+    
+    </Card>
+  </Column>
+</Columns>
+
 ### Real-Time Correlation
 
-<Info>
-**UTMStack's Advantage**: Correlation happens **before data ingestion**, reducing workload and improving response times compared to traditional SIEM systems.
-</Info>
+> [!INFO]
+> **UTMStack's Advantage**: Correlation happens **before data ingestion**, reducing workload and improving response times compared to traditional SIEM systems.
 
 ### Horizontal Scalability
 
 With v11's manager-worker architecture:
+
 - Add worker nodes to scale processing capacity
 - Distribute plugins across workers
 - Linear performance scaling
 - No single point of failure
-
 ---
-
 ## Developer Tools: go-sdk
 
 The **go-sdk** provides essential functionality for plugin development:
@@ -212,30 +246,34 @@ The **go-sdk** provides essential functionality for plugin development:
 ### Key Components
 
 **Protocol Buffers Definition**
-```
+
+```plaintext
 plugins/plugins.proto
 ```
+
 Defines messages and services for plugin communication
 
 **Configuration Management**
-```
+
+```plaintext
 plugins/config.go
 ```
+
 Provides configuration functionality for plugins
 
 **Expression Language (CEL)**
-```
+
+```plaintext
 plugins/cel.go
 ```
+
 Common Expression Language support for rules
-
 ---
-
 ## File Structure
 
 ### Rules Directory Structure
 
-```
+```plaintext
 rules/
 ├── authentication/
 │   ├── brute_force.yaml
@@ -249,7 +287,7 @@ rules/
 
 ### Filters Directory Structure
 
-```
+```plaintext
 filters/
 ├── apache/
 │   └── access_log.yaml
@@ -259,9 +297,7 @@ filters/
 └── windows/
     └── event_log.yaml
 ```
-
 ---
-
 ## Rule and Filter Basics
 
 ### Rule Structure (Simplified)
@@ -301,62 +337,66 @@ pipeline:
             - statusCode
           to: int
 ```
-
 ---
-
 ## Development Workflow
 
-  ### Understand the Requirement
+### Understand the Requirement
 
-    Identify what security threat to detect (rules) or what data source to parse (filters)
-  ### Examine Sample Data
+Identify what security threat to detect (rules) or what data source to parse (filters)
 
-    Collect and analyze sample events or logs
-  ### Create YAML Definition
+### Examine Sample Data
 
-    Write rule or filter using appropriate syntax
-  ### Test Locally
+Collect and analyze sample events or logs
 
-    Test with sample data in development environment
-  ### Deploy
+### Create YAML Definition
 
-    Deploy to UTMStack and monitor performance
-  ### Refine
+Write rule or filter using appropriate syntax
 
-    Adjust based on real-world results and feedback
----
+### Test Locally
+
+Test with sample data in development environment
+
+### Deploy
+
+Deploy to UTMStack and monitor performance
+
+### Refine
+
+## Adjust based on real-world results and feedback
 
 ## Best Practices
 
 ### For Rules
 
-<Check>
-- **Start simple** and refine based on results
-- **Test thoroughly** with various event types
-- **Use clear descriptions** and references
-- **Consider performance** impact of complex expressions
-- **Implement deduplication** to prevent alert fatigue
+> [!TIP]
+> - **Start simple** and refine based on results
+> - **Test thoroughly** with various event types
+> - **Use clear descriptions** and references
+> - **Consider performance** impact of complex expressions
+> - **Implement deduplication** to prevent alert fatigue
+
 ### For Filters
 
-<Check>
-- **Standardize field names** across all filters
-- **Remove unnecessary fields** to reduce storage
-- **Handle edge cases** and malformed data gracefully
-- **Document complex patterns** with comments
-- **Test with real production data** samples
+> [!TIP]
+> - **Standardize field names** across all filters
+> - **Remove unnecessary fields** to reduce storage
+> - **Handle edge cases** and malformed data gracefully
+> - **Document complex patterns** with comments
+> - **Test with real production data** samples
 ---
-
 ## Performance Considerations
 
 ### Optimization Tips
 
 **Rules Optimization**
+
 - Limit data types to reduce evaluation overhead
 - Use efficient CEL expressions
 - Limit afterEvents search windows
 - Implement proper deduplication
 
 **Filters Optimization**
+
 - Apply steps conditionally when possible
 - Remove fields early in pipeline
 - Use efficient parsing methods (grok patterns)
@@ -364,45 +404,90 @@ pipeline:
 
 ### Resource Management
 
-<CardGroup cols={2}>
-  <Card title="CPU Usage" icon="pi pi-microchip" iconAlign="left" content="Complex rules and filters consume more CPU     - Monitor CPU usage per plugin     - Optimize expressions and patterns" />
-  
-  <Card title="Memory Usage" icon="pi pi-memory" iconAlign="left" content="Large event volumes require more memory     - Set appropriate buffer sizes     - Clean up unnecessary data early" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="CPU Usage" icon="pi pi-microchip">
+    
+    Complex rules and filters consume more CPU. Monitor CPU usage per plugin. Optimize expressions and patterns.
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Memory Usage" icon="pi pi-memory">
+    
+    Large event volumes require more memory. Set appropriate buffer sizes. Clean up unnecessary data early.
+    
+    </Card>
+  </Column>
+</Columns>
 ---
-
 ## Getting Started
 
 Ready to start developing rules and filters?
 
-<CardGroup cols={2}>
-  <Card title="Implementing Rules" icon="pi pi-shield" iconAlign="left" href="/v11/rules-and-filters/implementing-rules" content="Learn how to create correlation rules to detect security threats" />
-  
-  <Card title="Implementing Filters" icon="pi pi-filter" iconAlign="left" href="/v11/rules-and-filters/implementing-filters" content="Learn how to create filters for data extraction and transformation" />
-  
-  <Card title="Custom Plugins" icon="pi pi-plug" iconAlign="left" href="/v11/rules-and-filters/custom-plugins" content="Develop custom plugins to extend EventProcessor functionality" />
-  
-  <Card title="Best Practices" icon="pi pi-star" iconAlign="left" href="/v11/rules-and-filters/best-practices" content="Learn optimization techniques and common patterns" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Implementing Rules" icon="pi pi-shield" href="/v11/rules-and-filters/implementing-rules">
+    
+    Learn how to create correlation rules to detect security threats
+    
+    </Card>
+    <Card title="Custom Plugins" icon="fa fa-plug" href="/v11/rules-and-filters/custom-plugins">
+    
+    Develop custom plugins to extend EventProcessor functionality
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Implementing Filters" icon="pi pi-filter" href="/v11/rules-and-filters/implementing-filters">
+    
+    Learn how to create filters for data extraction and transformation
+    
+    </Card>
+    <Card title="Best Practices" icon="pi pi-star" href="/v11/rules-and-filters/best-practices">
+    
+    Learn optimization techniques and common patterns
+    
+    </Card>
+  </Column>
+</Columns>
 ---
-
 ## Community and Support
 
-<CardGroup cols={2}>
-  <Card title="GitHub Repository" icon="pi pi-github" iconAlign="left" href="https://github.com/utmstack/UTMStack" content="View source code and contribute" />
-  
-  <Card title="Rules Repository" icon="pi pi-git" iconAlign="left" href="https://github.com/utmstack/rules" content="Community correlation rules" />
-  
-  <Card title="Discord Community" icon="pi pi-discord" iconAlign="left" href="https://discord.gg/ZznvZ8xcHh" content="Get help from the community" />
-  
-  <Card title="Documentation" icon="pi pi-book" iconAlign="left" href="https://docs.utmstack.com/v11/introduction" content="Browse complete documentation" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="GitHub Repository" icon="pi pi-github" href="https://github.com/utmstack/UTMStack">
+    
+    View source code and contribute
+    
+    </Card>
+    <Card title="Discord Community" icon="pi pi-discord" href="https://discord.gg/ZznvZ8xcHh">
+    
+    Get help from the community
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Rules Repository" icon="fa fa-file-code-o" href="https://github.com/utmstack/rules">
+    
+    Community correlation rules
+    
+    </Card>
+    <Card title="Documentation" icon="pi pi-book" href="https://docs.utmstack.com/v11/introduction">
+    
+    Browse complete documentation
+    
+    </Card>
+  </Column>
+</Columns>
 ---
-
 ## Next Steps
 
-<Note>
-This section provides a **practical developer reference**. Each guide includes real-world examples, code snippets, and best practices for implementing security detection and data transformation in UTMStack v11.
-</Note>
+> [!NOTE]
+> This section provides a **practical developer reference**. Each guide includes real-world examples, code snippets, and best practices for implementing security detection and data transformation in UTMStack v11.
 
 Continue to the specific guides:
+
 - **[Implementing Rules](/v11/rules-and-filters/implementing-rules)** - Comprehensive rule development guide
 - **[Implementing Filters](/v11/rules-and-filters/implementing-filters)** - Complete filter creation reference
 - **[Custom Plugin Development](/v11/rules-and-filters/custom-plugins)** - Extend EventProcessor with custom plugins

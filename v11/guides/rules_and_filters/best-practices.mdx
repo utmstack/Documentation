@@ -1,21 +1,19 @@
 This guide provides optimization techniques, performance tips, and proven patterns for developing efficient and effective rules and filters in UTMStack v11.
 
-<Info>
-**Developer Reference**: Apply these practices to create maintainable, performant, and reliable security detection logic.
-</Info>
-
+> [!INFO]
+> **Developer Reference**: Apply these practices to create maintainable, performant, and reliable security detection logic.
 ---
-
 ## Rule Development Best Practices
 
 ### 1. Start Simple and Iterate
 
-<Check>
-- Begin with basic conditions that identify the threat
-- Test with known-good and known-bad examples
-- Add complexity incrementally
-- Validate each addition before proceeding
-- Document reasoning for complex logic
+> [!TIP]
+> - Begin with basic conditions that identify the threat
+> - Test with known-good and known-bad examples
+> - Add complexity incrementally
+> - Validate each addition before proceeding
+> - Document reasoning for complex logic
+
 **Example**: Progressive Rule Development
 
 ```yaml
@@ -40,10 +38,11 @@ afterEvents:
 
 ### 2. Be Specific with Data Types
 
-<Check>
-- Only include relevant data types
-- Avoid using too many data types in one rule
-- Create separate rules for different data sources when logic differs
+> [!TIP]
+> - Only include relevant data types
+> - Avoid using too many data types in one rule
+> - Create separate rules for different data sources when logic differs
+
 ```yaml
 # ❌ Too broad
 dataTypes:
@@ -61,11 +60,12 @@ dataTypes:
 
 ### 3. Handle Missing Data Gracefully
 
-<Check>
-- Always check field existence with `has()` or `exists()`
-- Use `safe()` with sensible defaults
-- Test with incomplete events
-- Consider what happens when fields are missing
+> [!TIP]
+> - Always check field existence with `has()` or `exists()`
+> - Use `safe()` with sensible defaults
+> - Test with incomplete events
+> - Consider what happens when fields are missing
+
 ```yaml
 # ❌ Unsafe - will fail if field missing
 where: origin.port > 1024
@@ -79,14 +79,33 @@ where: has(origin.port) && origin.port > 1024
 
 ### 4. Optimize Performance
 
-<CardGroup cols={2}>
-  <Card title="Limit Data Scope" icon="pi pi-filter" iconAlign="left" content="- Narrow `dataTypes` selection     - Use specific index patterns     - Reduce time windows when possible" />
-  
-  <Card title="Efficient Expressions" icon="pi pi-tachometer-alt" iconAlign="left" content="- Put cheapest checks first     - Avoid complex string operations     - Cache repeated calculations" />
-  
-  <Card title="Smart Correlation" icon="pi pi-link" iconAlign="left" content="- Limit `afterEvents` searches     - Use reasonable count thresholds     - Set appropriate time windows" />
-  
-  <Card title="Proper Deduplication" icon="pi pi-copy" iconAlign="left" content="- Include key identifying fields     - Avoid time-based fields     - Balance between noise and visibility" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Limit Data Scope" icon="pi pi-filter">
+    
+    Narrow `dataTypes` selection. Use specific index patterns. Reduce time windows when possible.
+    
+    </Card>
+    <Card title="Smart Correlation" icon="pi pi-link">
+    
+    Limit `afterEvents` searches. Use reasonable count thresholds. Set appropriate time windows.
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Efficient Expressions" icon="fa fa-dashboard">
+    
+    Put cheapest checks first. Avoid complex string operations. Cache repeated calculations.
+    
+    </Card>
+    <Card title="Proper Deduplication" icon="pi pi-copy">
+    
+    Include key identifying fields. Avoid time-based fields. Balance between noise and visibility.
+    
+    </Card>
+  </Column>
+</Columns>
+
 ### 5. Implement Effective Deduplication
 
 ```yaml
@@ -110,19 +129,19 @@ deduplicateBy:
 
 ### 6. Write Clear Descriptions
 
-<Check>
-**Include in Description**:
-- What the rule detects
-- Why it's important
-- What action should be taken
-- Known limitations or false positive scenarios
-- Related rules or techniques
+> [!TIP]
+> **Include in Description**:
+> - What the rule detects
+> - Why it's important
+> - What action should be taken
+> - Known limitations or false positive scenarios
+> - Related rules or techniques
+> **Add References**:
+> - MITRE ATT&CK technique IDs
+> - CVE numbers
+> - Security advisories
+> - Internal documentation
 
-**Add References**:
-- MITRE ATT&CK technique IDs
-- CVE numbers
-- Security advisories
-- Internal documentation
 ```yaml
 description: |
   Detects multiple failed SSH authentication attempts from the same source IP
@@ -147,28 +166,26 @@ references:
   - https://attack.mitre.org/techniques/T1110/001/
   - https://www.cisecurity.org/controls/v8/
 ```
-
 ---
-
 ## Filter Development Best Practices
 
 ### 1. Standardize Field Names
 
-<Check>
-**Use UTMStack Standard Fields**:
-- `origin.ip`, `origin.port`, `origin.user`, `origin.host`
-- `target.ip`, `target.port`, `target.user`, `target.host`
-- `deviceTime` - Event timestamp
-- `action` - Normalized action (get, post, login, etc.)
-- `actionResult` - Result (success, failure, denied, accepted)
-- `protocol` - Network protocol
-- `severity` - Event severity
+> [!TIP]
+> **Use UTMStack Standard Fields**:
+> - `origin.ip`, `origin.port`, `origin.user`, `origin.host`
+> - `target.ip`, `target.port`, `target.user`, `target.host`
+> - `deviceTime` - Event timestamp
+> - `action` - Normalized action (get, post, login, etc.)
+> - `actionResult` - Result (success, failure, denied, accepted)
+> - `protocol` - Network protocol
+> - `severity` - Event severity
+> **Benefits**:
+> - Consistent queries across data sources
+> - Rules work with multiple data types
+> - Dashboards work universally
+> - Easier correlation
 
-**Benefits**:
-- Consistent queries across data sources
-- Rules work with multiple data types
-- Dashboards work universally
-- Easier correlation
 ### 2. Parsing Strategy
 
 ```yaml
@@ -209,13 +226,14 @@ steps:
 
 ### 3. Optimize Grok Patterns
 
-<Check>
-**Pattern Design**:
-- Use specific patterns over generic ones
-- Order patterns from most to least specific
-- Test patterns with real data
-- Avoid greedy patterns when possible
-- Use built-in patterns
+> [!TIP]
+> **Pattern Design**:
+> - Use specific patterns over generic ones
+> - Order patterns from most to least specific
+> - Test patterns with real data
+> - Avoid greedy patterns when possible
+> - Use built-in patterns
+
 ```yaml
 # ❌ Too greedy - captures everything
 - fieldName: message
@@ -280,15 +298,16 @@ steps:
 
 ### 6. Handle Edge Cases
 
-<Check>
-**Common Edge Cases**:
-- Missing fields
-- Malformed data
-- Empty strings
-- Null values
-- Unexpected formats
-- Special characters
-- Encoding issues
+> [!TIP]
+> **Common Edge Cases**:
+> - Missing fields
+> - Malformed data
+> - Empty strings
+> - Null values
+> - Unexpected formats
+> - Special characters
+> - Encoding issues
+
 ```yaml
 # ✅ Robust parsing
 steps:
@@ -311,85 +330,97 @@ steps:
         value: "unknown"
       where: !exists(actionResult)
 ```
-
 ---
-
 ## Testing Strategies
 
 ### Rule Testing
 
-  ### Unit Testing
+### Unit Testing
 
-    Test individual conditions with sample events
-    ```yaml
-    # Test events that should trigger
-    # Test events that should not trigger
-    # Test edge cases
-    ```
-  ### Integration Testing
+Test individual conditions with sample events
 
-    Deploy to development environment
-    - Monitor for alerts
-    - Verify alert content
-    - Check performance impact
-  ### Load Testing
+```yaml
+# Test events that should trigger
+# Test events that should not trigger
+# Test edge cases
+```
 
-    Test with realistic event volumes
-    - Monitor CPU and memory usage
-    - Check for bottlenecks
-    - Verify deduplication works
-  ### False Positive Testing
+### Integration Testing
 
-    Run against historical data
-    - Identify false positives
-    - Refine conditions
-    - Add exclusions
+Deploy to development environment
+
+- Monitor for alerts
+- Verify alert content
+- Check performance impact
+
+### Load Testing
+
+Test with realistic event volumes
+
+- Monitor CPU and memory usage
+- Check for bottlenecks
+- Verify deduplication works
+
+### False Positive Testing
+
+Run against historical data
+
+- Identify false positives
+- Refine conditions
+- Add exclusions
+
 ### Filter Testing
 
-  ### Sample Data Testing
+### Sample Data Testing
 
-    Test with representative samples
-    - Valid formatted data
-    - Malformed data
-    - Edge cases
-  ### Field Validation
+Test with representative samples
 
-    Verify output fields
-    - Check field names match standards
-    - Verify data types are correct
-    - Ensure required fields exist
-  ### Performance Testing
+- Valid formatted data
+- Malformed data
+- Edge cases
 
-    Measure processing time
-    - Test with various event sizes
-    - Monitor resource usage
-    - Optimize slow steps
+### Field Validation
+
+Verify output fields
+
+- Check field names match standards
+- Verify data types are correct
+- Ensure required fields exist
+
+### Performance Testing
+
+Measure processing time
+
+- Test with various event sizes
+- Monitor resource usage
+- Optimize slow steps
 ---
-
 ## Performance Optimization
 
 ### Rule Optimization Checklist
 
-<Check>
-- [ ] Limit `dataTypes` to necessary types only
-- [ ] Use efficient CEL expressions
-- [ ] Put cheapest conditions first in `where`
-- [ ] Limit `afterEvents` search count and time window
-- [ ] Use appropriate index patterns (specific vs wildcard)
-- [ ] Implement proper deduplication
-- [ ] Avoid excessive regex patterns
-- [ ] Test with realistic event volumes
+> [!TIP]
+> - [ ] Limit `dataTypes` to necessary types only
+> - [ ] Use efficient CEL expressions
+> - [ ] Put cheapest conditions first in `where`
+> - [ ] Limit `afterEvents` search count and time window
+> - [ ] Use appropriate index patterns (specific vs wildcard)
+> - [ ] Implement proper deduplication
+> - [ ] Avoid excessive regex patterns
+> - [ ] Test with realistic event volumes
+
 ### Filter Optimization Checklist
 
-<Check>
-- [ ] Delete unnecessary fields early
-- [ ] Use conditional steps with `where`
-- [ ] Optimize grok patterns (specific over generic)
-- [ ] Minimize number of parsing steps
-- [ ] Cache expensive operations
-- [ ] Use efficient data type conversions
-- [ ] Remove debug/temporary fields
-- [ ] Test filter performance with real data
+> [!TIP]
+> - [ ] Delete unnecessary fields early
+> - [ ] Use conditional steps with `where`
+> - [ ] Optimize grok patterns (specific over generic)
+> - [ ] Minimize number of parsing steps
+> - [ ] Cache expensive operations
+> - [ ] Use efficient data type conversions
+> - [ ] Remove debug/temporary fields
+> - [ ] Test filter performance with real data
+
 ### Monitoring Performance
 
 ```yaml
@@ -408,9 +439,7 @@ steps:
       key: debug.filterEnd
       value: '{{.timestamp}}'
 ```
-
 ---
-
 ## Common Patterns and Anti-Patterns
 
 ### Rules: Good Patterns ✅
@@ -511,9 +540,7 @@ steps:
       - fieldName: everything
         pattern: '{{.greedy}}'
 ```
-
 ---
-
 ## Documentation Standards
 
 ### Rule Documentation Template
@@ -577,4 +604,3 @@ pipeline:
       - [step_type]:
           [params]
 ```
-

@@ -1,11 +1,8 @@
 Secure your UTMStack v11 installation with proper SSL/TLS certificate configuration. This guide covers manual installation, automatic generation with Let's Encrypt, and certificate renewal.
 
-<Note>
-UTMStack v11 requires HTTPS for all web interface access. Proper SSL certificate configuration is essential for production deployments.
-</Note>
-
+> [!NOTE]
+> UTMStack v11 requires HTTPS for all web interface access. Proper SSL certificate configuration is essential for production deployments.
 ---
-
 ## Certificate Requirements
 
 ### Supported Certificate Types
@@ -18,15 +15,13 @@ UTMStack v11 requires HTTPS for all web interface access. Proper SSL certificate
 ### File Requirements
 
 You need two files:
+
 - **Certificate file**: `.crt` or `.pem` extension
 - **Private key file**: `.key` or `.pem` extension
 
-<Warning>
-Never share your private key. Keep it secure and backed up safely.
-</Warning>
-
+> [!WARNING]
+> Never share your private key. Keep it secure and backed up safely.
 ---
-
 ## Method 1: Manual SSL Certificate Installation
 
 Use this method if you already have a certificate from a Certificate Authority.
@@ -66,9 +61,8 @@ Restart Docker services to apply the new certificate:
 sudo systemctl restart docker
 ```
 
-<Info>
-Allow approximately 10 minutes for all services to restart completely.
-</Info>
+> [!INFO]
+> Allow approximately 10 minutes for all services to restart completely.
 
 ### Step 4: Verify Installation
 
@@ -80,10 +74,9 @@ openssl x509 -in /utmstack/cert/utm.crt -text -noout
 curl -I https://your-domain.com
 ```
 
-<Check>
-Your SSL certificate is now installed! Access UTMStack at `https://your-domain.com`
+> [!TIP]
+> Your SSL certificate is now installed! Access UTMStack at `https://your-domain.com`
 ---
-
 ## Method 2: Generate SSL with Let's Encrypt (Certbot)
 
 Let's Encrypt provides free, automated SSL certificates. This is the recommended method for most deployments.
@@ -119,9 +112,8 @@ docker ps | grep frontend
 sudo systemctl start nginx
 ```
 
-<Note>
-This temporary Nginx instance is only used for certificate generation.
-</Note>
+> [!NOTE]
+> This temporary Nginx instance is only used for certificate generation.
 
 ### Step 3: Generate Certificate
 
@@ -132,6 +124,7 @@ sudo certbot --nginx -d siem.yourdomain.com
 ```
 
 Follow the prompts:
+
 1. Enter your email address
 2. Agree to Terms of Service
 3. Choose whether to share your email
@@ -165,10 +158,9 @@ sudo systemctl stop nginx
 sudo systemctl restart docker
 ```
 
-<Check>
-Your Let's Encrypt SSL certificate is now active!
+> [!TIP]
+> Your Let's Encrypt SSL certificate is now active!
 ---
-
 ## Certificate Renewal
 
 Let's Encrypt certificates expire after 90 days. Here's how to renew them.
@@ -224,9 +216,7 @@ docker service scale utmstack_frontend=1
 docker ps | grep frontend
 sudo systemctl restart docker
 ```
-
 ---
-
 ## Certificate Renewal Automation Script
 
 Create an automated renewal script:
@@ -265,9 +255,7 @@ chmod +x /root/renew-utm-cert.sh
 # Add to crontab (runs monthly)
 (crontab -l 2>/dev/null; echo "0 3 1 * * /root/renew-utm-cert.sh") | crontab -
 ```
-
 ---
-
 ## Alternative: Certbot with DNS Challenge
 
 For environments where port 80 is not accessible:
@@ -281,34 +269,30 @@ echo "dns_cloudflare_api_token = YOUR_API_TOKEN" > ~/.secrets/cloudflare.ini
 chmod 600 ~/.secrets/cloudflare.ini
 
 # Generate certificate
-sudo certbot certonly \
-  --dns-cloudflare \
-  --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
+sudo certbot certonly 
+  --dns-cloudflare 
+  --dns-cloudflare-credentials ~/.secrets/cloudflare.ini 
   -d siem.yourdomain.com
 ```
 
-<Note>
-DNS plugins are available for many providers: Route53, Google Cloud DNS, Azure DNS, etc.
-</Note>
-
+> [!NOTE]
+> DNS plugins are available for many providers: Route53, Google Cloud DNS, Azure DNS, etc.
 ---
-
 ## Troubleshooting
 
 <Accordion multiple={true}>
-    <AccordionTab header="Certificate not recognized by browser">
+  <AccordionTab title="Certificate not recognized by browser" icon="hi-window-solid">
 
     **Possible causes**:
     - Incorrect certificate chain
-    - Self-signed certificate without import
-    
+    - Self-signed certificate without import  
     **Solution**:
     - Ensure you're using the fullchain.pem (includes intermediate certificates)
     - For self-signed: Import CA certificate to browser
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Certbot fails with 'Port 80 already in use'">
+
+  <AccordionTab title="Certbot fails with 'Port 80 already in use'" icon="fa fa-plug">
 
     **Solution**:
     ```bash
@@ -320,19 +304,19 @@ DNS plugins are available for many providers: Route53, Google Cloud DNS, Azure D
     # Check what's using port 80
     sudo netstat -tlnp | grep :80
     ```
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Certificate shows as expired">
+
+  <AccordionTab title="Certificate shows as expired" icon="hi-exclamationTriangle-solid">
 
     **Solution**:
     - Renew the certificate using the renewal process above
     - Check system date/time is correct
     - Verify certificate files are updated
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Services won't restart after certificate update">
+
+  <AccordionTab title="Services won't restart after certificate update" icon="mi-sync">
 
     **Solution**:
     ```bash
@@ -343,12 +327,11 @@ DNS plugins are available for many providers: Route53, Google Cloud DNS, Azure D
     openssl x509 -in /UTMStack/cert/utm.crt -noout -dates
     openssl rsa -in /UTMStack/cert/utm.key -check
     ```
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Certificate Monitoring
 
 Monitor your certificate expiration:
@@ -360,40 +343,60 @@ openssl x509 -enddate -noout -in /UTMStack/cert/utm.crt
 # Or check via web
 echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates
 ```
-
 ---
-
 ## Security Best Practices
 
-<CardGroup cols={2}>
-  <Card title="Use Strong Keys" icon="pi pi-key" iconAlign="left" content="- Minimum 2048-bit RSA keys     - 4096-bit recommended for high security     - Consider ECDSA for better performance" />
-  
-  <Card title="Protect Private Keys" icon="pi pi-lock" iconAlign="left" content="- Never share or expose private keys     - Set proper file permissions (600)     - Back up securely" />
-  
-  <Card title="Monitor Expiration" icon="pi pi-clock" iconAlign="left" content="- Set up expiration alerts     - Renew 30 days before expiration     - Test renewal process regularly" />
-  
-  <Card title="Use Automation" icon="pi pi-robot" iconAlign="left" content="- Enable Certbot auto-renewal     - Use scripts for updates     - Monitor renewal logs" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Use Strong Keys" icon="pi pi-key">
+    
+    - Minimum 2048-bit RSA keys
+    - 4096-bit recommended for high security
+    - Consider ECDSA for better performance
+    
+    </Card>
+    <Card title="Monitor Expiration" icon="pi pi-clock">
+    
+    - Set up expiration alerts
+    - Renew 30 days before expiration
+    - Test renewal process regularly
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Protect Private Keys" icon="pi pi-lock">
+    
+    - Never share or expose private keys
+    - Set proper file permissions (600)
+    - Back up securely
+    
+    </Card>
+    <Card title="Use Automation" icon="mi-smart_toy">
+    
+    - Enable Certbot auto-renewal
+    - Use scripts for updates
+    - Monitor renewal logs
+    
+    </Card>
+  </Column>
+</Columns>
 ---
-
 ## Wildcard Certificates
 
 For multiple subdomains:
 
 ```bash
 # Generate wildcard certificate
-sudo certbot certonly \
-  --manual \
-  --preferred-challenges dns \
-  -d "*.yourdomain.com" \
+sudo certbot certonly 
+  --manual 
+  --preferred-challenges dns 
+  -d "*.yourdomain.com" 
   -d "yourdomain.com"
 ```
 
-Follow the prompts to add DNS TXT records for validation.
-
----
+## Follow the prompts to add DNS TXT records for validation.
 
 ## Support
 
-<Note>
-If you encounter issues during certificate installation or renewal, contact UTMStack support or consult the [community forums](https://github.com/utmstack/UTMStack/discussions).
-</Note>
+> [!NOTE]
+> If you encounter issues during certificate installation or renewal, contact UTMStack support or consult the [community forums](https://github.com/utmstack/UTMStack/discussions).

@@ -2,12 +2,9 @@
 
 Proper firewall configuration is essential for UTMStack v11 security and functionality. This guide details all required ports and provides security recommendations for different deployment scenarios.
 
-<Warning>
-**Security First**: Always follow the principle of least privilege. Only open ports that are necessary and restrict access to trusted networks or IP addresses.
-</Warning>
-
+> [!WARNING]
+> **Security First**: Always follow the principle of least privilege. Only open ports that are necessary and restrict access to trusted networks or IP addresses.
 ---
-
 ## Core System Ports
 
 These ports are required for basic UTMStack operation:
@@ -15,162 +12,181 @@ These ports are required for basic UTMStack operation:
 ### Administrative Access
 
 <Accordion multiple={true}>
-    <AccordionTab header="Port 22/TCP - SSH (Secure Shell)">
+  <AccordionTab title="Port 22/TCP - SSH (Secure Shell)" icon="fa fa-terminal">
 
-    **Purpose**: Remote server administration and management
-    
-    **Required for**: 
+    **Purpose**: Remote server administration and management  
+    **Required for**:
     - System administration
     - Installation and updates
-    - Troubleshooting
-    
+    - Troubleshooting  
     **Security Recommendations**:
     ```bash
     # Restrict to admin IPs only
     sudo ufw allow from ADMIN_IP to any port 22 proto tcp
     ```
-    
-    <Warning>
-    Never expose SSH to the public internet. Use VPN or IP whitelisting.
-    </Warning>
-  
-  </AccordionTab>
-  
-    <AccordionTab header="Port 80/TCP - HTTP Redirector">
+    > [!WARNING]
+    > Never expose SSH to the public internet. Use VPN or IP whitelisting.
 
-    **Purpose**: Redirects HTTP traffic to HTTPS
-    
-    **Required for**: 
+  </AccordionTab>
+
+  <AccordionTab title="Port 80/TCP - HTTP Redirector" icon="fa fa-exchange">
+
+    **Purpose**: Redirects HTTP traffic to HTTPS  
+    **Required for**:
     - Automatic HTTPS redirect
-    - Let's Encrypt certificate validation (temporarily)
-    
+    - Let's Encrypt certificate validation (temporarily)  
     **Security Recommendations**:
     ```bash
     # Allow from analyst networks
     sudo ufw allow from ANALYST_NETWORK to any port 80 proto tcp
     ```
-    
-    <Info>
-    This port can be blocked after SSL certificate setup if not using auto-renewal.
-    </Info>
-  
-  </AccordionTab>
-  
-    <AccordionTab header="Port 443/TCP - HTTPS">
+    > [!INFO]
+    > This port can be blocked after SSL certificate setup if not using auto-renewal.
 
-    **Purpose**: UTMStack web-based graphical user interface (primary access)
-    
-    **Required for**: 
+  </AccordionTab>
+
+  <AccordionTab title="Port 443/TCP - HTTPS" icon="hi-lockClosed-solid">
+
+    **Purpose**: UTMStack web-based graphical user interface (primary access)  
+    **Required for**:
     - Web interface access
     - API connections
-    - User authentication
-    
+    - User authentication  
     **Security Recommendations**:
     ```bash
     # Restrict to security team networks
     sudo ufw allow from SOC_NETWORK to any port 443 proto tcp
     ```
-    
-    <Check>
-    This is the primary access point. Always use HTTPS, never HTTP.
-  </AccordionTab>
-  
-    <AccordionTab header="Port 9090/TCP - Cockpit">
+    > [!TIP]
+    > This is the primary access point. Always use HTTPS, never HTTP.
 
-    **Purpose**: Web-based server management interface
-    
-    **Required for**: 
+  </AccordionTab>
+
+  <AccordionTab title="Port 9090/TCP - Cockpit" icon="fa fa-dashboard">
+
+    **Purpose**: Web-based server management interface  
+    **Required for**:
     - System monitoring
     - Container management
-    - Resource utilization viewing
-    
+    - Resource utilization viewing  
     **Security Recommendations**:
     ```bash
     # Restrict to system administrators only
     sudo ufw allow from ADMIN_IP to any port 9090 proto tcp
     ```
-    
-    <Warning>
-    Highly sensitive. Restrict to administrators' IPs only.
-    </Warning>
-  
+    > [!WARNING]
+    > Highly sensitive. Restrict to administrators' IPs only.
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Agent Communication Ports
 
 These ports are required for communication between UTMStack agents and the server:
 
-<CardGroup cols={2}>
-  <Card title="Port 9000/TCP" icon="pi pi-network-wired" iconAlign="left" content="**Agent-to-Manager Communication**          Required for UTMStack agents to communicate with the manager server. This port handles agent registration and heartbeat traffic.          ```bash     # Allow from agent networks     sudo ufw allow from AGENT_NETWORK to any port 9000 proto tcp     ```" />
-  
-  <Card title="Port 9001/TCP" icon="pi pi-network-wired" iconAlign="left" content="**Agent Data Transfer**          Used for transferring log data and telemetry from agents to the manager server.          ```bash     # Allow from agent networks     sudo ufw allow from AGENT_NETWORK to any port 9001 proto tcp     ```" />
-  
-  <Card title="Port 50051/TCP" icon="pi pi-network-wired" iconAlign="left" content="**gRPC Agent Communication**          High-performance gRPC protocol for agent communication, including file transfers and advanced features.          ```bash     # Allow from agent networks     sudo ufw allow from AGENT_NETWORK to any port 50051 proto tcp     ```" />
-<Info>
-**New in v11**: Agent communication has been optimized for better performance and security with enhanced TLS encryption.
-</Info>
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Port 9000/TCP" icon="fa fa-sitemap">
+    
+    **Agent-to-Manager Communication**
+    
+    Required for UTMStack agents to communicate with the manager server. This port handles agent registration and heartbeat traffic.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 9000 proto tcp
+    ```
+    
+    </Card>
+    <Card title="Port 50051/TCP" icon="fa fa-sitemap">
+    
+    **gRPC Agent Communication**
+    
+    High-performance gRPC protocol for agent communication, including file transfers and advanced features.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 50051 proto tcp
+    ```
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Port 9001/TCP" icon="fa fa-sitemap">
+    
+    **Agent Data Transfer**
+    
+    Used for transferring log data and telemetry from agents to the manager server.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 9001 proto tcp
+    ```
+    
+    </Card>
+  </Column>
+</Columns>
 
+> [!INFO]
+> **New in v11**: Agent communication has been optimized for better performance and security with enhanced TLS encryption.
 ---
-
 ## Integration and Data Collection Ports
 
 Additional ports are required based on your configured integrations:
 
 ### Syslog Receivers
 
-  <AccordionTab header="Syslog Ports Configuration">
+<Accordion multiple={true}>
+  <AccordionTab title="Syslog Ports Configuration" >
 
-  **Port 514/UDP**: Standard Syslog
-  ```bash
-  sudo ufw allow from SOURCE_NETWORK to any port 514 proto udp
-  ```
-  
-  **Port 514/TCP**: Syslog over TCP
-  ```bash
-  sudo ufw allow from SOURCE_NETWORK to any port 514 proto tcp
-  ```
-  
-  **Port 6514/TCP**: Syslog over TLS (Recommended)
-  ```bash
-  sudo ufw allow from SOURCE_NETWORK to any port 6514 proto tcp
-  ```
+    **Port 514/UDP**: Standard Syslog
+    ```bash
+    sudo ufw allow from SOURCE_NETWORK to any port 514 proto udp
+    ```
+    **Port 514/TCP**: Syslog over TCP
+    ```bash
+    sudo ufw allow from SOURCE_NETWORK to any port 514 proto tcp
+    ```
+    **Port 6514/TCP**: Syslog over TLS (Recommended)
+    ```bash
+    sudo ufw allow from SOURCE_NETWORK to any port 6514 proto tcp
+    ```
 
   </AccordionTab>
+
+</Accordion>
 
 ### NetFlow/IPFIX
 
-  <AccordionTab header="Flow Data Collection">
+<Accordion multiple={true}>
+  <AccordionTab title="Flow Data Collection" >
 
-  **Port 2055/UDP**: NetFlow v5/v9
-  ```bash
-  sudo ufw allow from NETWORK_DEVICES to any port 2055 proto udp
-  ```
-  
-  **Port 4739/UDP**: IPFIX
-  ```bash
-  sudo ufw allow from NETWORK_DEVICES to any port 4739 proto udp
-  ```
+    **Port 2055/UDP**: NetFlow v5/v9
+    ```bash
+    sudo ufw allow from NETWORK_DEVICES to any port 2055 proto udp
+    ```
+    **Port 4739/UDP**: IPFIX
+    ```bash
+    sudo ufw allow from NETWORK_DEVICES to any port 4739 proto udp
+    ```
 
   </AccordionTab>
 
+</Accordion>
+
 ### Cloud Integrations
 
-<Info>
-Cloud integrations (AWS, Azure, GCP, Office 365) typically use **outbound HTTPS (443)** connections only. No inbound ports required.
-</Info>
-
+> [!INFO]
+> Cloud integrations (AWS, Azure, GCP, Office 365) typically use **outbound HTTPS (443)** connections only. No inbound ports required.
 ---
-
 ## Multi-Node Deployment Ports
 
 For deployments with multiple nodes (manager + workers):
 
 ### Manager-to-Worker Communication
 
-```
+```plaintext
 Port 2377/TCP: Cluster management
 Port 7946/TCP+UDP: Container network discovery
 Port 4789/UDP: Overlay network traffic
@@ -185,7 +201,7 @@ sudo ufw allow from CLUSTER_NODE_IP to any port 4789 proto udp
 
 ### Elasticsearch Cluster (if distributed)
 
-```
+```plaintext
 Port 9200/TCP: Elasticsearch HTTP API
 Port 9300/TCP: Elasticsearch transport
 ```
@@ -195,14 +211,12 @@ Port 9300/TCP: Elasticsearch transport
 sudo ufw allow from CLUSTER_NODE_IP to any port 9200 proto tcp
 sudo ufw allow from CLUSTER_NODE_IP to any port 9300 proto tcp
 ```
-
 ---
-
 ## Federated Deployment Ports
 
 For MSP deployments with central federation server:
 
-```
+```plaintext
 Port 443/TCP: API communication with central server
 Port 50052/TCP: Federation gRPC communication
 ```
@@ -212,9 +226,7 @@ Port 50052/TCP: Federation gRPC communication
 sudo ufw allow out to CENTRAL_SERVER_IP port 443 proto tcp
 sudo ufw allow out to CENTRAL_SERVER_IP port 50052 proto tcp
 ```
-
 ---
-
 ## UFW Configuration Examples
 
 ### Basic Single-Node Deployment
@@ -275,9 +287,7 @@ done
 
 sudo ufw enable
 ```
-
 ---
-
 ## Cloud Provider Specific Configurations
 
 ### AWS Security Groups
@@ -314,31 +324,58 @@ sudo ufw enable
 
 ```powershell
 # Create NSG rule for HTTPS
-az network nsg rule create \
-  --resource-group UTMStack-RG \
-  --nsg-name UTMStack-NSG \
-  --name Allow-HTTPS \
-  --priority 100 \
-  --source-address-prefixes "ANALYST_IP" \
-  --destination-port-ranges 443 \
-  --protocol Tcp \
+az network nsg rule create 
+  --resource-group UTMStack-RG 
+  --nsg-name UTMStack-NSG 
+  --name Allow-HTTPS 
+  --priority 100 
+  --source-address-prefixes "ANALYST_IP" 
+  --destination-port-ranges 443 
+  --protocol Tcp 
   --access Allow
 ```
-
 ---
-
 ## Security Best Practices
 
-<CardGroup cols={2}>
-  <Card title="Principle of Least Privilege" icon="pi pi-shield" iconAlign="left" content="- Only open required ports     - Restrict source IPs when possible     - Use network segmentation     - Regular security audits" />
-  
-  <Card title="Network Segmentation" icon="pi pi-layer-group" iconAlign="left" content="- Separate management network     - Isolated agent network     - DMZ for log collectors     - Internal-only cluster communication" />
-  
-  <Card title="Monitor Access" icon="pi pi-eye" iconAlign="left" content="- Log all connection attempts     - Alert on unauthorized access     - Regular review of firewall logs     - Use intrusion detection" />
-  
-  <Card title="Keep Updated" icon="pi pi-arrow-up" iconAlign="left" content="- Apply security patches     - Update firewall rules     - Review access requirements     - Document changes" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Principle of Least Privilege" icon="pi pi-shield">
+    
+    - Only open required ports
+    - Restrict source IPs when possible
+    - Use network segmentation
+    - Regular security audits
+    
+    </Card>
+    <Card title="Monitor Access" icon="pi pi-eye">
+    
+    - Log all connection attempts
+    - Alert on unauthorized access
+    - Regular review of firewall logs
+    - Use intrusion detection
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Network Segmentation" icon="mi-layers">
+    
+    - Separate management network
+    - Isolated agent network
+    - DMZ for log collectors
+    - Internal-only cluster communication
+    
+    </Card>
+    <Card title="Keep Updated" icon="pi pi-arrow-up">
+    
+    - Apply security patches
+    - Update firewall rules
+    - Review access requirements
+    - Document changes
+    
+    </Card>
+  </Column>
+</Columns>
 ---
-
 ## Testing Connectivity
 
 ### Test Open Ports
@@ -363,13 +400,11 @@ sudo ss -tlnp
 curl -k https://UTMSTACK_IP:9000
 telnet UTMSTACK_IP 9000
 ```
-
 ---
-
 ## Troubleshooting
 
 <Accordion multiple={true}>
-    <AccordionTab header="Cannot access web interface">
+  <AccordionTab title="Cannot access web interface" icon="hi-window-solid">
 
     **Check**:
     ```bash
@@ -382,10 +417,10 @@ telnet UTMSTACK_IP 9000
     # Test from server
     curl -k https://localhost
     ```
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Agents cannot connect">
+
+  <AccordionTab title="Agents cannot connect" icon="fa fa-plug">
 
     **Check**:
     ```bash
@@ -398,10 +433,10 @@ telnet UTMSTACK_IP 9000
     # Test connectivity from agent
     telnet MANAGER_IP 9000
     ```
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="No logs from syslog sources">
+
+  <AccordionTab title="No logs from syslog sources" icon="hi-documentDuplicate-solid">
 
     **Check**:
     ```bash
@@ -414,29 +449,39 @@ telnet UTMSTACK_IP 9000
     # Check firewall rules
     sudo ufw status | grep 514
     ```
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Integration-Specific Port Requirements
 
-<Note>
-Additional ports may be required for specific integrations. Refer to each integration's documentation for detailed port requirements and security recommendations.
-</Note>
+> [!NOTE]
+> Additional ports may be required for specific integrations. Refer to each integration's documentation for detailed port requirements and security recommendations.
 
 Common integration ports:
+
 - **Windows agents**: 9000-9001/TCP, 50051/TCP
 - **Linux agents**: 9000-9001/TCP, 50051/TCP
 - **Network devices**: 514/UDP (Syslog), 2055/UDP (NetFlow)
 - **Firewalls**: 514/TCP (Syslog-TLS recommended)
 - **Custom collectors**: Varies by integration
-
 ---
-
 ## Next Steps
 
-<CardGroup cols={2}>
-  <Card title="SSL Certificate Setup" icon="pi pi-certificate" iconAlign="left" href="/v11/Installation/ssl_certificate" content="Secure your installation" />
-  <Card title="Agent Installation" icon="pi pi-laptop" iconAlign="left" href="/v11/integrations" content="Integrations" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="SSL Certificate Setup" icon="hi-lockClosed-solid" href="/v11/Installation/ssl_certificate">
+    
+    Secure your installation
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Agent Installation" icon="fa fa-laptop" href="/v11/integrations">
+    
+    Integrations
+    
+    </Card>
+  </Column>
+</Columns>

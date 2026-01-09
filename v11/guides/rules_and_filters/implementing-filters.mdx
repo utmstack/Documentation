@@ -1,14 +1,12 @@
 This guide provides a comprehensive reference for developers creating **filters** to extract, enrich, and transform raw log data in UTMStack v11. Filters are YAML files used by the parsing plugin to convert raw events into a standardized format.
 
-<Info>
-**Developer Reference**: This page is designed as a practical guide for implementing data transformation pipelines through filters.
-</Info>
-
+> [!INFO]
+> **Developer Reference**: This page is designed as a practical guide for implementing data transformation pipelines through filters.
 ---
-
 ## What are Filters?
 
 **Filters** define how to extract and transform data from raw events into a standardized format that can be:
+
 - Analyzed by correlation rules
 - Searched in Log Explorer
 - Visualized in dashboards
@@ -21,9 +19,7 @@ This guide provides a comprehensive reference for developers creating **filters*
 - Normalize field names across data sources
 - Enrich data with additional context
 - Transform data types for proper analysis
-
 ---
-
 ## Filter Structure
 
 ```yaml
@@ -42,46 +38,42 @@ pipeline:
 
 See complete documentation for all available filter steps and detailed examples.
 
-[View Full Filter Implementation Guide →](/v11/rules-and-filters/filter-steps)
-
----
+## [View Full Filter Implementation Guide →](/v11/rules-and-filters/filter-steps)
 
 ## Filter Steps Reference
 
 ### Parsing Steps
 
 | Step | Purpose | Use Case |
-|------|---------|----------|
-| `json` | Parse JSON data | Structured logs from applications |
-| `grok` | Pattern-based parsing | Unstructured text logs (Apache, Syslog) |
-| `kv` | Key-value pair parsing | Simple formatted logs |
-| `csv` | CSV data parsing | Comma-separated log formats |
+|---|---|---|
+| json | Parse JSON data | Structured logs from applications |
+| grok | Pattern-based parsing | Unstructured text logs (Apache, Syslog) |
+| kv | Key-value pair parsing | Simple formatted logs |
+| csv | CSV data parsing | Comma-separated log formats |
 
 ### Transformation Steps
 
 | Step | Purpose | Use Case |
-|------|---------|----------|
-| `rename` | Rename fields | Standardize field names |
-| `cast` | Convert data types | Ensure proper types for analysis |
-| `reformat` | Reformat values | Timestamp conversion, string formatting |
-| `trim` | Remove characters | Clean up parsed data |
+|---|---|---|
+| rename | Rename fields | Standardize field names |
+| cast | Convert data types | Ensure proper types for analysis |
+| reformat | Reformat values | Timestamp conversion, string formatting |
+| trim | Remove characters | Clean up parsed data |
 
 ### Enrichment Steps
 
 | Step | Purpose | Use Case |
-|------|---------|----------|
-| `add` | Add new fields | Add metadata, computed values |
-| `dynamic` | Call external plugins | Geolocation, threat intelligence |
-| `expand` | Expand nested data | Flatten complex structures |
+|---|---|---|
+| add | Add new fields | Add metadata, computed values |
+| dynamic | Call external plugins | Geolocation, threat intelligence |
+| expand | Expand nested data | Flatten complex structures |
 
 ### Cleanup Steps
 
 | Step | Purpose | Use Case |
-|------|---------|----------|
-| `delete` | Remove fields | Remove unnecessary data |
-
+|---|---|---|
+| delete | Remove fields | Remove unnecessary data |
 ---
-
 ## Quick Start Example
 
 Here's a complete filter for Apache access logs:
@@ -135,63 +127,61 @@ pipeline:
             - log.message
           where: exists(action)
 ```
-
 ---
-
 ## Development Workflow
 
-  ### Identify Data Source
+### Identify Data Source
 
-    Determine what log source you need to process
-  ### Analyze Raw Format
+Determine what log source you need to process
 
-    Examine sample raw events to understand structure
-  ### Create Filter File
+### Analyze Raw Format
 
-    Start with basic parsing steps
-  ### Add Transformation
+Examine sample raw events to understand structure
 
-    Normalize fields and data types
-  ### Enrich Data
+### Create Filter File
 
-    Add geolocation, classifications
-  ### Test Filter
+Start with basic parsing steps
 
-    Deploy and test with sample data
-  ### Optimize
+### Add Transformation
 
-    Remove unnecessary fields, improve performance
----
+Normalize fields and data types
+
+### Enrich Data
+
+Add geolocation, classifications
+
+### Test Filter
+
+Deploy and test with sample data
+
+### Optimize
+
+## Remove unnecessary fields, improve performance
 
 ## Best Practices
 
-<Check>
-**Standardize Field Names**
-- Use consistent naming across all filters
-- Follow UTMStack field mapping conventions
-- Common fields: `origin.ip`, `target.ip`, `deviceTime`, `action`, `actionResult`
-
-**Remove Unnecessary Data**
-- Delete fields not needed for analysis
-- Reduces storage requirements
-- Improves query performance
-
-**Handle Missing Data**
-- Use conditional steps with `where` clauses
-- Test with incomplete/malformed data
-- Provide sensible defaults
-
-**Optimize Performance**
-- Apply heavy operations conditionally
-- Use efficient parsing methods
-- Delete unnecessary fields early in pipeline
-
-**Document Filters**
-- Comment complex patterns
-- Explain transformation logic
-- Note data source requirements
+> [!TIP]
+> **Standardize Field Names**
+> - Use consistent naming across all filters
+> - Follow UTMStack field mapping conventions
+> - Common fields: `origin.ip`, `target.ip`, `deviceTime`, `action`, `actionResult`  
+> **Remove Unnecessary Data**
+> - Delete fields not needed for analysis
+> - Reduces storage requirements
+> - Improves query performance  
+> **Handle Missing Data**
+> - Use conditional steps with `where` clauses
+> - Test with incomplete/malformed data
+> - Provide sensible defaults  
+> **Optimize Performance**
+> - Apply heavy operations conditionally
+> - Use efficient parsing methods
+> - Delete unnecessary fields early in pipeline  
+> **Document Filters**
+> - Comment complex patterns
+> - Explain transformation logic
+> - Note data source requirements
 ---
-
 ## Common Patterns
 
 ### Pattern 1: Web Server Logs
@@ -259,9 +249,7 @@ steps:
       fields: [log.metadata]
       where: exists(log.expandedMetadata)
 ```
-
 ---
-
 ## Troubleshooting
 
 ### Filter Not Processing
@@ -272,11 +260,10 @@ steps:
 
 **Check**: Field names in grok patterns match exactly, patterns are correct
 
-### Type Conversion Errors  
+### Type Conversion Errors
 
 **Check**: Field exists before casting, target type is appropriate
 
 ### Performance Issues
 
 **Check**: Remove unnecessary fields early, use conditional steps, optimize grok patterns
-

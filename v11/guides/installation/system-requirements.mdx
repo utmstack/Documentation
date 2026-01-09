@@ -7,10 +7,9 @@ UTMStack v11 is designed to run on:
 - **Ubuntu 24.04 LTS** (Recommended)
 - Red Hat Enterprise Linux compatible distributions
 
-<Note>
-This installation guide provides instructions to perform the UTMStack installation on Ubuntu 24.04 LTS.
-</Note>
-
+> [!NOTE]
+> This installation guide provides instructions to perform the UTMStack installation on Ubuntu 24.04 LTS.
+---
 ## Hardware Resources
 
 The following specifications are based on typical deployment scenarios. Resource requirements scale with the number of data sources and data volume.
@@ -18,23 +17,24 @@ The following specifications are based on typical deployment scenarios. Resource
 ### Definitions
 
 <Accordion multiple={true}>
-    <AccordionTab header="Hot Log Storage">
+  <AccordionTab title="Hot Log Storage" icon="pi pi-server">
 
     Non-archived data that can be accessed for analysis at any time. This is the actively indexed data in Elasticsearch.
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Cold Log Storage">
+
+  <AccordionTab title="Cold Log Storage" icon="pi pi-database">
 
     Archived data that must be restored before accessing it. Used for long-term compliance and historical analysis.
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Data Source">
+
+  <AccordionTab title="Data Source" icon="fa fa-laptop">
 
     Any individual source of logs, including devices, agents, SaaS integrations, network equipment, servers, and applications.
-  
+
   </AccordionTab>
+
 </Accordion>
 
 ### Baseline Assumptions
@@ -44,31 +44,71 @@ The following specifications are based on typical deployment scenarios. Resource
 
 ### Resource Tiers
 
-<CardGroup cols={2}>
-  <Card title="Small Deployment" icon="pi pi-building" iconAlign="left" content="**50 data sources (120 GB/month)**     - CPU: 4 Cores     - RAM: 16 GB     - Disk: 150 GB SSD     - Ideal for: Small businesses, branch offices" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Small Deployment" icon="pi pi-building">
+    
+    **50 data sources (120 GB/month)**
+    
+    - CPU: 4 Cores
+    - RAM: 16 GB
+    - Disk: 150 GB SSD
+    - Ideal for: Small businesses, branch offices
+    
+    </Card>
+    <Card title="Large Deployment" icon="pi pi-building-columns">
+    
+    **240 data sources (500 GB/month)**
+    
+    - CPU: 16 Cores
+    - RAM: 32 GB
+    - Disk: 500 GB SSD
+    - Ideal for: Enterprises, MSPs
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Medium Deployment" icon="pi pi-server">
+    
+    **120 data sources (250 GB/month)**
+    
+    - CPU: 8 Cores
+    - RAM: 16 GB
+    - Disk: 250 GB SSD
+    - Ideal for: Mid-size organizations
+    
+    </Card>
+    <Card title="Enterprise Deployment" icon="pi pi-globe">
+    
+    **500 data sources (1 TB/month)**
+    
+    - CPU: 32 Cores
+    - RAM: 64 GB
+    - Disk: 1 TB SSD
+    - Ideal for: Large enterprises
+    
+    </Card>
+  </Column>
+</Columns>
 
-  <Card title="Medium Deployment" icon="pi pi-city" iconAlign="left" content="**120 data sources (250 GB/month)**     - CPU: 8 Cores     - RAM: 16 GB     - Disk: 250 GB SSD     - Ideal for: Mid-size organizations" />
-
-  <Card title="Large Deployment" icon="pi pi-building-columns" iconAlign="left" content="**240 data sources (500 GB/month)**     - CPU: 16 Cores     - RAM: 32 GB     - Disk: 500 GB SSD     - Ideal for: Enterprises, MSPs" />
-
-  <Card title="Enterprise Deployment" icon="pi pi-globe" iconAlign="left" content="**500 data sources (1 TB/month)**     - CPU: 32 Cores     - RAM: 64 GB     - Disk: 1 TB SSD     - Ideal for: Large enterprises" />
-<Warning>
-**Horizontal Scaling Required**: Deployments exceeding 500 data sources require adding secondary worker nodes for horizontal scaling. See the [Architecture](/v11/Installation/architecture) guide for multi-node deployment patterns.
-</Warning>
+> [!WARNING]
+> **Horizontal Scaling Required**: Deployments exceeding 500 data sources require adding secondary worker nodes for horizontal scaling. See the [Architecture](/v11/Installation/architecture) guide for multi-node deployment patterns.
 
 ### Combining Resource Tiers
 
 You may combine these tiers to allocate resources based on:
+
 - Number of devices and data sources
 - Desired hot log storage retention period
 - Expected log volume and ingestion rate
 - Analysis and query performance requirements
 
 **Example**: If you need 6 months of hot storage for 120 data sources:
+
 - Base: 8 Cores, 16 GB RAM, 250 GB Disk
 - Multiply storage by 6: **1.5 TB Disk**
 - Consider increasing RAM to 32 GB for better query performance
-
+---
 ## Network Requirements
 
 ### Required Ports
@@ -76,137 +116,152 @@ You may combine these tiers to allocate resources based on:
 The following ports must be accessible for UTMStack to function properly:
 
 <Accordion multiple={true}>
-    <AccordionTab header="22/TCP - SSH (Secure Shell)">
+  <AccordionTab title="22/TCP - SSH (Secure Shell)" icon="fa fa-terminal">
 
-    **Purpose**: Server administration and management
-    
-    **Security Recommendation**: 
+    **Purpose**: Server administration and management  
+    **Security Recommendation**:
     - Create a firewall rule to allow access only from administrator workstations
     - Use key-based authentication
     - Disable password authentication
     - Consider changing the default port
-  
+
   </AccordionTab>
 
-    <AccordionTab header="80/TCP - HTTP Redirect">
+  <AccordionTab title="80/TCP - HTTP Redirect" icon="fa fa-exchange">
 
-    **Purpose**: Web interface HTTP redirector to HTTPS
-    
-    **Security Recommendation**: 
+    **Purpose**: Web interface HTTP redirector to HTTPS  
+    **Security Recommendation**:
     - Allow access only from admin and security analyst workstations
     - Automatically redirects to HTTPS (port 443)
-  
+
   </AccordionTab>
 
-    <AccordionTab header="443/TCP - HTTPS">
+  <AccordionTab title="443/TCP - HTTPS" icon="fa fa-lock">
 
-    **Purpose**: UTMStack web-based graphical user interface
-    
-    **Security Recommendation**: 
+    **Purpose**: UTMStack web-based graphical user interface  
+    **Security Recommendation**:
     - Allow access only from admin and security analyst workstations
     - Use valid SSL/TLS certificates
     - Enable HSTS (HTTP Strict Transport Security)
-  
+
   </AccordionTab>
 
-    <AccordionTab header="9090/TCP - Cockpit">
+  <AccordionTab title="9090/TCP - Cockpit" icon="pi pi-clock">
 
-    **Purpose**: Web-based graphical interface for server management
-    
-    **Security Recommendation**: 
+    **Purpose**: Web-based graphical interface for server management  
+    **Security Recommendation**:
     - Restrict access to administrator workstations only
     - Consider disabling if not used
-  
+
   </AccordionTab>
+
 </Accordion>
 
 ### Integration Ports
 
-<Info>
-Additional ports will be required during the configuration of UTMStack integrations to receive logs from various data sources. 
-
-These ports vary by integration type (syslog, agents, APIs, etc.). Please follow the security recommendations provided in each specific integration guide.
-</Info>
+> [!INFO]
+> Additional ports will be required during the configuration of UTMStack integrations to receive logs from various data sources.  
+> These ports vary by integration type (syslog, agents, APIs, etc.). Please follow the security recommendations provided in each specific integration guide.
 
 Common integration ports include:
+
 - **514/UDP & 514/TCP**: Syslog
 - **6514/TCP**: Syslog over TLS
 - **5044/TCP**: Beats protocol (for agents)
 - **9200/TCP**: Elasticsearch (internal cluster communication)
 - **Various**: API endpoints for cloud integrations
-
+---
 ## Storage Recommendations
 
 ### Disk Type
+
 - **SSD strongly recommended** for Elasticsearch data
 - NVMe SSDs provide optimal performance for high-volume deployments
 - Standard HDDs acceptable only for cold storage archives
 
 ### Filesystem
+
 - **ext4** or **XFS** recommended
 - Disable `atime` updates for better performance
 - Consider separate volumes for:
-  - System (`/`)
+    - System (`/`)
   - Docker (`/var/lib/docker`)
   - UTMStack data (`/opt/utmstack` or custom path)
 
 ### IOPS Considerations
+
 - Minimum 3,000 IOPS for small deployments
 - 10,000+ IOPS recommended for large deployments
 - Monitor disk I/O and scale accordingly
-
+---
 ## Network Bandwidth
 
 ### Minimum Requirements
+
 - **100 Mbps** for small deployments (up to 50 sources)
 - **1 Gbps** for medium to large deployments
 - **10 Gbps** for enterprise deployments with 500+ sources
 
 ### Considerations
+
 - Factor in peak ingestion rates
 - Account for user access and dashboard queries
 - Consider bandwidth for backup and data replication
-
+---
 ## Browser Compatibility
 
 UTMStack v11 web interface is compatible with:
 
 - **Google Chrome** (recommended) - Latest 2 versions
-- **Mozilla Firefox** - Latest 2 versions  
+- **Mozilla Firefox** - Latest 2 versions
 - **Microsoft Edge** (Chromium-based) - Latest 2 versions
 - **Safari** - Latest 2 versions
 
-<Warning>
-Internet Explorer is not supported. JavaScript must be enabled.
-</Warning>
-
+> [!WARNING]
+> Internet Explorer is not supported. JavaScript must be enabled.
+---
 ## Additional Considerations
 
 ### Virtualization
+
 UTMStack can run on:
+
 - VMware ESXi
 - Proxmox VE
 - KVM/QEMU
 - Microsoft Hyper-V
 - Cloud platforms (AWS, Azure, GCP)
 
-<Note>
-Ensure CPU cores are dedicated (not overcommitted) for production deployments.
-</Note>
+> [!NOTE]
+> Ensure CPU cores are dedicated (not overcommitted) for production deployments.
 
 ### Time Synchronization
+
 - **NTP/Chrony** must be configured and synchronized
 - Critical for accurate log correlation and timestamp analysis
 - All nodes in a multi-node deployment must be time-synchronized
 
 ### DNS Resolution
+
 - Proper DNS configuration required for hostname resolution
 - Forward and reverse DNS should be correctly configured
 - Important for multi-node deployments and integrations
 
 ## Next Steps
 
-<CardGroup cols={2}>
-  <Card title="Architecture" icon="pi pi-sitemap" iconAlign="left" href="/v11/Installation/architecture" content="Learn about UTMStack v11 architecture and deployment models" />
-  
-  <Card title="Installation Guide" icon="pi pi-download" iconAlign="left" href="/v11/Installation/installation" content="Follow the step-by-step installation instructions" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Architecture" icon="pi pi-sitemap" href="/v11/Installation/architecture">
+    
+    Learn about UTMStack v11 architecture
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Installation Guide" icon="pi pi-download" href="/v11/Installation/installation">
+    
+    Follow the step-by-step installation instructions
+    
+    </Card>
+  </Column>
+</Columns>

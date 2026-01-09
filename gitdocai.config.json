@@ -94,27 +94,27 @@
                   {
                     "type": "page",
                     "title": "Overview",
-                    "page": "/v11/rules-and-filters/overview.mdx"
+                    "page": "/v11/guides/rules_and_filters/overview.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Implementing Rules",
-                    "page": "/v11/rules-and-filters/implementing-rules.mdx"
+                    "page": "/v11/guides/rules_and_filters/implementing-rules.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Implementing Filters",
-                    "page": "/v11/rules-and-filters/implementing-filters.mdx"
+                    "page": "/v11/guides/rules_and_filters/implementing-filters.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Adding Custom Filters",
-                    "page": "/v11/rules-and-filters/adding-custom-filters.mdx"
+                    "page": "/v11/guides/rules_and_filters/adding-custom-filters.mdx"
                   },
                   {
                     "type": "page",
                     "title": "Best Practices",
-                    "page": "/v11/rules-and-filters/best-practices.mdx"
+                    "page": "/v11/guides/rules_and_filters/best-practices.mdx"
                   }
                 ]
               }

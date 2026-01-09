@@ -1,11 +1,8 @@
 This guide provides a comprehensive reference for developers creating **correlation rules** to detect security threats in UTMStack v11. Rules are YAML files used by the analysis plugin to generate alerts when specific conditions are met.
 
-<Info>
-**Developer Reference**: This page is designed as a practical guide for implementing security detection logic through correlation rules.
-</Info>
-
+> [!INFO]
+> **Developer Reference**: This page is designed as a practical guide for implementing security detection logic through correlation rules.
 ---
-
 ## What are Correlation Rules?
 
 **Correlation rules** define how to analyze events to detect security threats. When an event matches a rule's conditions, an alert is generated.
@@ -17,9 +14,7 @@ This guide provides a comprehensive reference for developers creating **correlat
 - **Complex conditional logic** using CEL expressions
 - **Alert deduplication** to prevent fatigue
 - **Threat intelligence integration**
-
 ---
-
 ## Rule Structure
 
 A complete rule consists of several components:
@@ -52,117 +47,99 @@ A complete rule consists of several components:
     - adversary.ip
     - adversary.country
 ```
-
 ---
-
 ## Rule Fields Reference
 
 ### Basic Metadata
 
 <Accordion multiple={true}>
-    <AccordionTab header="id">
+  <AccordionTab title="id" icon="hi-fingerPrint-solid">
 
     **Type**: Integer  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Unique identifier for the rule across the entire system.
-    
     ```yaml
     id: 1001
     ```
-    
-    <Warning>
-    IDs must be unique. Duplicate IDs will cause conflicts.
-    </Warning>
-  
+    > [!WARNING]
+    > IDs must be unique. Duplicate IDs will cause conflicts.
+
   </AccordionTab>
-  
-    <AccordionTab header="dataTypes">
+
+  <AccordionTab title="dataTypes" icon="pi pi-database">
 
     **Type**: Array of strings  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Specifies which event types this rule applies to. Rule only evaluates events with matching data types.
-    
     ```yaml
     dataTypes:
       - windows
       - linux
       - apache
     ```
-    
     Common data types:
     - `windows`, `linux`, `macos` - OS logs
     - `apache`, `nginx`, `iis` - Web server logs
     - `cisco`, `fortigate`, `paloalto` - Network device logs
     - `aws`, `azure`, `gcp` - Cloud provider logs
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="name">
+
+  <AccordionTab title="name" icon="fa fa-tag">
 
     **Type**: String  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Human-readable name for the rule. Displayed in alerts and UI.
-    
     ```yaml
     name: Brute Force Login Attempt
     ```
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="description">
+
+  <AccordionTab title="description" icon="fa fa-file-powerpoint-o">
 
     **Type**: String  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Detailed description explaining what the rule detects and why it's important.
-    
     ```yaml
     description: Detects multiple failed login attempts from the same source IP within a short time window, indicating a potential brute force attack.
     ```
-  
+
   </AccordionTab>
+
 </Accordion>
 
 ### Threat Classification
 
 <Accordion multiple={true}>
-    <AccordionTab header="impact">
+  <AccordionTab title="impact" icon="fa fa-bomb">
 
     **Type**: Object  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Defines the potential impact of the detected threat on CIA triad (0-5 scale).
-    
     ```yaml
     impact:
       confidentiality: 4  # Data exposure risk
       integrity: 2        # Data modification risk
       availability: 3     # Service disruption risk
     ```
-    
     **Scoring Guide**:
     - **0**: No impact
     - **1-2**: Low impact
     - **3**: Medium impact
     - **4**: High impact
     - **5**: Critical impact
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="category">
+
+  <AccordionTab title="category" icon="mi-workspaces">
 
     **Type**: String  
-    **Required**: Yes
-    
+    **Required**: Yes  
     Classification category for the threat.
-    
     ```yaml
     category: Authentication
     ```
-    
     Common categories:
     - Authentication, Authorization
     - Network Attack, Web Attack
@@ -170,57 +147,50 @@ A complete rule consists of several components:
     - Data Exfiltration
     - Insider Threat
     - Policy Violation
-  
-  </AccordionTab>
-  
-    <AccordionTab header="technique">
 
-    **Type**: String  
-    **Required**: Yes
-    
-    Specific technique used by the threat (often mapped to MITRE ATT&CK).
-    
-    ```yaml
-    technique: Brute Force - T1110
-    ```
-  
   </AccordionTab>
-  
-    <AccordionTab header="adversary">
+
+  <AccordionTab title="technique" icon="hi-wrenchScrewdriver-solid">
 
     **Type**: String  
     **Required**: Yes  
-    **Values**: `origin` or `target`
-    
+    Specific technique used by the threat (often mapped to MITRE ATT&CK).
+    ```yaml
+    technique: Brute Force - T1110
+    ```
+
+  </AccordionTab>
+
+  <AccordionTab title="adversary" icon="fa fa-user-secret">
+
+    **Type**: String  
+    **Required**: Yes  
+    **Values**: `origin` or `target`  
     Identifies which side is considered the adversary.
-    
     ```yaml
     adversary: origin  # Attacker is the source
     # or
     adversary: target  # Attacker is the destination
     ```
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="references">
+
+  <AccordionTab title="references" icon="hi-link-solid">
 
     **Type**: Array of strings  
-    **Required**: No
-    
+    **Required**: No  
     External references for more information (MITRE ATT&CK, CVEs, articles).
-    
     ```yaml
     references:
       - https://attack.mitre.org/techniques/T1110/
       - https://cwe.mitre.org/data/definitions/307.html
     ```
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
-## Conditional Logic: The `where` Field
+## Conditional Logic: The <u>*where*</u> Field
 
 The `where` field defines the main condition using **Common Expression Language (CEL)**.
 
@@ -234,6 +204,7 @@ where: field == "value"
 
 <Tabs>
   <Tab title="Comparison">
+
     ```yaml
     # Equality
     where: statusCode == 200
@@ -244,9 +215,11 @@ where: field == "value"
     where: failedLogins >= 5
     where: severity <= 3
     ```
+
   </Tab>
-  
+
   <Tab title="Logical">
+
     ```yaml
     # AND
     where: statusCode == 404 && method == "GET"
@@ -260,9 +233,11 @@ where: field == "value"
     # Complex
     where: (statusCode >= 400 && statusCode < 500) || method == "DELETE"
     ```
+
   </Tab>
-  
+
   <Tab title="String Operations">
+
     ```yaml
     # Contains
     where: message.contains("error")
@@ -277,9 +252,11 @@ where: field == "value"
     # Pattern matching
     where: url.matches(".*\\.php\\?.*")
     ```
+
   </Tab>
-  
+
   <Tab title="Field Checks">
+
     ```yaml
     # Field exists and has value
     where: has(origin.ip)
@@ -293,7 +270,9 @@ where: field == "value"
     where: double(statusCode) >= 200.0
     where: int(severity) > 3
     ```
+
   </Tab>
+
 </Tabs>
 
 ### Complex Expression Examples
@@ -315,10 +294,8 @@ where: has(deviceTime) &&
        time.getHours(deviceTime) <= 6 && 
        actionResult == "failure"
 ```
-
 ---
-
-## Event Correlation: The `afterEvents` Field
+## Event Correlation: The <u>*afterEvents*</u> Field
 
 The `afterEvents` field enables **multi-event correlation** by searching for additional events within specified time windows.
 
@@ -337,14 +314,33 @@ afterEvents:
 
 ### Search Operators
 
-<CardGroup cols={2}>
-  <Card title="filter_term" icon="pi pi-equals" iconAlign="left" content="**Exact match** using term search (keyword fields)          Best for: IPs, usernames, exact strings" />
-  
-  <Card title="filter_match" icon="pi pi-magnifying-glass" iconAlign="left" content="**Full-text match** using text search          Best for: Messages, descriptions, analyzed text" />
-  
-  <Card title="must_not_term" icon="pi pi-ban" iconAlign="left" content="**Not equal** using term search          Best for: Excluding specific values" />
-  
-  <Card title="must_not_match" icon="pi pi-circle-xmark" iconAlign="left" content="**Not matching** using text search          Best for: Excluding text patterns" />
+<Columns columnCount={2}>
+  <Column>
+    <Card title="filter_term" icon="pi pi-equals">
+    
+    **Exact match** using term search (keyword fields). Best for: IPs, usernames, exact strings.
+    
+    </Card>
+    <Card title="must_not_term" icon="pi pi-ban">
+    
+    **Not equal** using term search. Best for: Excluding specific values.
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="filter_match" icon="fa fa-search">
+    
+    **Full-text match** using text search. Best for: Messages, descriptions, analyzed text.
+    
+    </Card>
+    <Card title="must_not_match" icon="hi-xCircle-solid">
+    
+    **Not matching** using text search. Best for: Excluding text patterns.
+    
+    </Card>
+  </Column>
+</Columns>
+
 ### Dynamic Values
 
 Use `{{field.path}}` syntax to reference values from the triggering event:
@@ -420,12 +416,9 @@ afterEvents:
         count: 2
 ```
 
-<Note>
-**Count Limit**: Maximum `count` value is **50** to prevent performance issues.
-</Note>
-
+> [!NOTE]
+> **Count Limit**: Maximum `count` value is **50** to prevent performance issues.
 ---
-
 ## Alert Deduplication
 
 Use `deduplicateBy` to prevent duplicate alerts for the same threat:
@@ -446,40 +439,45 @@ deduplicateBy:
 
 ### Best Practices
 
-<Check>
-- Include fields that uniquely identify the threat
-- Balance between deduplication and alert visibility
-- Common fields: IPs, usernames, hostnames, attack types
-- Avoid time-based fields that change frequently
+> [!TIP]
+> - Include fields that uniquely identify the threat
+> - Balance between deduplication and alert visibility
+> - Common fields: IPs, usernames, hostnames, attack types
+> - Avoid time-based fields that change frequently
 ---
-
 ## Rule Evaluation Process
 
-  ### Event Received
+### Event Received
 
-    EventProcessor receives and parses event
-  ### Data Type Match
+EventProcessor receives and parses event
 
-    System identifies rules matching event's data type
-  ### Where Condition
+### Data Type Match
 
-    Evaluates `where` expression using event fields
-  ### AfterEvents Search
+System identifies rules matching event's data type
 
-    If where=true, performs correlation searches
-  ### Count Validation
+### Where Condition
 
-    Checks if required event counts are met
-  ### Alert Generation
+Evaluates `where` expression using event fields
 
-    Creates alert if all conditions satisfied
-  ### Deduplication
+### AfterEvents Search
 
-    Checks for recent duplicate alerts
-  ### Alert Delivery
+If where=true, performs correlation searches
 
-    Delivers alert to correlation engine and UI
----
+### Count Validation
+
+Checks if required event counts are met
+
+### Alert Generation
+
+Creates alert if all conditions satisfied
+
+### Deduplication
+
+Checks for recent duplicate alerts
+
+### Alert Delivery
+
+## Delivers alert to correlation engine and UI
 
 ## Real-World Examples
 
@@ -648,198 +646,206 @@ deduplicateBy:
     - origin.user
     - action
 ```
-
 ---
-
 ## Development Workflow
 
-  ### Identify Threat
+### Identify Threat
 
-    Determine what security threat you want to detect
-    
-    - Review security requirements
-    - Analyze threat intelligence
-    - Consider MITRE ATT&CK framework
-  ### Analyze Event Data
+Determine what security threat you want to detect
 
-    Examine sample events that indicate this threat
-    
-    ```bash
-    # Query sample events
-    GET v11-log-*/_search
-    {
-      "query": {
-        "match": { "dataType": "windows" }
-      },
-      "size": 10
-    }
-    ```
-  ### Create Rule File
+- Review security requirements
+- Analyze threat intelligence
+- Consider MITRE ATT&CK framework
 
-    Create YAML file with basic structure
-    
-    ```yaml
-    - id: [next_available_id]
-      dataTypes:
-        - [event_type]
-      name: [rule_name]
-      # ... other fields
-    ```
-  ### Define Metadata
+### Analyze Event Data
 
-    Set impact scores, category, technique, references
-  ### Write Where Condition
+Examine sample events that indicate this threat
 
-    Create CEL expression to identify suspicious events
-    
-    - Start simple, refine iteratively
-    - Test expressions with sample data
-    - Handle missing fields with `safe()` and `has()`
-  ### Add Correlation Logic
+```bash
+# Query sample events
+GET v11-log-*/_search
+{
+  "query": {
+    "match": { "dataType": "windows" }
+  },
+  "size": 10
+}
+```
 
-    Define `afterEvents` if multi-event correlation needed
-    
-    - Choose appropriate index patterns
-    - Set reasonable time windows
-    - Use dynamic values for correlation
-  ### Configure Deduplication
+### Create Rule File
 
-    Specify fields to prevent alert fatigue
-  ### Test Rule
+Create YAML file with basic structure
 
-    Deploy to development environment and test
-    
-    - Use test events that should trigger
-    - Use test events that should NOT trigger
-    - Verify alert content and format
-  ### Refine and Optimize
+```yaml
+- id: [next_available_id]
+  dataTypes:
+    - [event_type]
+  name: [rule_name]
+  # ... other fields
+```
 
-    Adjust based on testing results
-    
-    - Tune thresholds
-    - Optimize performance
-    - Reduce false positives
-  ### Document and Deploy
+### Define Metadata
 
-    Add comprehensive description and deploy to production
----
+Set impact scores, category, technique, references
+
+### Write Where Condition
+
+Create CEL expression to identify suspicious events
+
+- Start simple, refine iteratively
+- Test expressions with sample data
+- Handle missing fields with `safe()` and `has()`
+
+### Add Correlation Logic
+
+Define `afterEvents` if multi-event correlation needed
+
+- Choose appropriate index patterns
+- Set reasonable time windows
+- Use dynamic values for correlation
+
+### Configure Deduplication
+
+Specify fields to prevent alert fatigue
+
+### Test Rule
+
+Deploy to development environment and test
+
+- Use test events that should trigger
+- Use test events that should NOT trigger
+- Verify alert content and format
+
+### Refine and Optimize
+
+Adjust based on testing results
+
+- Tune thresholds
+- Optimize performance
+- Reduce false positives
+
+### Document and Deploy
+
+## Add comprehensive description and deploy to production
 
 ## Best Practices
 
 ### Rule Design
 
-<Check>
-**Start Simple**
-- Begin with basic conditions
-- Add complexity incrementally
-- Test each addition
+> [!TIP]
+> **Start Simple**
+> - Begin with basic conditions
+> - Add complexity incrementally
+> - Test each addition
 
 **Be Specific**
+
 - Target specific data types
 - Use precise field matches
 - Avoid overly broad conditions
 
 **Handle Missing Data**
+
 - Always use `has()` or `safe()` for optional fields
 - Provide sensible defaults
 - Test with incomplete events
 
 **Consider Performance**
+
 - Limit data type scope
 - Use efficient operators
 - Minimize afterEvents searches
 - Set reasonable time windows
 
 **Prevent False Positives**
+
 - Test with diverse datasets
 - Include normal activity patterns
 - Use whitelisting where appropriate
 - Refine based on feedback
+
 ### Documentation
 
-<Check>
-- Write clear, detailed descriptions
-- Include relevant references (MITRE ATT&CK, CVEs)
-- Document expected event formats
-- Explain complex logic
-- Note any limitations or caveats
+> [!TIP]
+> - Write clear, detailed descriptions
+> - Include relevant references (MITRE ATT&CK, CVEs)
+> - Document expected event formats
+> - Explain complex logic
+> - Note any limitations or caveats
+
 ### Testing
 
-<Check>
-- Test with real production data samples
-- Test edge cases and missing fields
-- Verify deduplication works correctly
-- Monitor performance impact
-- Conduct regular reviews and updates
+> [!TIP]
+> - Test with real production data samples
+> - Test edge cases and missing fields
+> - Verify deduplication works correctly
+> - Monitor performance impact
+> - Conduct regular reviews and updates
 ---
-
 ## Troubleshooting
 
 ### Common Issues
 
 <Accordion multiple={true}>
-    <AccordionTab header="Rule Not Triggering">
+  <AccordionTab title="Rule Not Triggering" icon="hi-questionMarkCircle-outline">
 
     **Possible Causes**:
     - Event doesn't match `dataTypes`
     - `where` condition evaluates to false
     - `afterEvents` count not met
-    - Field names don't match event structure
-    
+    - Field names don't match event structure  
     **Solutions**:
     - Verify event has correct `dataType` field
     - Test `where` expression with sample data
     - Check field names match exactly (case-sensitive)
     - Review `afterEvents` search results
     - Check for typos in field names
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Too Many False Positives">
+
+  <AccordionTab title="Too Many False Positives" icon="pi pi-exclamation-triangle">
 
     **Possible Causes**:
     - Condition too broad
     - Normal activity matches pattern
-    - Missing exclusions
-    
+    - Missing exclusions  
     **Solutions**:
     - Add more specific conditions
     - Include whitelist of known-good patterns
     - Increase thresholds (counts, time windows)
     - Add additional correlation requirements
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Performance Issues">
+
+  <AccordionTab title="Performance Issues" icon="fa fa-dashboard">
 
     **Possible Causes**:
     - Complex expressions
     - Large time windows in `afterEvents`
-    - Too many correlation searches
-    
+    - Too many correlation searches  
     **Solutions**:
     - Simplify expressions
     - Reduce time window durations
     - Limit number of `afterEvents` searches
     - Narrow `indexPattern` scope
     - Add more specific `dataTypes`
-  
+
   </AccordionTab>
-  
-    <AccordionTab header="Missing Field Errors">
+
+  <AccordionTab title="Missing Field Errors" icon="hi-plusCircle-solid">
 
     **Possible Causes**:
     - Field doesn't exist in all events
     - Field name typo
-    - Data type mismatch
-    
+    - Data type mismatch  
     **Solutions**:
     - Use `has()` to check field existence
     - Use `safe()` with defaults
     - Verify field names against events
     - Check field types match expected
-  
+
   </AccordionTab>
+
 </Accordion>
 
 ### Debugging Tips
