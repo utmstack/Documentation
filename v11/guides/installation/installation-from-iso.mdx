@@ -148,18 +148,23 @@ ssh username@your-server-ip
 The UTMStack installer runs automatically on first boot. Monitor its progress:
 
 <CodeGroup>
-  <Code lang="javascript">
-    tail -f /var/log/utmstack/installer.log
-  </Code>
-  <Code lang="javascript">
-    tail -n 50 /var/log/utmstack/installer.log
-  </Code>
-  <Code lang="javascript">
-    cat /var/log/utmstack/installer.log
-  </Code>
-  <Code lang="javascript">
-    grep -i error /var/log/utmstack/installer.log
-  </Code>
+
+```javascript example.javascript
+tail -f /var/log/utmstack/installer.log
+```
+
+```javascript example.javascript
+tail -n 50 /var/log/utmstack/installer.log
+```
+
+```javascript example.javascript
+cat /var/log/utmstack/installer.log
+```
+
+```javascript example.javascript
+grep -i error /var/log/utmstack/installer.log
+```
+
 </CodeGroup>
 
 > [!TIP]
@@ -170,12 +175,15 @@ The UTMStack installer runs automatically on first boot. Monitor its progress:
 After the main installation completes, you can run the setup wizard to configure additional settings:
 
 <CodeGroup>
-  <Code lang="bash">
-    utmstack-setup
-  </Code>
-  <Code lang="bash">
-    sudo /opt/utmstack/finish-install-setup.sh
-  </Code>
+
+```bash example.bash
+utmstack-setup
+```
+
+```bash example.bash
+sudo /opt/utmstack/finish-install-setup.sh
+```
+
 </CodeGroup>
 
 <Accordion multiple={true}>
@@ -194,30 +202,37 @@ After the main installation completes, you can run the setup wizard to configure
 After installation, verify your system is configured correctly:
 
 <CodeGroup>
-  <Code lang="javascript">
-    lsb_release -a
-    Expected: Ubuntu 24.04.3 LTS
-  </Code>
-  <Code lang="javascript">
-    ip addr show
-    Verify your IP address and network interfaces
-  </Code>
-  <Code lang="javascript">
-    sudo systemctl status ssh
-    Should show: active (running)
-  </Code>
-  <Code lang="javascript">
-    ps aux | grep utmstack
-    Shows if installer is still running
-  </Code>
-  <Code lang="javascript">
-    sudo docker ps
-    Lists running UTMStack containers
-  </Code>
-  <Code lang="javascript">
-    htop
-    Monitor CPU, RAM, and process usage
-  </Code>
+
+```javascript example.javascript
+lsb_release -a
+Expected: Ubuntu 24.04.3 LTS
+```
+
+```javascript example.javascript
+ip addr show
+Verify your IP address and network interfaces
+```
+
+```javascript example.javascript
+sudo systemctl status ssh
+Should show: active (running)
+```
+
+```javascript example.javascript
+ps aux | grep utmstack
+Shows if installer is still running
+```
+
+```javascript example.javascript
+sudo docker ps
+Lists running UTMStack containers
+```
+
+```javascript example.javascript
+htop
+Monitor CPU, RAM, and process usage
+```
+
 </CodeGroup>
 ---
 ## Installed Scripts and Symlinks
@@ -276,15 +291,19 @@ All installation and system logs are centralized for easy troubleshooting.
 | Additional logs | Created by UTMStack services as they start |
 
 <CodeGroup>
-  <Code lang="javascript">
-    sudo cat /var/log/utmstack/installer.log
-  </Code>
-  <Code lang="javascript">
-    sudo tail -f /var/log/utmstack/installer.log
-  </Code>
-  <Code lang="javascript">
-    ls -lh /var/log/utmstack/
-  </Code>
+
+```javascript example.javascript
+sudo cat /var/log/utmstack/installer.log
+```
+
+```javascript example.javascript
+sudo tail -f /var/log/utmstack/installer.log
+```
+
+```javascript example.javascript
+ls -lh /var/log/utmstack/
+```
+
 </CodeGroup>
 ---
 ## Troubleshooting
@@ -298,6 +317,11 @@ All installation and system logs are centralized for easy troubleshooting.
       
       ```
     ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
     tail -f /var/log/utmstack/installer.log
     ```plaintext
     2. Verify network connectivity:
@@ -308,6 +332,11 @@ All installation and system logs are centralized for easy troubleshooting.
         ```bash
       
       ```
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
     ```plaintext
     ps aux | grep utmstack
     ```plaintext
@@ -326,6 +355,11 @@ All installation and system logs are centralized for easy troubleshooting.
       
       ```
     ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
     sudo ufw status
     ```plaintext
     3. Verify network configuration:
@@ -342,6 +376,11 @@ All installation and system logs are centralized for easy troubleshooting.
         ```bash
       
       ```
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
+    ```plaintext
     ```plaintext
     cat /var/log/utmstack/installer.log
     ```plaintext
@@ -407,29 +446,16 @@ Recent improvements to the ISO:
 
 | Feature | Description |
 |---|---|
-| ✅ |  |
-| Ubuntu 24.04.3 LTS | Updated to the latest Long Term Support release |
-| ✅ |  |
-| Community Edition Branding | Complete UTMStack Community Edition branding throughout |
-| ✅ |  |
-| Interactive Configuration | New interactive network and identity configuration during setup |
-| ✅ |  |
-| Organized Scripts | Scripts moved to |
-| /opt/utmstack/ |  |
-| for better organization |  |
-| ✅ |  |
-| Command Symlinks | Convenient symlinks added for easy command access |
-| ✅ |  |
-| Centralized Logs | All logs centralized in |
-| /var/log/utmstack/ |  |
-| ✅ |  |
-| SSH Preinstalled | SSH server preinstalled and enabled by default |
-| ✅ |  |
-| Auto-execution | Installer runs automatically on first boot |
-| ✅ |  |
-| Simplified Setup | Setup script simplified (timezone configuration only) |
-| ✅ |  |
-| Verification Commands | Enhanced system verification commands included |
+| ✅ Ubuntu 24.04.3 LTS | Updated to the latest Long Term Support release |
+| ✅ Community Edition Branding | Complete UTMStack Community Edition branding throughout |
+| ✅ Interactive Configuration | New interactive network and identity configuration during setup |
+| ✅ Organized Scripts | Scripts moved to /opt/utmstack/ for better organization |
+| ✅ Command Symlinks | Convenient symlinks added for easy command access |
+| ✅ Centralized Logs | All logs centralized in |
+| ✅ SSH Preinstalled | SSH server preinstalled and enabled by default |
+| ✅ Auto-execution | Installer runs automatically on first boot |
+| ✅ Simplified Setup | Setup script simplified (timezone configuration only) |
+| ✅ Verification Commands | Enhanced system verification commands included |
 ---
 ## Support and Resources
 

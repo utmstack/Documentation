@@ -76,7 +76,7 @@ In the **"Allowed IPs"** field, add IP addresses or CIDR ranges that are permitt
 - Multiple entries: Add each IP/CIDR separately by clicking the plus icon
 
 > [!WARNING]
-> **Security Recommendation**: Always restrict API keys to specific IP addresses or ranges. The form will show an error message "Please enter an IP address or CIDR" if you try to proceed without adding at least one IP.
+> **Security Recommendation**: Always restrict API keys to specific IP addresses or ranges. The form will show an error message "Please enter an IP address or CIDR" if you try to proceed without adding at least one IP.  
 > Avoid leaving this field empty unless absolutely necessary for your use case.
 
 ### Create the API Key
@@ -97,7 +97,7 @@ The dialog shows:
 - A **Close** button
 
 > [!WARNING]
-> **CRITICAL - READ CAREFULLY**: This is the **only time** you will see the complete API key.
+> **CRITICAL - READ CAREFULLY**: This is the **only time** you will see the complete API key.  
 > **Action Required**:
 > 1. Click the **Copy** button immediately to copy the key to your clipboard
 > 2. Paste and store it in a secure password manager or secrets vault
@@ -166,7 +166,7 @@ Confirm the action. This cannot be undone.
 <Accordion multiple={true}>
   <AccordionTab title="Accordion Item" >
 
-    **Always** configure allowed IP addresses or CIDR ranges for each API key. This prevents unauthorized use if a key is compromised.
+    **Always** configure allowed IP addresses or CIDR ranges for each API key. This prevents unauthorized use if a key is compromised.  
     **Example**:
     - Development: `192.168.1.0/24` (internal network only)
     - Production: `203.0.113.10` (specific server IP)
@@ -179,7 +179,7 @@ Confirm the action. This cannot be undone.
     Set appropriate expiration dates based on use case:
     - **Testing/Development**: 30-90 days
     - **Production**: 6-12 months
-    - **Temporary integrations**: As short as needed
+    - **Temporary integrations**: As short as needed  
     Regularly rotate keys before expiration.
 
   </AccordionTab>
@@ -190,7 +190,7 @@ Confirm the action. This cannot be undone.
     - Source code repositories
     - Configuration files committed to version control
     - Plain text files on disk
-    - Browser local storage
+    - Browser local storage  
     **Secure storage options**:
     - Environment variables
     - Secret management services (HashiCorp Vault, AWS Secrets Manager)
@@ -216,7 +216,7 @@ Confirm the action. This cannot be undone.
     - Active API keys and their purpose
     - Last used timestamps
     - Keys approaching expiration
-    - Unused or forgotten keys (delete them)
+    - Unused or forgotten keys (delete them)  
     Set up alerts for:
     - Failed authentication attempts
     - Keys used from unexpected IP addresses
@@ -229,7 +229,7 @@ Confirm the action. This cannot be undone.
     Create separate API keys for different purposes:
     - One key per application/integration
     - One key per environment (dev, staging, production)
-    - Different keys for different teams
+    - Different keys for different teams  
     This limits the impact if a single key is compromised.
 
   </AccordionTab>

@@ -12,7 +12,7 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 **Method:** POST  
 **Content-Type:** application/json  
 **Authentication:** Not required  
-**Response:** JWT token for API access 
+**Response:** JWT token for API access
 
 </Card>
 ---
@@ -20,15 +20,15 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 
 ### Request Body
 
-###   
-`username` `string`** **`required`
-
-[Unknown component: ParamField]
-
-[Unknown component: ParamField]
-
-[Unknown component: ParamField]
-
+<ParamField path="username" type="string" required>
+  User login name or email address
+</ParamField>
+<ParamField path="password" type="string" required>
+  User password
+</ParamField>
+<ParamField path="rememberMe" type="boolean">
+  Optional. Keeps the session active for a longer period
+</ParamField>
 ### JSON Schema (Request)
 
 ```json
@@ -57,38 +57,28 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
 
 ### Successful Authentication (TFA disabled)
 
-<Tabs>
-  <Tab title="Response">
+<CodeGroup>
 
-    ```json
-    {
-      "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
-      "authenticated": true
-    }
-    ```
-
-  </Tab>
-
-  <Tab title="Headers">
-
-    ```http
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Content-Length: 245
-    ```
-
-  </Tab>
-
-</Tabs>
-
-### TFA Challenge (TFA enabled)
-
-```json
+```json Response
 {
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
-  "authenticated": false
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
+  "authenticated": true
 }
 ```
+
+```javascript Headers
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 245
+```
+
+</CodeGroup>
+
+<Labels>
+  <Label label="Label" color="#3b82f6" size="md" icon="pi pi-bolt" />
+  <Label label="Label 2" color="#ef4444" size="md" />
+</Labels>
+### TFA Challenge (TFA enabled)
 
 > [!INFO]
 > When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
@@ -143,21 +133,21 @@ curl -X POST https://utmstack.example.com/api/authenticate
 ## Error Handling
 
 <Accordion multiple={true}>
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="401 Unauthorized" >
 
     **Description:** Invalid credentials  
     **Resolution:** Verify username/password and try again.
 
   </AccordionTab>
 
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="403 Forbidden" >
 
     **Description:** Login temporarily blocked due to multiple failed attempts  
     **Resolution:** Wait for cooldown period or contact admin.
 
   </AccordionTab>
 
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="500 Internal Server Error" >
 
     **Description:** Unexpected backend error  
     **Resolution:** Check logs or contact UTMStack support.
@@ -229,3 +219,29 @@ components:
         id_token: { type: string }
         authenticated: { type: boolean }
 ```
+
+<RightPanel>
+  <CodeGroup>
+  
+  ```bash Request
+  curl -X POST https://utmstack.example.com/api/authenticate 
+    -H "Content-Type: application/json" 
+    -d '{
+      "username": "admin",
+      "password": "MySecurePassword123",
+      "rememberMe": true
+    }'
+  ```
+  
+  </CodeGroup>
+  <CodeGroup>
+  
+  ```json Response
+  {
+    "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
+    "authenticated": false
+  }
+  ```
+  
+  </CodeGroup>
+</RightPanel>
