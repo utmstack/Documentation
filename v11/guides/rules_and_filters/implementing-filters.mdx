@@ -36,10 +36,6 @@ pipeline:
       # Additional steps...
 ```
 
-See complete documentation for all available filter steps and detailed examples.
-
-## [View Full Filter Implementation Guide →](/v11/rules-and-filters/filter-steps)
-
 ## Filter Steps Reference
 
 ### Parsing Steps
@@ -249,21 +245,3 @@ steps:
       fields: [log.metadata]
       where: exists(log.expandedMetadata)
 ```
----
-## Troubleshooting
-
-### Filter Not Processing
-
-**Check**: Event has correct `dataType` field matching filter configuration
-
-### Fields Not Extracted
-
-**Check**: Field names in grok patterns match exactly, patterns are correct
-
-### Type Conversion Errors
-
-**Check**: Field exists before casting, target type is appropriate
-
-### Performance Issues
-
-**Check**: Remove unnecessary fields early, use conditional steps, optimize grok patterns

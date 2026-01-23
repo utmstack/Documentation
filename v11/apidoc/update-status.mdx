@@ -2,54 +2,32 @@
 
 Updates the **status** of one or more alerts. Allows analysts to change the alert state (e.g., Open, In Review, Completed) and optionally add an observation note. Supports auditing for traceability.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
-
+> [!NOTE]
+> **Authorization Required:** Include a valid Bearer Token in the Authorization header.
 ---
-
 ## Endpoint Details
 
-<Card title="POST /api/utm-alerts/status" icon="pi pi-refresh" iconAlign="left" content="**Method:** POST     **Content-Type:** application/json     **Authentication:** Bearer Token required     **Response:** HTTP 200 OK (no body)" />
-
+<Card title="POST /api/utm-alerts/status" icon="pi pi-refresh" iconAlign="center" />
 ---
-
 ## Request Body
 
-<ParamField body="alertIds" type="array" required>
-  Array of alert UUIDs to update
-  <Expandable title="Example">
-    ```json
-    ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"]
-    ```
-  </Expandable>
+<ParamField path="param" type="array" required>
+  Array of alert UUIDs to update\n[\"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\", \"7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522\"]
 </ParamField>
-
-<ParamField body="status" type="integer" required>
+<ParamField path="param" type="integer" required>
   New status code for the alerts (see status codes below)
 </ParamField>
-
-<ParamField body="statusObservation" type="string">
+<ParamField path="param" type="string">
   Optional observation note about the status change
 </ParamField>
-
-<ParamField body="addFalsePositiveTag" type="boolean" default="false">
-  Whether to add a "False positive" tag to the alerts
+<ParamField path="param" type="boolean">
+  Whether to add a \"False positive\" tag to the alerts
 </ParamField>
-
 ---
-
 ## Status Codes Reference
 
-<CardGroup cols={3}>
-  <Card title="OPEN" icon="pi pi-circle-exclamation" iconAlign="left" content="**Value:** 2       Alert is open and pending review" />
-  
-  <Card title="IN_REVIEW" icon="pi pi-eye" iconAlign="left" content="**Value:** 3       Alert is currently being reviewed" />
-  
-  <Card title="COMPLETED" icon="pi pi-circle-check" iconAlign="left" content="**Value:** 5       Alert has been resolved/completed" />
-</CardGroup>
+[Unknown component: CardGroup]
 ---
-
 ## JSON Schema
 
 ```json
@@ -81,15 +59,13 @@ Updates the **status** of one or more alerts. Allows analysts to change the aler
   "required": ["alertIds", "status"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" 
+  -H "Authorization: Bearer <your_access_token>" 
+  -H "Content-Type: application/json" 
   -d '{
     "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
     "status": 3,
@@ -98,7 +74,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
   }'
 ```
 
-```json Response
+```json
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
@@ -169,22 +145,24 @@ def update_alert_status():
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Update
 
 <Tabs>
   <Tab title="Success Response">
+
     ```http
     HTTP/1.1 200 OK
     Content-Length: 0
     Date: Wed, 16 Oct 2024 10:30:00 GMT
     ```
+
   </Tab>
+
   <Tab title="Error Response">
+
     ```json
     {
       "error": "Invalid alert ID",
@@ -193,29 +171,22 @@ def update_alert_status():
       "status": 404
     }
     ```
+
   </Tab>
+
 </Tabs>
 
-<Note>
-The API returns **HTTP 200 OK** with no response body when the status is successfully updated.
-</Note>
-
+> [!NOTE]
+> The API returns **HTTP 200 OK** with no response body when the status is successfully updated.
 ---
-
 ## Status Codes
 
 - **200** (OK): Status updated successfully
-
 - **400** (Bad Request): Invalid request payload or malformed JSON
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **404** (Not Found): One or more alerts not found
-
 - **500** (Internal Server Error): Internal server error during update
-
 ---
-
 ## Usage Examples
 
 ### Mark Alert as False Positive
@@ -252,54 +223,48 @@ The API returns **HTTP 200 OK** with no response body when the status is success
   "statusObservation": "Bulk closure after investigation completed"
 }
 ```
-
 ---
-
 ## Security Considerations
 
-<Warning>
-**Security Notes:**
-- Requires Bearer token authentication
-- All status changes are **audited** using ApplicationEventService for traceability
-- Users without proper permissions will receive 401 Unauthorized
-- Alert IDs must be valid UUIDs that exist in the system
-</Warning>
-
+> [!WARNING]
+> **Security Notes:**
+> - Requires Bearer token authentication
+> - All status changes are **audited** using ApplicationEventService for traceability
+> - Users without proper permissions will receive 401 Unauthorized
+> - Alert IDs must be valid UUIDs that exist in the system
 ---
-
 ## Best Practices
 
 <Accordion multiple={true}>
-    <AccordionTab header="Status Workflow">
+  <AccordionTab title="Accordion Item" >
 
     Follow a logical status progression:
     1. **OPEN** (2) - Initial alert state
     2. **IN_REVIEW** (3) - Under investigation
     3. **COMPLETED** (5) - Resolved or closed
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Observation Notes">
+  <AccordionTab title="Accordion Item" >
 
     Always include meaningful `statusObservation` notes:
     - Document the reason for status change
     - Include investigation findings
     - Reference any related tickets or incidents
-  
+
   </AccordionTab>
 
-    <AccordionTab header="False Positive Handling">
+  <AccordionTab title="Accordion Item" >
 
     When marking alerts as false positives:
     - Set `status` to 5 (COMPLETED)
     - Set `addFalsePositiveTag` to true
     - Include detailed reasoning in `statusObservation`
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml
