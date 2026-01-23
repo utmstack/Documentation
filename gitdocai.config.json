@@ -102,6 +102,11 @@
                     "type": "page"
                   },
                   {
+                    "title": "Standard Event Schema",
+                    "page": "/v11.0.0/guides/rules_and_filters/standard_event_schema.mdx",
+                    "type": "page"
+                  },
+                  {
                     "type": "page",
                     "title": "Implementing Rules",
                     "page": "/v11/guides/rules_and_filters/implementing-rules.mdx"
