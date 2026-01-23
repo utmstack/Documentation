@@ -12,9 +12,43 @@ The EventProcessor and UTMStack integration consists of several components worki
     </Card>
   </Column>
   <Column>
-    <Card title="EventProcessor Plugins" icon="fa fa-plug">
+    <Card title="EventProcessor Plugins" icon="mi-extension">
     
     Modules that extend the functionality of the EventProcessor (parsing, analysis, etc.).
+    
+    </Card>
+  </Column>
+</Columns>
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="UTMStack Plugins" icon="fa fa-plug">
+    
+    Specific plugins that integrate UTMStack features with the EventProcessor.
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="go-sdk" icon="pi pi-code">
+    
+    A Go SDK that provides common functionality and shared interfaces for both the EventProcessor and its plugins.
+    
+    </Card>
+  </Column>
+</Columns>
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Rules" icon="mi-rule">
+    
+    YAML files defining detection logic for security threats.
+    
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Filters" icon="hi-adjustmentsHorizontal-outline">
+    
+    YAML files defining how to extract and transform data from raw logs.
     
     </Card>
   </Column>

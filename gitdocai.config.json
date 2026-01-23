@@ -92,6 +92,11 @@
                 "title": "Rules and Filters",
                 "children": [
                   {
+                    "title": "Architecture Overview",
+                    "page": "/v11.0.0/guides/rules_and_filters/architecture_overview.mdx",
+                    "type": "page"
+                  },
+                  {
                     "type": "page",
                     "title": "Overview",
                     "page": "/v11/guides/rules_and_filters/overview.mdx"
@@ -115,11 +120,6 @@
                     "type": "page",
                     "title": "Best Practices",
                     "page": "/v11/guides/rules_and_filters/best-practices.mdx"
-                  },
-                  {
-                    "title": "Architecture Overview",
-                    "page": "/v11.0.0/guides/rules_and_filters/architecture_overview.mdx",
-                    "type": "page"
                   }
                 ]
               }
