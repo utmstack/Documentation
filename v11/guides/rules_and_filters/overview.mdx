@@ -115,13 +115,13 @@ Integration and specialized plugins:
 <Accordion multiple={true}>
   <AccordionTab title="What are Rules?" icon="hi-shieldCheck-solid">
 
-    **Rules** are YAML files that define **how to analyze events to detect security threats**.
+    **Rules** are YAML files that define **how to analyze events to detect security threats**.  
     **Purpose**:
     - Detect security attacks and anomalies
     - Generate alerts when conditions are met
     - Correlate events across time windows
-    - Deduplicate similar alerts
-    **Used by**: Analysis plugin to generate security alerts
+    - Deduplicate similar alerts  
+    **Used by**: Analysis plugin to generate security alerts  
     **Example Use Cases**:
     - Brute force attack detection
     - Data exfiltration monitoring
@@ -137,14 +137,14 @@ Integration and specialized plugins:
 <Accordion multiple={true}>
   <AccordionTab title="What are Filters?" icon="fa fa-filter">
 
-    **Filters** are YAML files that define **how to extract and transform raw event data**.
+    **Filters** are YAML files that define **how to extract and transform raw event data**.  
     **Purpose**:
     - Parse raw log data into structured format
     - Extract relevant fields from logs
     - Normalize field names
     - Enrich data with additional context
-    - Transform data types
-    **Used by**: Parsing plugin to standardize events
+    - Transform data types  
+    **Used by**: Parsing plugin to standardize events  
     **Example Use Cases**:
     - Parse Apache access logs
     - Extract fields from Cisco ASA logs
@@ -192,8 +192,8 @@ Correlation plugins detect relationships between alerts
 
 ### Notification & Storage
 
-Alerts are stored and notifications sent to configured systems
----
+## Alerts are stored and notifications sent to configured systems
+
 ## Key Features
 
 ### Plugin-Based Architecture
@@ -267,8 +267,8 @@ Provides configuration functionality for plugins
 plugins/cel.go
 ```
 
-Common Expression Language support for rules
----
+## Common Expression Language support for rules
+
 ## File Structure
 
 ### Rules Directory Structure
