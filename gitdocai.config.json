@@ -97,9 +97,9 @@
                     "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Overview",
-                    "page": "/v11/guides/rules_and_filters/overview.mdx"
+                    "title": "Components",
+                    "page": "/v11.0.0/guides/rules_and_filters/components.mdx",
+                    "type": "page"
                   },
                   {
                     "type": "page",

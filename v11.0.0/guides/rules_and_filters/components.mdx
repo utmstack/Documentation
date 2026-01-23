@@ -1,0 +1,32 @@
+# Components
+
+The ecosystem is built on a two-tier architecture: the high-performance **EventProcessor** engine (managed core) and the **UTMStack** extension layer (open-source ecosystem).
+
+## **EventProcessor (Managed Core)**
+
+The EventProcessor is the proprietary, high-performance engine that orchestrates the data pipeline. While the core engine repository is private, its functionality is fully extensible through the public SDK and the custom plugin system.
+
+### **Parsing Plugins (Built-in)**
+
+Atomic steps used in filters to structure data.
+
+- **Data Extraction: **`json`**, **`kv`**, **`csv`**, **`grok`**.**
+- **Transformation: **`rename`**, **`cast`**, **`reformat`**, **`trim`**, **`add`**.**
+- **Control: **`delete`**, **`drop`**.**
+
+### **Analysis Engines**
+
+- **cel**: The primary engine for evaluating <u>[Rules](https://github.com/utmstack/UTMStack/wiki/Implementing-Rules)</u> using Common Expression Language.
+- **feeds**: A threat intelligence engine that correlates logs with ThreatWinds malicious indicators (IPs, Domains, Hashes).
+
+## **UTMStack (Open Source Ecosystem)**
+
+UTMStack provides the open-source layer of specialized plugins and integrations. We welcome community contributions in the <u>[UTMStack Repository](https://github.com/utmstack/UTMStack)</u>.
+
+| Category | 	Plugin(s) | Role |
+|---|---|---|
+| Ingestion | inputs | Unified entry point for logs via HTTP and gRPC (Agents, Syslog-ng). |
+| Integrations | aws, azure, gcp, o365, crowdstrike, sophos, bitdefender | Native cloud and EDR collectors. |
+| Parsing | geolocation | Enriches events with geographic context. |
+|  | events | Indexes all successfully processed events into OpenSearch (using the v11-log-* pattern). |
+|  |  |  |
