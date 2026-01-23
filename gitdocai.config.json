@@ -89,47 +89,43 @@
               },
               {
                 "type": "group",
-                "title": "Rules and Filters",
+                "title": "Getting Started RULES AND FILTERS",
                 "children": [
                   {
                     "title": "Architecture Overview",
-                    "page": "/v11.0.0/guides/rules_and_filters/architecture_overview.mdx",
+                    "page": "/v11.0.0/guides/getting_started_rules_and_filters/architecture_overview.mdx",
                     "type": "page"
                   },
                   {
                     "title": "Components",
-                    "page": "/v11.0.0/guides/rules_and_filters/components.mdx",
+                    "page": "/v11.0.0/guides/getting_started_rules_and_filters/components.mdx",
                     "type": "page"
                   },
                   {
                     "title": "Standard Event Schema",
-                    "page": "/v11.0.0/guides/rules_and_filters/standard_event_schema.mdx",
+                    "page": "/v11.0.0/guides/getting_started_rules_and_filters/standard_event_schema.mdx",
                     "type": "page"
                   },
                   {
                     "title": "Development Workflow",
-                    "page": "/v11.0.0/guides/rules_and_filters/development_workflow.mdx",
+                    "page": "/v11.0.0/guides/getting_started_rules_and_filters/development_workflow.mdx",
+                    "type": "page"
+                  }
+                ]
+              },
+              {
+                "title": "Configuration & Implementation",
+                "type": "group",
+                "children": [
+                  {
+                    "title": "Implementing Rules",
+                    "page": "/v11.0.0/guides/configuration__implementation/implementing_rules.mdx",
                     "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Implementing Rules",
-                    "page": "/v11/guides/rules_and_filters/implementing-rules.mdx"
-                  },
-                  {
-                    "type": "page",
                     "title": "Implementing Filters",
-                    "page": "/v11/guides/rules_and_filters/implementing-filters.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Adding Custom Filters",
-                    "page": "/v11/guides/rules_and_filters/adding-custom-filters.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Best Practices",
-                    "page": "/v11/guides/rules_and_filters/best-practices.mdx"
+                    "page": "/v11.0.0/guides/configuration__implementation/implementing_filters.mdx",
+                    "type": "page"
                   }
                 ]
               }

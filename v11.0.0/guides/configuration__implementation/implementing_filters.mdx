@@ -1,0 +1,35 @@
+# Implementing Filters
+
+## **The Parsing Lifecycle**
+
+1. **Ingestion**: A log enters the system (via Input Plugin) with basic metadata: `dataSource`, `dataType`, and `tenantId`.
+2. **Draft Creation**: The engine creates a **Draft** object. The original log is stored in the `raw` field.
+3. **Pipeline Matching**: The engine iterates through the `pipeline` configuration.
+    - Stages are evaluated **in order**.
+  - A stage executes if the log's `dataType` is included in the stage's `dataTypes` array.
+  - **Multiple Matches**: A log can match and run through multiple stages if they all contain its `dataType`.
+4. **Step Execution**: Within a stage, steps run sequentially. Each step modifies the Draft's internal JSON string.
+5. **Finalization**: Once all matching stages finish, the final Draft is converted into a structured **Event** and sent to the Analysis stage.
+
+## **Pipeline Architecture**
+
+A well-designed pipeline follows these four phases:
+
+### **phase 1: extraction**
+
+Use `json`, `csv`, `kv`, or `grok` to pull data out of the `raw` string.
+
+```python
+- json:
+    source: raw
+```
+
+### **phase 2: normalization**
+
+Map extracted fields to the <u>[Standard Event Schema](https://github.com/utmstack/UTMStack/wiki/Standard-Event-Schema)</u>.
+
+```javascript
+- rename:
+    from: [log.source_ip, log.src]
+    to: origin.ip
+```

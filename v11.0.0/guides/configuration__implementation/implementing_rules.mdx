@@ -1,0 +1,106 @@
+# Implementing Rules
+
+This is a new page. Start editing to add your content.
+
+## **Rule Definition Reference**
+
+Rules are YAML objects that define what constitutes a security threat. They are processed by the **Analysis** engine.
+
+| Field | Type | Description |
+|---|---|---|
+| id | uint32 | Unique ID for the rule. |
+| name | string | Human-readable name (the Alert Title). |
+| description | string | Detailed explanation of the threat. |
+| category | string | The threat category (e.g., Malware, System Integrity). |
+| technique | string | MITRE ATT&CK technique (e.g., T1059.003). |
+| references | []string | List of external URLs for additional context. |
+| dataTypes | []string | List of event types (e.g., syslog, wineventlog, linux). |
+| adversary | string | Which side of the standard schema represents the attacker (origin or target). Defaults to origin. |
+| impact | object | Map of confidentiality, integrity, availability (0-3). |
+| where | string | CEL Expression. The primary trigger condition. |
+| correlation | []object | Correlation logic. Defines historical searches to perform if where is true. |
+| deduplicateBy | []string | Fields used to suppress similar alerts. If matches continue within the window, no new alert is created. |
+| groupBy | []string | Fields used to parent alerts. If a similar alert exists, new ones are attached as children. |
+
+## **Triggers vs. Correlation**
+
+### **1. Simple Analysis (Trigger)**
+
+If your rule only has a `where` clause, it is a "simple" rule. An alert is generated every time an event matches the condition.
+
+- **Example**: Detect any login from a Restricted User.
+    ```javascript
+  where: 'equals("origin.user", "admin_backup")'
+  ```
+
+### **2. Correlation (**`correlation`**)**
+
+Correlation rules look back in time to find patterns across multiple events. If `where` matches, the engine queries the historical database (OpenSearch).
+
+- **Logic**: The alert is ONLY created if the `count` of found events matches the threshold within the `within` window.
+- **indexPattern**: Usually `v11-log-*` for events.
+- **with**: Defines the search filters. You can use values from the *triggering* event using `{{.path}}`.
+
+## **Impact and Severity**
+
+The **Impact Score** of an alert is calculated as the **maximum value** among its three CIA components (Confidentiality, Integrity, and Availability). This score then determines the alert's **Severity**:
+
+| Impact Score (Max of CIA) | Severity |
+|---|---|
+| 0 | Information |
+| 1 | Low |
+| 2 | Medium |
+| 3 | High |
+
+## **Advanced Example: Brute Force Success**
+
+*Detects a successful login following 5 or more failures from the same IP in the last 12 hours.*
+
+```python
+- id: 1001
+  name: "Brute Force Success"
+  description: "A successful login was preceded by multiple failures from the same source IP."
+  dataTypes: [syslog, wineventlog, linux]
+  adversary: origin
+  impact:
+    confidentiality: 3
+    integrity: 3
+    availability: 0
+  
+  # Trigger: A SUCCESSFUL login
+  where: 'equals("action", "login") && equals("actionResult", "success")'
+
+  # Correlation: Find FAILURES from the same address
+  correlation:
+    - indexPattern: v11-log-*
+      within: now-12h
+      count: 5
+      with:
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: '{{.origin.ip}}' # Use the IP from the success event
+        - field: actionResult.keyword
+          operator: filter_term
+          value: 'failure'
+
+  deduplicateBy: [adversary.ip, adversary.user]
+```
+
+### **correlation Operators**
+
+These operators define how historical searches are performed in OpenSearch:
+
+These operators define how historical searches are performed in OpenSearch:
+
+- `filter_term`: **Exact match (Case-sensitive)**.
+    - Uses an OpenSearch `term` query.
+  - Recommended for `keyword`, `ip`, or `numeric` fields.
+  - If used on a `text` field, the engine automatically attempts to use its `.keyword` sub-field to ensure an exact match.
+- `filter_match`: **Full-text search (Case-insensitive)**.
+    - Uses an OpenSearch `match` query.
+  - Recommended for `text` fields where you want to find words regardless of case.
+  - If used on a `keyword` field, the engine automatically converts it to a `term` query for efficiency.
+- `must_not_term`: **Exclude exact match**. The inverse of `filter_term`.
+- `must_not_match`: **Exclude full-text match**. The inverse of `filter_match`.
+
+For more CEL functions, see the <u>[CEL Overloads Guide](https://github.com/utmstack/UTMStack/wiki/CEL-Overloads)</u>.
