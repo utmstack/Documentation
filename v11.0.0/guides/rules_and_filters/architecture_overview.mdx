@@ -2,7 +2,8 @@
 
 The EventProcessor and UTMStack integration consists of several components working in harmony to provide a complete security monitoring solution.
 
-<Label label="Core Components" color="#3b82f6" size="md" />
+## Core Components
+
 <Columns columnCount={2}>
   <Column>
     <Card title="EventProcessor" icon="hi-cpuChip-outline">
@@ -53,6 +54,19 @@ The EventProcessor and UTMStack integration consists of several components worki
     </Card>
   </Column>
 </Columns>
+
+## **Plugin Architecture**
+
+> [!NOTE]
+> The EventProcessor uses a **micro-plugin architecture** where plugins run as separate processes. Communication occurs via **gRPC over Unix domain sockets**.
+### **Key Benefits**
+
+- **Flexibility**: Add new functionality without modifying the core engine.
+- **Isolation**: Plugin failures do not necessarily crash the entire processor.
+- **Language Independence**: While primarily written in Go, any language with gRPC support can theoretically be used.
+
+> [!NOTE]
+> For more details on specific plugins, see <u>[Components](https://github.com/utmstack/UTMStack/wiki/Components)</u>.
 ---
 ## Community and Support
 
