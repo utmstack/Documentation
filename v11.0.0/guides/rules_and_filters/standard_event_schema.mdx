@@ -6,3 +6,117 @@ To ensure consistency and allow rules to work across different data sources, the
 
 > [!NOTE]
 > The core event object consists of several top-level metadata fields and three main namespaces: `log`, `origin`, and `target`.
+
+## **Top-Level Metadata**
+
+Metadata fields that describe the event itself.
+
+| Field | Description |
+|---|---|
+| id | Unique identifier for the event (UUID). |
+| @timestamp | The time the event was processed by the engine in ISO8601 format. |
+| deviceTime | The original timestamp from the source device. If missing, it defaults to @timestamp. |
+| dataType | The category of the log (e.g., syslog, wineventlog, linux, firewall-fortigate-traffic). |
+| dataSource | The specific source or integration name (e.g., o365-tenant-01). |
+| tenantId | 	Unique ID of the organization the event belongs to. |
+| tenantName | 	Human-readable name of the tenant. |
+| action | The activity performed (e.g., login, file_create, connection). |
+| actionResult | The outcome of the action (success, failure, denied). |
+| protocol | Network protocol used (e.g., tcp, udp, http). |
+| connectionStatus | Status of the connection (e.g., established, closed). |
+| statusCode | Numerical status if applicable (e.g., HTTP 404). |
+| severity | Event importance (debug, info, warning, error, critical). |
+| raw | The original, unmodified log message. Read-only. |
+| compliance | A map of regulatory tags (e.g., hipaa, pci, gdpr) with their associated values. |
+| errors | A list of string descriptions for any issues encountered during processing. |
+
+## **Namespaces**
+
+### **1. **`log.*`** (Custom Data)**
+
+The `log` namespace is a dictionary used for storing any field that does not fit into the standard categories below.
+
+- **Usage**: `log.my_custom_field`, `log.parsing_status`.
+
+### **2. **`origin.*`** and **`target.*`** (Sides)**
+
+Used to describe the "Who" and "Whom" of an event. Both namespaces support the same set of attributes.
+
+### **Network Attributes**
+
+| Column 1 | Column 2 |
+|---|---|
+| ip | 	IPv4 or IPv6 address. |
+| host | 	Hostname of the system. |
+| Data 3-1 | Domain name or FQDN. |
+| port | Network port (integer). |
+| mac | 	MAC address. |
+| url | Full URL if applicable. |
+| cidr | Classless Inter-Domain Routing notation. |
+| bytesSent / bytesReceived | Volume of data transferred. |
+| packagesSent / packagesReceived | Number of network packets. |
+
+### **Fingerprinting & Certificates**
+
+| Field | Description |
+|---|---|
+| certificateFingerprint | Hash of the SSL/TLS certificate. |
+| ja3Fingerprint | 	TLS client fingerprint. |
+| jarmFingerprint | Active TLS server fingerprint. |
+| sshBanner / sshFingerprint | SSH service identification. |
+
+**Identity & Communication**
+
+| Field | Description |
+|---|---|
+| user | 	Username or account identifier. |
+| group | Security group or role. |
+| email / emailAddress | Email address. |
+| emailSubject / emailBody | Email content metadata. |
+| emailDisplayName / emailXMailer | Email client metadata. |
+| emailThreadIndex | Position of the email in a conversation thread. |
+| dkim / dkimSignature | Email authentication data. |
+| jabberId / cookie | Chat or Web session identifiers. |
+
+### **WHOIS**
+
+| Field | Description |
+|---|---|
+| whoisRegistrant | 	The person or entity that registered the domain. |
+| whoisRegistrar | The company that manages the registration of the domain. |
+
+### **Process & File Attributes**
+
+| Field | Description |
+|---|---|
+| process | 	Name of the executable. |
+| processState | Current state of the process. |
+| command | Full command line executed. |
+| windowsServiceName | Logical name of the service. |
+| windowsServiceDisplayName | Display name of the service. |
+| windowsScheduledTask | Name of the scheduled task. |
+| file / filename | Base filename. |
+| path | Full directory path to the file. |
+| sizeInBytes | File size in bytes. |
+| mimeType | File MIME type. |
+
+### **Hashes**
+
+| Field | Description |
+|---|---|
+| hash | Generic hash (usually SHA256). |
+| md5 / sha1 / sha224 / sha256 | Specific cryptographic hashes. |
+| sha384 / sha512 / sha512224 / sha512256 | SHA-2 and variations. |
+| sha3224 / sha3256 / sha3384 / sha3512 | 	SHA-3 variants. |
+| authentihash / cdhash | Code signing and OS specific hashes. |
+| hex / base64 | Encoded representations. |
+
+### **System & Infrastructure**
+
+| Field | Description |
+|---|---|
+| operatingSystem | OS name and version. |
+| chromeExtension | Browser extension ID. |
+| mobileAppId | Application ID for mobile platforms. |
+| windowsServiceName | Name of the Windows service. |
+| windowsScheduledTask | Name of the scheduled task. |
