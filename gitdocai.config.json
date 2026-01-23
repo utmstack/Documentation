@@ -126,6 +126,11 @@
                     "title": "Implementing Filters",
                     "page": "/v11.0.0/guides/configuration__implementation/implementing_filters.mdx",
                     "type": "page"
+                  },
+                  {
+                    "title": "Filter Steps Reference",
+                    "page": "/v11.0.0/guides/configuration__implementation/filter_steps_reference.mdx",
+                    "type": "page"
                   }
                 ]
               }

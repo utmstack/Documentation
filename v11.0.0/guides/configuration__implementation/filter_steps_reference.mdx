@@ -1,0 +1,227 @@
+# Filter Steps Reference
+
+This page provides a detailed reference for all 12 transformation steps available in the EventProcessor parsing pipeline.
+
+## **1. json**
+
+Parses a JSON string and extracts its keys.
+
+- **Fields**: `source` (Required), `where` (Optional CEL condition).
+- **Placement**: All extracted keys are **automatically prefixed** with `log.` (e.g., `{"id": 1}` becomes `log.id: 1`).
+
+**Example**:
+
+```javascript
+- json: 
+    source: raw
+    where: 'contains(raw, "{")'
+```
+
+## **2. rename**
+
+Maps existing fields to new names.
+
+- **Fields**: `from` (Array of source paths), `to` (Target path), `where` (Optional).
+- **Behavior**: Moves the value from the source path to the target path.
+
+**Example**:
+
+```javascript
+- rename:
+    from: [log.user_name, log.login]
+    to: origin.user
+    where: 'exists("log.user_name")'
+```
+
+## **3. cast**
+
+Converts field types.
+
+- **Fields**: `fields` (Array), `to` (Target type), `where` (Optional).
+- **Supported Types**: `int`, `float`, `string`, `bool`, `[]string`.
+
+**Example**:
+
+```javascript
+- cast:
+    fields: [origin.port]
+    to: int
+```
+
+## **4. delete**
+
+Removes fields from the log to optimize storage and indexing.
+
+- **Fields**: `fields` (Array), `where` (Optional).
+
+**Example:**
+
+```javascript
+- delete: 
+    fields: [log.temporary_header, log.internal_id]
+```
+
+> [!INFO]
+> **Important**: The `raw` field is protected for auditing purposes and cannot be removed by the `delete` step.
+
+## **5. grok**
+
+Pattern matching for unstructured text.
+
+- **Fields**: `source` (Defaults to `raw`), `patterns` (List of `{ fieldName, pattern }`), `where` (Optional).
+- **Placement**: Uses the `fieldName` provided in the pattern list **literally**. To use standard namespaces, specify them (e.g., `origin.ip`). By convention, custom fields should use `log.`.
+- **Extensibility**: Users can add or modify standard patterns through the **UTMStack WebUI**.
+
+### **Default Standard Patterns**
+
+| Alias | Description | Example / Match |
+|---|---|---|
+| {{.ipv4}} | IPv4 address | 192.168.1.1 |
+| {{.ipv6}} | IPv6 address | 2001:0db8:85a3:0000:0000:8a2e:0370:7334 |
+| {{.hostname}} | Hostname | server-01.local |
+| {{.domain}} | Domain server | example.com |
+| {{.email}} | Email address | user@example.com |
+| {{.uuid}} | 	UUID values | 550e8400-e29b-41d4-a716-446655440000 |
+| {{.integer}} | Signed or unsigned numbers | 0, 54, +23, -11 |
+| {{.word}} | Complete words (can contain _, -) | event_log-01 |
+| {{.greedy}} | Full string (matches everything) | .* |
+| {{.data}} | Matches until the next pattern | .*? |
+| {{.space}} | 	One or more spaces | \s+ |
+| {{.notSpace}} | One or more non-spaces | \S+ |
+| {{.commonMacAddr}} | Common MAC address (colon or dash) | 00:1A:2B:3C:4D:5E |
+| {{.winMacAddr}} | Windows MAC address (dash) | 00-1A-2B-3C-4D-5E |
+| {{.ciscoMacAddr}} | CISCO MAC address | 001a.2b3c.4d5e |
+| {{.syslogDate}} | Syslog date format | Jun 16 12:34:56 |
+| {{.time}} | 	H24:mm:SS (with optional ms) | 18:30:05.123 |
+| {{.hour}} | H24 hour format | 07, 18, 23 |
+| {{.minute}} | mm minute format | 02, 10, 59 |
+| {{.seconds}} | 	SS (with optional ms) | 05.450 |
+| {{.iso8601Timezone}} | ISO8601 Timezone | Z, +05:00 |
+| {{.year}} | Year (1000-9999) | 2024 |
+| {{.monthName}} | Month name (full or abbreviated) | January, Feb, marz |
+| {{.monthNumber}} | Month number (01-12) | 01, 10 |
+| {{.monthDay}} | Day of month (1-31) | 01, 14, 31 |
+| {{.day}} | Day name (full or abbreviated) | Monday, Mon |
+
+**Example:**
+
+```javascript
+- grok:
+    source: raw
+    patterns:
+      - fieldName: origin.ip
+        pattern: '{{.ipv4}}'
+      - fieldName: log.event_id
+        pattern: 'ID: {{.integer}}'
+```
+
+## **6. kv (Key-Value)**
+
+Extracts key-value pairs from a string.
+
+- **Fields**: `source`, `fieldSplit` (Separator between pairs), `valueSplit` (Separator between key and value), `where` (Optional).
+- **Placement**: Like the `json` step, all extracted keys are **automatically prefixed** with `log.`.
+
+**Example:**
+
+```javascript
+- kv: 
+    source: raw
+    fieldSplit: " " 
+    valueSplit: "="
+```
+
+## **7. trim**
+
+Cleans strings by removing prefixes, suffixes, or matching patterns.
+
+- **Fields**: `fields` (Array), `function` (`prefix`, `suffix`, `substring`, `regex`), `substring` (the string or pattern to trim), `where` (Optional).
+
+**Example:**
+
+```javascript
+- trim: 
+    function: suffix
+    substring: ".local"
+    fields: [origin.host]
+```
+
+## **8. add**
+
+Injects a fixed value into a field.
+
+- **Fields**: `function` (`string`), `params` (Map), `where` (Optional).
+- **Required Params**: `key` (target path), `value` (the actual value to add).
+- **Placement**: Uses the `key` **literally**.
+
+**Example:**
+
+```javascript
+- add: 
+    function: string
+    params: 
+      key: log.category
+      value: security
+```
+
+## **9. reformat**
+
+Converts field formats, primarily for timestamps.
+
+- **Fields**: `fields` (Array), `function` (`time`), `fromFormat` (Go layout), `toFormat` (Go layout), `where` (Optional).
+- **Behavior**: **Overwrites** the value in the specified `fields`.
+
+**Example:**
+
+```javascript
+- reformat:
+    fields: [deviceTime]
+    function: time
+    fromFormat: 'Jan 02 15:04:05'
+    toFormat: '2006-01-02T15:04:05Z'
+```
+
+## **10. csv**
+
+Parses comma-separated values.
+
+- **Fields**: `source`, `separator`, `headers` (Array of target paths), `where` (Optional).
+- **Placement**: Uses the names provided in `headers` **literally**.
+
+**Example:**
+
+```javascript
+- csv:
+    source: raw
+    separator: ","
+    headers: [log.id, origin.user, action, actionResult]
+```
+
+## **11. dynamic**
+
+Calls an external gRPC plugin.
+
+- **Fields**: `plugin` (Name), `params` (Key-value map), `where` (Optional).
+
+**Example:**
+
+```javascript
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params: 
+      source: origin.ip
+      destination: origin.geolocation
+```
+
+## **12. drop**
+
+Discards the log immediately.
+
+- **Required**: `where` (CEL condition).
+
+**Example:**
+
+```javascript
+- drop:
+    where: equals("origin.ip", "127.0.0.1")
+```
