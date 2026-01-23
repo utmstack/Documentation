@@ -107,6 +107,11 @@
                     "type": "page"
                   },
                   {
+                    "title": "Development Workflow",
+                    "page": "/v11.0.0/guides/rules_and_filters/development_workflow.mdx",
+                    "type": "page"
+                  },
+                  {
                     "type": "page",
                     "title": "Implementing Rules",
                     "page": "/v11/guides/rules_and_filters/implementing-rules.mdx"

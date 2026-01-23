@@ -1,0 +1,33 @@
+# Development Workflow
+
+This guide outlines the standard process for creating and deploying new detection logic and parsing filters.
+
+## **Rule Development Lifecycle**
+
+1. **Identify the Threat**: Research the specific attack pattern (e.g., MITRE ATT&CK technique).
+2. **Analyze the Logs**: View sample logs in the UTMStack Log Explorer to identify unique identifiers for the threat.
+3. **Draft the YAML**: Create a new rule file. Define metadata (`id`, `name`, `impact`).
+4. **Implement Conditions**: Write the `where` expression and define any required `correlation` logic.
+5. **Local Validation**: Test the YAML syntax using a YAML linter.
+6. **Deployment**: Upload the rule to the rules directory of the EventProcessor.
+7. **Simulation**: Generate "attack" logs and verify that an alert is generated and properly deduplicated.
+
+## **Filter Development Lifecycle**
+
+1. **Source Discovery**: Identify a new log source (e.g., a new firewall brand).
+2. **Schema Mapping**: Map the raw log fields to the <u>[Standard Event Schema](https://github.com/utmstack/UTMStack/wiki/Standard-Event-Schema)</u>.
+3. **Pipeline Construction**:
+    - Start with a `json` or `kv` step if the log is structured.
+  - Use `grok` for unstructured strings.
+  - Add `cast` steps for types and `rename` for standardization.
+4. **Enrichment**: Add `dynamic` steps for geolocation or TI lookups.
+5. **Sanitization**: Remove temporary or highly redundant fields in the `log.*` namespace to optimize storage.
+    > **Note**: The `raw` field is protected for auditing purposes and cannot be removed.
+6. **Testing**: Use the Playground or deploy to a dev environment and check the "Log Explorer" to ensure fields appear correctly.
+
+## **Debugging Tips**
+
+- **Check Logs**: Monitor the EventProcessor logs for "parsing error" or "rule evaluation failed" messages.
+- **Isolate**: If a filter is failing, comment out steps one by one to find the culprit.
+- **Validate Schema**: Ensure that the types you `cast` to match the expected types in the rules.
+- **Audit Trace**: Remember that the `raw` field always preserves the original message, which is useful for verifying your parsing logic.
