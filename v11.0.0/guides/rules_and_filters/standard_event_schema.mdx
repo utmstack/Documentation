@@ -18,8 +18,8 @@ Metadata fields that describe the event itself.
 | deviceTime | The original timestamp from the source device. If missing, it defaults to @timestamp. |
 | dataType | The category of the log (e.g., syslog, wineventlog, linux, firewall-fortigate-traffic). |
 | dataSource | The specific source or integration name (e.g., o365-tenant-01). |
-| tenantId | 	Unique ID of the organization the event belongs to. |
-| tenantName | 	Human-readable name of the tenant. |
+| tenantId | Unique ID of the organization the event belongs to. |
+| tenantName | Human-readable name of the tenant. |
 | action | The activity performed (e.g., login, file_create, connection). |
 | actionResult | The outcome of the action (success, failure, denied). |
 | protocol | Network protocol used (e.g., tcp, udp, http). |
@@ -32,13 +32,13 @@ Metadata fields that describe the event itself.
 
 ## **Namespaces**
 
-### **1. **`log.*`** (Custom Data)**
+### **1. ******`log.*`****** (Custom Data)**
 
 The `log` namespace is a dictionary used for storing any field that does not fit into the standard categories below.
 
 - **Usage**: `log.my_custom_field`, `log.parsing_status`.
 
-### **2. **`origin.*`** and **`target.*`** (Sides)**
+### **2. ******`origin.*`****** and ******`target.*`****** (Sides)**
 
 Used to describe the "Who" and "Whom" of an event. Both namespaces support the same set of attributes.
 
@@ -46,11 +46,11 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 
 | Column 1 | Column 2 |
 |---|---|
-| ip | 	IPv4 or IPv6 address. |
-| host | 	Hostname of the system. |
+| ip | IPv4 or IPv6 address. |
+| host | Hostname of the system. |
 | Data 3-1 | Domain name or FQDN. |
 | port | Network port (integer). |
-| mac | 	MAC address. |
+| mac | MAC address. |
 | url | Full URL if applicable. |
 | cidr | Classless Inter-Domain Routing notation. |
 | bytesSent / bytesReceived | Volume of data transferred. |
@@ -61,7 +61,7 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 | Field | Description |
 |---|---|
 | certificateFingerprint | Hash of the SSL/TLS certificate. |
-| ja3Fingerprint | 	TLS client fingerprint. |
+| ja3Fingerprint | TLS client fingerprint. |
 | jarmFingerprint | Active TLS server fingerprint. |
 | sshBanner / sshFingerprint | SSH service identification. |
 
@@ -69,7 +69,7 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 
 | Field | Description |
 |---|---|
-| user | 	Username or account identifier. |
+| user | Username or account identifier. |
 | group | Security group or role. |
 | email / emailAddress | Email address. |
 | emailSubject / emailBody | Email content metadata. |
@@ -82,14 +82,14 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 
 | Field | Description |
 |---|---|
-| whoisRegistrant | 	The person or entity that registered the domain. |
+| whoisRegistrant | The person or entity that registered the domain. |
 | whoisRegistrar | The company that manages the registration of the domain. |
 
 ### **Process & File Attributes**
 
 | Field | Description |
 |---|---|
-| process | 	Name of the executable. |
+| process | Name of the executable. |
 | processState | Current state of the process. |
 | command | Full command line executed. |
 | windowsServiceName | Logical name of the service. |
@@ -107,7 +107,7 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 | hash | Generic hash (usually SHA256). |
 | md5 / sha1 / sha224 / sha256 | Specific cryptographic hashes. |
 | sha384 / sha512 / sha512224 / sha512256 | SHA-2 and variations. |
-| sha3224 / sha3256 / sha3384 / sha3512 | 	SHA-3 variants. |
+| sha3224 / sha3256 / sha3384 / sha3512 | SHA-3 variants. |
 | authentihash / cdhash | Code signing and OS specific hashes. |
 | hex / base64 | Encoded representations. |
 
@@ -120,3 +120,41 @@ Used to describe the "Who" and "Whom" of an event. Both namespaces support the s
 | mobileAppId | Application ID for mobile platforms. |
 | windowsServiceName | Name of the Windows service. |
 | windowsScheduledTask | Name of the scheduled task. |
+
+### **Vulnerabilities & Malware**
+
+| Field | Description |
+|---|---|
+| cve | Common Vulnerabilities and Exposures ID. |
+| cpe | Common Platform Enumeration. |
+| malware / malwareFamily | Name or family of detected malware. |
+| malwareType | Type of malware (e.g., ransomware, trojan). |
+
+### **Resources & Monitoring (Nested under **`disks`**)**
+
+| Field | Description |
+|---|---|
+| connections | Count of active connections (uint64). |
+| usedCpuPercent | CPU usage percentage (0-100). |
+| usedMemPercent | Memory usage percentage (0-100). |
+| totalCpuUnits | Total CPU capacity/units. |
+| totalMem | Total physical memory in bytes. |
+| disks | List of disk objects (name, totalSpace, usedPercent). |
+
+### **Geolocation (Nested under **`origin.geolocation.*`** or **`target.geolocation.*`**)**
+
+| Field | Description |
+|---|---|
+| country / countryCode | Country name and ISO code. |
+| city | City name. |
+| latitude / longitude | Geographic coordinates. |
+| asn / aso | Autonomous System Number and Organization. |
+| accuracy | Geolocation accuracy radius. |
+
+## **Best Practices for Filtering**
+
+1. **Always Map IPs**: If your log contains IP addresses, map them to `origin.ip` and `target.ip`.
+2. **Normalize Actions**: Use a consistent set of actions (e.g., `login`, `logout`, `file_create`).
+3. **Enrich Early**: Apply geolocation and threat intel (feeds) as soon as the core fields are mapped.
+4. **Compliance Mapping**: Use the `compliance` field for tagging logs with regulatory requirements (HIPAA, PCI-DSS, GDPR).
+5. **Audit Integrity**: The `raw` field is **protected** and contains the original log message. It cannot be deleted by parsing steps, ensuring a verifiable audit trail for every event.
