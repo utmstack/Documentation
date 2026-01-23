@@ -3,7 +3,7 @@
 The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
 
 > [!NOTE]
-> All API endpoints require authentication via Bearer tokens. See the [Authentication](/v10/apidoc/authentication) section for details on obtaining access tokens.
+> All API endpoints require authentication via Bearer tokens. See the [Authentication](/v11/api_documentation/authentication/authentication) section for details on obtaining access tokens.
 ---
 ## API Base URL
 
@@ -55,27 +55,27 @@ curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search"
 
 <Columns columnCount={2}>
   <Column>
-    <Card title="Authentication" icon="pi pi-lock" href="/v10/apidoc/authentication">
+    <Card title="Authentication" icon="pi pi-lock" href="/v11/api_documentation/authentication/authentication">
     
     Obtain  JWT tokens for API access
     
     </Card>
-    <Card title="Update Status" icon="pi pi-refresh" href="/v10/apidoc/update-status">
+    <Card title="Update Status" icon="pi pi-refresh" href="/v11/apidoc/update-status">
     
     Change alert status (Open, In Review, Completed)
     
     </Card>
-    <Card title="Update Notes" icon="fa fa-sticky-note" href="/v10/apidoc/update-notes">
+    <Card title="Update Notes" icon="fa fa-sticky-note" href="/v11/apidoc/update-notes">
     
     Add investigation notes to alerts
     
     </Card>
-    <Card title="Count Alerts" icon="pi pi-calculator" href="/v10/apidoc/count-alerts">
+    <Card title="Count Alerts" icon="pi pi-calculator" href="/v11/apidoc/count-alerts">
     
     Get count of open alerts for dashboards
     
     </Card>
-    <Card title="CSV Export" icon="pi pi-download" href="/v10/apidoc/csv-export">
+    <Card title="CSV Export" icon="pi pi-download" href="/v11/apidoc/csv-export">
     
     Export alert data to CSV for reporting
     
@@ -231,7 +231,7 @@ const alertsResponse = await fetch('https://your-utmstack-instance.com/api/elast
 ## Common Response Codes
 
 <Accordion multiple={true}>
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="Success Response" >
 
     - **200 OK**: Request completed successfully
     - **201 Created**: Resource created successfully
@@ -239,7 +239,7 @@ const alertsResponse = await fetch('https://your-utmstack-instance.com/api/elast
 
   </AccordionTab>
 
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="Error Response" >
 
     - **400 Bad Request**: Invalid request format or parameters
     - **401 Unauthorized**: Missing or invalid authentication token
@@ -249,7 +249,7 @@ const alertsResponse = await fetch('https://your-utmstack-instance.com/api/elast
 
   </AccordionTab>
 
-  <AccordionTab title="Accordion Item" >
+  <AccordionTab title="Errors 500 Response" >
 
     - **500 Internal Server Error**: Unexpected server error
     - **502 Bad Gateway**: Upstream service unavailable
