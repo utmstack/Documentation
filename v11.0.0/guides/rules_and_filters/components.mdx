@@ -10,9 +10,9 @@ The EventProcessor is the proprietary, high-performance engine that orchestrates
 
 Atomic steps used in filters to structure data.
 
-- **Data Extraction: **`json`**, **`kv`**, **`csv`**, **`grok`**.**
-- **Transformation: **`rename`**, **`cast`**, **`reformat`**, **`trim`**, **`add`**.**
-- **Control: **`delete`**, **`drop`**.**
+- **Data Extraction: ******`json`******, ******`kv`******, ******`csv`******, ******`grok`******.**
+- **Transformation: ******`rename`******, ******`cast`******, ******`reformat`******, ******`trim`******, ******`add`******.**
+- **Control: ******`delete`******, ******`drop`******.**
 
 ### **Analysis Engines**
 
@@ -21,12 +21,32 @@ Atomic steps used in filters to structure data.
 
 ## **UTMStack (Open Source Ecosystem)**
 
-UTMStack provides the open-source layer of specialized plugins and integrations. We welcome community contributions in the <u>[UTMStack Repository](https://github.com/utmstack/UTMStack)</u>.
+UTMStack provides the open-source layer of specialized plugins and integrations. We welcome community contributions in the 
 
-| Category | 	Plugin(s) | Role |
-|---|---|---|
-| Ingestion | inputs | Unified entry point for logs via HTTP and gRPC (Agents, Syslog-ng). |
-| Integrations | aws, azure, gcp, o365, crowdstrike, sophos, bitdefender | Native cloud and EDR collectors. |
-| Parsing | geolocation | Enriches events with geographic context. |
-|  | events | Indexes all successfully processed events into OpenSearch (using the v11-log-* pattern). |
-|  |  |  |
+> [!NOTE]
+> Note content
+<u>[UTMStack Repository](https://github.com/utmstack/UTMStack)</u>.
+
+<Table
+  pagination={true}
+  rowsPerPage={10}
+  rowsPerPageOptions={[5, 10, 25, 50]}
+  data={[
+    ["Category", "Plugin(s)", "Role"],
+    ["Ingestion", "inputs", "Unified entry point for logs via HTTP and gRPC (Agents, Syslog-ng)."],
+    ["Integrations", "aws, azure, gcp, o365, crowdstrike, sophos, bitdefender", "Native cloud and EDR collectors."],
+    ["Parsing", "geolocation", "Enriches events with geographic context."],
+    ["Output / Storage", "events", "Indexes all successfully processed events into OpenSearch (using the v11-log-* pattern)."],
+    ["Correlation / Lifecycle", "alerts", "Handles alert deduplication, parent-child linking, and indexing into the v11-alert index."],
+    ["Notification", "stats", "System metrics and internal health reports."],
+    ["Management", "config", "Centralized configuration service."]
+  ]}
+/>
+
+## **Architecture & Extensibility**
+
+### **Orchestration**
+
+> [!NOTE]
+> The engine manages adaptive queues and worker pools to ensure high-speed ingestion and processing. It enforces the <u>[Standard Event Schema](https://github.com/utmstack/UTMStack/wiki/Standard-Event-Schema)</u> across all components.
+### **The Public go-sdk**
