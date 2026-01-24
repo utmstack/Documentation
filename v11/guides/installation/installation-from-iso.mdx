@@ -63,7 +63,7 @@ Before attaching the ISO to your VM, ensure it meets the following requirements:
 | Network | Active connectivity | 1 Gbps connection |
 
 > [!INFO]
-> See [System Requirements](/v11/Installation/system-requirements) for detailed specifications based on your deployment size and expected data volume.
+> See [System Requirements](/v11/guides/installation/system-requirements) for detailed specifications based on your deployment size and expected data volume.
 ---
 ## Installation Flow
 
@@ -147,25 +147,21 @@ ssh username@your-server-ip
 
 The UTMStack installer runs automatically on first boot. Monitor its progress:
 
-<CodeGroup>
-
-```javascript example.javascript
-tail -f /var/log/utmstack/installer.log
-```
-
-```javascript example.javascript
-tail -n 50 /var/log/utmstack/installer.log
-```
-
-```javascript example.javascript
-cat /var/log/utmstack/installer.log
-```
-
-```javascript example.javascript
+```javascript
 grep -i error /var/log/utmstack/installer.log
 ```
 
-</CodeGroup>
+```javascript
+cat /var/log/utmstack/installer.log
+```
+
+```javascript
+tail -n 50 /var/log/utmstack/installer.log
+```
+
+```javascript
+tail -f /var/log/utmstack/installer.log
+```
 
 > [!TIP]
 > Keep the log monitoring terminal open during installation to catch any potential issues in real-time.
@@ -322,6 +318,7 @@ ls -lh /var/log/utmstack/
     ```plaintext
     ```plaintext
     ```plaintext
+    ```plaintext
     tail -f /var/log/utmstack/installer.log
     ```plaintext
     2. Verify network connectivity:
@@ -332,6 +329,7 @@ ls -lh /var/log/utmstack/
         ```bash
       
       ```
+    ```plaintext
     ```plaintext
     ```plaintext
     ```plaintext
@@ -360,6 +358,7 @@ ls -lh /var/log/utmstack/
     ```plaintext
     ```plaintext
     ```plaintext
+    ```plaintext
     sudo ufw status
     ```plaintext
     3. Verify network configuration:
@@ -376,6 +375,7 @@ ls -lh /var/log/utmstack/
         ```bash
       
       ```
+    ```plaintext
     ```plaintext
     ```plaintext
     ```plaintext
