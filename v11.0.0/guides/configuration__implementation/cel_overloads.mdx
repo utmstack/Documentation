@@ -19,20 +19,20 @@ The `where` field in rules and filters uses a customized version of the Common E
 | Strict String | equalsIgnoreCase("f", "v") | String | String | Case-insensitive equality. |
 | (Scalar Only) | contains("f", "v") | String | String or List | True if field contains substring(s). |
 |  | containsAll("f", [...]) | String | List of Strings | True if field contains all substrings. |
-|  | 	startsWith("f", "v") | String | String or List | True if field starts with prefix(es). |
+|  | startsWith("f", "v") | String | String or List | True if field starts with prefix(es). |
 |  | endsWith("f", "v") | String | String or List | True if field ends with suffix(es). |
-|  | 	regexMatch("f", "re") | String | String (Regex) | Validates field against a regex. |
+|  | regexMatch("f", "re") | String | String (Regex) | Validates field against a regex. |
 | Network | inCIDR("f", "net") | String (IP) | String (CIDR) | IPv4/v6 within a CIDR range. |
 | Comparison | greaterThan("f", val) | Number | String, Int, Double | True if field > value (converts strings to num if possible). |
 |  | lessThan("f", val) | Number | String, Int, Double | True if field < value. |
 |  | greaterOrEqual("f", val) | Number | String, Int, Double | True if field < value. |
 |  | lessOrEqual("f", val) | Number | String, Int, Double | True if field < value. |
 | Temporal | isHour("f", val) | String (ISO8601) | Int (0-23) | True if hour matches val. |
-|  | isMinute("f", val) | String (ISO8601) | Int (0-59) | 	True if minute matches val. |
+|  | isMinute("f", val) | String (ISO8601) | Int (0-59) | True if minute matches val. |
 |  | isDayOfWeek("f", val) | String (ISO8601) | Int (0-6) | True if day (0=Sun) matches val. |
 |  | isWeekend("f") | String (ISO8601) | N/A | True if Saturday or Sunday. |
 |  | isWorkDay("f") | String (ISO8601) | N/A | True if Monday to Friday. |
-|  | 	isBetweenTime("f", "start", "end") | String (ISO8601) | String ("HH:MM") | True if falls within range. |
+|  | isBetweenTime("f", "start", "end") | String (ISO8601) | String ("HH:MM") | True if falls within range. |
 |  |  |  |  |  |
 |  |  |  |  |  |
 |  |  |  |  |  |
