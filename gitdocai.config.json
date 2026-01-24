@@ -131,6 +131,11 @@
                     "title": "Filter Steps Reference",
                     "page": "/v11.0.0/guides/configuration__implementation/filter_steps_reference.mdx",
                     "type": "page"
+                  },
+                  {
+                    "title": "CEL Overloads",
+                    "page": "/v11.0.0/guides/configuration__implementation/cel_overloads.mdx",
+                    "type": "page"
                   }
                 ]
               }
