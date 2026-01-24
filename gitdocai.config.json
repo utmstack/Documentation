@@ -84,6 +84,11 @@
                     "type": "page",
                     "title": "SSL Certificate",
                     "page": "/v11/guides/installation/ssl_certificate.mdx"
+                  },
+                  {
+                    "title": "Installer Update Guide",
+                    "page": "/v11.0.0/guides/installation/installer_update_guide.mdx",
+                    "type": "page"
                   }
                 ]
               },
