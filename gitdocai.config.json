@@ -136,6 +136,11 @@
                     "title": "CEL Overloads",
                     "page": "/v11.0.0/guides/configuration__implementation/cel_overloads.mdx",
                     "type": "page"
+                  },
+                  {
+                    "title": "Advanced",
+                    "page": "/v11.0.0/guides/configuration__implementation/advanced.mdx",
+                    "type": "page"
                   }
                 ]
               }
