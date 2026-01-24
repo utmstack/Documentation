@@ -1,0 +1,96 @@
+# Real World Examples
+
+Practical YAML configurations for common security scenarios.
+
+## **1. Detecting Brute Force Attacks**
+
+This scenario requires a filter to parse logs and a rule to correlate multiple failures.
+
+### **Filter Pipeline**
+
+```javascript
+pipeline:
+  - dataTypes: [auth_logs]
+    steps:
+      - json: { source: raw }
+      - rename: { from: [log.src.ip], to: origin.ip }
+      - rename: { from: [log.user], to: origin.user }
+      - rename: { from: [status], to: actionResult }
+```
+
+### **Detection Rule**
+
+```javascript
+- id: 201
+  dataTypes: [auth_logs]
+  name: "Brute Force Detected"
+  impact: { confidentiality: 3, integrity: 2, availability: 1 }
+  where: 'exists("origin.ip") && equals("actionResult", "failure")'
+  correlation:
+    - indexPattern: v11-log-auth_logs
+      within: now-1h
+      count: 5
+      with:
+        - { field: "origin.ip.keyword", operator: "filter_term", value: "{{.origin.ip}}" }
+        - { field: "actionResult.keyword", operator: "filter_term", value: "failure" }
+  deduplicateBy: [origin.ip]
+```
+
+## **2. Detecting Data Exfiltration**
+
+Detects large transfers to external IP ranges.
+
+### **Filter Pipeline**
+
+```javascript
+pipeline:
+  - dataTypes: [network_flows]
+    steps:
+      - json: { source: raw }
+      - rename: { from: [bytes_sent], to: origin.bytesSent }
+      - rename: { from: [dst_ip], to: target.ip }
+```
+
+### **Detection Rule**
+
+```javascript
+- id: 202
+  dataTypes: [network_flows]
+  name: "Potential Data Exfiltration"
+  impact: { confidentiality: 3, integrity: 2, availability: 1 }
+  where: >
+    exists("origin.bytesSent") && 
+    greaterThan("origin.bytesSent", "10000000") && 
+    !inCIDR("target.ip", "10.0.0.0/8") && !inCIDR("target.ip", "192.168.0.0/16")
+  correlation:
+    - indexPattern: "v11-log-*"
+      within: "now-24h"
+      count: 1
+      with:
+        - { field: "target.ip.keyword", operator: "filter_term", value: "{{.target.ip}}" }
+  deduplicateBy: [origin.ip, target.ip]
+```
+
+## **3. Detecting Insider Threats (Out of Hours)**
+
+Detects sensitive actions performed outside of normal business hours.
+
+### **Detection Rule**
+
+```javascript
+- id: 203
+  dataTypes: [user_activity]
+  name: "Suspect Out-of-Hours Activity"
+  impact: { confidentiality: 3, integrity: 2, availability: 1 }
+  where: >
+    exists("origin.user") && 
+    (!isBetweenTime("@timestamp", "08:00", "18:00") || isWeekend("@timestamp")) && 
+    oneOf("action", ["file_access", "admin_action"])
+  correlation:
+    - indexPattern: "v11-log-*"
+      within: "now-7d"
+      count: 1
+      with:
+        - { field: "origin.user.keyword", operator: "filter_term", value: "{{.origin.user}}" }
+  deduplicateBy: [origin.user, action]
+```
