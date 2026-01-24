@@ -63,6 +63,7 @@ Removes fields from the log to optimize storage and indexing.
 
 > [!NOTE]
 > **Important**: The `raw` field is protected for auditing purposes and cannot be removed by the `delete` step.
+
 ## **5. grok**
 
 Pattern matching for unstructured text.
@@ -73,34 +74,35 @@ Pattern matching for unstructured text.
 
 ### **Default Standard Patterns**
 
-| Alias | Description | Example / Match |
-|---|---|---|
-| {{.ipv4}} | IPv4 address | 192.168.1.1 |
-| {{.ipv6}} | IPv6 address | 2001:0db8:85a3:0000:0000:8a2e:0370:7334 |
-| {{.hostname}} | Hostname | server-01.local |
-| {{.domain}} | Domain server | example.com |
-| {{.email}} | Email address | user@example.com |
-| {{.uuid}} | UUID values | 550e8400-e29b-41d4-a716-446655440000 |
-| {{.integer}} | Signed or unsigned numbers | 0, 54, +23, -11 |
-| {{.word}} | Complete words (can contain _, -) | event_log-01 |
-| {{.greedy}} | Full string (matches everything) | .* |
-| {{.data}} | Matches until the next pattern | .*? |
-| {{.space}} | One or more spaces | \s+ |
-| {{.notSpace}} | One or more non-spaces | \S+ |
-| {{.commonMacAddr}} | Common MAC address (colon or dash) | 00:1A:2B:3C:4D:5E |
-| {{.winMacAddr}} | Windows MAC address (dash) | 00-1A-2B-3C-4D-5E |
-| {{.ciscoMacAddr}} | CISCO MAC address | 001a.2b3c.4d5e |
-| {{.syslogDate}} | Syslog date format | Jun 16 12:34:56 |
-| {{.time}} | H24:mm:SS (with optional ms) | 18:30:05.123 |
-| {{.hour}} | H24 hour format | 07, 18, 23 |
-| {{.minute}} | mm minute format | 02, 10, 59 |
-| {{.seconds}} | SS (with optional ms) | 05.450 |
-| {{.iso8601Timezone}} | ISO8601 Timezone | Z, +05:00 |
-| {{.year}} | Year (1000-9999) | 2024 |
-| {{.monthName}} | Month name (full or abbreviated) | January, Feb, marz |
-| {{.monthNumber}} | Month number (01-12) | 01, 10 |
-| {{.monthDay}} | Day of month (1-31) | 01, 14, 31 |
-| {{.day}} | Day name (full or abbreviated) | Monday, Mon |
+| Alias              | Description                  | Example / Match                          |
+|--------------------|------------------------------|------------------------------------------|
+| `{{.ipv4}}`        | IPv4 address                 | 192.168.1.1                              |
+| `{{.ipv6}}`        | IPv6 address                 | 2001:0db8:85a3:0000:0000:8a2e:0370:7334  |
+| `{{.hostname}}`    | Hostname                     | server-01.local                          |
+| `{{.domain}}`      | Domain server                | example.com                              |
+| `{{.email}}`       | Email address                | user@example.com                         |
+| `{{.uuid}}`        | UUID values                  | 550e8400-e29b-41d4-a716-446655440000     |
+| `{{.integer}}`     | Signed or unsigned numbers   | 0, 54, +23, -11                          |
+| `{{.word}}`        | Complete words (can contain _, -) | event_log-01                        |
+| `{{.greedy}}`      | Full string (matches everything) | .*                                    |
+| `{{.data}}`        | Matches until the next pattern | .*?                                   |
+| `{{.space}}`       | One or more spaces           | \s+                                     |
+| `{{.notSpace}}`    | One or more non-spaces       | \S+                                     |
+| `{{.commonMacAddr}}` | Common MAC address (colon or dash) | 00:1A:2B:3C:4D:5E                  |
+| `{{.winMacAddr}}`  | Windows MAC address (dash)   | 00-1A-2B-3C-4D-5E                       |
+| `{{.ciscoMacAddr}}`| CISCO MAC address            | 001a.2b3c.4d5e                          |
+| `{{.syslogDate}}`  | Syslog date format           | Jun 16 12:34:56                         |
+| `{{.time}}`        | H24:mm:SS (with optional ms) | 18:30:05.123                            |
+| `{{.hour}}`        | H24 hour format              | 07, 18, 23                              |
+| `{{.minute}}`      | mm minute format             | 02, 10, 59                              |
+| `{{.seconds}}`     | SS (with optional ms)        | 05.450                                  |
+| `{{.iso8601Timezone}}` | ISO8601 Timezone         | Z, +05:00                               |
+| `{{.year}}`        | Year (1000-9999)             | 2024                                    |
+| `{{.monthName}}`   | Month name (full or abbreviated) | January, Feb, marz                   |
+| `{{.monthNumber}}` | Month number (01-12)         | 01, 10                                  |
+| `{{.monthDay}}`    | Day of month (1-31)          | 01, 14, 31                              |
+| `{{.day}}`         | Day name (full or abbreviated) | Monday, Mon                           |
+
 
 **Example:**
 
