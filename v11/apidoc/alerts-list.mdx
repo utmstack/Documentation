@@ -1,70 +1,40 @@
+# Alerts API Documentation
+
 ## Overview
 
-This endpoint retrieves alerts from UTMStack's Elasticsearch index. It supports advanced filtering, pagination, and sorting, allowing analysts to query alerts within specific time ranges or by defined conditions.
+This endpoint retrieves alerts from UTMStack's Elasticsearch index.  
+It supports advanced filtering, pagination, and sorting, allowing analysts to query alerts within specific time ranges or by defined conditions.
 
 > [!NOTE]
-> **Authorization Required:** All requests must include a valid Bearer Token obtained from the authentication endpoint.
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
 ## Query Parameters
 
-<ParamField path="param" type="integer" required>
-  Current page number (starts at 1)
-</ParamField>
-<ParamField path="param" type="integer" required>
-  Number of results per page (e.g., 25)
-</ParamField>
-<ParamField path="param" type="integer" required>
-  Maximum number of records to retrieve (e.g., 100000000)
-</ParamField>
-<ParamField path="param" type="string" required>
-  Elasticsearch index pattern (e.g., alert-*)
-</ParamField>
-<ParamField path="param" type="string">
-  Sorting field and direction (e.g., @timestamp,desc)
-</ParamField>
+- **page** (integer, required): Current page number (starts at 1)
+- **size** (integer, required): Number of results per page (e.g., 25)
+- **top** (integer, required): Maximum number of records to retrieve (e.g., 100000000)
+- **indexPattern** (string, required): Elasticsearch index pattern (e.g., `v11-alert-*`)
+- **sort** (string, optional): Sorting field and direction (e.g., `@timestamp,desc`)
 ---
 ## Request Body
 
 The request body is a JSON array of filter definitions used to refine the search.
 
-### Filter Structure
-
-<ParamField path="param" type="string" required>
-  Name of the alert field to filter (e.g., \"status\", \"tags\", \"@timestamp\")
-</ParamField>
-<ParamField path="param" type="string" required>
-  Filter operator: IS, IS_NOT, IS_BETWEEN, CONTAINS, etc.
-</ParamField>
-<ParamField path="param" type="any" required>
-  Filter value (string, number, or array for range operations)
-</ParamField>
 ### Example Filter Payload
 
 ```json
 [
-  { 
-    "field": "status", 
-    "operator": "IS_NOT", 
-    "value": 1 
-  },
-  { 
-    "field": "tags", 
-    "operator": "IS_NOT", 
-    "value": "False positive" 
-  },
-  { 
-    "field": "@timestamp", 
-    "operator": "IS_BETWEEN", 
-    "value": ["now-7d", "now"] 
-  }
+  { "field": "status", "operator": "IS_NOT", "value": 1 },
+  { "field": "tags", "operator": "IS_NOT", "value": "False positive" },
+  { "field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"] }
 ]
 ```
----
+
 ## Request & Response Examples
 
-```bash
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" 
-  -H "Authorization: Bearer <your_access_token>" 
+```javascript
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "utm-api-key: <your_api_key>" 
   -H "Content-Type: application/json" 
   -d '[
     {"field": "status", "operator": "IS_NOT", "value": 1},
@@ -111,7 +81,7 @@ const searchAlerts = async () => {
     page: 1,
     size: 25,
     top: 100000000,
-    indexPattern: 'alert-*',
+    indexPattern: 'v11-alert-*',
     sort: '@timestamp,desc'
   };
   
@@ -125,7 +95,7 @@ const searchAlerts = async () => {
     const response = await axios.post(url, filters, {
       params,
       headers: {
-        'Authorization': 'Bearer <your_access_token>',
+        'utm-api-key': '<your_api_key>',
         'Content-Type': 'application/json'
       }
     });
@@ -147,7 +117,7 @@ def search_alerts():
         "page": 1,
         "size": 25,
         "top": 100000000,
-        "indexPattern": "alert-*",
+        "indexPattern": "v11-alert-*",
         "sort": "@timestamp,desc"
     }
     
@@ -158,7 +128,7 @@ def search_alerts():
     ]
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     
