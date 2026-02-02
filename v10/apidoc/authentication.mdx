@@ -6,39 +6,32 @@
 
 The **UTMStack Authentication API** issues **JWT tokens** to clients who provide valid credentials. Clients must authenticate using this endpoint before calling any protected resource in the UTMStack platform.
 
-
 > **Note:** This endpoint does **not** require authentication. It returns a **JWT access token** that must be used for subsequent requests.
-
-
 ---
-
 ## Endpoint Details
 
 <Card title="POST /api/authenticate" icon="lock">
-  **Method:** POST  
-  **Content-Type:** application/json  
-  **Authentication:** Not required  
-  **Response:** JWT token for API access
+
+**Method:** POST  
+**Content-Type:** application/json  
+**Authentication:** Not required  
+**Response:** JWT token for API access
+
 </Card>
-
 ---
-
 ## Parameters
 
 ### Request Body
 
-<ParamField body="username" type="string" required>
+<ParamField path="param" type="string" required>
   User login name or email address
 </ParamField>
-
-<ParamField body="password" type="string" required>
+<ParamField path="param" type="string" required>
   User password
 </ParamField>
-
-<ParamField body="rememberMe" type="boolean" default="false">
+<ParamField path="param" type="boolean">
   Optional. Keeps the session active for a longer period
 </ParamField>
-
 ### JSON Schema (Request)
 
 ```json
@@ -62,16 +55,11 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
   "required": ["username", "password"]
 }
 ```
-
 ---
-
 ## Response Examples
 
 ### Successful Authentication (TFA disabled)
 
-
-
-  
 #### Response
 
 ```json
@@ -79,9 +67,8 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
       "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
       "authenticated": true
     }
-    ```
+```
 
-  
 #### Headers
 
 ```http
@@ -90,23 +77,11 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
     Content-Length: 245
 ```
 
-
-
-
 ### TFA Challenge (TFA enabled)
 
-<ResponseExample>
-```json
-{
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
-  "authenticated": false
-}
-```
-</ResponseExample>
-
+[Unknown component: ResponseExample]
 
 > **ℹ️ Info:** When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
-
 
 ### JSON Schema (Response)
 
@@ -127,35 +102,12 @@ The **UTMStack Authentication API** issues **JWT tokens** to clients who provide
   "required": ["id_token", "authenticated"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-<RequestExample>
+[Unknown component: RequestExample]
 
-```bash Request
-curl -X POST https://utmstack.example.com/api/authenticate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "MySecurePassword123",
-    "rememberMe": true
-  }'
-```
-
-</RequestExample>
-
-<ResponseExample>
-
-```json Response
-{
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
-  "authenticated": true
-}
-```
-
-</ResponseExample>
+[Unknown component: ResponseExample]
 
 ### Additional Code Examples
 
@@ -189,83 +141,36 @@ print(f"Token: {token}")
 ```
 
 </CodeGroup>
-
 ---
-
 ## Status Codes
 
-<ResponseField name="200" type="OK">
-  Authentication successful. Token returned.
-</ResponseField>
+[Unknown component: ResponseField]
 
-<ResponseField name="401" type="Unauthorized">
-  Invalid username or password.
-</ResponseField>
+[Unknown component: ResponseField]
 
-<ResponseField name="403" type="Forbidden">
-  Login blocked (too many attempts).
-</ResponseField>
+[Unknown component: ResponseField]
 
-<ResponseField name="429" type="Too Many Requests">
-  Rate limit exceeded.
-</ResponseField>
+[Unknown component: ResponseField]
 
-<ResponseField name="500" type="Internal Server Error">
-  Unexpected issue during authentication.
-</ResponseField>
-
----
+## [Unknown component: ResponseField]
 
 ## Error Handling
 
+[Unknown component: details]
 
+[Unknown component: details]
 
-  
-<details>
-<summary>401 Unauthorized</summary>
-
-**Description:** Invalid credentials  
-    **Resolution:** Verify username/password and try again.
-
-</details>
-
-
-  
-<details>
-<summary>403 Forbidden</summary>
-
-**Description:** Login temporarily blocked due to multiple failed attempts  
-    **Resolution:** Wait for cooldown period or contact admin.
-
-</details>
-
-
-  
-<details>
-<summary>500 Internal Server Error</summary>
-
-**Description:** Unexpected backend error  
-    **Resolution:** Check logs or contact UTMStack support.
-
-</details>
-
-
-
-
----
+## [Unknown component: details]
 
 ## Security Considerations
 
-
 > **⚠️ Warning:** **Important Security Notes:**
+
 - Always use **HTTPS (TLS)** when sending credentials
 - Do not store plain-text passwords or tokens locally
 - Implement **token expiration** and **refresh mechanisms** in clients
 - If TFA is enabled, a second verification code is sent by email
-
-
 ---
-
 ## Using the Token
 
 After successful authentication, include the JWT token in the Authorization header for subsequent API requests:
@@ -274,12 +179,8 @@ After successful authentication, include the JWT token in the Authorization head
 Authorization: Bearer <jwt_token>
 ```
 
-
 > **💡 Tip:** Test your authentication by making a request to `/api/elasticsearch/search` with your Bearer token to verify it's working correctly.
-
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml
