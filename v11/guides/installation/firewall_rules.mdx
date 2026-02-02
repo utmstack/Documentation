@@ -453,17 +453,3 @@ telnet UTMSTACK_IP 9000
   </AccordionTab>
 
 </Accordion>
----
-## Integration-Specific Port Requirements
-
-> [!NOTE]
-> Additional ports may be required for specific integrations. Refer to each integration's documentation for detailed port requirements and security recommendations.
-
-Common integration ports:
-
-- **Windows agents**: 9000-9001/TCP, 50051/TCP
-- **Linux agents**: 9000-9001/TCP, 50051/TCP
-- **Network devices**: 514/UDP (Syslog), 2055/UDP (NetFlow)
-- **Firewalls**: 514/TCP (Syslog-TLS recommended)
-- **Custom collectors**: Varies by integration
-

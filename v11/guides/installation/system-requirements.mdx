@@ -186,7 +186,7 @@ Common integration ports include:
 - Consider separate volumes for:
     - System (`/`)
   - Docker (`/var/lib/docker`)
-  - UTMStack data (`/opt/utmstack` or custom path)
+  - UTMStack data (`/utmstack` or custom path)
 
 ### IOPS Considerations
 
@@ -213,9 +213,7 @@ Common integration ports include:
 UTMStack v11 web interface is compatible with:
 
 - **Google Chrome** (recommended) - Latest 2 versions
-- **Mozilla Firefox** - Latest 2 versions
 - **Microsoft Edge** (Chromium-based) - Latest 2 versions
-- **Safari** - Latest 2 versions
 
 > [!WARNING]
 > Internet Explorer is not supported. JavaScript must be enabled.
@@ -230,7 +228,7 @@ UTMStack can run on:
 - Proxmox VE
 - KVM/QEMU
 - Microsoft Hyper-V
-- Cloud platforms (AWS, Azure, GCP)
+- Cloud platforms (AWS, Azure)
 
 > [!NOTE]
 > Ensure CPU cores are dedicated (not overcommitted) for production deployments.

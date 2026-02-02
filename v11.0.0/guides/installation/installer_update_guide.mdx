@@ -134,8 +134,8 @@ log_verbose() {
 
 # Display help message
 show_help() {
-    sed -n '/^# ===.*UTMStack Update Script/,/^# ===.*$/p' "$0" | \
-    sed 's/^# \?//' | \
+    sed -n '/^# ===.*UTMStack Update Script/,/^# ===.*$/p' "$0" | 
+    sed 's/^# \?//' | 
     sed "s/SCRIPT_VERSION/${SCRIPT_VERSION}/"
 }
 
@@ -563,6 +563,7 @@ main "$@"
 
 > [!NOTE]
 > Save the file by pressing `Ctrl + X`, then `Y`, and `Enter`.
+
 ### **Make Script Executable**
 
 Grant execution permissions to the script:
@@ -573,12 +574,14 @@ chmod +x update.sh
 
 > [!TIP]
 > Verify the script has execute permissions:
+
 ```javascript
 ls -lh update.sh
 ```
 
 > [!TIP]
 > You should see `-rwxr-xr-x` at the beginning of the output.
+
 ### **Execute the Update Script**
 
 Run the update script with sudo privileges:

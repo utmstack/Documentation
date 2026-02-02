@@ -2,53 +2,42 @@
 
 This endpoint retrieves alerts from UTMStack's Elasticsearch index. It supports advanced filtering, pagination, and sorting, allowing analysts to query alerts within specific time ranges or by defined conditions.
 
-<Note>
-**Authorization Required:** All requests must include a valid Bearer Token obtained from the authentication endpoint.
-</Note>
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid Bearer Token obtained from the authentication endpoint.
 ---
-
 ## Query Parameters
 
-<ParamField query="page" type="integer" required>
+<ParamField path="param" type="integer" required>
   Current page number (starts at 1)
 </ParamField>
-
-<ParamField query="size" type="integer" required>
+<ParamField path="param" type="integer" required>
   Number of results per page (e.g., 25)
 </ParamField>
-
-<ParamField query="top" type="integer" required>
+<ParamField path="param" type="integer" required>
   Maximum number of records to retrieve (e.g., 100000000)
 </ParamField>
-
-<ParamField query="indexPattern" type="string" required>
-  Elasticsearch index pattern (e.g., `alert-*`)
+<ParamField path="param" type="string" required>
+  Elasticsearch index pattern (e.g., alert-*)
 </ParamField>
-
-<ParamField query="sort" type="string">
-  Sorting field and direction (e.g., `@timestamp,desc`)
+<ParamField path="param" type="string">
+  Sorting field and direction (e.g., @timestamp,desc)
 </ParamField>
-
 ---
-
 ## Request Body
 
 The request body is a JSON array of filter definitions used to refine the search.
 
 ### Filter Structure
 
-<ParamField body="field" type="string" required>
-  Name of the alert field to filter (e.g., "status", "tags", "@timestamp")
+<ParamField path="param" type="string" required>
+  Name of the alert field to filter (e.g., \"status\", \"tags\", \"@timestamp\")
 </ParamField>
-
-<ParamField body="operator" type="string" required>
-  Filter operator: `IS`, `IS_NOT`, `IS_BETWEEN`, `CONTAINS`, etc.
+<ParamField path="param" type="string" required>
+  Filter operator: IS, IS_NOT, IS_BETWEEN, CONTAINS, etc.
 </ParamField>
-
-<ParamField body="value" type="any" required>
+<ParamField path="param" type="any" required>
   Filter value (string, number, or array for range operations)
 </ParamField>
-
 ### Example Filter Payload
 
 ```json
@@ -70,15 +59,13 @@ The request body is a JSON array of filter definitions used to refine the search
   }
 ]
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" 
+  -H "Authorization: Bearer <your_access_token>" 
+  -H "Content-Type: application/json" 
   -d '[
     {"field": "status", "operator": "IS_NOT", "value": 1},
     {"field": "tags", "operator": "IS_NOT", "value": "False positive"},
@@ -86,7 +73,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&
   ]'
 ```
 
-```json Response
+```json
 [
   {
     "severity": 3,
@@ -180,9 +167,7 @@ def search_alerts():
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 Returns a JSON array of alert objects. Each alert includes metadata, source/destination information, and contextual details.
@@ -191,6 +176,7 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
 
 <Tabs>
   <Tab title="Success Response">
+
     ```json
     [
       {
@@ -221,13 +207,19 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
       }
     ]
     ```
+
   </Tab>
+
   <Tab title="Empty Response">
+
     ```json
     []
     ```
+
   </Tab>
+
   <Tab title="Error Response">
+
     ```json
     {
       "error": "Invalid filter syntax",
@@ -236,68 +228,57 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
       "status": 400
     }
     ```
+
   </Tab>
+
 </Tabs>
 
 ### Response Fields
 
 - **severity** (integer): Alert severity level (1-5, where 5 is highest)
-
 - **severityLabel** (string): Human-readable severity label (Low, Medium, High, Critical)
-
 - **status** (integer): Alert status code (1=Ignored, 2=Open, 3=In Review, 5=Completed)
-
 - **statusLabel** (string): Human-readable status label
-
 - **name** (string): Alert rule name or title
-
 - **description** (string): Detailed description of the security event
-
 - **solution** (string): Recommended remediation steps
-
 - **tactic** (string): MITRE ATT&CK tactic classification
-
 - **category** (string): Alert category classification
-
 - **dataSource** (string): Source system that generated the alert
-
 - **@timestamp** (string): ISO 8601 timestamp when the alert was created
-
 ---
-
 ## Filter Operators
 
 <Accordion multiple={true}>
-    <AccordionTab header="Basic Operators">
+  <AccordionTab title="Accordion Item" >
 
     - **IS**: Exact match
     - **IS_NOT**: Not equal to
     - **CONTAINS**: Contains substring
     - **STARTS_WITH**: Begins with value
     - **ENDS_WITH**: Ends with value
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Numeric Operators">
+  <AccordionTab title="Accordion Item" >
 
     - **GREATER_THAN**: Greater than value
     - **LESS_THAN**: Less than value
     - **GREATER_EQUAL**: Greater than or equal to
     - **LESS_EQUAL**: Less than or equal to
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Range Operators">
+  <AccordionTab title="Accordion Item" >
 
     - **IS_BETWEEN**: Between two values (requires array)
     - **IS_IN**: Value in list (requires array)
     - **IS_NOT_IN**: Value not in list (requires array)
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Common Filter Examples
 
 ### Filter by Severity
@@ -331,23 +312,15 @@ Returns a JSON array of alert objects. Each alert includes metadata, source/dest
   { "field": "dataSource", "operator": "CONTAINS", "value": "windows" }
 ]
 ```
-
 ---
-
 ## Status Codes
 
 - **200** (OK): Search completed successfully. Returns array of alerts.
-
 - **400** (Bad Request): Invalid request parameters or malformed filter syntax.
-
 - **401** (Unauthorized): Missing or invalid Bearer token.
-
 - **403** (Forbidden): Insufficient permissions to access alerts.
-
 - **500** (Internal Server Error): Elasticsearch service error or internal server issue.
-
 ---
-
 ## Pagination
 
 The API supports pagination through the `page` and `size` parameters:
@@ -356,18 +329,14 @@ The API supports pagination through the `page` and `size` parameters:
 - **size**: Number of results per page
 - **top**: Maximum total results to consider
 
-<Tip>
-For optimal performance, use reasonable `size` values (25-100) and implement client-side pagination for large result sets.
-</Tip>
-
+> [!TIP]
+> For optimal performance, use reasonable `size` values (25-100) and implement client-side pagination for large result sets.
 ---
-
 ## Performance Considerations
 
-<Warning>
-**Performance Tips:**
-- Use specific time ranges to limit search scope
-- Apply filters to reduce the result set size
-- Avoid very large `top` values unless necessary
-- Consider using field-specific filters for better query performance
-</Warning>
+> [!WARNING]
+> **Performance Tips:**
+> - Use specific time ranges to limit search scope
+> - Apply filters to reduce the result set size
+> - Avoid very large `top` values unless necessary
+> - Consider using field-specific filters for better query performance
