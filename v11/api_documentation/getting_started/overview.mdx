@@ -1,6 +1,6 @@
 ## Introduction
 
-## The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
+The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
 
 ## API Base URL
 
@@ -12,32 +12,10 @@ https://your-utmstack-instance.com/api
 
 > [!WARNING]
 > Replace `your-utmstack-instance.com` with your actual UTMStack instance URL.
+
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-## Quick Start Guide
-
-Get up and running with the UTMStack API in just a few steps:
-
-### Authenticate
-
-Use your UTMStack credentials to obtain a JWT token
-
-```bash
-curl -X POST https://your-utmstack-instance.com/api/authenticate 
-  -H "Content-Type: application/json" 
-  -d '{"username":"your_username","password":"your_password"}'
-```
-
-### Store Token
-
-Save the returned `id_token` for use in subsequent requests
-
-```json
-{
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "authenticated": true
-}
-```
-
 ### Make API Calls
 
 Use the Api Key in the Authorization header for protected endpoints
@@ -147,7 +125,6 @@ Launch Postman application or visit [web.postman.co](https://web.postman.co)
 Set up collection variables:
 
 - `baseUrl`: Your UTMStack instance URL
-- `bearerToken`: Will be set automatically after authentication
 - `alertId`: Sample alert ID for testing
 
 ### Start Testing
@@ -156,124 +133,7 @@ Run the "Authentication" request first, then explore other endpoints
 
 > [!TIP]
 > **Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
----
-## Authentication Overview
 
-All API requests (except the authentication endpoint itself) require a valid Bearer token in the Authorization header:
-
-```http
-Authorization: Bearer <your_jwt_token>
-```
-
-### Quick Start Example
-
-```bash
-curl -X POST https://your-utmstack-instance.com/api/authenticate 
-  -H "Content-Type: application/json" 
-  -d '{"username":"your_username","password":"your_password"}'
-```
-
-```json
-{
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImF1dGgiOiJST0xFX0FETUlOIn0.signature",
-  "authenticated": true
-}
-```
-
-### Additional Language Examples
-
-<CodeGroup>
-
-```bash curl
-# 1. Get authentication token
-curl -X POST https://your-utmstack-instance.com/api/authenticate 
-  -H "Content-Type: application/json" 
-  -d '{"username":"your_username","password":"your_password"}'
-
-# 2. Use Api Key in requests
-curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search?page=1&size=25&indexPattern=v11-alert-*" 
-  -H "utm-api-key: <your_api_key>"
-  -H "Content-Type: application/json" 
-  -d '[{"field":"status","operator":"IS","value":2}]'
-```
-
-</CodeGroup>
----
-## Common Response Codes
-
-<Accordion multiple={true}>
-  <AccordionTab title="Success Response" >
-
-    - **200 OK**: Request completed successfully
-    - **201 Created**: Resource created successfully
-    - **204 No Content**: Request successful, no response body
-
-  </AccordionTab>
-
-  <AccordionTab title="Error Response" >
-
-    - **400 Bad Request**: Invalid request format or parameters
-    - **401 Unauthorized**: Missing or invalid authentication token
-    - **403 Forbidden**: Insufficient permissions for the requested operation
-    - **404 Not Found**: Requested resource does not exist
-    - **429 Too Many Requests**: Rate limit exceeded
-
-  </AccordionTab>
-
-  <AccordionTab title="Errors 500 Response" >
-
-    - **500 Internal Server Error**: Unexpected server error
-    - **502 Bad Gateway**: Upstream service unavailable
-    - **503 Service Unavailable**: Service temporarily unavailable
-
-  </AccordionTab>
-
-</Accordion>
----
-## Request/Response Format
-
-### Content Type
-
-All API requests and responses use JSON format:
-
-```http
-Content-Type: application/json
-```
-
-### Request Structure
-
-Most endpoints expect JSON in the request body:
-
-```json
-{
-  "field": "value",
-  "array": ["item1", "item2"],
-  "nested": {
-    "property": "value"
-  }
-}
-```
-
-### Response Structure
-
-Successful responses typically return:
-
-- **Search endpoints**: Array of objects
-- **Update endpoints**: HTTP 200 with empty body
-- **Error responses**: JSON object with error details
----
-## Rate Limiting
-
-> [!INFO]
-> UTMStack implements rate limiting to ensure API stability. If you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
-
-### Best Practices
-
-- **Implement exponential backoff** for retries
-- **Cache authentication tokens** instead of re-authenticating for each request
-- **Batch operations** when possible to reduce API calls
-- **Use appropriate page sizes** for search operations
----
 ## SDK and Libraries
 
 > [!NOTE]
@@ -290,25 +150,3 @@ Successful responses typically return:
 
 > [!TIP]
 > This documentation is actively maintained. Check back regularly for updates and new endpoint additions.
-
-<RightPanel>
-  <CodeGroup>
-  
-  ```bash Authenticate
-  curl -X POST https://your-utmstack-instance.com/api/authenticate 
-    -H "Content-Type: application/json" 
-    -d '{"username":"your_username","password":"your_password"}'
-  ```
-  
-  </CodeGroup>
-  <CodeGroup>
-  
-  ```json Authentication Response
-  {
-    "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImF1dGgiOiJST0xFX0FETUlOIn0.signature",
-    "authenticated": true
-  }
-  ```
-  
-  </CodeGroup>
-</RightPanel>

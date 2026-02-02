@@ -440,11 +440,6 @@
                 "children": [
                   {
                     "type": "page",
-                    "title": "Authentication",
-                    "page": "/v11/api_documentation/authentication/authentication.mdx"
-                  },
-                  {
-                    "type": "page",
                     "title": "API Keys",
                     "page": "/v11/api_documentation/authentication/api-keys.mdx"
                   }

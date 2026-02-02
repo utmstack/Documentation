@@ -7,9 +7,7 @@
 The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
 
 > **Note:** All API endpoints require authentication via Bearer tokens. See the [Authentication](/v10/apidoc/authentication) section for details on obtaining access tokens.
-
 ---
-
 ## API Base URL
 
 The UTMStack API is available at:
@@ -19,9 +17,7 @@ https://your-utmstack-instance.com/api
 ```
 
 > **⚠️ Warning:** Replace `your-utmstack-instance.com` with your actual UTMStack instance URL.
-
 ---
-
 ## Quick Start Guide
 
 Get up and running with the UTMStack API in just a few steps:
@@ -31,8 +27,8 @@ Get up and running with the UTMStack API in just a few steps:
 Use your UTMStack credentials to obtain a JWT token
 
 ```bash
-    curl -X POST https://your-utmstack-instance.com/api/authenticate \
-      -H "Content-Type: application/json" \
+    curl -X POST https://your-utmstack-instance.com/api/authenticate 
+      -H "Content-Type: application/json" 
       -d '{"username":"your_username","password":"your_password"}'
 ```
 
@@ -52,13 +48,11 @@ Save the returned `id_token` for use in subsequent requests
 Use the token in the Authorization header for protected endpoints
 
 ```bash
-    curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search" \
-      -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+    curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search" 
+      -H "Authorization: Bearer YOUR_TOKEN_HERE" 
       -H "Content-Type: application/json"
 ```
-
 ---
-
 ## Available Endpoints
 
 ### [Authentication](/v10/apidoc/authentication)
@@ -96,9 +90,7 @@ Analyze field values and their distributions
 ### [CSV Export](/v10/apidoc/csv-export)
 
 Export alert data to CSV for reporting
-
 ---
-
 ## 📦 Postman Collection
 
 Get started quickly by importing our complete Postman collection that includes all API endpoints with pre-configured examples, authentication, and test scripts.
@@ -107,7 +99,7 @@ Get started quickly by importing our complete Postman collection that includes a
 
 **Complete Postman Collection (JSON)** Includes all 9 API endpoints with examples, authentication setup, and automated tests.
 
-<br/>
+[Unknown component: br]
 
 **What's included:**
 
@@ -149,9 +141,7 @@ Set up collection variables:
 Run the "Authentication" request first, then explore other endpoints
 
 > **💡 Tip:** **Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
-
 ---
-
 ## Authentication Overview
 
 All API requests (except the authentication endpoint itself) require a valid Bearer token in the Authorization header:
@@ -162,60 +152,19 @@ Authorization: Bearer <your_jwt_token>
 
 ### Quick Start Example
 
-```bash Authenticate
-curl -X POST https://your-utmstack-instance.com/api/authenticate \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST https://your-utmstack-instance.com/api/authenticate 
+  -H "Content-Type: application/json" 
   -d '{"username":"your_username","password":"your_password"}'
 ```
 
-</RequestExample>
-
-```json Authentication Response
+```json
 {
   "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImF1dGgiOiJST0xFX0FETUlOIn0.signature",
   "authenticated": true
 }
 ```
-
-</ResponseExample>
-
-### Additional Language Examples
-
-<CodeGroup>
-</CodeGroup>
-
 ---
-
-## Common Response Codes
-
-<details> <summary>2xx Success Codes</summary>
-
-- **200 OK**: Request completed successfully
-- **201 Created**: Resource created successfully
-- **204 No Content**: Request successful, no response body
-
-</details>
-
-<details> <summary>4xx Client Error Codes</summary>
-
-- **400 Bad Request**: Invalid request format or parameters
-- **401 Unauthorized**: Missing or invalid authentication token
-- **403 Forbidden**: Insufficient permissions for the requested operation
-- **404 Not Found**: Requested resource does not exist
-- **429 Too Many Requests**: Rate limit exceeded
-
-</details>
-
-<details> <summary>5xx Server Error Codes</summary>
-
-- **500 Internal Server Error**: Unexpected server error
-- **502 Bad Gateway**: Upstream service unavailable
-- **503 Service Unavailable**: Service temporarily unavailable
-
-</details>
-
----
-
 ## Request/Response Format
 
 ### Content Type
@@ -247,9 +196,7 @@ Successful responses typically return:
 - **Search endpoints**: Array of objects
 - **Update endpoints**: HTTP 200 with empty body
 - **Error responses**: JSON object with error details
-
 ---
-
 ## Rate Limiting
 
 > **ℹ️ Info:** UTMStack implements rate limiting to ensure API stability. If you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
@@ -260,9 +207,7 @@ Successful responses typically return:
 - **Cache authentication tokens** instead of re-authenticating for each request
 - **Batch operations** when possible to reduce API calls
 - **Use appropriate page sizes** for search operations
-
 ---
-
 ## Error Handling
 
 ### Standard Error Response
@@ -275,14 +220,7 @@ Successful responses typically return:
   "status": 400
 }
 ```
-
-### Error Handling Example
-
-<CodeGroup>
-</CodeGroup>
-
 ---
-
 ## SDK and Libraries
 
 > **Note:** Currently, UTMStack provides REST API endpoints. Community SDKs and libraries may be available for specific programming languages.
@@ -296,28 +234,6 @@ Successful responses typically return:
 - **Go**: `net/http`
 - **PHP**: `Guzzle`, `cURL`
 
----
-
-## Support and Resources
-
-### [Support Portal](https://support.utmstack.com)
-
-Get help with API integration and troubleshooting
-
-### [Status Codes Reference](#common-response-codes)
-
-Complete list of HTTP status codes and meanings
-
-### [Authentication Guide](/v10/apidoc/authentication)
-
-Detailed authentication setup and token management
-
-### [Examples Repository](#)
-
-Sample code and integration examples
-
----
-
 ## Version Information
 
 - **API Version**: v1.0
@@ -325,4 +241,3 @@ Sample code and integration examples
 - **Last Updated**: October 2025
 
 > **💡 Tip:** This documentation is actively maintained. Check back regularly for updates and new endpoint additions.
-

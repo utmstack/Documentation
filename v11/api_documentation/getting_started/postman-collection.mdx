@@ -57,7 +57,6 @@ Launch the Postman application or visit [web.postman.co](https://web.postman.co)
 Set up the collection variables in Postman:
 
 - **baseUrl**: `https://your-utmstack-instance.com` (replace with your actual URL)
-- **bearerToken**: Leave empty (will be set automatically after authentication)
 - **alertId**: `c1c4e32c-dd9f-4a15-98c4-0dac2af40740` (sample alert ID for testing)
 
 ### Authenticate
@@ -66,22 +65,13 @@ Run the **"Authenticate User"** request in the Authentication folder to get your
 
 ### Start Testing
 
-## Explore all endpoints! The bearer token will be automatically applied to subsequent requests
+Explore all endpoints! The bearer token will be automatically applied to subsequent requests
 
 ## 📁 Collection Structure
 
 The collection is organized into logical folders for easy navigation:
 
 <Accordion multiple={true}>
-  <AccordionTab title="Authentication" icon="hi-lockClosed-solid">
-
-    **JWT Token Management**
-    - User Authentication
-    - Automatic token storage in collection variables
-    - Token validation and refresh handling
-
-  </AccordionTab>
-
   <AccordionTab title="Alert Management" icon="fa fa-search">
 
     **Core Alert Operations**
@@ -150,94 +140,6 @@ Each endpoint includes multiple real-world scenarios:
 
 - ✅ Convert single high-priority alert
 - ✅ Create incident from multiple related alerts
-- ✅ Batch processing workflows
----
-## 🧪 Automated Testing
+- ✅ Batch processing workflow
 
-Every request includes comprehensive test scripts that automatically verify:
-
-<Tabs>
-  <Tab title="Response Validation">
-
-    ```javascript
-    pm.test('Status code is 200', function () {
-        pm.response.to.have.status(200);
-    });
-    
-    pm.test('Response has valid structure', function () {
-        const response = pm.response.json();
-        pm.expect(response).to.have.property('data');
-    });
-    ```
-
-  </Tab>
-
-  <Tab title="Authentication Tests">
-
-    ```javascript
-    pm.test('Authentication successful', function () {
-        const response = pm.response.json();
-        pm.expect(response).to.have.property('id_token');
-        pm.expect(response.authenticated).to.be.true;
-        
-        // Auto-store token for subsequent requests
-        pm.collectionVariables.set('bearerToken', response.id_token);
-    });
-    ```
-
-  </Tab>
-
-  <Tab title="Data Integrity Tests">
-
-    ```javascript
-    pm.test('Alert data structure is valid', function () {
-        const alerts = pm.response.json().body;
-        pm.expect(alerts).to.be.an('array');
-        
-        alerts.forEach(alert => {
-            pm.expect(alert).to.have.property('id');
-            pm.expect(alert).to.have.property('name');
-            pm.expect(alert).to.have.property('severity');
-        });
-    });
-    ```
-
-  </Tab>
-
-</Tabs>
----
-## 🔧 Environment Setup
-
-### Quick Setup Variables
-
-Copy these variables into your Postman environment or collection variables:
-
-```json
-{
-  "baseUrl": "https://your-utmstack-instance.com",
-  "bearerToken": "",
-  "alertId": "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
-  "username": "your_username",
-  "password": "your_password"
-}
-```
-
-### Advanced Configuration
-
-For enterprise environments, you can customize:
-
-<CodeGroup>
-
-```json Production Environment
-{
-  "baseUrl": "https://utmstack-prod.company.com",
-  "bearerToken": "",
-  "alertId": "real-alert-id-from-your-system",
-  "username": "api_user",
-  "password": "secure_password",
-  "timeout": 30000,
-  "maxRetries": 3
-}
-```
-
-</CodeGroup>
+### 
