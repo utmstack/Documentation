@@ -2,38 +2,21 @@
 
 Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts, help in filtering, and optionally trigger **automatic rules** based on tag creation. Supports auditing for traceability.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
-
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-
 ## Request Body
 
-<ParamField body="alertIds" type="array" required>
-  Array of alert UUIDs to update with tags
-  <Expandable title="Example">
-    ```json
-    ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"]
-    ```
-  </Expandable>
+<ParamField path="param" type="array" required>
+  Array of alert UUIDs to update with tags\n[\"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\", \"d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f\"]
 </ParamField>
-
-<ParamField body="tags" type="array">
-  Array of tag strings to assign to the alerts (can be empty to remove tags)
-  <Expandable title="Examples">
-    ```json
-    ["Investigation Needed", "SOC Review", "False Positive"]
-    ```
-  </Expandable>
+<ParamField path="param" type="array">
+  Array of tag strings to assign to the alerts (can be empty to remove tags)\n[\"Investigation Needed\", \"SOC Review\", \"False Positive\"]
 </ParamField>
-
-<ParamField body="createRule" type="boolean" required>
+<ParamField path="param" type="boolean" required>
   Whether to automatically create a tag rule when assigning tags
 </ParamField>
-
 ---
-
 ## JSON Schema
 
 ```json
@@ -63,15 +46,13 @@ Adds or updates **tags** for one or multiple alerts. Tags can categorize alerts,
   "required": ["alertIds", "createRule"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" 
+  -H "utm-api-key: <your_api_key>" 
+  -H "Content-Type: application/json" 
   -d '{
     "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"],
     "tags": ["Investigation Needed", "SOC Review"],
@@ -79,7 +60,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/tags" \
   }'
 ```
 
-```json Response
+```json
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
@@ -109,7 +90,7 @@ const updateAlertTags = async () => {
       payload, 
       {
         headers: { 
-          Authorization: `Bearer ${token}`,
+          "utm-api-key": "<your_api_key>",
           "Content-Type": "application/json"
         }
       }
@@ -139,7 +120,7 @@ def update_alert_tags():
     }
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     
@@ -154,22 +135,24 @@ def update_alert_tags():
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Update
 
 <Tabs>
   <Tab title="Success Response">
+
     ```http
     HTTP/1.1 200 OK
     Content-Length: 0
     Date: Wed, 16 Oct 2024 10:30:00 GMT
     ```
+
   </Tab>
+
   <Tab title="Error Response">
+
     ```json
     {
       "error": "Invalid request",
@@ -178,29 +161,22 @@ def update_alert_tags():
       "status": 400
     }
     ```
+
   </Tab>
+
 </Tabs>
 
-<Note>
-The API returns **HTTP 200 OK** with no response body when tags are successfully updated.
-</Note>
-
+> [!NOTE]
+> The API returns **HTTP 200 OK** with no response body when tags are successfully updated.
 ---
-
 ## Status Codes
 
 - **200** (OK): Tags updated successfully
-
 - **400** (Bad Request): Invalid request payload or malformed JSON
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **404** (Not Found): One or more alerts not found
-
 - **500** (Internal Server Error): Internal server error during tag update
-
 ---
-
 ## Usage Examples
 
 ### Add Investigation Tags
@@ -246,56 +222,52 @@ The API returns **HTTP 200 OK** with no response body when tags are successfully
   "createRule": false
 }
 ```
-
 ---
-
 ## Tag Categories
 
 <Accordion multiple={true}>
-    <AccordionTab header="Investigation Tags">
+  <AccordionTab title="Accordion Item" >
 
     - **Under Investigation**: Alert is being actively investigated
     - **Escalated**: Alert has been escalated to senior analysts
     - **Pending Response**: Waiting for additional information
     - **External Consultation**: Requires input from external sources
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Classification Tags">
+  <AccordionTab title="Accordion Item" >
 
     - **False Positive**: Alert determined to be benign
     - **True Positive**: Confirmed security incident
     - **Suspicious**: Requires further analysis
     - **Informational**: For awareness only
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Priority Tags">
+  <AccordionTab title="Accordion Item" >
 
     - **Critical**: Immediate attention required
     - **High Priority**: Urgent investigation needed
     - **Medium Priority**: Standard priority
     - **Low Priority**: Can be addressed later
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Workflow Tags">
+  <AccordionTab title="Accordion Item" >
 
     - **SOC Review**: Requires SOC team review
     - **Management Review**: Needs management attention
     - **Completed**: Investigation finished
     - **Archived**: Historical reference
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Automatic Rule Creation
 
-<Info>
-When `createRule` is set to `true`, UTMStack automatically creates tag rules that will apply the same tags to future alerts matching similar criteria. This helps automate recurring tagging scenarios.
-</Info>
+> [!INFO]
+> When `createRule` is set to `true`, UTMStack automatically creates tag rules that will apply the same tags to future alerts matching similar criteria. This helps automate recurring tagging scenarios.
 
 ### Rule Creation Behavior
 
@@ -303,57 +275,51 @@ When `createRule` is set to `true`, UTMStack automatically creates tag rules tha
 - **Scope**: Applied to future alerts matching criteria
 - **Management**: Rules can be viewed and modified in the UTMStack interface
 - **Audit**: Rule creation is logged for compliance
-
 ---
-
 ## Security Considerations
 
-<Warning>
-**Security Notes:**
-- Requires Bearer token authentication
-- All tag changes are **audited** for traceability
-- Tag rules creation requires appropriate permissions
-- Users without proper permissions will receive 401 Unauthorized
-- Alert IDs must be valid UUIDs that exist in the system
-</Warning>
-
+> [!WARNING]
+> **Security Notes:**
+> - Requires Bearer token authentication
+> - All tag changes are **audited** for traceability
+> - Tag rules creation requires appropriate permissions
+> - Users without proper permissions will receive 401 Unauthorized
+> - Alert IDs must be valid UUIDs that exist in the system
 ---
-
 ## Best Practices
 
 <Accordion multiple={true}>
-    <AccordionTab header="Tag Naming Conventions">
+  <AccordionTab title="Accordion Item" >
 
     Use consistent, descriptive tag names:
     - Use title case: "False Positive" not "false positive"
     - Be specific: "Network Scan" not "Scan"
     - Use standard terminology: "Under Investigation" not "Looking at it"
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Rule Creation Strategy">
+  <AccordionTab title="Accordion Item" >
 
     Be selective with automatic rule creation:
     - Use for repetitive, well-defined scenarios
     - Avoid for one-off or complex cases
     - Monitor rule effectiveness regularly
     - Review and clean up unused rules
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Tag Management">
+  <AccordionTab title="Accordion Item" >
 
     Maintain tag hygiene:
     - Remove outdated or incorrect tags
     - Standardize tag vocabulary across teams
     - Use hierarchical tags when appropriate
     - Document tag meanings and usage
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml

@@ -3,7 +3,7 @@
 Updates the **status** of one or more alerts. Allows analysts to change the alert state (e.g., Open, In Review, Completed) and optionally add an observation note. Supports auditing for traceability.
 
 > [!NOTE]
-> **Authorization Required:** Include a valid Bearer Token in the Authorization header.
+> **Authorization Required:**  All requests must include a valid API Key in the header `utm-api-key`.
 ---
 ## Request Body
 
@@ -60,7 +60,7 @@ Updates the **status** of one or more alerts. Allows analysts to change the aler
 
 ```bash
 curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" 
-  -H "Authorization: Bearer <your_access_token>" 
+  -H "utm-api-key: <your_api_key>"  
   -H "Content-Type: application/json" 
   -d '{
     "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
@@ -98,7 +98,7 @@ const updateAlertStatus = async () => {
       payload, 
       {
         headers: { 
-          Authorization: `Bearer ${token}`,
+          "utm-api-key": "<your_api_key>",
           'Content-Type': 'application/json'
         }
       }
@@ -126,7 +126,7 @@ def update_alert_status():
     }
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     

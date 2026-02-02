@@ -2,55 +2,42 @@
 
 This endpoint allows you to export alert data in CSV format. You can apply filters, select specific fields, and control the format of the exported data. This is useful for creating reports, data analysis, and integrating with external business intelligence tools.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-
 ## Request Body
 
-<ParamField body="filters" type="array">
+<ParamField path="param" type="array">
   Filters to apply when selecting alerts for export
 </ParamField>
-
-<ParamField body="fields" type="array" required>
+<ParamField path="param" type="array" required>
   List of field names to include in the CSV export
 </ParamField>
-
-<ParamField body="from" type="integer" default="0">
+<ParamField path="param" type="integer">
   Starting position for pagination (0-based)
 </ParamField>
-
-<ParamField body="size" type="integer" default="10000">
+<ParamField path="param" type="integer">
   Maximum number of records to export
 </ParamField>
-
-<ParamField body="orderBy" type="string" default="@timestamp">
+<ParamField path="param" type="string">
   Field to sort results by
 </ParamField>
-
-<ParamField body="sortDirection" type="string" default="desc">
-  Sort direction: "asc" or "desc"
+<ParamField path="param" type="string">
+  Sort direction: \"asc\" or \"desc\"
 </ParamField>
-
-<ParamField body="includeHeaders" type="boolean" default="true">
+<ParamField path="param" type="boolean">
   Whether to include column headers in the CSV
 </ParamField>
-
-<ParamField body="dateFormat" type="string" default="yyyy-MM-dd HH:mm:ss">
+<ParamField path="param" type="string">
   Format for date/time fields in the CSV
 </ParamField>
-
-<ParamField body="separator" type="string" default=",">
+<ParamField path="param" type="string">
   Field separator character (comma, semicolon, tab)
 </ParamField>
-
-<ParamField body="filename" type="string">
+<ParamField path="param" type="string">
   Optional filename for the CSV export
 </ParamField>
-
 ---
-
 ## JSON Schema
 
 ```json
@@ -111,15 +98,13 @@ This endpoint allows you to export alert data in CSV format. You can apply filte
   "required": ["fields"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" 
+  -H "utm-api-key: <your_api_key>" 
+  -H "Content-Type: application/json" 
   -d '{
     "filters": [
       {
@@ -153,7 +138,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   }'
 ```
 
-```csv Response
+```csv
 @timestamp,name,severity,status,dataSource,category,description
 2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01","Authentication","Multiple failed login attempts detected"
 2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main","Network","Port scanning activity from external IP"
@@ -194,7 +179,7 @@ const exportAlertsToCSV = async (exportOptions) => {
       defaultOptions,
       {
         headers: { 
-          Authorization: `Bearer ${token}`,
+          "utm-api-key": "<your_api_key>",
           "Content-Type": "application/json"
         },
         responseType: 'text'
@@ -263,7 +248,7 @@ def export_alerts_to_csv(fields, filters=None, filename=None, **options):
     }
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     
@@ -313,54 +298,53 @@ print(f"Exported {len(df)} alerts to CSV")
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Response
 
 <Tabs>
   <Tab title="Standard Export">
+
     ```csv
     @timestamp,name,severity,status,dataSource
     2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
     2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
     2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
     ```
+
   </Tab>
+
   <Tab title="Custom Separator">
+
     ```csv
     @timestamp;name;severity;status;dataSource
     2024-01-15 14:32:15;"Suspicious Login Attempt";4;2;"windows-server-01"
     2024-01-15 14:28:42;"Port Scan Detected";3;2;"firewall-main"
     ```
+
   </Tab>
+
   <Tab title="No Headers">
+
     ```csv
     2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
     2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
     2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
     ```
+
   </Tab>
+
 </Tabs>
-
 ---
-
 ## Status Codes
 
 - **200** (OK): CSV data successfully exported
-
 - **400** (Bad Request): Invalid field names, malformed filters, or invalid parameters
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **413** (Payload Too Large): Export size exceeds maximum allowed limit
-
 - **500** (Internal Server Error): Internal server error during export
-
 ---
-
 ## Common Use Cases
 
 ### Security Incident Reports
@@ -463,13 +447,11 @@ const exportForAnalysis = async () => {
   });
 };
 ```
-
 ---
-
 ## Available Fields
 
 <Accordion multiple={true}>
-    <AccordionTab header="Core Alert Fields">
+  <AccordionTab title="Accordion Item" >
 
     **Essential fields for most exports:**
     - `@timestamp` - Alert timestamp
@@ -479,10 +461,10 @@ const exportForAnalysis = async () => {
     - `category` - Alert category
     - `description` - Alert description
     - `dataSource` - Source system
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Network Fields">
+  <AccordionTab title="Accordion Item" >
 
     **Network-related alert fields:**
     - `sourceIp` - Source IP address
@@ -492,10 +474,10 @@ const exportForAnalysis = async () => {
     - `protocol` - Network protocol
     - `bytes` - Bytes transferred
     - `packets` - Packet count
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Security Fields">
+  <AccordionTab title="Accordion Item" >
 
     **Security-focused fields:**
     - `tactic` - MITRE ATT&CK tactic
@@ -505,10 +487,10 @@ const exportForAnalysis = async () => {
     - `file` - File path
     - `hash` - File/process hash
     - `signature` - Detection signature
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Management Fields">
+  <AccordionTab title="Accordion Item" >
 
     **Alert management fields:**
     - `assignedTo` - Assigned analyst
@@ -517,12 +499,11 @@ const exportForAnalysis = async () => {
     - `disposition` - Final disposition
     - `createdAt` - Creation time
     - `updatedAt` - Last update time
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Export Formats & Options
 
 ### Date Format Patterns
@@ -561,17 +542,14 @@ yyyy-'W'ww              → 2024-W03 (week number)
 
 ### Size Limits
 
-<Warning>
-**Export Limits:**
-- Maximum size: 100,000 records per request
-- Maximum file size: ~50MB 
-- Timeout: 5 minutes for large exports
-- Use pagination (`from` + `size`) for larger datasets
-- Consider filtering to reduce result set size
-</Warning>
-
+> [!WARNING]
+> **Export Limits:**
+> - Maximum size: 100,000 records per request
+> - Maximum file size: ~50MB
+> - Timeout: 5 minutes for large exports
+> - Use pagination (`from` + `size`) for larger datasets
+> - Consider filtering to reduce result set size
 ---
-
 ## Advanced Examples
 
 ### Multi-file Export Strategy
@@ -662,9 +640,9 @@ API_TOKEN="your_token_here"
 mkdir -p "$EXPORT_DIR/$DATE"
 
 # Export high severity alerts
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
-  -H "Authorization: Bearer $API_TOKEN" \
-  -H "Content-Type: application/json" \
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" 
+  -H "Authorization: Bearer $API_TOKEN" 
+  -H "Content-Type: application/json" 
   -d '{
     "filters": [
       {
@@ -686,9 +664,9 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
   }' > "$EXPORT_DIR/$DATE/high_severity_alerts.csv"
 
 # Export summary statistics
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
-  -H "Authorization: Bearer $API_TOKEN" \
-  -H "Content-Type: application/json" \
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" 
+  -H "Authorization: Bearer $API_TOKEN" 
+  -H "Content-Type: application/json" 
   -d '{
     "filters": [
       {
@@ -703,9 +681,7 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
 
 echo "Daily export completed: $EXPORT_DIR/$DATE"
 ```
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml

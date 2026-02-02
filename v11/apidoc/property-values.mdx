@@ -2,40 +2,30 @@
 
 This endpoint returns unique values for a specified alert property (field) along with the count of how many times each value appears. It's useful for creating filter dropdowns, analytics dashboards, and understanding data distribution in your alerts.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
-
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-
 ## Request Body
 
-<ParamField body="field" type="string" required>
-  The alert property field to analyze (e.g., "status", "severity", "dataSource")
+<ParamField path="param" type="string" required>
+  The alert property field to analyze (e.g., \"status\", \"severity\", \"dataSource\")
 </ParamField>
-
-<ParamField body="filters" type="array">
+<ParamField path="param" type="array">
   Optional filters to apply before analyzing the field values
 </ParamField>
-
-<ParamField body="index" type="string" required>
-  Elasticsearch index pattern to search (typically "alert-*")
+<ParamField path="param" type="string" required>
+  Elasticsearch index pattern to search (typically \"v11-alert-*\")
 </ParamField>
-
-<ParamField body="top" type="integer" default="10">
+<ParamField path="param" type="integer">
   Maximum number of unique values to return
 </ParamField>
-
-<ParamField body="orderByCount" type="boolean" default="true">
+<ParamField path="param" type="boolean">
   Whether to order results by count (true) or alphabetically (false)
 </ParamField>
-
-<ParamField body="sortAsc" type="boolean" default="false">
+<ParamField path="param" type="boolean">
   Sort order: true for ascending, false for descending
 </ParamField>
-
 ---
-
 ## JSON Schema
 
 ```json
@@ -78,15 +68,13 @@ This endpoint returns unique values for a specified alert property (field) along
   "required": ["field", "index"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-count" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-count" 
+  -H "utm-api-key: <your_api_key>" 
+  -H "Content-Type: application/json" 
   -d '{
     "field": "severity",
     "filters": [
@@ -96,14 +84,14 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
         "value": ["now-7d", "now"]
       }
     ],
-    "index": "alert-*",
+    "index": "v11-alert-*",
     "top": 10,
     "orderByCount": true,
     "sortAsc": false
   }'
 ```
 
-```json Response
+```json
 [
   {
     "value": "2",
@@ -136,12 +124,11 @@ curl -X POST "https://demo.utmstack.com/api/elasticsearch/property/values-with-c
 import axios from "axios";
 
 const getPropertyValuesWithCount = async (field, options = {}) => {
-  const token = "<your_access_token>";
   
   const payload = {
     field: field,
     filters: options.filters || [],
-    index: options.index || "alert-*",
+    index: options.index || "v11-alert-*",
     top: options.top || 10,
     orderByCount: options.orderByCount !== false,
     sortAsc: options.sortAsc || false
@@ -153,7 +140,7 @@ const getPropertyValuesWithCount = async (field, options = {}) => {
       payload,
       {
         headers: { 
-          Authorization: `Bearer ${token}`,
+          "utm-api-key": "<your_api_key>",
           "Content-Type": "application/json"
         }
       }
@@ -174,7 +161,7 @@ await getPropertyValuesWithCount("dataSource", { top: 20 });
 ```python Python
 import requests
 
-def get_property_values_with_count(field, filters=None, index="alert-*", top=10, order_by_count=True, sort_asc=False):
+def get_property_values_with_count(field, filters=None, index="v11-alert-*", top=10, order_by_count=True, sort_asc=False):
     url = "https://demo.utmstack.com/api/elasticsearch/property/values-with-count"
     
     payload = {
@@ -187,7 +174,7 @@ def get_property_values_with_count(field, filters=None, index="alert-*", top=10,
     }
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     
@@ -212,15 +199,14 @@ get_property_values_with_count("status", filters=[
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Response
 
 <Tabs>
   <Tab title="Severity Analysis">
+
     ```json
     [
       {"value": "3", "count": 156},
@@ -230,8 +216,11 @@ get_property_values_with_count("status", filters=[
       {"value": "5", "count": 8}
     ]
     ```
+
   </Tab>
+
   <Tab title="Data Source Analysis">
+
     ```json
     [
       {"value": "windows-server-01", "count": 234},
@@ -240,28 +229,26 @@ get_property_values_with_count("status", filters=[
       {"value": "database-cluster", "count": 56}
     ]
     ```
+
   </Tab>
+
   <Tab title="Empty Result">
+
     ```json
     []
     ```
+
   </Tab>
+
 </Tabs>
-
 ---
-
 ## Status Codes
 
 - **200** (OK): Successfully retrieved property values and counts
-
 - **400** (Bad Request): Invalid field name, malformed filters, or invalid parameters
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **500** (Internal Server Error): Internal server error during analysis
-
 ---
-
 ## Common Use Cases
 
 ### Filter Dropdown Population
@@ -339,9 +326,7 @@ def generate_top_offenders_report():
     
     return sources
 ```
-
 ---
-
 ## Advanced Filtering Examples
 
 ### Time-based Analysis
@@ -361,7 +346,7 @@ def generate_top_offenders_report():
       "value": [2, 3]
     }
   ],
-  "index": "alert-*",
+  "index": "v11-alert-*",
   "top": 5,
   "orderByCount": true,
   "sortAsc": false
@@ -385,7 +370,7 @@ def generate_top_offenders_report():
       "value": 3
     }
   ],
-  "index": "alert-*",
+  "index": "v11-alert-*",
   "top": 15,
   "orderByCount": true,
   "sortAsc": false
@@ -404,66 +389,60 @@ def generate_top_offenders_report():
       "value": ["now-30d", "now"]
     }
   ],
-  "index": "alert-*",
+  "index": "v11-alert-*",
   "top": 25,
   "orderByCount": true,
   "sortAsc": false
 }
 ```
-
 ---
-
 ## Performance Considerations
 
-<Warning>
-**Performance Tips:**
-- Use appropriate `top` limits to avoid large result sets
-- Apply filters to reduce the data set being analyzed
-- Consider caching results for frequently requested fields
-- Use specific time ranges rather than analyzing all historical data
-- Monitor query performance for fields with high cardinality
-</Warning>
-
+> [!WARNING]
+> **Performance Tips:**
+> - Use appropriate `top` limits to avoid large result sets
+> - Apply filters to reduce the data set being analyzed
+> - Consider caching results for frequently requested fields
+> - Use specific time ranges rather than analyzing all historical data
+> - Monitor query performance for fields with high cardinality
 ---
-
 ## Best Practices
 
 <Accordion multiple={true}>
-    <AccordionTab header="Field Selection">
+  <AccordionTab title="Accordion Item" >
 
     **Commonly analyzed fields:**
     - `severity` - Alert severity levels
-    - `status` - Alert status distribution  
+    - `status` - Alert status distribution
     - `dataSource` - Top alert sources
     - `category` - Alert categories
     - `tactic` - MITRE ATT&CK tactics
     - `tags` - Applied tags
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Filter Strategy">
+  <AccordionTab title="Accordion Item" >
 
     **Effective filtering:**
     - Always include time filters to limit scope
     - Exclude false positives for meaningful analysis
     - Filter by status to focus on actionable alerts
     - Use severity filters for priority analysis
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Result Limits">
+  <AccordionTab title="Accordion Item" >
 
     **Appropriate limits:**
     - Dropdowns: 10-20 items
     - Dashboard charts: 5-15 items
     - Reports: 20-50 items
     - Avoid requesting more than 100 items
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml

@@ -2,36 +2,24 @@
 
 This endpoint allows security analysts to convert selected alerts into a formal security incident. This is useful when multiple related alerts need to be investigated together or when an alert requires escalation to incident response procedures.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-
 ## Request Body
 
-<ParamField body="eventIds" type="array" required>
-  Array of alert UUIDs to convert into an incident
-  <Expandable title="Example">
-    ```json
-    ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f"]
-    ```
-  </Expandable>
+<ParamField path="param" type="array" required>
+  Array of alert UUIDs to convert into an incident\n[\"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\", \"d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f\"]
 </ParamField>
-
-<ParamField body="incidentName" type="string" required>
+<ParamField path="param" type="string" required>
   Descriptive name for the new incident
 </ParamField>
-
-<ParamField body="incidentId" type="integer" required>
+<ParamField path="param" type="integer" required>
   Unique identifier for the incident (must be unique in the system)
 </ParamField>
-
-<ParamField body="incidentSource" type="string" required>
+<ParamField path="param" type="string" required>
   Source or origin description for the incident
 </ParamField>
-
 ---
-
 ## JSON Schema
 
 ```json
@@ -62,15 +50,13 @@ This endpoint allows security analysts to convert selected alerts into a formal 
   "required": ["eventIds", "incidentName", "incidentId", "incidentSource"]
 }
 ```
-
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" \
-  -H "Authorization: Bearer <your_access_token>" \
-  -H "Content-Type: application/json" \
+```bash
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" 
+  -H "utm-api-key: <your_api_key>" 
+  -H "Content-Type: application/json" 
   -d '{
     "eventIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
     "incidentName": "Security Incident - Multiple Failed Logins",
@@ -79,7 +65,7 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" \
   }'
 ```
 
-```json Response
+```json
 {
   "success": true,
   "incidentId": 1001,
@@ -96,7 +82,6 @@ curl -X POST "https://demo.utmstack.com/api/utm-alerts/convert-to-incident" \
 import axios from "axios";
 
 const convertToIncident = async () => {
-  const token = "<your_access_token>";
   
   const payload = {
     eventIds: ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
@@ -111,7 +96,7 @@ const convertToIncident = async () => {
       payload, 
       {
         headers: { 
-          Authorization: `Bearer ${token}`,
+          "utm-api-key": "<your_api_key>",
           "Content-Type": "application/json"
         }
       }
@@ -139,7 +124,7 @@ def convert_alerts_to_incident():
     }
     
     headers = {
-        "Authorization": "Bearer <your_access_token>",
+        "utm-api-key": "<your_api_key>",
         "Content-Type": "application/json"
     }
     
@@ -154,15 +139,14 @@ def convert_alerts_to_incident():
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Conversion
 
 <Tabs>
   <Tab title="Success Response">
+
     ```json
     {
       "success": true,
@@ -172,8 +156,11 @@ def convert_alerts_to_incident():
       "timestamp": "2024-10-16T10:30:00.000Z"
     }
     ```
+
   </Tab>
+
   <Tab title="Error Response">
+
     ```json
     {
       "error": "Incident ID already exists",
@@ -182,25 +169,19 @@ def convert_alerts_to_incident():
       "status": 400
     }
     ```
+
   </Tab>
+
 </Tabs>
-
 ---
-
 ## Status Codes
 
 - **200** (OK): Incident created successfully from the provided alerts
-
 - **400** (Bad Request): Invalid request payload, duplicate incident ID, or invalid alert IDs
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **404** (Not Found): One or more alerts not found with the specified IDs
-
 - **500** (Internal Server Error): Internal server error during incident creation
-
 ---
-
 ## Usage Examples
 
 ### Single Alert to Incident
@@ -239,107 +220,97 @@ def convert_alerts_to_incident():
   "incidentSource": "Automated Threat Detection"
 }
 ```
-
 ---
-
 ## When to Convert to Incident
 
 <Accordion multiple={true}>
-    <AccordionTab header="Single Complex Alert">
+  <AccordionTab title="Accordion Item" >
 
     **Convert when:**
     - Alert requires extensive investigation
     - Multiple teams need to collaborate
     - Formal incident response procedures required
     - Compliance documentation needed
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Multiple Related Alerts">
+  <AccordionTab title="Accordion Item" >
 
     **Convert when:**
     - Alerts are part of the same attack campaign
     - Correlation analysis reveals connections
     - Coordinated response needed across multiple systems
     - Timeline reconstruction required
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Escalation Scenarios">
+  <AccordionTab title="Accordion Item" >
 
     **Convert when:**
     - Alert severity requires management attention
     - Potential data breach or compromise
     - Customer-impacting security event
     - Regulatory reporting required
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Best Practices
 
 <Accordion multiple={true}>
-    <AccordionTab header="Incident Naming">
+  <AccordionTab title="Accordion Item" >
 
     **Use descriptive names:**
     - Include attack type: "Brute Force Attack Investigation"
     - Reference affected systems: "Web Server Compromise - Server01"
     - Add timeline context: "Ransomware Incident - Oct 2024"
     - Be specific but concise
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Incident ID Management">
+  <AccordionTab title="Accordion Item" >
 
     **ID assignment strategy:**
     - Use sequential numbering for easy tracking
     - Consider year/month prefixes: 202410001
     - Reserve ID ranges for different incident types
     - Ensure uniqueness across the organization
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Source Documentation">
+  <AccordionTab title="Accordion Item" >
 
     **Provide clear sources:**
     - "SOC Team Escalation" for manual escalations
     - "Automated Correlation Engine" for system-detected patterns
     - "Customer Report" for externally reported issues
     - Include analyst name for accountability
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## Integration with Incident Management
 
-<Info>
-**Platform Integration:**
-- Converted incidents appear in the UTMStack incident management interface
-- Original alerts remain linked to the incident for reference
-- Incident timeline includes all alert details and timestamps
-- Case management workflow is automatically initiated
-- Notifications sent to configured incident response team members
-</Info>
-
+> [!INFO]
+> **Platform Integration:**
+> - Converted incidents appear in the UTMStack incident management interface
+> - Original alerts remain linked to the incident for reference
+> - Incident timeline includes all alert details and timestamps
+> - Case management workflow is automatically initiated
+> - Notifications sent to configured incident response team members
 ---
-
 ## Security Considerations
 
-<Warning>
-**Security Notes:**
-- Requires Bearer token authentication
-- Incident creation is audited for compliance
-- Only authorized users can convert alerts to incidents
-- Incident IDs must be unique to prevent conflicts
-- Alert IDs must exist and be accessible to the user
-</Warning>
-
+> [!WARNING]
+> **Security Notes:**
+> - Requires Bearer token authentication
+> - Incident creation is audited for compliance
+> - Only authorized users can convert alerts to incidents
+> - Incident IDs must be unique to prevent conflicts
+> - Alert IDs must exist and be accessible to the user
 ---
-
 ## OpenAPI Specification
 
 ```yaml

@@ -2,19 +2,17 @@
 
 This endpoint provides a quick way to retrieve the total number of open alerts currently in the UTMStack system. It's commonly used for dashboard widgets, monitoring displays, and alert metrics.
 
-<Note>
-**Authorization Required:** Include a valid Bearer Token in the Authorization header.
-</Note>
+> [!NOTE]
+> **Authorization Required:** All requests must include a valid API Key in the header `utm-api-key`.
 ---
-
 ## Request & Response Examples
 
-```bash Request
-curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
-  -H "Authorization: Bearer <your_access_token>"
+```bash
+curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" 
+  -H "utm-api-key: <your_api_key>"
 ```
 
-```json Response
+```json
 42
 ```
 
@@ -26,14 +24,13 @@ curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
 import axios from "axios";
 
 const getOpenAlertsCount = async () => {
-  const token = "<your_access_token>";
 
   try {
     const response = await axios.get(
       "https://demo.utmstack.com/api/utm-alerts/count-open-alerts",
       {
         headers: { 
-          Authorization: `Bearer ${token}`
+          "utm-api-key": "<your_api_key>",
         }
       }
     );
@@ -53,7 +50,7 @@ def get_open_alerts_count():
     url = "https://demo.utmstack.com/api/utm-alerts/count-open-alerts"
     
     headers = {
-        "Authorization": "Bearer <your_access_token>"
+        "utm-api-key": "<your_api_key>",
     }
     
     response = requests.get(url, headers=headers)
@@ -71,11 +68,10 @@ def get_open_alerts_count():
 ```bash Shell Script
 #!/bin/bash
 
-TOKEN="your_access_token"
 BASE_URL="https://demo.utmstack.com"
 
 # Get open alerts count
-count=$(curl -s -H "Authorization: Bearer $TOKEN" \
+count=$(curl -s -H "utm-api-key: <your_api_key>" 
   "$BASE_URL/api/utm-alerts/count-open-alerts")
 
 echo "Current open alerts: $count"
@@ -87,27 +83,32 @@ fi
 ```
 
 </CodeGroup>
-
 ---
-
 ## Response Details
 
 ### Successful Response
 
 <Tabs>
   <Tab title="Success Response">
+
     ```json
     42
     ```
     The response is a simple integer representing the total count of open alerts.
+
   </Tab>
+
   <Tab title="Zero Alerts">
+
     ```json
     0
     ```
     When no open alerts exist, the response is `0`.
+
   </Tab>
+
   <Tab title="Error Response">
+
     ```json
     {
       "error": "Internal server error",
@@ -116,21 +117,17 @@ fi
       "status": 500
     }
     ```
+
   </Tab>
+
 </Tabs>
-
 ---
-
 ## Status Codes
 
 - **200** (OK): Successfully retrieved the count of open alerts
-
 - **401** (Unauthorized): Missing or invalid Bearer token
-
 - **500** (Internal Server Error): Internal server error while retrieving count
-
 ---
-
 ## Use Cases
 
 ### Dashboard Integration
@@ -215,7 +212,7 @@ METRICS_FILE="/var/log/utmstack/alert_metrics.log"
 
 while true; do
   timestamp=$(date +%s)
-  count=$(curl -s -H "Authorization: Bearer $TOKEN" \
+  count=$(curl -s -H "Authorization: Bearer $TOKEN" 
     "$BASE_URL/api/utm-alerts/count-open-alerts")
   
   # Write metrics in Prometheus format
@@ -224,22 +221,17 @@ while true; do
   sleep 60
 done
 ```
-
 ---
-
 ## Performance Considerations
 
-<Info>
-**Performance Notes:**
-- This endpoint is optimized for frequent polling
-- Response time is typically under 100ms
-- Safe to call every 30-60 seconds for real-time dashboards
-- Uses database indexing for fast count operations
-- Minimal server resources required
-</Info>
-
+> [!INFO]
+> **Performance Notes:**
+> - This endpoint is optimized for frequent polling
+> - Response time is typically under 100ms
+> - Safe to call every 30-60 seconds for real-time dashboards
+> - Uses database indexing for fast count operations
+> - Minimal server resources required
 ---
-
 ## Integration Examples
 
 ### React Dashboard Component
@@ -340,45 +332,42 @@ while ($true) {
     Start-Sleep -Seconds 300  # Wait 5 minutes
 }
 ```
-
 ---
-
 ## Best Practices
 
 <Accordion multiple={true}>
-    <AccordionTab header="Polling Frequency">
+  <AccordionTab title="Accordion Item" >
 
     **Recommended intervals:**
     - Real-time dashboards: 30-60 seconds
     - Monitoring systems: 2-5 minutes
     - Reporting systems: 15-30 minutes
     - Avoid polling more frequently than every 15 seconds
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Error Handling">
+  <AccordionTab title="Accordion Item" >
 
     **Handle failures gracefully:**
     - Cache the last known count during outages
     - Implement exponential backoff for retries
     - Set timeout values for requests
     - Log failures for troubleshooting
-  
+
   </AccordionTab>
 
-    <AccordionTab header="Alerting Thresholds">
+  <AccordionTab title="Accordion Item" >
 
     **Establish meaningful thresholds:**
     - 0 alerts: All clear status
     - 1-10 alerts: Normal operational level
     - 11-50 alerts: Elevated attention needed
     - 50+ alerts: High volume investigation required
-  
+
   </AccordionTab>
+
 </Accordion>
-
 ---
-
 ## OpenAPI Specification
 
 ```yaml
