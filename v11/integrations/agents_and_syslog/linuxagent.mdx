@@ -1,32 +1,27 @@
 ## Installing Linux agent
 
-<Note>
-    The Linux agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands. The UTMStack agents communicate over ports 9000 and 50051. Please make sure these ports are open.
-</Note>
+> [!NOTE]
+> The Linux agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands. The UTMStack agents communicate over ports 9000 and 50051. Please make sure these ports are open.
+
+## Prerequisite:
+
+> [!WARNING]
+> The Linux Agent requires **rsyslog** to be installed and running on the system before installation.  
+> Please ensure the `rsyslog` service is installed and enabled.
 
 ### 1. Install or uninstall the UTMStack agent according to your operating system:
 
-<img
-  height="200"
-  src="/images/integrations/linuxagent/step1.png"
-  alt="Linux Agent"
-/>
+![Linux Agent](/images/integrations/linuxagent/step1.png)
 
-<Note>
-    The following commands contains sensitive information, don't share it.
-</Note>
+> [!NOTE]
+> The following commands contains sensitive information, don't share it.
 
-<Warning>
-    Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
-    This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
-</Warning>
+> [!WARNING]
+> Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+> This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
 
 ### 2. Run the command in the console
 
 #### Example:
 
-<img
-  height="200"
-  src="/images/integrations/linuxagent/step2.png"
-  alt="Linux Agent"
-/>
+![Linux Agent](/images/integrations/linuxagent/step2.png)
