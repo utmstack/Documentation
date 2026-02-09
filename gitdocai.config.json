@@ -1161,7 +1161,7 @@
     }
   ],
   "aiSearch": {
-    "triggerLabel": "Ask to AI",
+    "triggerLabel": "Ask AI",
     "chatTitle": "UTMStack Assistant",
     "welcomeMessage": "Hello! How can I help you today? Feel free to ask me anything about the documentation.",
     "placeholder": "Ask a question...",
