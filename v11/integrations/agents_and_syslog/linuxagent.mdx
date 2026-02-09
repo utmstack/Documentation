@@ -6,8 +6,9 @@
 ## Prerequisite:
 
 > [!WARNING]
-> The Linux Agent requires **rsyslog** to be installed and running on the system before installation.  
-> Please ensure the `rsyslog` service is installed and enabled.
+> **Log forwarding requirement:**  
+> The Linux Agent relies on **rsyslog** to collect and forward system and application logs to UTMStack.  
+> Ensure `rsyslog` is installed and running; otherwise, logs will not be sent to UTMStack.
 
 ### 1. Install or uninstall the UTMStack agent according to your operating system:
 
