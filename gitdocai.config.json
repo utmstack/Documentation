@@ -187,6 +187,11 @@
                     "type": "page",
                     "title": "Traefik",
                     "page": "/v11/integrations/cloud/taefik.mdx"
+                  },
+                  {
+                    "title": "CrowdStrike",
+                    "page": "/v11.2.2/integrations/cloud/crowdstrike.mdx",
+                    "type": "page"
                   }
                 ]
               },

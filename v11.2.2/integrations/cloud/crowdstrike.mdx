@@ -1,0 +1,39 @@
+# CrowdStrike Integration
+
+This guide describes the steps required to generate API credentials in CrowdStrike Falcon for integration with UTMStack using the Event Streams API.
+
+## Step 1: Navigate to API Clients and Keys
+
+From the CrowdStrike Falcon main console:
+
+1. Click the **menu icon** (top-left corner).
+2. Select **Support and resources**.
+3. Click **API clients and keys**.
+
+## 
+
+## Step 2: Create a New API Client
+
+1. In the **OAuth2 API clients** section, click **Create API client**.
+
+## s
+
+## Step 3: Generate API Credentials
+
+1. Provide a descriptive **Client name** (for example: `UTMStack_SIEM_Connector`).
+2. Select the required **API scopes** for Event Streams.
+3. Click **Create**.
+
+> Ensure that the scopes required for Event Streams access are properly selected.
+---
+## Step 4: Record API Credentials
+
+After creating the client:
+
+1. Copy and securely store the following information:
+    - **Client ID**
+
+- **Client Secret**
+- **Base URL** (region-specific)
+
+> ⚠️ The Client Secret is shown only once. If lost, a new secret must be generated.
