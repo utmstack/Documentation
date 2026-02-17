@@ -35,7 +35,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "v11.2.2",
+        "version": "v11.2.3",
         "tabs": [
           {
             "tab": "Guides",
@@ -425,7 +425,7 @@
             "items": [
               {
                 "type": "group",
-                "title": "Getting Started",
+                "title": "Api Documentation",
                 "children": [
                   {
                     "title": "Introduction",
