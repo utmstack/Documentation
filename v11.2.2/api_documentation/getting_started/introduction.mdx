@@ -1,0 +1,13 @@
+# Introduction
+
+UTMStack provides a REST API for programmatic access to alerts, log data, incidents, and system management. The API uses OpenSearch as its underlying search engine (API endpoints are prefixed with `/api/elasticsearch/` for historical reasons, but the backend is OpenSearch).
+
+**Base URL format:** `https://<your-utmstack-instance>`
+
+All examples in this document use `{{baseUrl}}` as a placeholder for your instance URL and `{{apiKey}}` as a placeholder for your API key.
+
+**Important notes:**
+
+- If your instance uses a self-signed SSL certificate, add `-k` to curl commands to skip certificate verification.
+- All search/filter endpoints that accept a request body use `POST` method with `Content-Type: application/json`.
+- Pagination information is returned in response headers (`X-Total-Count`, `Link`).

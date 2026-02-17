@@ -1,0 +1,196 @@
+# Data Sources & Agents
+
+## List Data Input Statuses (Connection Status)
+
+**Endpoint:** `GET /api/utm-data-input-statuses`
+
+Shows the status of data inputs (connected/disconnected), including which data sources are actively sending data.
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-data-input-statuses?page=0&size=100" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "wineventlog-windows-server-2019",
+    "source": "windows-server-2019",
+    "dataType": "wineventlog",
+    "timestamp": 1769797438,
+    "median": 86400,
+    "down": true
+  },
+  {
+    "id": "wineventlog-windows-10",
+    "source": "windows-10",
+    "dataType": "wineventlog",
+    "timestamp": 1769798038,
+    "median": 86400,
+    "down": true
+  },
+  {
+    "id": "linux-v11ent",
+    "source": "v11ent",
+    "dataType": "linux",
+    "timestamp": 1769020338,
+    "median": 86400,
+    "down": true
+  }
+]
+```
+
+**Data Input Status Fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| id | string | Unique identifier (
+{dataType}-{source}
+) |
+| source | string | Source hostname/device name |
+| dataType | string | Data type (e.g., 
+wineventlog
+, 
+linux
+) |
+| timestamp | integer | Last data received (Unix epoch seconds) |
+| median | integer | Expected data interval in seconds |
+| down | boolean | true
+ if the data source is disconnected/not sending data; 
+false
+ if connected |
+
+## Count Data Input Statuses
+
+**Endpoint:** `GET /api/utm-data-input-statuses/count`
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-data-input-statuses/count" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** `5` (plain integer count)
+
+## List Agents
+
+**Endpoint:** `GET /api/agent-manager/agents`
+
+Returns all registered UTMStack agents with their status, OS, version, and network information.
+
+```bash
+curl -sk "{{baseUrl}}/api/agent-manager/agents?page=0&size=100" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 6,
+    "ip": "10.11.12.111",
+    "hostname": "windows-server-2019",
+    "os": "windows",
+    "status": "OFFLINE",
+    "platform": "windows",
+    "version": "11.1.0",
+    "lastSeen": "2026-01-30 18:26:28",
+    "mac": "bc:24:11:f3:52:dc",
+    "osMajorVersion": "10",
+    "osMinorVersion": "0",
+    "addresses": "10.11.12.111/24,::1/128,127.0.0.1/8"
+  },
+  {
+    "id": 8,
+    "ip": "10.11.12.109",
+    "hostname": "v11ent",
+    "os": "linux",
+    "status": "OFFLINE",
+    "platform": "ubuntu",
+    "version": "11.0.1",
+    "lastSeen": "2026-01-21 18:23:15",
+    "mac": "bc:24:11:f2:03:28",
+    "osMajorVersion": "22",
+    "osMinorVersion": "4",
+    "addresses": "127.0.0.1/8,10.11.12.109/24"
+  }
+]
+```
+
+**Agent Fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| id | integer | Agent ID |
+| ip | string | IP address |
+| hostname | string | Hostname |
+| os | string | Operating system (
+windows
+, 
+linux
+) |
+| status | string | Agent status: 
+ONLINE
+ or 
+OFFLINE |
+| platform | string | OS platform (
+windows
+, 
+ubuntu
+, 
+centos
+, 
+rocky
+) |
+| version | string | Agent version |
+| lastSeen | string | Last communication timestamp |
+| mac | string | MAC address(es) |
+| osMajorVersion | string | OS major version |
+| osMinorVersion | string | OS minor version |
+| addresses | string | All IP addresses (comma-separated) |
+
+## List Supported Data Types
+
+**Endpoint:** `GET /api/data-types`
+
+Returns all supported data types/integrations in UTMStack.
+
+```bash
+curl -sk "{{baseUrl}}/api/data-types?page=0&size=100" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 1,
+    "dataType": "wineventlog",
+    "dataTypeName": "Windows Events",
+    "dataTypeDescription": "Used to process Windows Agent integration logs",
+    "included": true,
+    "systemOwner": true
+  },
+  {
+    "id": 26,
+    "dataType": "linux",
+    "dataTypeName": "Linux System",
+    "dataTypeDescription": "Used to process Linux agent integration logs",
+    "included": true,
+    "systemOwner": true
+  },
+  {
+    "id": 10,
+    "dataType": "firewall-fortigate-traffic",
+    "dataTypeName": "Fortinet Firewall",
+    "dataTypeDescription": "Used for FortiGate integration",
+    "included": true,
+    "systemOwner": true
+  }
+]
+```
+
+This endpoint returns all 50+ supported integrations including firewalls, cloud services, antivirus products, databases, and more.

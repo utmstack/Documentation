@@ -1,0 +1,203 @@
+# Alert Management
+
+## Change Alert Status
+
+**Endpoint:** `POST /api/utm-alerts/status`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertIds | string[] | Yes | Array of alert UUIDs to update |
+| status | integer | Yes | New status code (see |
+| Alert Status Codes |  |  |  |
+| ) |  |  |  |
+| statusObservation | string | No | Reason/observation for the status change |
+| addFalsePositiveTag | boolean | No | If |
+| true |  |  |  |
+| , adds a "False positive" tag |  |  |  |
+
+**Response:** HTTP 200 with empty body on success.
+
+### Set Alert to "In Review"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "status": 3,
+    "statusObservation": "Alert escalated to security team for detailed analysis"
+  }'
+```
+
+### Set Alert to "Completed"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "status": 5,
+    "statusObservation": "Investigation completed. Alert resolved as legitimate activity."
+  }'
+```
+
+### Set Alert Back to "Open"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "status": 2,
+    "statusObservation": "Reopening for further analysis"
+  }'
+```
+
+### Bulk Status Update (Multiple Alerts)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": [
+      "de3dc79f-fb18-4c1b-984f-87ecb8b48af0",
+      "8e191f2e-4be4-4eb5-8f16-9f9897bcd440",
+      "cdabf555-964d-4762-ab50-709bf50a9054"
+    ],
+    "status": 3,
+    "statusObservation": "Batch review - escalating related alerts"
+  }'
+```
+
+## Mark Alert as False Positive
+
+Uses the same status endpoint with `addFalsePositiveTag: true` and status `5` (Completed):
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["8e191f2e-4be4-4eb5-8f16-9f9897bcd440"],
+    "status": 5,
+    "statusObservation": "Confirmed as false positive after thorough investigation",
+    "addFalsePositiveTag": true
+  }'
+```
+
+This sets the alert status to Completed and adds a "False positive" tag to the alert's `tags` field.
+
+## Add Notes to an Alert
+
+**Endpoint:** `POST /api/utm-alerts/notes`
+
+| Parameter | Location | Type | Description |
+|---|---|---|---|
+| alertId | Query parameter | string (UUID) | The alert to add notes to |
+| Body | Request body | JSON string | The note text (must be a quoted JSON string) |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/notes?alertId=de3dc79f-fb18-4c1b-984f-87ecb8b48af0" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '"Initial analysis: Alert triggered by network configuration changes on host v11ent. Investigating root cause."'
+```
+
+**Response:** HTTP 200, empty body. The note appears in the alert's `notes` field when retrieved.
+
+**Important:** The body must be a **quoted JSON string** (e.g., `"note text"`), not a plain string or JSON object.
+
+### Add Detailed Investigation Notes
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/notes?alertId=de3dc79f-fb18-4c1b-984f-87ecb8b48af0" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '"[2025-12-23 14:30] Analyst: John Smith\nINITIAL ANALYSIS: Alert triggered by multiple network config changes.\nINVESTIGATION STEPS:\n1. Checked source host - authorized maintenance window\n2. Verified changes match change ticket #CT-1234\nSTATUS: Closing as authorized activity."'
+```
+
+### Clear Notes
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/notes?alertId=de3dc79f-fb18-4c1b-984f-87ecb8b48af0" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '""'
+```
+
+## Add Tags to an Alert
+
+**Endpoint:** `POST /api/utm-alerts/tags`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertIds | string[] | Yes | Array of alert UUIDs to tag |
+| tags | string[] | Yes | Tags to apply |
+| createRule | boolean | Yes | If |
+| true |  |  |  |
+| , creates a tagging rule that auto-applies these tags to future matching alerts |  |  |  |
+
+### Add Investigation Tags
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/tags" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "tags": ["Under Investigation", "Priority High", "Escalated"],
+    "createRule": false
+  }'
+```
+
+### Bulk Tag Assignment
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/tags" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": [
+      "de3dc79f-fb18-4c1b-984f-87ecb8b48af0",
+      "8e191f2e-4be4-4eb5-8f16-9f9897bcd440"
+    ],
+    "tags": ["Batch Processed", "Weekly Review"],
+    "createRule": false
+  }'
+```
+
+### Add Tags with Auto-Tagging Rule
+
+When `createRule` is `true`, future alerts matching the same rule/pattern will automatically receive these tags:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/tags" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "tags": ["Known Issue", "Reviewed"],
+    "createRule": true
+  }'
+```
+
+### Remove All Tags
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/tags" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "alertIds": ["de3dc79f-fb18-4c1b-984f-87ecb8b48af0"],
+    "tags": [],
+    "createRule": false
+  }'
+```

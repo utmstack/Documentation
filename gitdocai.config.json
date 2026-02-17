@@ -428,83 +428,44 @@
                 "title": "Getting Started",
                 "children": [
                   {
-                    "type": "page",
-                    "title": "Overview",
-                    "page": "/v11/api_documentation/getting_started/overview.mdx"
+                    "title": "Introduction",
+                    "page": "/v11.2.2/api_documentation/getting_started/introduction.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Postman Collection",
-                    "page": "/v11/api_documentation/getting_started/postman-collection.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Authentication",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "API Keys",
-                    "page": "/v11/api_documentation/authentication/api-keys.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Alert Management",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Alerts List",
-                    "page": "/v11/apidoc/alerts-list.mdx"
+                    "title": "Authentication",
+                    "page": "/v11.2.2/api_documentation/getting_started/authentication.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Update Status",
-                    "page": "/v11/apidoc/update-status.mdx"
+                    "title": "Alert Retrieval",
+                    "page": "/v11.2.2/api_documentation/getting_started/alert_retrieval.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Update Tags",
-                    "page": "/v11/apidoc/update-tags.mdx"
+                    "title": "Alert Management",
+                    "page": "/v11.2.2/api_documentation/getting_started/alert_management.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Update Notes",
-                    "page": "/v11/apidoc/update-notes.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Incident Management",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Convert Incident",
-                    "page": "/v11/apidoc/convert-incident.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Analytics & Utilities",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Count Alerts",
-                    "page": "/v11/apidoc/count-alerts.mdx"
+                    "title": "Log Explorer (Search & Query)",
+                    "page": "/v11.2.2/api_documentation/getting_started/log_explorer_search__query.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "Property Values",
-                    "page": "/v11/apidoc/property-values.mdx"
+                    "title": "Incident Management",
+                    "page": "/v11.2.2/api_documentation/getting_started/incident_management.mdx",
+                    "type": "page"
                   },
                   {
-                    "type": "page",
-                    "title": "CSV Export",
-                    "page": "/v11/apidoc/csv-export.mdx"
+                    "title": "Data Sources & Agents",
+                    "page": "/v11.2.2/api_documentation/getting_started/data_sources__agents.mdx",
+                    "type": "page"
+                  },
+                  {
+                    "title": "Reference Tables",
+                    "page": "/v11.2.2/api_documentation/getting_started/reference_tables.mdx",
+                    "type": "page"
                   }
                 ]
               }

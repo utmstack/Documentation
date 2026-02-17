@@ -1,0 +1,209 @@
+# Alert Retrieval
+
+Alerts are stored in the `v11-alert-*` index pattern. Use the search endpoint to query alerts with filters, pagination, and sorting.
+
+## Search Alerts
+
+**Endpoint:** `POST /api/elasticsearch/search`
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| page | integer | Yes | Page number (0-indexed) |
+| size | integer | Yes | Results per page |
+| top | integer | Yes | Maximum total results to consider (caps |
+| X-Total-Count |  |  |  |
+| ) |  |  |  |
+| indexPattern | string | Yes | Index pattern ( |
+| v11-alert-* |  |  |  |
+| for alerts) |  |  |  |
+| sort | string | No | Sort field and direction (e.g., |
+| @timestamp,desc |  |  |  |
+| ) |  |  |  |
+
+**Request Body:** JSON array of `FilterType` objects. Pass `[]` for no filters.
+
+## Retrieve All Alerts (No Filters)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[]'
+```
+
+**Response Headers:**
+
+- `X-Total-Count: 59` - Total number of matching alerts
+- `Link: </api/elasticsearch/search?page=1&size=25>; rel="next", ...` - Pagination links
+
+**Response Body:** JSON array of alert objects (see [Alert Object Structure](#81-alert-object-structure)).
+
+## Retrieve Alerts by Date Range (Absolute)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["2025-12-01T00:00:00.000Z","2025-12-31T23:59:59.999Z"]}]'
+```
+
+This retrieves all alerts from December 2025 using absolute ISO 8601 timestamps.
+
+## Retrieve Alerts by Date Range (Relative)
+
+UTMStack supports OpenSearch-style relative date math expressions:
+
+| Expression | Meaning |
+|---|---|
+| now | Current time |
+| now-1h | 1 hour ago |
+| now-24h | 24 hours ago |
+| now-7d | 7 days ago |
+| now-30d | 30 days ago |
+
+**Last 24 hours:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-24h","now"]}]'
+```
+
+**Last 7 days:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-7d","now"]}]'
+```
+
+**Last 30 days:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]'
+```
+
+## Filter Alerts by Severity
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"severity","operator":"IS","value":"3"}]'
+```
+
+## Filter Alerts by Status
+
+**Open alerts only:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"status","operator":"IS","value":"2"}]'
+```
+
+**Exclude completed alerts:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"status","operator":"IS_NOT","value":"5"}]'
+```
+
+**Open or In Review alerts:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"status","operator":"IS_ONE_OF","value":["2","3"]}]'
+```
+
+## Filter Alerts by Name
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"name","operator":"CONTAIN","value":"Windows"}]'
+```
+
+## Retrieve a Specific Alert by ID
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=1&top=1&indexPattern=v11-alert-*" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"id","operator":"IS","value":"de3dc79f-fb18-4c1b-984f-87ecb8b48af0"}]'
+```
+
+## Filter by Tags
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"tags","operator":"IS","value":"False positive"}]'
+```
+
+## Exclude False Positives
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"status","operator":"IS_NOT","value":"5"}]'
+```
+
+## Combined Filters (Multiple Conditions)
+
+Multiple filter objects in the array are combined with AND logic. This example retrieves open, high-severity alerts from December 2025:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=25&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["2025-12-01T00:00:00.000Z","2025-12-31T23:59:59.999Z"]},
+    {"field":"status","operator":"IS","value":"2"},
+    {"field":"severity","operator":"IS","value":"3"}
+  ]'
+```
+
+## Pagination
+
+Use `page` and `size` parameters to paginate through results:
+
+```bash
+# Page 0 (first 10 results)
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[]'
+
+# Page 1 (next 10 results)
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=1&size=10&top=10000&indexPattern=v11-alert-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[]'
+```
+
+The `X-Total-Count` response header tells you the total number of results. The `Link` header provides `next`, `prev`, `first`, and `last` page URLs.
+
+## Count Open Alerts
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-alerts/count-open-alerts" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** Plain integer (e.g., `10`)

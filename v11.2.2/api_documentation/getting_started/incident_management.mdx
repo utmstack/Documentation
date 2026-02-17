@@ -1,0 +1,450 @@
+# Incident Management
+
+Incidents group related alerts together for coordinated investigation and response.
+
+## Create an Incident from Alerts
+
+**Endpoint:** `POST /api/utm-incidents`
+
+Creates a new incident and associates one or more alerts with it.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentName | string | Yes | Name/title for the incident |
+| incidentDescription | string | No | Detailed description |
+| incidentAssignedTo | string | No | Username to assign the incident to |
+| alertList | array | Yes | Array of alert objects to include |
+
+Each alert object in `alertList`:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertId | string | Yes | Alert UUID |
+| alertName | string | Yes | Alert name |
+| alertStatus | integer | Yes | Alert status code |
+| alertSeverity | integer | Yes | Alert severity level |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-incidents" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "incidentName": "Security Incident - Network Configuration Changes",
+    "incidentDescription": "Multiple network configuration change alerts detected on host v11ent during non-maintenance window",
+    "incidentAssignedTo": "admin",
+    "alertList": [
+      {
+        "alertId": "cdabf555-964d-4762-ab50-709bf50a9054",
+        "alertName": "Network Configuration Changes Detected",
+        "alertStatus": 2,
+        "alertSeverity": 3
+      }
+    ]
+  }'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "id": 3,
+  "incidentName": "Security Incident - Network Configuration Changes",
+  "incidentDescription": "Multiple network configuration change alerts detected on host v11ent during non-maintenance window",
+  "incidentStatus": "OPEN",
+  "incidentAssignedTo": "admin",
+  "incidentSeverity": 3,
+  "incidentCreatedDate": "2026-02-06T21:45:29.247Z",
+  "incidentSolution": null
+}
+```
+
+The `incidentSeverity` is automatically set based on the maximum severity of the included alerts. The `incidentStatus` defaults to `OPEN`.
+
+## Convert Alerts to Incident (Alternative Method)
+
+**Endpoint:** `POST /api/utm-alerts/convert-to-incident`
+
+An alternative way to create an incident from alerts. This endpoint links the alerts at the OpenSearch level.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| eventIds | string[] | Yes | Array of alert IDs to convert |
+| incidentName | string | Yes | Name for the new incident |
+| incidentId | integer | Yes | Set to 
+0
+ to create new; set to existing ID to add to existing |
+| incidentSource | string | Yes | Free text source description |
+
+### Create New Incident
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/convert-to-incident" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "eventIds": ["cdabf555-964d-4762-ab50-709bf50a9054"],
+    "incidentName": "Security Incident - Multiple Failed Logins",
+    "incidentId": 0,
+    "incidentSource": "UTMStack Alert Investigation"
+  }'
+```
+
+**Response:** HTTP 200, empty body.
+
+### Convert Multiple Alerts at Once
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-alerts/convert-to-incident" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "eventIds": [
+      "cdabf555-964d-4762-ab50-709bf50a9054",
+      "9a52aaab-53fb-4a79-89bc-06538acddbfa",
+      "8e191f2e-4be4-4eb5-8f16-9f9897bcd440"
+    ],
+    "incidentName": "Coordinated Network Configuration Changes",
+    "incidentId": 0,
+    "incidentSource": "Automated Alert Correlation"
+  }'
+```
+
+## Add Alerts to an Existing Incident
+
+**Endpoint:** `POST /api/utm-incidents/add-alerts`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | integer | Yes | ID of the existing incident |
+| alertList | array | Yes | Array of alert objects (same structure as creation) |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-incidents/add-alerts" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "incidentId": 3,
+    "alertList": [
+      {
+        "alertId": "b68d1621-e754-410c-ab9e-db1761025331",
+        "alertName": "AppArmor Profile Changes Detected",
+        "alertStatus": 2,
+        "alertSeverity": 3
+      }
+    ]
+  }'
+```
+
+**Response (HTTP 201):** Returns the updated incident object.
+
+## List Incidents
+
+**Endpoint:** `GET /api/utm-incidents`
+
+Supports filtering, pagination, and sorting.
+
+### List All Incidents
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents?page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 1,
+    "incidentName": "INC-202601021428 Example incident",
+    "incidentDescription": "Example incident description",
+    "incidentStatus": "OPEN",
+    "incidentAssignedTo": null,
+    "incidentSeverity": 3,
+    "incidentCreatedDate": "2026-01-02T19:28:53.875Z",
+    "incidentSolution": null
+  }
+]
+```
+
+### Filter by Status
+
+```bash
+# Open incidents only
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentStatus.equals=OPEN&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+
+# Completed incidents only
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentStatus.equals=COMPLETED&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+
+# In Review incidents
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentStatus.equals=IN_REVIEW&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Name
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentName.contains=Network&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Severity
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentSeverity.greaterThan=2&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Date Range
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents?incidentCreatedDate.greaterThanOrEqual=2026-01-01T00:00:00Z&incidentCreatedDate.lessThanOrEqual=2026-01-31T23:59:59Z&page=0&size=20" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Sort Results
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents?page=0&size=20&sort=incidentCreatedDate,desc" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Available Filter Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| incidentStatus.equals | string | OPEN
+, 
+IN_REVIEW
+, 
+COMPLETED |
+| incidentName.contains | string | Name substring search |
+| incidentSeverity.equals | integer | Exact severity match |
+| incidentSeverity.greaterThan | integer | Minimum severity |
+| incidentAssignedTo.equals | string | Assigned analyst username |
+| incidentCreatedDate.greaterThanOrEqual | ISO datetime | Created after date |
+| incidentCreatedDate.lessThanOrEqual | ISO datetime | Created before date |
+| sort | string | Sort field and direction (e.g., 
+id,desc
+) |
+
+## Get a Specific Incident
+
+**Endpoint:** `GET /api/utm-incidents/{id}`
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incidents/3" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "id": 3,
+  "incidentName": "Security Incident - Network Configuration Changes",
+  "incidentDescription": "Multiple network configuration change alerts detected",
+  "incidentStatus": "OPEN",
+  "incidentAssignedTo": "admin",
+  "incidentSeverity": 3,
+  "incidentCreatedDate": "2026-02-06T21:45:29.247Z",
+  "incidentSolution": null
+}
+```
+
+## Change Incident Status
+
+**Endpoint:** `PUT /api/utm-incidents/change-status`
+
+**Important:** You must include all required fields in the request body. Fields not included may be reset to null.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| id | integer | Yes | Incident ID |
+| incidentName | string | Yes | Incident name |
+| incidentDescription | string | Yes | Incident description |
+| incidentStatus | string | Yes | New status: 
+OPEN
+, 
+IN_REVIEW
+, 
+COMPLETED |
+| incidentSeverity | integer | Yes | Severity level |
+| incidentCreatedDate | ISO datetime | Yes | Original creation date |
+| incidentAssignedTo | string | No | Include to preserve assignment |
+| incidentSolution | string | No | Resolution text (recommended when completing) |
+
+### Set to In Review
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/utm-incidents/change-status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "id": 3,
+    "incidentName": "Security Incident - Network Configuration Changes",
+    "incidentDescription": "Multiple network configuration change alerts detected",
+    "incidentStatus": "IN_REVIEW",
+    "incidentSeverity": 3,
+    "incidentCreatedDate": "2026-02-06T21:45:29.247Z",
+    "incidentAssignedTo": "admin"
+  }'
+```
+
+### Complete an Incident
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/utm-incidents/change-status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "id": 3,
+    "incidentName": "Security Incident - Network Configuration Changes",
+    "incidentDescription": "Multiple network configuration change alerts detected",
+    "incidentStatus": "COMPLETED",
+    "incidentSeverity": 3,
+    "incidentCreatedDate": "2026-02-06T21:45:29.247Z",
+    "incidentAssignedTo": "admin",
+    "incidentSolution": "Resolved after investigation - changes were authorized per change ticket CT-1234"
+  }'
+```
+
+**Note:** When an incident is completed, the associated alert statuses within the incident are automatically set to `5` (Completed).
+
+**Status Workflow:** `OPEN` → `IN_REVIEW` → `COMPLETED`
+
+## List Alerts in an Incident
+
+**Endpoint:** `GET /api/utm-incident-alerts`
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incident-alerts?incidentId.equals=3&page=0&size=50" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 3,
+    "incidentId": 3,
+    "alertId": "cdabf555-964d-4762-ab50-709bf50a9054",
+    "alertName": "Network Configuration Changes Detected",
+    "alertStatus": 5,
+    "alertSeverity": 3
+  },
+  {
+    "id": 4,
+    "incidentId": 3,
+    "alertId": "b68d1621-e754-410c-ab9e-db1761025331",
+    "alertName": "AppArmor Profile Changes Detected",
+    "alertStatus": 5,
+    "alertSeverity": 3
+  }
+]
+```
+
+## Remove an Alert from an Incident
+
+**Endpoint:** `DELETE /api/utm-incident-alerts/{id}`
+
+The `{id}` is the incident-alert relationship ID (from the `id` field in the response above), not the alert UUID.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/utm-incident-alerts/4" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 200, empty body.
+
+## Update Alert Status Within an Incident
+
+**Endpoint:** `POST /api/utm-incident-alerts/update-status`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | integer | Yes | Incident ID |
+| alertIds | string[] | Yes | Array of alert UUIDs |
+| status | integer | Yes | New alert status code |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-incident-alerts/update-status" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "incidentId": 3,
+    "alertIds": ["cdabf555-964d-4762-ab50-709bf50a9054"],
+    "status": 3
+  }'
+```
+
+## Add Notes to an Incident
+
+**Endpoint:** `POST /api/utm-incident-notes`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | integer | Yes | Incident ID |
+| noteText | string | Yes | Note text content |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/utm-incident-notes" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "incidentId": 3,
+    "noteText": "Initial investigation shows the network configuration changes occurred during a scheduled maintenance window. Checking change management records."
+  }'
+```
+
+**Response (HTTP 201):**
+
+```json
+{
+  "id": 1,
+  "incidentId": 3,
+  "noteText": "Initial investigation shows the network configuration changes occurred during a scheduled maintenance window.",
+  "noteSendDate": "2026-02-06T21:45:55.269925706Z",
+  "noteSendBy": "admin"
+}
+```
+
+**Important:** The request field is `noteText`, not `incidentNoteText`.
+
+## List Incident Notes
+
+**Endpoint:** `GET /api/utm-incident-notes`
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-incident-notes?incidentId.equals=3&page=0&size=50" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 1,
+    "incidentId": 3,
+    "noteText": "Initial investigation shows the network configuration changes occurred during a scheduled maintenance window.",
+    "noteSendDate": "2026-02-06T21:45:55.269926Z",
+    "noteSendBy": "admin"
+  }
+]
+```

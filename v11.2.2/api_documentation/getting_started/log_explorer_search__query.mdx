@@ -1,0 +1,710 @@
+# Log Explorer (Search & Query)
+
+The Log Explorer allows you to search, filter, and analyze log data stored in OpenSearch indices. UTMStack organizes logs by data type into different index patterns.
+
+## List Available Index Patterns
+
+**Endpoint:** `GET /api/utm-index-patterns`
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-index-patterns?isActive.equals=true&page=0&size=100" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {"id": 1, "pattern": "v11-log-*", "patternModule": null, "patternSystem": true, "active": true},
+  {"id": 2, "pattern": "v11-alert-*", "patternModule": null, "patternSystem": true, "active": true},
+  {"id": 8, "pattern": "v11-log-wineventlog-*", "patternModule": "WINDOWS_AGENT", "patternSystem": true, "active": true},
+  {"id": 39, "pattern": "v11-log-linux-*", "patternModule": "LINUX_AGENT", "patternSystem": true, "active": true},
+  {"id": 62, "pattern": "v11-log-syslog-*", "patternModule": "SYSLOG", "patternSystem": true, "active": true},
+  {"id": 63, "pattern": "v11-log-firewall-pfsense-*", "patternModule": "PFSENSE", "patternSystem": true, "active": true}
+]
+```
+
+**Common Index Patterns:**
+
+| Pattern | Description |
+|---|---|
+| v11-log-* | All logs (default catch-all) |
+| v11-alert-* | All alerts |
+| v11-log-wineventlog-* | Windows Event Logs |
+| v11-log-linux-* | Linux system logs |
+| v11-log-syslog-* | Syslog data |
+| v11-log-generic-* | Generic/unclassified logs |
+| v11-log-firewall-pfsense-* | pfSense firewall logs |
+
+## List All Indices
+
+**Endpoint:** `GET /api/elasticsearch/index/all`
+
+Returns all OpenSearch indices with health, status, document count, and size.
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/index/all?page=0&size=100" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "health": "yellow",
+    "status": "open",
+    "index": "v11-log-wineventlog-2026-01-30",
+    "docsCount": 567,
+    "size": "3.2mb",
+    "creationDate": "2026-01-30T00:03:39.764Z"
+  },
+  {
+    "health": "yellow",
+    "status": "open",
+    "index": "v11-log-linux-2026-01-21",
+    "docsCount": 3176,
+    "size": "3.8mb",
+    "creationDate": "2026-01-21T00:00:15.320Z"
+  }
+]
+```
+
+## Get Index Properties (Field Mappings)
+
+**Endpoint:** `GET /api/elasticsearch/index/properties`
+
+Returns the field names and types available in an index pattern. This is essential for knowing which fields you can filter on.
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/index/properties?indexPattern=v11-log-*" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {"name": "@timestamp", "type": "date"},
+  {"name": "dataSource", "type": "text"},
+  {"name": "dataSource.keyword", "type": "keyword"},
+  {"name": "dataType", "type": "text"},
+  {"name": "dataType.keyword", "type": "keyword"},
+  {"name": "log.eventCode", "type": "long"},
+  {"name": "log.message", "type": "text"},
+  {"name": "origin.host", "type": "text"},
+  {"name": "origin.host.keyword", "type": "keyword"},
+  {"name": "target.user", "type": "text"}
+]
+```
+
+**Important:** Text fields have a companion `.keyword` field. Use `.keyword` fields for exact-match operations (`IS`, `IS_ONE_OF`, `EXIST`). Use text fields for substring operations (`CONTAIN`, `START_WITH`, `ENDS_WITH`).
+
+**Get properties for Windows Event Log index:**
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/index/properties?indexPattern=v11-log-wineventlog-*" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+## Search Logs with Filters
+
+**Endpoint:** `POST /api/elasticsearch/search`
+
+Same endpoint used for alerts, but with a different `indexPattern`.
+
+### Search All Logs (Last 30 Days)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]'
+```
+
+### Search Windows Event Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-wineventlog-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]'
+```
+
+### Search Linux Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-linux-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]'
+```
+
+### Filter by Data Type (Within All Logs)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"dataType.keyword","operator":"IS","value":"wineventlog"}
+  ]'
+```
+
+### Filter by Data Source (Hostname)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"dataSource.keyword","operator":"IS","value":"windows-server-2019"}
+  ]'
+```
+
+### Filter by Multiple Data Sources
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"dataSource.keyword","operator":"IS_ONE_OF","value":["windows-10","windows-server-2019"]}
+  ]'
+```
+
+### Filter by Windows Event Code
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-wineventlog-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"log.eventCode","operator":"IS","value":"4672"}
+  ]'
+```
+
+### Search by Log Message Content
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"log.message","operator":"CONTAIN","value":"failed login"}
+  ]'
+```
+
+### Search by Hostname Prefix
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"dataSource","operator":"START_WITH","value":"windows"}
+  ]'
+```
+
+### Filter by Field Existence
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]},
+    {"field":"target.user","operator":"EXIST","value":""}
+  ]'
+```
+
+### Absolute Date Range with Specific Time Window
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search?page=0&size=10&top=10000&indexPattern=v11-log-*&sort=@timestamp,desc" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["2026-01-29T00:00:00.000Z","2026-01-30T23:59:59.999Z"]}]'
+```
+
+## Get Distinct Field Values
+
+**Endpoint:** `GET /api/elasticsearch/property/values`
+
+Returns the distinct values for a specific field. Useful for discovering what data exists.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| keyword | string | Yes | Field name (must use 
+.keyword
+ suffix for text fields) |
+| indexPattern | string | Yes | Index pattern to search |
+
+### Get All Data Types
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/property/values?keyword=dataType.keyword&indexPattern=v11-log-*" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** `["linux","wineventlog"]`
+
+### Get All Data Sources (Hostnames)
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/property/values?keyword=dataSource.keyword&indexPattern=v11-log-*" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** `["v11ent","windows-10","windows-server-2019","dev-centos-9","dev-rockylinux-9"]`
+
+### Get Windows User Names
+
+```bash
+curl -sk "{{baseUrl}}/api/elasticsearch/property/values?keyword=log.winlogEventDataSubjectUserName.keyword&indexPattern=v11-log-wineventlog-*" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** `["WINDOWS-10$","SYSTEM","WINDOWS-SERVER-$","utmstack","Administrator"]`
+
+## Get Field Values with Counts
+
+**Endpoint:** `POST /api/elasticsearch/property/values-with-count`
+
+Returns distinct field values along with their occurrence counts. More useful than plain values for analysis and dashboards.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| index | string | Yes | Index pattern |
+| field | string | Yes | Field name (use 
+.keyword
+ suffix for text fields) |
+| top | integer | Yes | Maximum number of distinct values to return |
+| filters | FilterType[] | No | Array of filter objects |
+| orderByCount | boolean | No | Sort by count |
+| sortAsc | boolean | No | Sort ascending |
+
+### Event Count by Data Type (Last 30 Days)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/property/values-with-count" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "index": "v11-log-*",
+    "field": "dataType.keyword",
+    "top": 10,
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+**Response:** `{"wineventlog": 23081, "linux": 15440}`
+
+### Event Count by Data Source
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/property/values-with-count" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "index": "v11-log-*",
+    "field": "dataSource.keyword",
+    "top": 10,
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+**Response:** `{"windows-10": 13837, "v11ent": 12746, "windows-server-2019": 9244, "dev-centos-9": 1365, "dev-rockylinux-9": 1329}`
+
+### Windows Event User Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/property/values-with-count" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "index": "v11-log-wineventlog-*",
+    "field": "log.winlogEventDataSubjectUserName.keyword",
+    "top": 10,
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+**Response:** `{"SYSTEM": 6871, "WINDOWS-10$": 6733, "WINDOWS-SERVER-$": 938, "utmstack": 88, "DWM-1": 4}`
+
+### Alert Severity Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/property/values-with-count" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "index": "v11-alert-*",
+    "field": "severity",
+    "top": 10,
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+### Alert Status Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/property/values-with-count" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "index": "v11-alert-*",
+    "field": "status",
+    "top": 10,
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+## Check if Events Exist (Count)
+
+**Endpoint:** `POST /api/elasticsearch/count`
+
+Returns `true` if matching events exist, `false` otherwise.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/count?indexPattern=v11-log-*" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '[{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]'
+```
+
+**Response:** `true`
+
+## Chart View (Time-Series Histogram)
+
+**Endpoint:** `POST /api/log-analyzer/chart-view`
+
+Returns time-bucketed event counts for building charts and time-series visualizations.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| indexPattern | string | Yes | Index pattern |
+| interval | string | Yes | Time bucket: 
+Second
+, 
+Minute
+, 
+Hour
+, 
+Day
+, 
+Week
+, 
+Month |
+| top | integer | Yes | Maximum total events to consider |
+| field | string | Yes | Field to aggregate on (typically 
+@timestamp
+) |
+| fieldDataType | string | Yes | Data type of the field (use 
+date
+ for timestamp) |
+| filters | FilterType[] | Yes | Array of filter objects |
+
+### Daily Event Count (Last 30 Days)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/log-analyzer/chart-view" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "indexPattern": "v11-log-*",
+    "interval": "Day",
+    "top": 10000,
+    "field": "@timestamp",
+    "fieldDataType": "date",
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "categories": ["2026-01-07 00:00:00", "2026-01-08 00:00:00", "2026-01-09 00:00:00", "..."],
+  "values": [1746, 1699, 1742, "..."]
+}
+```
+
+### Hourly Event Count (Specific Day)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/log-analyzer/chart-view" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "indexPattern": "v11-log-*",
+    "interval": "Hour",
+    "top": 10000,
+    "field": "@timestamp",
+    "fieldDataType": "date",
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["2026-01-29T00:00:00.000Z","2026-01-30T23:59:59.999Z"]}
+    ]
+  }'
+```
+
+### Weekly Event Count
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/log-analyzer/chart-view" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "indexPattern": "v11-log-*",
+    "interval": "Week",
+    "top": 10000,
+    "field": "@timestamp",
+    "fieldDataType": "date",
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}
+    ]
+  }'
+```
+
+### Monthly Event Count
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/log-analyzer/chart-view" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "indexPattern": "v11-log-*",
+    "interval": "Month",
+    "top": 10000,
+    "field": "@timestamp",
+    "fieldDataType": "date",
+    "filters": [
+      {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-90d","now"]}
+    ]
+  }'
+```
+
+## SQL Queries (SQL Editor)
+
+**Endpoint:** `POST /api/elasticsearch/search/sql`
+
+The Log Explorer also supports querying data using SQL syntax. This provides a familiar interface for writing complex queries with `WHERE`, `GROUP BY`, `ORDER BY`, `LIKE`, and aggregate functions.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page | integer | Page number (1-based for SQL endpoint) |
+| size | integer | Items per page |
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| query | string | Yes | SQL query (must start with 
+SELECT
+) |
+| fetchSize | integer | Yes | Maximum rows to fetch (recommended: 
+10000
+) |
+| filters | FilterType[] | No | Optional additional server-side filters |
+
+**Important SQL syntax notes:**
+
+- Index names are used **unquoted** as table names (e.g., `FROM v11-log-*`)
+- Use `DATE_SUB(NOW(), INTERVAL N DAY)` for relative date math
+- Use standard SQL string literals with single quotes (e.g., `'wineventlog'`)
+- Nested fields use dot notation (e.g., `log.eventCode`, `log.message`)
+- The `filters` array is optional but can be used to apply additional server-side time-range restrictions
+- Numeric results are returned as floats (e.g., `3.0` instead of `3`)
+
+### Basic Query - Select Recent Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp, dataType, dataSource FROM v11-log-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() ORDER BY @timestamp DESC LIMIT 5;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {"@timestamp": "2026-01-30 18:23:32.173429455", "dataType": "wineventlog", "dataSource": "windows-10"},
+  {"@timestamp": "2026-01-30 18:23:32.168445", "dataType": "wineventlog", "dataSource": "windows-10"},
+  {"@timestamp": "2026-01-30 18:20:45.90403176", "dataType": "wineventlog", "dataSource": "windows-server-2019"}
+]
+```
+
+### Count Total Events
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT COUNT(*) as total FROM v11-log-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW();",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+**Response:** `[{"total": 36918.0}]`
+
+### Group By Data Type
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT dataType, COUNT(*) as cnt FROM v11-log-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() GROUP BY dataType;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+**Response:** `[{"dataType": "linux", "cnt": 14621.0}, {"dataType": "wineventlog", "cnt": 22297.0}]`
+
+### Group By Data Source (Top Event Sources)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT dataSource, COUNT(*) as event_count FROM v11-log-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() GROUP BY dataSource ORDER BY event_count DESC;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+**Response:**
+
+```json
+[
+  {"dataSource": "windows-10", "event_count": 13284.0},
+  {"dataSource": "v11ent", "event_count": 12094.0},
+  {"dataSource": "windows-server-2019", "event_count": 9013.0},
+  {"dataSource": "dev-centos-9", "event_count": 1283.0},
+  {"dataSource": "dev-rockylinux-9", "event_count": 1244.0}
+]
+```
+
+### Filter by Data Type in SQL
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp, dataType, dataSource FROM v11-log-* WHERE dataType = '\''wineventlog'\'' AND @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() ORDER BY @timestamp DESC LIMIT 5;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+### Search Windows Events by Event Code
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp, dataSource, log.eventCode, log.winlogEventDataSubjectUserName FROM v11-log-wineventlog-* WHERE log.eventCode = 4625 AND @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() ORDER BY @timestamp DESC LIMIT 10;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+This searches for Event Code 4625 (failed logon attempts) in Windows Event Logs.
+
+### Search Log Messages with LIKE
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp, dataSource, log.message FROM v11-log-linux-* WHERE log.message LIKE '\''%systemd%'\'' AND @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 30 DAY) AND NOW() ORDER BY @timestamp DESC LIMIT 5;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-30d","now"]}]
+  }'
+```
+
+### Query Alerts with SQL
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp, name, status, severity FROM v11-alert-* WHERE @timestamp BETWEEN '\''2025-12-01'\'' AND '\''2025-12-31'\'' ORDER BY @timestamp DESC LIMIT 10;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["2025-12-01T00:00:00.000Z","2025-12-31T23:59:59.999Z"]}]
+  }'
+```
+
+### Alert Statistics with GROUP BY
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT severity, statusLabel, COUNT(*) as cnt FROM v11-alert-* WHERE @timestamp BETWEEN '\''2025-12-01'\'' AND '\''2025-12-31'\'' GROUP BY severity, statusLabel;",
+    "fetchSize": 10000,
+    "filters": [{"field":"@timestamp","operator":"IS_BETWEEN","value":["2025-12-01T00:00:00.000Z","2025-12-31T23:59:59.999Z"]}]
+  }'
+```
+
+**Response:**
+
+```json
+[
+  {"severity": 3.0, "statusLabel": "Open", "cnt": 29.0},
+  {"severity": 3.0, "statusLabel": "Completed", "cnt": 3.0},
+  {"severity": 3.0, "statusLabel": "In review", "cnt": 1.0}
+]
+```
+
+### SQL Query Without Optional Filters
+
+The `filters` array is optional. You can omit it and rely entirely on the SQL `WHERE` clause:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/elasticsearch/search/sql?page=1&size=25" 
+  -H "Utm-Api-Key: {{apiKey}}" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "query": "SELECT @timestamp FROM v11-log-* WHERE @timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW() ORDER BY @timestamp DESC LIMIT 5;",
+    "fetchSize": 10000
+  }'
+```
