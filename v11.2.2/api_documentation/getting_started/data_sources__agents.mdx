@@ -46,21 +46,23 @@ curl -sk "{{baseUrl}}/api/utm-data-input-statuses?page=0&size=100"
 
 | Field | Type | Description |
 |---|---|---|
-| id | string | Unique identifier (
-{dataType}-{source}
-) |
+| id | string | Unique identifier ( |
+| dataType
+-
+source |  |  |
+| ) |  |  |
 | source | string | Source hostname/device name |
-| dataType | string | Data type (e.g., 
-wineventlog
-, 
-linux
-) |
+| dataType | string | Data type (e.g., |
+| wineventlog |  |  |
+| , |  |  |
+| linux |  |  |
+| ) |  |  |
 | timestamp | integer | Last data received (Unix epoch seconds) |
 | median | integer | Expected data interval in seconds |
-| down | boolean | true
- if the data source is disconnected/not sending data; 
-false
- if connected |
+| down | boolean | true |
+| if the data source is disconnected/not sending data; |  |  |
+| false |  |  |
+| if connected |  |  |
 
 ## Count Data Input Statuses
 
@@ -126,24 +128,24 @@ curl -sk "{{baseUrl}}/api/agent-manager/agents?page=0&size=100"
 | id | integer | Agent ID |
 | ip | string | IP address |
 | hostname | string | Hostname |
-| os | string | Operating system (
-windows
-, 
-linux
-) |
-| status | string | Agent status: 
-ONLINE
- or 
-OFFLINE |
-| platform | string | OS platform (
-windows
-, 
-ubuntu
-, 
-centos
-, 
-rocky
-) |
+| os | string | Operating system ( |
+| windows |  |  |
+| , |  |  |
+| linux |  |  |
+| ) |  |  |
+| status | string | Agent status: |
+| ONLINE |  |  |
+| or |  |  |
+| OFFLINE |  |  |
+| platform | string | OS platform ( |
+| windows |  |  |
+| , |  |  |
+| ubuntu |  |  |
+| , |  |  |
+| centos |  |  |
+| , |  |  |
+| rocky |  |  |
+| ) |  |  |
 | version | string | Agent version |
 | lastSeen | string | Last communication timestamp |
 | mac | string | MAC address(es) |

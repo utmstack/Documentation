@@ -74,9 +74,9 @@ An alternative way to create an incident from alerts. This endpoint links the al
 |---|---|---|---|
 | eventIds | string[] | Yes | Array of alert IDs to convert |
 | incidentName | string | Yes | Name for the new incident |
-| incidentId | integer | Yes | Set to 
-0
- to create new; set to existing ID to add to existing |
+| incidentId | integer | Yes | Set to |
+| 0 |  |  |  |
+| to create new; set to existing ID to add to existing |  |  |  |
 | incidentSource | string | Yes | Free text source description |
 
 ### Create New Incident
@@ -221,20 +221,20 @@ curl -sk "{{baseUrl}}/api/utm-incidents?page=0&size=20&sort=incidentCreatedDate,
 
 | Parameter | Type | Description |
 |---|---|---|
-| incidentStatus.equals | string | OPEN
-, 
-IN_REVIEW
-, 
-COMPLETED |
+| incidentStatus.equals | string | OPEN |
+| , |  |  |
+| IN_REVIEW |  |  |
+| , |  |  |
+| COMPLETED |  |  |
 | incidentName.contains | string | Name substring search |
 | incidentSeverity.equals | integer | Exact severity match |
 | incidentSeverity.greaterThan | integer | Minimum severity |
 | incidentAssignedTo.equals | string | Assigned analyst username |
 | incidentCreatedDate.greaterThanOrEqual | ISO datetime | Created after date |
 | incidentCreatedDate.lessThanOrEqual | ISO datetime | Created before date |
-| sort | string | Sort field and direction (e.g., 
-id,desc
-) |
+| sort | string | Sort field and direction (e.g., |
+| id,desc |  |  |
+| ) |  |  |
 
 ## Get a Specific Incident
 
@@ -273,12 +273,12 @@ curl -sk "{{baseUrl}}/api/utm-incidents/3"
 | id | integer | Yes | Incident ID |
 | incidentName | string | Yes | Incident name |
 | incidentDescription | string | Yes | Incident description |
-| incidentStatus | string | Yes | New status: 
-OPEN
-, 
-IN_REVIEW
-, 
-COMPLETED |
+| incidentStatus | string | Yes | New status: |
+| OPEN |  |  |  |
+| , |  |  |  |
+| IN_REVIEW |  |  |  |
+| , |  |  |  |
+| COMPLETED |  |  |  |
 | incidentSeverity | integer | Yes | Severity level |
 | incidentCreatedDate | ISO datetime | Yes | Original creation date |
 | incidentAssignedTo | string | No | Include to preserve assignment |

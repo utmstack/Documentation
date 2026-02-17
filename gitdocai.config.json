@@ -461,11 +461,6 @@
                     "title": "Data Sources & Agents",
                     "page": "/v11.2.2/api_documentation/getting_started/data_sources__agents.mdx",
                     "type": "page"
-                  },
-                  {
-                    "title": "Reference Tables",
-                    "page": "/v11.2.2/api_documentation/getting_started/reference_tables.mdx",
-                    "type": "page"
                   }
                 ]
               }

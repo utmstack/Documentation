@@ -241,9 +241,9 @@ Returns the distinct values for a specific field. Useful for discovering what da
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| keyword | string | Yes | Field name (must use 
-.keyword
- suffix for text fields) |
+| keyword | string | Yes | Field name (must use |
+| .keyword |  |  |  |
+| suffix for text fields) |  |  |  |
 | indexPattern | string | Yes | Index pattern to search |
 
 ### Get All Data Types
@@ -284,9 +284,9 @@ Returns distinct field values along with their occurrence counts. More useful th
 | Field | Type | Required | Description |
 |---|---|---|---|
 | index | string | Yes | Index pattern |
-| field | string | Yes | Field name (use 
-.keyword
- suffix for text fields) |
+| field | string | Yes | Field name (use |
+| .keyword |  |  |  |
+| suffix for text fields) |  |  |  |
 | top | integer | Yes | Maximum number of distinct values to return |
 | filters | FilterType[] | No | Array of filter objects |
 | orderByCount | boolean | No | Sort by count |
@@ -404,25 +404,25 @@ Returns time-bucketed event counts for building charts and time-series visualiza
 | Field | Type | Required | Description |
 |---|---|---|---|
 | indexPattern | string | Yes | Index pattern |
-| interval | string | Yes | Time bucket: 
-Second
-, 
-Minute
-, 
-Hour
-, 
-Day
-, 
-Week
-, 
-Month |
+| interval | string | Yes | Time bucket: |
+| Second |  |  |  |
+| , |  |  |  |
+| Minute |  |  |  |
+| , |  |  |  |
+| Hour |  |  |  |
+| , |  |  |  |
+| Day |  |  |  |
+| , |  |  |  |
+| Week |  |  |  |
+| , |  |  |  |
+| Month |  |  |  |
 | top | integer | Yes | Maximum total events to consider |
-| field | string | Yes | Field to aggregate on (typically 
-@timestamp
-) |
-| fieldDataType | string | Yes | Data type of the field (use 
-date
- for timestamp) |
+| field | string | Yes | Field to aggregate on (typically |
+| @timestamp |  |  |  |
+| ) |  |  |  |
+| fieldDataType | string | Yes | Data type of the field (use |
+| date |  |  |  |
+| for timestamp) |  |  |  |
 | filters | FilterType[] | Yes | Array of filter objects |
 
 ### Daily Event Count (Last 30 Days)
@@ -523,12 +523,12 @@ The Log Explorer also supports querying data using SQL syntax. This provides a f
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| query | string | Yes | SQL query (must start with 
-SELECT
-) |
-| fetchSize | integer | Yes | Maximum rows to fetch (recommended: 
-10000
-) |
+| query | string | Yes | SQL query (must start with |
+| SELECT |  |  |  |
+| ) |  |  |  |
+| fetchSize | integer | Yes | Maximum rows to fetch (recommended: |
+| 10000 |  |  |  |
+| ) |  |  |  |
 | filters | FilterType[] | No | Optional additional server-side filters |
 
 **Important SQL syntax notes:**
