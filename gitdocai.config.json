@@ -184,11 +184,6 @@
                     "page": "/v11/integrations/cloud/aws.mdx"
                   },
                   {
-                    "type": "page",
-                    "title": "Traefik",
-                    "page": "/v11/integrations/cloud/taefik.mdx"
-                  },
-                  {
                     "title": "CrowdStrike",
                     "page": "/v11.2.2/integrations/cloud/crowdstrike.mdx",
                     "type": "page"
@@ -305,46 +300,6 @@
                     "type": "page",
                     "title": "Oracle",
                     "page": "/v11/integrations/databases/oracle.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "MySQL",
-                    "page": "/v11/integrations/databases/mysql.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "PostgreSQL",
-                    "page": "/v11/integrations/databases/pgsql.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "MongoDB",
-                    "page": "/v11/integrations/databases/mongodb.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Elastic",
-                    "page": "/v11/integrations/databases/elastic.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Redis",
-                    "page": "/v11/integrations/databases/redis.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Kafka",
-                    "page": "/v11/integrations/databases/kafka.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Kibana",
-                    "page": "/v11/integrations/databases/kibana.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Logstash",
-                    "page": "/v11/integrations/databases/logstash.mdx"
                   }
                 ]
               },
@@ -354,18 +309,8 @@
                 "children": [
                   {
                     "type": "page",
-                    "title": "IIS",
-                    "page": "/v11/integrations/web_server/iis.mdx"
-                  },
-                  {
-                    "type": "page",
                     "title": "Apache2",
                     "page": "/v11/integrations/web_server/apache2.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Nginx",
-                    "page": "/v11/integrations/web_server/nginx.mdx"
                   }
                 ]
               },
@@ -393,17 +338,6 @@
                     "type": "page",
                     "title": "Netflow",
                     "page": "/v11/integrations/network/netflow.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
-                "title": "Proxy",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "HAProxy",
-                    "page": "/v11/integrations/proxy/haproxy.mdx"
                   }
                 ]
               },
