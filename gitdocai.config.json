@@ -305,17 +305,6 @@
               },
               {
                 "type": "group",
-                "title": "Web Server",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Apache2",
-                    "page": "/v11/integrations/web_server/apache2.mdx"
-                  }
-                ]
-              },
-              {
-                "type": "group",
                 "title": "XDR",
                 "children": [
                   {
