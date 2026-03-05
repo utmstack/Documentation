@@ -182,11 +182,6 @@
                     "type": "page",
                     "title": "Syslog",
                     "page": "/v11/integrations/agents_and_syslog/syslog.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "VMware",
-                    "page": "/v11/integrations/agents_and_syslog/vmware.mdx"
                   }
                 ]
               },
@@ -721,11 +716,6 @@
                     "type": "page",
                     "title": "Syslog",
                     "page": "/v10/documentation/integrations/syslog.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "VMware",
-                    "page": "/v10/documentation/integrations/vmware.mdx"
                   }
                 ]
               },
@@ -897,6 +887,17 @@
                     "title": "Netflow",
                     "page": "/v10/documentation/integrations/netflow.mdx"
                   }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Hypervisors",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "VMware ESXi",
+                    "page": "/v10/documentation/integrations/vmware.mdx"
+                  },
                 ]
               },
               {
