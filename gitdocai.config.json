@@ -332,7 +332,7 @@
                   {
                     "type": "page",
                     "title": "VMware ESXi",
-                    "page": "/v11/documentation/integrations/agents_and_syslog/vmware.mdx"
+                    "page": "/v11/integrations/agents_and_syslog/vmware.mdx"
                   }
                 ]
               },
