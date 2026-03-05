@@ -161,37 +161,6 @@
             "items": [
               {
                 "type": "group",
-                "title": "Cloud",
-                "children": [
-                  {
-                    "type": "page",
-                    "title": "Azure",
-                    "page": "/v11/integrations/cloud/azure.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Google Cloud",
-                    "page": "/v11/integrations/cloud/googlecloud.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "Office365",
-                    "page": "/v11/integrations/cloud/office365.mdx"
-                  },
-                  {
-                    "type": "page",
-                    "title": "AWS",
-                    "page": "/v11/integrations/cloud/aws.mdx"
-                  },
-                  {
-                    "title": "CrowdStrike",
-                    "page": "/v11.2.2/integrations/cloud/crowdstrike.mdx",
-                    "type": "page"
-                  }
-                ]
-              },
-              {
-                "type": "group",
                 "title": "Agents and Syslog",
                 "children": [
                   {
@@ -316,6 +285,37 @@
                     "type": "page",
                     "title": "SentinelOne",
                     "page": "/v11/integrations/xdr/sentinelone.mdx"
+                  },
+                  {
+                    "title": "CrowdStrike",
+                    "page": "/v11.2.2/integrations/cloud/crowdstrike.mdx",
+                    "type": "page"
+                  }
+                ]
+              },
+              {
+                "type": "group",
+                "title": "Cloud",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "Azure",
+                    "page": "/v11/integrations/cloud/azure.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Google Cloud",
+                    "page": "/v11/integrations/cloud/googlecloud.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "Office365",
+                    "page": "/v11/integrations/cloud/office365.mdx"
+                  },
+                  {
+                    "type": "page",
+                    "title": "AWS",
+                    "page": "/v11/integrations/cloud/aws.mdx"
                   }
                 ]
               },
