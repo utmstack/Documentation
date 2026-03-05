@@ -897,7 +897,7 @@
                     "type": "page",
                     "title": "VMware ESXi",
                     "page": "/v10/documentation/integrations/vmware.mdx"
-                  },
+                  }
                 ]
               },
               {
