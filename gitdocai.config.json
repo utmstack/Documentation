@@ -327,6 +327,17 @@
               },
               {
                 "type": "group",
+                "title": "Hypervisors",
+                "children": [
+                  {
+                    "type": "page",
+                    "title": "VMware ESXi",
+                    "page": "/v11/documentation/integrations/agents_and_syslog/vmware.mdx"
+                  }
+                ]
+              },
+              {
+                "type": "group",
                 "title": "Configurations",
                 "children": [
                   {
