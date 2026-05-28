@@ -1,0 +1,27 @@
+# Authentication
+
+UTMStack API supports authentication via API key. Include the key in the `Utm-Api-Key` header on every request.
+
+## Header Format
+
+```plaintext
+Utm-Api-Key: {{apiKey}}
+```
+
+## Example Request
+
+```bash
+curl -sk "{{baseUrl}}/api/ping" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** `"OK"` (HTTP 200)
+
+## Verifying API Key
+
+```bash
+curl -sk "{{baseUrl}}/api/utm-alerts/count-open-alerts" 
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** Integer count of open alerts (e.g., `10`). If you get a `401` response, your API key is invalid.

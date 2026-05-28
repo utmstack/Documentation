@@ -1,0 +1,231 @@
+# Use Cases
+
+This page walks through real-world SOAR use cases with complete workflow configurations you can adapt for your environment. Each use case includes the threat scenario, trigger configuration, action sequence, and the resulting automated response.
+
+## Use Case 1: Block a Compromised User Account
+
+### Scenario
+
+An attacker gains access to a user's credentials through phishing or credential stuffing. UTMStack detects multiple suspicious activities under the same user account — privilege escalation attempts, access to sensitive resources, or lateral movement. The SOAR workflow immediately disables the account and terminates all active sessions before the attacker can cause further damage.
+
+### Threat Indicators
+
+- Multiple failed logins followed by a successful login from an unusual IP
+- User account added to an administrative group unexpectedly
+- Anomalous process execution under the user's context
+
+### Workflow Configuration
+
+**Trigger** (matches the correlation rule alert):
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `Windows: Multiple Logon Failure Followed by Logon Success` |
+
+**Platform**: Windows (PowerShell)
+
+**Actions** (3 steps, sequential):
+
+| Step | Action | Command | Logic |
+|---|---|---|---|
+| 1 | **Block attacker IP** | `netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes` | Always run |
+| 2 | **Disable the compromised user** | `net user $(target.user) /active:no` | Run on success |
+| 3 | **Force logout all sessions** | `logoff $(target.user)` | Run on success |
+
+### What Happens
+
+1. The correlation rule detects that 10+ failed logins from IP `203.0.113.45` were followed by a successful login as `john.doe`
+2. The alert fires: "Windows: Multiple Logon Failure Followed by Logon Success"
+3. SOAR matches the trigger and sends the commands to the Windows agent on the affected server
+4. The attacker's IP is blocked at the Windows Firewall level
+5. The `john.doe` account is disabled — no further logins are possible
+6. Any active sessions for `john.doe` are terminated
+
+**Total time from detection to containment**: seconds (vs. minutes or hours for manual response).
+
+### Variations
+
+**Linux variant** — same trigger concept, different commands:
+
+| Step | Command |
+|---|---|
+| Block IP | `iptables -A INPUT -s $(adversary.ip) -j DROP` |
+| Disable user | `usermod -s /sbin/nologin $(target.user)` |
+| Kill sessions | `pkill -KILL -u $(target.user)` |
+
+**Enhanced version** — add notification:
+
+| Step | Command | Logic |
+|---|---|---|
+| 4 | `curl -sk -X POST "https://hooks.slack.com/services/$[variables.slackWebhook]" -H "Content-Type: application/json" -d '{"text": "SOAR: Blocked user $(target.user) and IP $(adversary.ip) on $(dataSource). Alert: $(name)"}'` | Always run |
+---
+## Use Case 2: Block an IP on a Firewall
+
+### Scenario
+
+UTMStack detects an RDP brute force attack against a Windows server. The attacker is coming from an external IP. Rather than just blocking the IP on the target server's local firewall, you want to block it at the **perimeter firewall** — stopping the attacker from reaching any system in your network.
+
+This requires a **proxy agent** since the firewall doesn't run a UTMStack agent.
+
+### Threat Indicators
+
+- Repeated failed RDP login attempts (Windows Event ID 4625) from the same external IP
+- High-severity alert: "RDP Brute Force Attack"
+
+### Workflow Configuration
+
+**Trigger**:
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `RDP Brute Force Attack` |
+
+**Platform**: Linux (Bash) — the proxy agent is a Linux server
+
+**Agent**: Run on specific agent — select the Linux proxy that has SSH/API access to the firewall
+
+**Automation Variables needed**:
+
+| Variable | Type | Value |
+|---|---|---|
+| `firewallIp` | Regular | `10.0.0.1` |
+| `fwApiToken` | Secret | *(FortiGate API token)* |
+
+**Actions** (2 steps):
+
+| Step | Action | Command | Logic |
+|---|---|---|---|
+| 1 | **Block IP on FortiGate firewall via API** | See command below | Always run |
+| 2 | **Log the block action** | `echo "$(date): SOAR blocked $(adversary.ip) on firewall for alert $(name)" >> /var/log/soar-firewall-blocks.log` | Always run |
+
+**Step 1 command** (FortiGate REST API):
+
+```bash
+curl -sk -X POST "https://$[variables.firewallIp]/api/v2/cmdb/firewall/address" 
+  -H "Authorization: Bearer $[variables.fwApiToken]" 
+  -d '{"name": "soar-block-$(adversary.ip)", "subnet": "$(adversary.ip)/32"}' 
+&& curl -sk -X POST "https://$[variables.firewallIp]/api/v2/cmdb/firewall/policy" 
+  -H "Authorization: Bearer $[variables.fwApiToken]" 
+  -d '{"name": "soar-deny-$(adversary.ip)", "srcaddr": [{"name": "soar-block-$(adversary.ip)"}], "dstaddr": [{"name": "all"}], "action": "deny", "schedule": "always", "service": [{"name": "ALL"}]}'
+```
+
+### What Happens
+
+1. UTMStack detects 15+ failed RDP login attempts from `203.0.113.99` in 5 minutes
+2. The correlation rule fires: "RDP Brute Force Attack"
+3. SOAR matches the trigger and sends the command to the **Linux proxy agent**
+4. The proxy calls the FortiGate REST API to create an address object and deny policy for `203.0.113.99`
+5. The attacker is now blocked at the perimeter — cannot reach any internal system
+
+### Alternative: SSH-based firewall block
+
+If the firewall doesn't have a REST API, use SSH:
+
+```bash
+ssh -o StrictHostKeyChecking=no -i $[variables.fwSshKey] admin@$[variables.firewallIp] 
+  "config firewall address
+   edit soar-block-$(adversary.ip)
+   set subnet $(adversary.ip)/32
+   end"
+```
+
+### Alternative: pfSense, Palo Alto, Cisco ASA
+
+## The same pattern applies to any firewall — just swap the API call or SSH command for the target platform. See the **Proxy Agents** page for more examples.
+
+## Use Case 3: Stop a Malicious Process or Ransomware
+
+### Scenario
+
+UTMStack detects signs of ransomware or malicious process execution — PowerShell Empire activity, suspicious keylogging scripts, or unauthorized file encryption. The SOAR workflow immediately kills the malicious process, deletes the payload, disables the compromised user, and optionally isolates the host to prevent lateral movement.
+
+### Threat Indicators
+
+- PowerShell Empire detection (characteristic command patterns, encoded payloads)
+- Volume Shadow Copy deletion (common ransomware precursor)
+- Keylogging scripts detected via Windows API function calls
+- Anomalous process execution patterns
+
+### Workflow Configuration: PowerShell Empire Response
+
+**Trigger**:
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `PowerShell Empire Detection` |
+
+**Platform**: Windows (PowerShell)
+
+**Actions** (4 steps):
+
+| Step | Action | Command | Logic |
+|---|---|---|---|
+| 1 | **Kill the malicious process** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Always run |
+| 2 | **Delete the malware artifact** | `Remove-Item -LiteralPath "$(target.file)" -Force -Recurse` | Run on success |
+| 3 | **Disable the compromised user** | `net user $(target.user) /active:no` | Always run |
+| 4 | **Force logout** | `logoff $(target.user)` | Run on success |
+
+### What Happens
+
+1. UTMStack detects PowerShell Empire command patterns in Windows Event Logs
+2. The alert fires with the process name, target file, and compromised user populated from the log data
+3. SOAR kills the malicious PowerShell process immediately
+4. The Empire payload file is deleted from disk
+5. The compromised user account is disabled
+6. All sessions for that user are terminated
+
+### Workflow Configuration: Ransomware Response (Maximum Containment)
+
+For confirmed ransomware, you may want to escalate to **full host isolation**:
+
+**Trigger**:
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `Volume Shadow Copy Deletion` |
+
+**Platform**: Windows (PowerShell)
+
+**Actions** (4 steps):
+
+| Step | Action | Command | Logic |
+|---|---|---|---|
+| 1 | **Kill the suspicious process** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Always run |
+| 2 | **Disable the user** | `net user $(target.user) /active:no` | Always run |
+| 3 | **Force logout** | `logoff $(target.user)` | Always run |
+| 4 | **Isolate the host** | `Get-NetAdapter | Disable-NetAdapter -Confirm:$false` |
+
+> [!DANGER]
+> Step 4 (host isolation) disables all network adapters. The agent will lose connectivity to UTMStack. **Physical or out-of-band access** (iLO, iDRAC, console) will be required to restore the machine. Only use this for confirmed critical threats where stopping the attack outweighs the cost of losing remote access.
+
+### Workflow Configuration: Keylogger Response
+
+**Trigger**:
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `Windows: PowerShell Keylogging Script` |
+
+**Platform**: Windows (CMD)
+
+**Actions** (2 steps):
+
+| Step | Action | Command | Logic |
+|---|---|---|---|
+| 1 | **Kill by PID** | `taskkill /F /PID $(log.winlogEventDataProcessId)` | Always run |
+| 2 | **Kill by name (fallback)** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Run on failure |
+
+## This uses the **Run on failure** logic: if killing by PID fails (process already restarted with a new PID), fall back to killing by process name.
+
+## Combining Use Cases
+
+These use cases can be combined into comprehensive response workflows. For example, a full brute force response might:
+
+1. **Block the attacker IP on the local firewall** (built-in action)
+2. **Block the IP on the perimeter firewall** (proxy agent + API call)
+3. **Disable the compromised user** (built-in action)
+4. **Kill active sessions** (built-in action)
+5. **Send a Slack notification** (custom action)
+6. **Create a Jira ticket** (custom action)
+
+By chaining built-in actions, proxy-based commands, and custom API calls, you can build end-to-end automated response workflows that span your entire infrastructure — from endpoints to firewalls to cloud services to ticketing systems."}

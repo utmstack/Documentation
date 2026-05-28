@@ -1,0 +1,156 @@
+# Built-in Action Templates
+
+UTMStack ships with **73 pre-built action templates** that can be used as building blocks in SOAR workflows. Each template is a reusable command that targets a specific platform and performs a specific response action.
+
+Action templates use **dynamic variables** (e.g., `$(adversary.ip)`) that are automatically replaced with values from the triggering alert at execution time.
+
+## Block IP / Firewall Rules
+
+Block attacker IP addresses or manage firewall rules to contain threats.
+
+| Action | Platform | Command |
+|---|---|---|
+| Block Adversary IP | Windows | `netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"` |
+| Block Adversary IP | Linux (Debian/Ubuntu) | `iptables -A INPUT -s $(adversary.ip) -j DROP` |
+| Block Adversary IP | Linux (RHEL/CentOS) | `firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(adversary.ip)" drop' --permanent && firewall-cmd --reload` |
+| Block Adversary IP | Linux (OpenSUSE) | `firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(adversary.ip)" drop' --permanent && firewall-cmd --reload` |
+| Block Attacker IP via UFW | Linux (Debian/Ubuntu) | `ufw deny from $(adversary.ip) to any` |
+| Block Inbound Network Access | Windows | `netsh advfirewall firewall add rule name="Block-Inbound-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"` |
+| Block Inbound Network Access | Linux (Debian) | `iptables -A INPUT -s $(adversary.ip) -j DROP` |
+| Block Inbound Network Access | Linux (RHEL) | `firewall-cmd --zone=public --add-rich-rule='...' --permanent && firewall-cmd --reload` |
+| Block Inbound Network Access | Linux (OpenSUSE) | `firewall-cmd --zone=public --add-rich-rule='...' --permanent && firewall-cmd --reload` |
+| Block Inbound Network Access | macOS | `echo "block in from $(adversary.ip) to any" \| pfctl -f -` |
+| Block Outbound Network Access | Windows | `netsh advfirewall firewall add rule name="Block-Outbound-$(adversary.ip)" dir=out action=block remoteip="$(adversary.ip)"` |
+| Block Outbound Network Access | Linux | `iptables -A OUTPUT -d $(adversary.ip) -j DROP` |
+| Block Outbound Network Access | macOS | `echo "block out from any to $(adversary.ip)" \| pfctl -f -` |
+| Enable Firewall Rules | Windows | `netsh advfirewall firewall set rule name=all new enable=yes` |
+| Enable Firewall | Windows | `netsh advfirewall set allprofiles state on` |
+
+## Kill Process
+
+Terminate malicious or suspicious processes on endpoints.
+
+| Action | Platform | Command |
+|---|---|---|
+| Kill Process | Windows | `taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)` |
+| Kill Process | Linux | `pkill -9 $(basename "$(adversary.process)")` |
+| Kill Process | macOS | `pkill -9 $(basename "$(adversary.process)")` |
+| Kill Process by PID | Windows | `taskkill /F /PID $(log.winlogEventDataProcessId)` |
+| Kill Process by Name | Windows | `taskkill /F /IM $(log.winlogEventDataProcessName)` |
+
+## Disable User Account
+
+Disable compromised or unauthorized user accounts to prevent further access.
+
+| Action | Platform | Command |
+|---|---|---|
+| Disable adversary.user | Windows | `net user $(adversary.user) /active:no` |
+| Disable adversary.user | Linux | `usermod -s /sbin/nologin $(adversary.user)` |
+| Disable adversary.user | macOS | `chsh -s /usr/bin/false $(adversary.user)` |
+| Disable target.user | Windows | `net user $(target.user) /active:no` |
+| Disable target.user | Linux | `usermod -s /sbin/nologin $(target.user)` |
+| Disable target.user | macOS | `chsh -s /usr/bin/false $(target.user)` |
+| Disable Compromised User (expire) | Linux | `usermod --expiredate 1 $(target.user)` |
+
+## Kill Session / Logout User
+
+Force logout a compromised user session.
+
+| Action | Platform | Command |
+|---|---|---|
+| Kill Session and Logout User | Windows | `logoff $(target.user)` |
+| Kill Session and Logout User | Linux | `pkill -KILL -u $(target.user)` |
+| Kill Session and Logout User | macOS | `pkill -KILL -u $(target.user)` |
+
+## Remove Permissions
+
+Strip elevated permissions from compromised accounts.
+
+| Action | Platform | Command |
+|---|---|---|
+| Remove All Permissions | Windows | `Get-LocalGroup \| Where-Object { $_.Name -ne "Users" } \| ForEach-Object { Remove-LocalGroupMember ... }` |
+| Remove All Permissions | Linux | `for grp in $(id -nG $(adversary.user) ...); do gpasswd -d $(adversary.user) "$grp"; done` |
+| Remove All Permissions | macOS | `for grp in ...; do dseditgroup -o edit -d $(adversary.user) ...; done` |
+
+## Isolate Host
+
+Disconnect a compromised host from the network to contain lateral movement.
+
+| Action | Platform | Command |
+|---|---|---|
+| Isolate Host | Windows | `Get-NetAdapter \| Disable-NetAdapter -Confirm:$false` |
+| Isolate Host | Linux | `for interface in $(ip link show \| ...); do ip link set "$interface" down; done` |
+| Isolate Host | macOS | `for interface in $(networksetup -listallnetworkservices ...); do networksetup -setnetworkserviceenabled "$interface" off; done` |
+
+> [!DANGER]
+> Host isolation disables all network adapters. The agent will lose connectivity to UTMStack. Use this action only as a last resort for confirmed critical threats. Physical or out-of-band access will be needed to restore connectivity.
+
+## Delete File
+
+Remove malicious files from endpoints.
+
+| Action | Platform | Command |
+|---|---|---|
+| Delete File | Windows | `Remove-Item -LiteralPath "$(adversary.path)" -Force -Recurse` |
+| Delete File | Linux | `rm -f $(adversary.path)` |
+| Delete File | macOS | `rm -f $(adversary.path)` |
+
+## Stop Service
+
+Stop malicious or compromised services.
+
+| Action | Platform | Command |
+|---|---|---|
+| Stop Service | Windows | `Stop-Service -Name "$(adversary.windowsServiceDisplayName)" -Force` |
+| Stop Service | Linux | `systemctl stop "$(adversary.service)"` |
+| Stop Service | macOS | `launchctl stop "$(adversary.service)"` |
+
+## Uninstall Application
+
+Remove unauthorized or compromised applications.
+
+| Action | Platform | Command |
+|---|---|---|
+| Uninstall Application | Windows | `ForEach-Object { Start-Process ... -ArgumentList "/S" ... }` |
+| Uninstall Application | Linux (Debian) | `apt-get remove -y "$(target.applicationname)"` |
+| Uninstall Application | Linux (RHEL) | `yum remove -y "$(target.applicationname)"` |
+| Uninstall Application | Linux (OpenSUSE) | `zypper remove -y "$(target.applicationname)"` |
+| Uninstall Application | macOS | `brew uninstall --force "$(target.applicationname)"` |
+
+## Shutdown Host
+
+Force shutdown of a critically compromised system.
+
+| Action | Platform | Command |
+|---|---|---|
+| Shutdown OS (Forced) | Windows | `shutdown /s /f /t 0` |
+| Shutdown OS (Forced) | Linux | `shutdown -h now` |
+| Shutdown OS (Forced) | macOS | `shutdown -h now` |
+
+> [!DANGER]
+> Forced shutdown will immediately power off the system. All unsaved data will be lost. Use only for confirmed critical threats where the risk of continued operation outweighs the cost of downtime.
+
+## Disable RDP
+
+Disable Remote Desktop Protocol access on Windows systems.
+
+| Action | Platform | Command |
+|---|---|---|
+| Disable RDP and Remove FW Rule | Windows | `Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"` |
+
+## Windows Defender Management
+
+Re-enable or restore Windows Defender settings that were tampered with.
+
+| Action | Platform | Description |
+|---|---|---|
+| Enable Windows Defender | Windows | Enables real-time protection via `MpCmdRun.exe -Enable` |
+| Enable Real-time Monitoring | Windows | `Set-MpPreference -DisableRealtimeMonitoring $false` |
+| Restore Behavior Monitoring | Windows | Re-enables behavior monitoring |
+| Restore PUA Protection | Windows | Re-enables Potentially Unwanted Application protection |
+| Restore MAPS Reporting | Windows | Re-enables Microsoft Active Protection Service reporting |
+| Restore Cloud Protection | Windows | Re-enables cloud-based protection |
+| Auto Re-enable All Protections | Windows | Detects which protections were disabled and re-enables them |
+| Remove Process Exclusion | Windows | Removes process exclusions added to Defender |
+| Remove Folder Exclusion | Windows | Removes folder exclusions added to Defender |
+| Remove All Exclusions | Windows | Removes both process and folder exclusions added via PowerShell |

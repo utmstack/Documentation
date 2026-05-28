@@ -1,0 +1,69 @@
+Microsoft 365, formerly Office 365, is a line of subscription services offered by Microsoft which adds to and includes the Microsoft Office product line
+
+## To connect UTMStack with Office365:
+
+### 1. Open the Azure
+
+> [!TIP]
+> [Azure’s Portal](https://portal.azure.com/). Click on Microsoft Entra ID.
+
+![Office365](/assets/5e9ef482-93ad-54da-9e48-6b600757b449)
+
+### 2. Go to App registrations
+
+![Office365](/assets/ef4ffad3-61ef-5da2-a646-950bcfd8a01a)
+
+### 3. Add a new app
+
+> [!TIP]
+> Clicking the **"New registration"** button and fill-up the form, with the name **"UTMStack O365 Agent", and select the option "Accounts in this organizational directory only to (Single-tenant)"** and click on register.
+
+![Office365](/assets/64905007-d80f-52d0-8480-0c1b56e2f316)
+
+### 4.In the newly created App registration
+
+> [!TIP]
+> Go to Certificates & Secrets, and create a new one by clicking on "New client secret". Add a description. Set it to expires in 730 days (24 months) and click on Add. Copy the value in a safe place.
+
+![Office365](/assets/54aafcfe-0f6c-5532-af54-30948f0a5fee)
+
+### 5. From the same App registration menu, look for "API Permissions" and click on "Add Permissions" and look for "Office 365 Management API".
+
+![Office365](/assets/8abeaccc-3c21-5de9-8892-1af77be31d3f)
+
+### 6. Select "Application Permissions" and, add the ActivityFeed.Read and ActivityFeed.ReadDlp permissions. Then click on "Grant admin consent for X" and confirm.
+
+![Office365](/assets/b1c973fe-9cf6-5653-8dfb-aa3e47db3c79)
+
+### 7. From the same "Request API Permissions" click on "Microsoft Graph"
+
+![Office365](/assets/6684ed33-be4a-56c0-bc19-6c49340a1fa7)
+
+### 8. Select "Delegated Permissions" and, add the SecurityAlert.Read.All and SecurityAlert.ReadWrite.All permissions. Then click on "Grant admin consent for X" and confirm.
+
+![Office365](/assets/0cc173fd-9650-5e2d-9e70-19d2a6173b37)
+
+### 9. Select "Application Permissions" and, add the SecurityAlert.Read.All and SecurityAlert.ReadWrite.All permissions. Then click on "Grant admin consent for X" and confirm.
+
+![Office365](/assets/940d324c-a42b-5d3b-9e0b-abe8d2095098)
+
+### 10. Go to [https://compliance.microsoft.com](https://compliance.microsoft.com) and sign in.
+
+### 11. In the left navigation pane of the compliance portal, select Audit.
+
+> [!NOTE]
+> If auditing isn't turned on for your organization, a banner is displayed prompting you start recording user and admin activity.
+
+![Office365](/assets/ff360553-9fc5-57ca-94d9-4e8b3613c433)
+
+### 12. Select the Start recording user and admin activity banner. It may take up to 60 minutes for the change to take effect.
+
+### 13. Return to Azure Active Directory and go to the Registered Apps (step number 3) and make a note the info that appears in the Overview section (client ID, tenant ID) and the secret.
+
+![Office365](/assets/4bb4a56d-a03a-5aff-b250-d4d3ee052d41)
+
+### 14. Insert information in the following inputs.You can add more than one o365 configuration by clicking on Add tenant button.
+
+![Office365](/assets/9ef25e6e-c12c-51c7-a256-0619473b4b74)
+
+### 15. Click on the button shown below, to activate the UTMStack features related to this integration

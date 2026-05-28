@@ -1,0 +1,166 @@
+# API Authentication Guide
+
+*Complete guide for authenticating with the UTMStack API using Bearer Token or API Key methods. Learn how to access secured endpoints and find official API documentation.*
+
+## Authentication Methods
+
+UTMStack API supports two authentication methods:
+
+1. **Bearer Token Authentication**: Uses username/password to obtain a Bearer token for API requests
+2. **API Key Authentication**: Uses an internal API key sent in request headers
+
+Choose the authentication method that best fits your use case and security requirements.
+---
+## Bearer Token Authentication
+
+### Step 1: Authentication Request
+
+> **💡 Tip:** Use the **/api/authenticate** endpoint to log in and receive a Bearer token.
+
+> 🔧 Request Example:
+
+```bash
+curl -X POST https://demo.utmstack.com/api/authenticate 
+-H "Content-Type: application/json" 
+-d '{"username":"demo","password":"your_password"}'
+```
+
+> **Note:** Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.
+
+### Step 2: Parse the Response
+
+> The response will be a JSON object containing the Bearer token, usually under the key id_token or similar, for example:
+
+```json
+{
+  "authenticated":true,
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+}
+```
+
+### Step 3: Use the Bearer Token
+
+> Include the token in the Authorization header when making requests to protected endpoints.
+
+> **💡 Tip:** Use the **/api/elasticsearch/search** endpoint to test your Bearer token authentication.
+
+> **Request Example:**
+
+```bash
+curl -X 'POST' 
+  'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' 
+  -H 'accept: */*' 
+  -H 'Content-Type: application/json' 
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vIiwiYXV0aCI6IlJPTEVfQURNSU4sU...' 
+  -d '[
+    {
+      "field": "status",
+      "operator": "IS",
+      "value": 2
+    },
+    {
+      "field": "tags",
+      "operator": "IS_NOT",
+      "value": "False positive"
+    },
+    {
+      "field": "@timestamp",
+      "operator": "IS_BETWEEN",
+      "value": [
+        "now-7d",
+        "now"
+      ]
+    }
+  ]'
+```
+
+> **Response:**
+
+```json
+{
+  "severity": 3,
+  "regDateRulebot": null,
+  "severityLabel": "High",
+  "notes": "",
+  "dataType": "alertEventLog",
+  "destination": {
+    "country": "India",
+    "accuracyRadius": 5,
+    "city": "New Delhi",
+    "ip": "122.176.80.250",
+    "coordinates": [
+      28.6320,
+      77.2202
+    ]
+  },
+  "port": 63725,
+  "countryCode": "IN",
+  "subProtocolCategory": "false",
+  "alertEventDetailCateg": "utmstack.demo",
+  "isSatelliteProvider": false,
+  "ago": "Thatti Airtel Ltd. , Telangela Services",
+  "user": "Administrator",
+  "san": 24505
+}
+```
+
+> **⚠️ Warning:** What happens when you don't include the Authorization header when making requests to protected endpoints.
+
+> **Request without Authorization:**
+
+```bash
+curl -X 'POST' 
+  'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' 
+  -H 'accept: */*' 
+  -H 'Content-Type: application/json' 
+  -d '[
+    {
+      "field": "status",
+      "operator": "IS",
+      "value": 2
+    },
+    {
+      "field": "tags",
+      "operator": "IS_NOT",
+      "value": "False positive"
+    },
+    {
+      "field": "@timestamp",
+      "operator": "IS_BETWEEN",
+      "value": [
+        "now-7d",
+        "now"
+      ]
+    }
+  ]'
+```
+
+> **Response:**
+
+```json
+{
+  "timestamp": "2025-04-16T16:26:35.664+00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "path": "/api/elasticsearch/search"
+}
+```
+---
+## Official API Documentation
+
+UTMStack provides two official resources where developers can explore and interact with the API:
+
+### Interactive Swagger UI (Demo Instance)
+
+For hands-on testing and live API interaction, you can explore the Swagger UI provided by the public UTMStack demo instance:
+
+[https://demo.utmstack.com/swagger-ui/index.html](https://demo.utmstack.com/swagger-ui/index.html)
+
+> **Note:** Each client instance has its own unique Swagger URL, based on how their environment is configured.
+
+Examples:
+
+- `https://<your-company>.utmstack.com/swagger-ui/index.html`
+- `https://utmstack.<your-domain>.com/swagger-ui/index.html`
+
+> **💡 Tip:** These tools make it easy to test endpoints, view required parameters, and understand the behavior of the platform's APIs.

@@ -1,0 +1,24 @@
+To maintain a high-performance and reliable security monitoring environment, follow these guidelines when developing rules and filters.
+
+## **Rule Development**
+
+1. **Start Simple**: Build rules for specific, high-fidelity patterns first. Avoid overly broad rules that cause "alert noise."
+2. **Limit Scope**: Always specify `dataTypes`. This ensures the engine doesn't waste CPU cycles evaluating firewall rules against Windows event logs.
+3. **Use Deduplication**: Always define `deduplicateBy`. This prevents the system from generating hundreds of identical alerts for a single ongoing attack.
+4. **Document Intention**: Use the `description` and `references` fields. This helps SOC analysts understand why an alert triggered and how to respond.
+5. **Optimize CEL**: CEL expressions are fast, but complex nested logic can add latency. Keep the `where` clause as concise as possible.
+
+## **Filter & Pipeline Design**
+
+1. **Standardize Naming**: Always map raw fields to the UTMStack Common Schema (e.g., `origin.ip`, `target.user`, `action`).
+2. **Clean as you Go**: Use the `delete` step to remove temporary metadata and unnecessary `log.*` fields once normalization is complete. Focus on fields that are no longer needed by rules or dashboards.
+    > **Note**: The `raw` field is protected for auditing purposes and cannot be removed by parsing steps.
+3. **Handle Edge Cases**: Use `where` clauses to ensure steps only run when fields exist (e.g., `where: exists("origin.ip")`).
+4. **Use Built-in Patterns**: In `grok`, favor built-in patterns like `{{.ipv4}}` over custom regex. They are pre-optimized and more readable.
+5. **Stage Logical Changes**: Groups renames together, then casts, then enrichment. This makes the YAML easier for other developers to read.
+
+## **Performance Checklist**
+
+- Are data types limited?
+- Are correlation windows (`within`) in rules kept to the minimum necessary time?
+- are `correlation` counts reasonable? (Max recommended is 50).

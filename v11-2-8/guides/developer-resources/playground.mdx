@@ -1,0 +1,76 @@
+The **Playground** is a command-line tool designed to test your filters and rules in an isolated environment without affecting production. It allows you to simulate log ingestion and observe how logs are transformed and what alerts are triggered.
+
+## :rocket:** Initialization**
+
+To start using the playground, you must configure the environment variable:
+
+- `WORK_DIR`: The path to your playground directory. This folder will contain all the configuration, logs, and plugins.
+
+**Warning**: Do not set `WORK_DIR` to `/workdir`, as this is the default production path and the playground will refuse to start to prevent accidental data corruption.
+
+```javascript
+# Example: Setting environment variable and initializing
+export WORK_DIR=$(pwd)/playground_data
+./playground -init
+```
+
+This will create the following structure:
+
+- `input/`: Where you place your raw log files for testing (`log.json`).
+- `output/`: Where results are saved (e.g., via `sew` or `saw` plugins).
+- `pipeline/filters/`: Place your filter YAML files here.
+- `rules/`: Place your analysis and correlation rule YAML files here.
+- `plugins/`: Where plugin binaries reside.
+- `geolocation/`: MaxMind/GeoIP databases used for enrichment.
+- `pipeline/config.yaml`: Core configuration for the engine.
+
+## :hammer_and_wrench:** How to Use It**
+
+### **1. Prepare the Input Logs**
+
+Place one or more JSON log files in the `input/` directory. Each file should contain a single log in JSON format compatible with the `plugins.Log` struct.
+
+Example `input/log.json`:
+
+```javascript
+{
+  "dataType": "syslog",
+  "dataSource": "my-server",
+  "tenantId": "ce66672c-e36d-4761-a8c8-90058fee1a24",
+  "raw": "<34>Jan 16 20:01:17 my-hostname sshd[1234]: Failed password for invalid user admin from 192.168.1.100 port 54321 ssh2"
+}
+```
+
+### **2. Define Filters and Rules**
+
+Place your YAML files in their respective folders. The playground will load these at startup.
+
+### **3. Run the Test**
+
+Once your logs and configurations are ready, run the playground:
+
+```javascript
+./playground
+```
+
+The tool will:
+
+1. Start an internal Engine gRPC server.
+2. Initialize and start all plugins found in `plugins/`.
+3. Start a Worker Manager to process data.
+4. Read and enqueue all files from `input/`.
+5. Wait for processing to finish and then shutdown gracefully.
+
+## :mag:** Inspecting Results**
+
+The playground is pre-configured (in `config.yaml`) to use the following plugins for output by default:
+
+- **sew** (Simple Event Writer): Saves parsed events to `output/resulting_log.json`.
+- **saw** (Simple Alert Writer): Saves generated alerts to `output/resulting_alert.json`.
+
+If you don't see results, check the console output for errors in your YAML logic or CEL expressions.
+
+## :bulb:** Tips**
+
+- **Restart Required**: The playground loads all configurations at startup. If you modify a filter or rule, you must restart the process.
+- **Fetching Real Data**: Use the <u>[opensearch-fetcher](https://github.com/utmstack/UTMStack/wiki/Tools-Reference#opensearch-fetcher)</u> to pull real logs from your production environment to use as test cases in the playground.

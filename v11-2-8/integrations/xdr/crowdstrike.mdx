@@ -1,0 +1,70 @@
+# CrowdStrike Integration
+
+This guide describes the steps required to generate API credentials in CrowdStrike Falcon for integration with UTMStack using the Event Streams API.
+
+## Requirements
+
+> [!NOTE]
+> The Event Streams API is often disabled by default and requires contacting CrowdStrike Support to enable it before the integration can function properly.
+## Step 1: Navigate to API Clients and Keys
+
+From the CrowdStrike Falcon main console:
+
+1. Click the **menu icon** (top-left corner).
+2. Select **Support and resources**.
+3. Click **API clients and keys**.
+
+![CrowdStrike](//assets/36a21497-bafe-5532-9119-afa5a94fc65c)
+
+## Step 2: Create a New API Client
+
+1. In the **OAuth2 API clients** section, click **Create API client**.
+
+![CrowdStrike](//assets/41606d5b-ae84-53d4-ab15-c1222c7f4d98)
+
+## Step 3: Generate API Credentials
+
+1. Provide a descriptive **Client name** (for example: `UTMStack_SIEM_Connector`).
+2. Select the required **API scopes** for Event Streams.
+3. Click **Create**.
+
+> [!WARNING]
+> Ensure that the scopes required for Event Streams access are properly selected.
+
+## Step 4: Record API Credentials
+
+After creating the client:
+
+1. Copy and securely store the following information:
+
+- **Client ID**
+- **Client Secret**
+- **Base URL** (region-specific)
+
+> [!WARNING]
+> The Client Secret is shown only once. If lost, a new secret must be generated.
+
+## Step 5: Enter the Configuration in UTMStack
+
+1. Go to the **CrowdStrike integration module** within UTMStack.
+2. Fill in the following fields using the information generated in CrowdStrike:
+    - **Client ID**: The Client ID generated in CrowdStrike.
+
+- **Client Secret**: The Client Secret generated.
+- **Cloud Region URL**: The regional Base URL (for example: `https://api.eu-1.crowdstrike.com`).
+- **App Name**: A descriptive name to identify the integration.
+
+1. Click **Save configuration** to store the settings.
+
+> [!NOTE]
+> You can add more than one CrowdStrike configuration by clicking **Add tenant** if multiple tenants need to be integrated.  
+> 
+> ![CrowdStrike](//assets/f3c66084-e269-5721-b38b-4fe7ff00b6bc)
+
+## Step 6: Activate the Integration
+
+1. After saving the configuration, click the corresponding button to activate the UTMStack features related to this integration.
+2. If the integration is active, the button will display **Disable integration**, indicating that it is enabled successfully.
+
+> [!TIP]
+> Make sure the integration is activated so UTMStack can start receiving events from CrowdStrike.

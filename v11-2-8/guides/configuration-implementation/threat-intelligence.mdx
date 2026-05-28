@@ -1,0 +1,28 @@
+The EventProcessor and UTMStack ecosystem can integrate with external systems to enrich data and streamline response workflows.
+
+## **Threat Intelligence (TI) Platforms**
+
+Enrich your events with context from global threat feeds.
+
+1. **ThreatWinds**: Native integration via the `feeds` analysis plugin. It automatically correlates events with malicious IP and domain lists from ThreatWinds.
+2. **Custom TI Feeds**: While the `feeds` plugin is proprietary, the architecture is open. You can create your own analysis plugins using the `go-sdk` to pull indicators from sources like MISP or OpenCTI.
+
+## **Data Enrichment**
+
+- **Geolocation**: The `geolocation` parsing plugin enriches events with city, country, and coordinates based on IP addresses.
+- **Asset Discovery**: Integrates with UTMStack's asset management to map internal IPs to specific departments and criticality levels.
+
+## **Notifications**
+
+Automation of alerts and system messages.
+
+- **Email**: Integrated via SMTP for critical alert broadcasting.
+- **Internal Stats**: The `stats` plugin tracks processing metrics and performance indicators.
+
+## **Custom Integrations**
+
+Since the architecture is gRPC-based, any external system can be integrated by building a **Notification Plugin**. This is how you would bridge to:
+
+- Ticketing systems (JIRA, ServiceNow).
+- Messaging platforms (Slack, Teams, Discord).
+- Custom internal APIs.

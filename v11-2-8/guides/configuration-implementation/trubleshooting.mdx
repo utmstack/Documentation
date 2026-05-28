@@ -1,0 +1,30 @@
+## **Performance Optimization**
+
+### **Rule Optimization**
+
+- **Data Type Narrowing**: Evaluated rules only for the data types they are built for.
+- **Efficient CEL**: Avoid large array lookups or deep nested loops in `where` clauses.
+- **Correlation Windows**: Use the smallest possible `within` window that fulfills the logic.
+- **Limit Correlation**: Searching millions of logs is expensive. Filter as much as possible using `with` fields.
+
+### **Filter Optimization**
+
+- **Early Exit**: Use `where` clauses to skip unnecessary steps.
+- **JSON over Regex**: If a log is JSON, always use the `json` step instead of `grok`. It is significantly faster.
+- **Field Cleanup**: Always `delete` the `raw` field. Large raw strings increase indexing latency and disk usage.
+
+### **System Resources**
+
+- **CPU**: Parsing and CEL evaluation are CPU-intensive. Add cores for higher EPS (Events Per Second).
+- **RAM**: OpenSearch and the EventProcessor cache rely on system memory.
+- **I/O**: Use SSDs for OpenSearch data directories to avoid bottlenecks during high-volume correlation searches.
+
+## **Troubleshooting Common Issues**
+
+**SymptomPotential CauseSolutionRule not triggering**Mismatched `dataType` or `where` logic.Check the "Log Explorer" to ensure the event has the correct type and all fields referenced in the rule.**Filter not parsing**Incorrect `source` field or syntax error.Validate that the `source` field (e.g., `raw`) exists in the input. Check processor logs for YAML parsing errors.**Alert fatigue**Missing `deduplicateBy`.Group alerts by `origin.ip` or `origin.user` to consolidate findings.**High Latency**Complex `grok` or large `correlation` windows.Optimize regex patterns or reduce the `within` time window.
+
+## **Debugging Workflow**
+
+1. **Logs**: Check `/var/log/utmstack/eventprocessor.log`.
+2. **Validator**: Use a YAML linter on your rules/filters.
+3. **Trace**: Use an event generator to send a single test log and track it through the system.

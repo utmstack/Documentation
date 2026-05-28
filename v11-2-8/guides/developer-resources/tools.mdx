@@ -1,0 +1,31 @@
+In addition to the core EventProcessor, several tools are provided to facilitate data ingestion, testing, and debugging.
+
+## **opensearch-fetcher**
+
+The `opensearch-fetcher` is a utility to extract logs from an OpenSearch index and save them as individual JSON files. This is extremely useful for gathering real-world test data for the <u>[Playground](https://github.com/utmstack/UTMStack/wiki/Playground)</u>.
+
+### **Usage**
+
+```javascript
+./opensearch-fetcher -url "http://localhost:9200" -index "v11-log-*" -size 50 -output "./test_data"
+```
+
+### **Options**
+
+**FlagDescriptionDefault**`-url`OpenSearch server URL`http://192.168.1.18:9200-index`**(Required)** Index or pattern to fetch from`-user`Username for authentication`-password`Password for authentication`-output`Directory to save JSON files`fetched_logs-size`Number of logs to fetch`100-query`Search query (Query String syntax)`*-start`Start date (RFC3339)`-end`End date (RFC3339)Current time
+
+## **log-pusher**
+
+The `log-pusher` is used to send JSON log files to a running EventProcessor instance via gRPC. It simulates an input plugin and is useful for replaying logs or performing load tests.
+
+### **Usage**
+
+```javascript
+./log-pusher -input "./test_data" -socket "/workdir/sockets/engine_server.sock"
+```
+
+### **Options**
+
+**FlagDescriptionDefault**`-input`**(Required)** Directory containing JSON log files`-socket`Path to the `engine_server.sock$WORK_DIR/sockets/engine_server.sock`
+
+The `log-pusher` will recursively walk the input directory, read all `.json` files, and stream them to the processor. It waits for acknowledgments (ACKs) from the server to ensure data delivery.

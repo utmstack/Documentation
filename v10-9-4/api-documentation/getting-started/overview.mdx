@@ -1,0 +1,243 @@
+# API Documentation Overview
+
+*Complete guide to UTMStack's API endpoints for managing alerts, authentication, and security operations programmatically.*
+
+## Introduction
+
+The UTMStack API provides comprehensive access to security operations and alert management functionality. This documentation covers all available endpoints for integrating with UTMStack programmatically.
+
+> **Note:** All API endpoints require authentication via Bearer tokens. See the [Authentication](/v10/apidoc/authentication) section for details on obtaining access tokens.
+---
+## API Base URL
+
+The UTMStack API is available at:
+
+```javascript
+https://your-utmstack-instance.com/api
+```
+
+> **⚠️ Warning:** Replace `your-utmstack-instance.com` with your actual UTMStack instance URL.
+---
+## Quick Start Guide
+
+Get up and running with the UTMStack API in just a few steps:
+
+1. **Authenticate**
+
+Use your UTMStack credentials to obtain a JWT token
+
+```bash
+    curl -X POST https://your-utmstack-instance.com/api/authenticate 
+      -H "Content-Type: application/json" 
+      -d '{"username":"your_username","password":"your_password"}'
+```
+
+1. **Store Token**
+
+Save the returned `id_token` for use in subsequent requests
+
+```json
+    {
+      "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "authenticated": true
+    }
+```
+
+1. **Make API Calls**
+
+Use the token in the Authorization header for protected endpoints
+
+```bash
+    curl -X POST "https://your-utmstack-instance.com/api/elasticsearch/search" 
+      -H "Authorization: Bearer YOUR_TOKEN_HERE" 
+      -H "Content-Type: application/json"
+```
+---
+## Available Endpoints
+
+### [Authentication](/v10/apidoc/authentication)
+
+Obtain JWT tokens for API access
+
+### [List Alerts](/v10/apidoc/alerts-list)
+
+Search and retrieve alerts with filtering
+
+### [Update Status](/v10/apidoc/update-status)
+
+Change alert status (Open, In Review, Completed)
+
+### [Update Tags](/v10/apidoc/update-tags)
+
+Add or modify alert tags and create rules
+
+### [Update Notes](/v10/apidoc/update-notes)
+
+Add investigation notes to alerts
+
+### [Convert to Incident](/v10/apidoc/convert-incident)
+
+Convert alerts into security incidents
+
+### [Count Alerts](/v10/apidoc/count-alerts)
+
+Get count of open alerts for dashboards
+
+### [Property Values](/v10/apidoc/property-values)
+
+Analyze field values and their distributions
+
+### [CSV Export](/v10/apidoc/csv-export)
+
+Export alert data to CSV for reporting
+---
+## 📦 Postman Collection
+
+Get started quickly by importing our complete Postman collection that includes all API endpoints with pre-configured examples, authentication, and test scripts.
+
+### [Download UTMStack Alerts API Collection](/images/downloads/postman.json)
+
+**Complete Postman Collection (JSON)** Includes all 9 API endpoints with examples, authentication setup, and automated tests.
+
+[Unknown component: br]
+
+**What's included:**
+
+- 🔐 JWT authentication with automatic token management
+- 📋 Pre-configured examples for all endpoints
+- 🧪 Automated test scripts for response validation
+- 📊 Multiple scenarios for each API call
+- 🔧 Environment variables for easy configuration
+
+> **💡 Tip:** **Download Tip**: If your browser displays the JSON instead of downloading it, right-click the link above and select "Save link as..." to save the file to your computer.
+
+### How to Import
+
+1. **Download Collection**
+
+Click the download link above to get the JSON file
+
+1. **Open Postman**
+
+Launch Postman application or visit [web.postman.co](https://web.postman.co)
+
+1. **Import Collection**
+
+- Click "Import" button in Postman
+- Select "Upload Files"
+- Choose the downloaded JSON file
+- Click "Import"
+
+1. **Configure Environment**
+
+Set up collection variables:
+
+- `baseUrl`: Your UTMStack instance URL
+- `bearerToken`: Will be set automatically after authentication
+- `alertId`: Sample alert ID for testing
+
+1. **Start Testing**
+
+Run the "Authentication" request first, then explore other endpoints
+
+> **💡 Tip:** **Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
+---
+## Authentication Overview
+
+All API requests (except the authentication endpoint itself) require a valid Bearer token in the Authorization header:
+
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+### Quick Start Example
+
+```bash
+curl -X POST https://your-utmstack-instance.com/api/authenticate 
+  -H "Content-Type: application/json" 
+  -d '{"username":"your_username","password":"your_password"}'
+```
+
+```json
+{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImF1dGgiOiJST0xFX0FETUlOIn0.signature",
+  "authenticated": true
+}
+```
+---
+## Request/Response Format
+
+### Content Type
+
+All API requests and responses use JSON format:
+
+```http
+Content-Type: application/json
+```
+
+### Request Structure
+
+Most endpoints expect JSON in the request body:
+
+```json
+{
+  "field": "value",
+  "array": ["item1", "item2"],
+  "nested": {
+    "property": "value"
+  }
+}
+```
+
+### Response Structure
+
+Successful responses typically return:
+
+- **Search endpoints**: Array of objects
+- **Update endpoints**: HTTP 200 with empty body
+- **Error responses**: JSON object with error details
+---
+## Rate Limiting
+
+> **ℹ️ Info:** UTMStack implements rate limiting to ensure API stability. If you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
+
+### Best Practices
+
+- **Implement exponential backoff** for retries
+- **Cache authentication tokens** instead of re-authenticating for each request
+- **Batch operations** when possible to reduce API calls
+- **Use appropriate page sizes** for search operations
+---
+## Error Handling
+
+### Standard Error Response
+
+```json
+{
+  "error": "Error description",
+  "message": "Detailed error message",
+  "timestamp": "2024-10-16T10:30:00.000Z",
+  "status": 400
+}
+```
+---
+## SDK and Libraries
+
+> **Note:** Currently, UTMStack provides REST API endpoints. Community SDKs and libraries may be available for specific programming languages.
+
+### Recommended HTTP Clients
+
+- **JavaScript**: `fetch`, `axios`
+- **Python**: `requests`, `httpx`
+- **Java**: `OkHttp`, `Apache HttpClient`
+- **C#**: `HttpClient`
+- **Go**: `net/http`
+- **PHP**: `Guzzle`, `cURL`
+
+## Version Information
+
+- **API Version**: v1.0
+- **Documentation Version**: 2025.10
+- **Last Updated**: October 2025
+
+> **💡 Tip:** This documentation is actively maintained. Check back regularly for updates and new endpoint additions.

@@ -1,0 +1,28 @@
+## Installing Linux agent
+
+> [!NOTE]
+> The Linux agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands. The UTMStack agents communicate over ports 9000 and 50051. Please make sure these ports are open.
+
+## Prerequisite:
+
+> [!WARNING]
+> **Log forwarding requirement:**  
+> The Linux Agent relies on **rsyslog** to collect and forward system and application logs to UTMStack.  
+> Ensure `rsyslog` is installed and running; otherwise, logs will not be sent to UTMStack.
+
+### 1. Install or uninstall the UTMStack agent according to your operating system:
+
+![Linux Agent](/assets/74ec4864-75a0-5a77-93e4-921bec4d580b)
+
+> [!NOTE]
+> The following commands contains sensitive information, don't share it.
+
+> [!WARNING]
+> Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+> This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
+
+### 2. Run the command in the console
+
+#### Example:
+
+![Linux Agent](/assets/48577dbd-f725-5be5-8804-de7bc3d73fe7)

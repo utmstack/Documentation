@@ -1,0 +1,25 @@
+# Introduction
+
+UTMStack SIEM and SOAR provides a REST API for programmatic access to alerts, log data, incidents, and system management. The API uses OpenSearch as its underlying search engine (API endpoints are prefixed with `/api/elasticsearch/` for historical reasons, but the backend is OpenSearch). Please note this API documentation does not apply to the UTMStack Vulnerability Scanner.
+
+**Base URL format:** `https://<your-utmstack-instance>`
+
+All examples in this document use `{{baseUrl}}` as a placeholder for your instance URL and `{{apiKey}}` as a placeholder for your API key.
+
+**Postman collection**
+
+You may use the following postman collection to simplify your work with the UTMSTack API.
+
+[Download the postman collection here.](https://drive.google.com/file/d/1cWcQecrL91cVuT_kU7BX0Agk2RO-6gUQ/view?usp=sharing)
+
+**Open API file.**
+
+You may use the OpenAPI file to build processes programatically.
+
+[Download the OpenAPI file.](https://drive.google.com/file/d/1hhfNDu7fIftU8q-pfGXFveQWLi-RJ5PY/view?usp=sharing)
+
+**Important notes:**
+
+- If your instance uses a self-signed SSL certificate, add `-k` to curl commands to skip certificate verification.
+- All search/filter endpoints that accept a request body use `POST` method with `Content-Type: application/json`.
+- Pagination information is returned in response headers (`X-Total-Count`, `Link`).

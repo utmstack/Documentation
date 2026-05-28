@@ -1,0 +1,139 @@
+# Built-in Playbooks
+
+UTMStack ships with **23 pre-built SOAR playbooks** that provide ready-to-use automated responses for common security threats. Each playbook is a complete workflow with a trigger condition, target platform, and action sequence.
+
+![Image](/assets/906f5a96-d800-4d07-ae7a-1aba5a64c332)
+
+> [!NOTE]
+> All built-in playbooks ship in **inactive** state. Review and test each playbook in your environment before activating it. Enable only the playbooks that match your security requirements and infrastructure.
+
+## Windows Playbooks
+
+### Brute Force & Authentication Attacks
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **Failed RDP Brute Force Response** | RDP Brute Force Attack | Block attacker IP via Windows Firewall |
+| **Possible Brute Force Attack** | Windows: Possible Brute Force Attack | Block attacker IP, kill session, disable user |
+| **Multiple Logon Failure Followed by Success** | Windows: Multiple Logon Failure Followed by Logon Success | Block attacker IP, disable compromised user |
+| **Multiple Remote Access Login Failures** | Windows: Multiple remote access login failures | Block the IP establishing the connection |
+
+### Privilege Escalation
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **User Added to Admin Groups** | Windows: A user account was added to administration groups | Disable the user account added to the admin group |
+| **AdminSDHolder Abuse Detection** | AdminSDHolder Abuse Detection | Disable the user account, kill session, log out user |
+
+### Malware & Endpoint Threats
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **PowerShell Empire Detection** | PowerShell Empire Detection | Delete malicious file, kill process, disable user |
+| **Volume Shadow Copy Deletion** | Volume Shadow Copy Deletion | Kill suspicious process, disable user, log out user |
+| **PowerShell Keylogging Script** | Windows: PowerShell Keylogging Script | Terminate the keylogging process by PID and name |
+
+### Defense Evasion
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **Windows Defender Exclusions Added** | Windows Defender Exclusions Added via PowerShell | Remove the exclusions added via PowerShell |
+| **Windows Defender Protection Disabled** | Windows Defender: Protection Disabled | Re-enable Windows Defender protection |
+| **Disabling Defender Security Settings** | Windows: Disabling Windows Defender Security Settings via PowerShell | Auto re-enable all disabled Defender protections |
+| **Disable Windows Firewall Rules** | Windows: Disable Windows Firewall Rules via Netsh | Re-enable Windows Firewall rules |
+| **Remote Desktop Enabled via Netsh** | Windows: Remote Desktop Enabled in Windows Firewall by Netsh | Disable RDP and remove the firewall rule |
+
+## Linux Playbooks
+
+### Brute Force & Authentication Attacks
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **SSH Brute Force (Ubuntu)** | SSH Brute Force Attempts | Block attacker IP via iptables, disable user |
+| **Possible Brute Force Attack (Linux)** | System Linux: Possible Brute Force Attack | Block attacker IP, kill session, disable user |
+
+### System Threats
+
+| Playbook | Trigger Alert | Actions |
+|---|---|---|
+| **Attempt to Disable Syslog Service** | System Linux: Attempt to Disable Syslog Service | Log out and disable the user account |
+| **Process Injection Techniques** | Process Execution Anomalies | Disable the user associated with the anomalous process |
+| **CVE Vulnerability Detection (RHEL)** | CVE Vulnerability Detection in RHEL System | Initiate immediate server shutdown |
+| **Kernel Exploitation Attempt (RHEL)** | RHEL-Specific Kernel Exploitation Attempt | Log out and disable the user account |
+
+## Playbook Details
+
+### Example: Failed RDP Brute Force Response
+
+This playbook demonstrates the structure of a typical SOAR workflow:
+
+**Trigger:**
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `RDP Brute Force Attack` |
+
+**Platform:** Windows (CMD shell)
+
+**Action:**
+
+```cmd
+netsh advfirewall firewall add rule name="Block-RDP-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+```
+
+When the correlation rule detects multiple failed RDP login attempts from the same IP (Event ID 4625), this playbook automatically creates a Windows Firewall rule to block that IP address. The `$(adversary.ip)` variable is replaced with the actual attacker IP from the alert.
+
+### Example: PowerShell Empire Detection
+
+A multi-step response workflow:
+
+**Trigger:**
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `PowerShell Empire Detection` |
+
+**Platform:** Windows (PowerShell)
+
+**Actions (sequential):**
+
+1. **Delete the malicious artifact file** — `Remove-Item -LiteralPath $(target.file) -Force -Recurse`
+2. **Kill the suspicious process** — `taskkill /F /IM $(log.winlogEventDataProcessName)`
+3. **Disable the compromised user** — `net user $(target.user) /active:no`
+
+### Example: Windows Defender Exclusions Response
+
+Uses advanced pattern matching to extract and reverse attacker actions:
+
+**Trigger:**
+
+| Field | Operator | Value |
+|---|---|---|
+| `name` | `IS` | `Windows Defender Exclusions Added via PowerShell` |
+
+**Platform:** Windows (PowerShell)
+
+**Action:** Parses the original log message to identify what exclusions were added, then removes them:
+
+```powershell
+if ("$(log.message)" -match '-ExclusionProcess\s+(\S+)') {
+    Remove-MpPreference -ExclusionProcess $matches[1]
+}
+if ("$(log.message)" -match '-ExclusionPath\s+(\S+)') {
+    Remove-MpPreference -ExclusionPath $matches[1]
+}
+```
+
+This demonstrates how SOAR workflows can use the `$(log.message)` variable with regex to dynamically reverse attacker actions.
+
+## Customizing Built-in Playbooks
+
+To customize a built-in playbook:
+
+1. Open the playbook in the SOAR workflow editor
+2. Modify the trigger conditions, actions, or platform as needed
+3. Add additional action steps or change the step execution logic
+4. Save and test before activating
+
+> [!WARNING]
+> Modifying a built-in playbook's trigger to be less specific may cause it to fire on unintended alerts. Always verify trigger conditions after editing.
