@@ -112,7 +112,7 @@ For workflows with multiple actions, define how each step relates to the previou
 |---|---|---|
 | **Always run** | `;` | Execute this step regardless of the previous step's outcome |
 | **Run only if previous succeeds** | `&&` | Execute only if the previous step completed successfully |
-| **Run only if previous fails** | `||` | Execute only if the previous step failed (fallback logic) |
+| **Run only if previous fails** | ` |  |
 
 This allows you to create branching response logic — for example, try to block an IP, and if that fails, isolate the host instead.
 
