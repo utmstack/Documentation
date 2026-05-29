@@ -1,0 +1,303 @@
+Detection rules for **Bitdefender GravityZone** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **20** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Advanced Persistent Threat (APT) Detection | Command and Control | TA0011 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| Antivirus Service Stopped or Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:3 |
+| Bitdefender AV Policy Weakened | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Bitdefender Console Used for Lateral Movement | Lateral Movement | T1072 - Software Deployment Tools | C:3 / I:3 / A:3 |
+| Bitdefender GravityZone High Severity Threat Detection | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Quarantine Failure Detection | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Suspicious Exclusion Added | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:1 |
+| Bitdefender GravityZone Zero-Day Malware Detection | Execution | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:2 |
+| Bootkit/UEFI Threat Detection | Defense Evasion, Persistence | T1542.001 - Boot or Logon Autostart Execution: System Firmware | C:3 / I:3 / A:3 |
+| Crypto-Mining Detection | Impact | T1496 - Resource Hijacking | C:2 / I:2 / A:3 |
+| Email-Based Threat Spreading | Initial Access | T1566 - Phishing | C:3 / I:3 / A:2 |
+| Fileless Malware Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:2 / I:2 / A:2 |
+| Malware Outbreak Detection - Multiple Hosts Infected | Command and Control | T1105 - Ingress Tool Transfer | C:3 / I:3 / A:3 |
+| Memory-Based Threat Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Multiple Malware Detections from Single Source | Command and Control | T1105 - Ingress Tool Transfer | C:3 / I:3 / A:2 |
+| Network-Based Threat Detection | Command and Control | T1071 - Application Layer Protocol: Command and Control | C:3 / I:2 / A:3 |
+| Ransomware Behavior Detection | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Real-time Protection Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Rootkit Detection | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:2 |
+| USB-Based Malware Propagation | Lateral Movement, Initial Access | T1091 - Replication Through Removable Media | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Advanced Persistent Threat (APT) Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/apt_detection.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Advanced Persistent Threat (APT) Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "TA0011 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://attack.mitre.org/tactics/TA0011/
+description: |
+  Detects indicators of Advanced Persistent Threats including targeted attacks, sophisticated malware, and persistent threats detected by Bitdefender GravityZone's HyperDetect module.
+  
+  Next Steps:
+  - Investigate the affected endpoint to determine the scope of compromise
+  - Review process execution history and network connections from the affected system
+  - Check for lateral movement by examining authentication logs from the same source IP
+  - Isolate the affected system if active threat is confirmed
+  - Collect forensic artifacts including memory dumps and event logs
+  - Search for similar malware indicators across the environment
+  - Review user account activities for signs of credential compromise
+  - Contact security operations center if threat actors match known APT groups
+where: |
+  equals("log.product", "Bitdefender GravityZone") &&
+  greaterOrEqual("log.severity", 8) &&
+  (
+    contains("log.eventType", ["apt", "targeted", "advanced", "persistent", "hyperdetect"]) ||
+    contains("log.restData", ["apt", "targeted attack", "advanced persistent",
+      "lazarus", "equation", "sofacy", "cozy bear", "fancy bear",
+      "panda", "kitten", "carbanak", "fin7", "fileless"]) ||
+    equals("log.signatureID", "hyperdetect")
+  ) &&
+  exists("log.hostId")
+groupBy:
+  - lastEvent.log.eventType
+  - lastEvent.log.hostId
+
+```
+
+---
+
+## Rule Details
+
+### Advanced Persistent Threat (APT) Detection
+
+Detects indicators of Advanced Persistent Threats including targeted attacks, sophisticated malware, and persistent threats detected by Bitdefender GravityZone's HyperDetect module.
+
+- **Category:** Command and Control
+- **Technique:** TA0011 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [apt_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/apt_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0011/](https://attack.mitre.org/tactics/TA0011/)
+
+### Antivirus Service Stopped or Disabled
+
+Detects when the Bitdefender antivirus service or critical security modules are stopped, disabled, or experiencing failures. This is a critical security event that could indicate malicious tampering or system issues.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [antivirus_service_stopped.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/antivirus_service_stopped.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender AV Policy Weakened
+
+Detects when Bitdefender GravityZone antivirus policies are weakened by administrators, such as disabling real-time protection, reducing scan aggressiveness, or adding broad exclusions. This could indicate a compromised admin account or insider threat.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [av_policy_override.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/av_policy_override.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender Console Used for Lateral Movement
+
+Detects when the Bitdefender GravityZone management console is potentially being used to push malicious policies, scripts, or tasks to managed endpoints, indicating a compromised admin account being leveraged for lateral movement.
+
+- **Category:** Lateral Movement
+- **Technique:** T1072 - Software Deployment Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [av_console_lateral_movement.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/av_console_lateral_movement.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1072/](https://attack.mitre.org/techniques/T1072/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+
+### Bitdefender GravityZone High Severity Threat Detection
+
+Detects high-severity malware threats identified by Bitdefender GravityZone that require immediate attention. This rule triggers on severity levels 8-10, which indicate critical threats such as trojans, ransomware, rootkits, or other advanced malware.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [high_severity_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/high_severity_threat_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### Bitdefender GravityZone Quarantine Failure Detection
+
+Detects when Bitdefender GravityZone fails to quarantine detected malware. This could indicate that the malware is actively resisting remediation attempts or that there are permission issues preventing proper quarantine.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [quarantine_failure_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/quarantine_failure_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Suspicious Exclusion Added
+
+Detects when exclusions are added to Bitdefender GravityZone that may allow malware to operate undetected. Attackers often add exclusions to antivirus software to prevent detection of their malicious tools and activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [suspicious_exclusions_added.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/suspicious_exclusions_added.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Zero-Day Malware Detection
+
+Detects potential zero-day malware identified by Bitdefender's advanced threat detection capabilities including HyperDetect and Sandbox Analyzer. These detection methods use behavioral analysis and machine learning to identify previously unknown threats.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [zero_day_malware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/zero_day_malware_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+
+### Bootkit/UEFI Threat Detection
+
+Detects bootkit or UEFI-level threats that attempt to persist at the firmware level and compromise the boot process. These threats can survive system reinstalls and bypass traditional security measures by infecting the system firmware.
+
+- **Category:** Defense Evasion, Persistence
+- **Technique:** T1542.001 - Boot or Logon Autostart Execution: System Firmware
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [bootkit_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/bootkit_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1542/001/](https://attack.mitre.org/techniques/T1542/001/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77209-135324-event-types.html](https://www.bitdefender.com/business/support/en/77209-135324-event-types.html)
+
+### Crypto-Mining Detection
+
+Detects cryptocurrency mining activities including miners, coin miners, and cryptojacking attempts detected by Bitdefender GravityZone.
+
+- **Category:** Impact
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [crypto_mining_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/crypto_mining_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+
+### Email-Based Threat Spreading
+
+Detects email-based malware spreading including phishing attempts, malicious attachments, and email-borne threats through Bitdefender's Exchange protection. This rule triggers on Exchange-specific malware events and monitors for patterns of email-based threats.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [email_threat_spreading.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/email_threat_spreading.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77209-135324-event-types.html](https://www.bitdefender.com/business/support/en/77209-135324-event-types.html)
+
+### Fileless Malware Detection
+
+Detects fileless malware attacks including PowerShell-based attacks, memory injection, and living-off-the-land techniques using Bitdefender GravityZone's HyperDetect and Command-Line Scanner modules. These attacks execute malicious code directly in memory without writing to disk, making them harder to detect with traditional antivirus.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:2 / I:2 / A:2
+- **Rule file:** [fileless_malware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/fileless_malware_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://www.bitdefender.com/en-us/business/gravityzone-platform/fileless-attack-defense](https://www.bitdefender.com/en-us/business/gravityzone-platform/fileless-attack-defense)
+
+### Malware Outbreak Detection - Multiple Hosts Infected
+
+Detects when the same malware signature or threat is detected on multiple endpoints within a short time window. This pattern indicates a potential malware outbreak spreading across the network environment.
+
+- **Category:** Command and Control
+- **Technique:** T1105 - Ingress Tool Transfer
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [malware_outbreak_multiple_hosts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### Memory-Based Threat Detection
+
+Detects memory-based threats including process injection, memory manipulation, and fileless malware executing in memory based on Bitdefender GravityZone event types.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [memory_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/memory_threat_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77209-135324-event-types.html](https://www.bitdefender.com/business/support/en/77209-135324-event-types.html)
+
+### Multiple Malware Detections from Single Source
+
+Detects when multiple malware threats are detected on a single host within a short time period. This could indicate a compromised system actively spreading malware or an attacker launching multiple malware variants.
+
+- **Category:** Command and Control
+- **Technique:** T1105 - Ingress Tool Transfer
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [multiple_malware_from_single_source.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/multiple_malware_from_single_source.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### Network-Based Threat Detection
+
+Detects network-based threats including C2 communications, malicious network activity, and suspicious network connections identified by Bitdefender GravityZone.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol: Command and Control
+- **Impact:** C:3 / I:2 / A:3
+- **Rule file:** [network_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/network_threat_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77209-135324-event-types.html](https://www.bitdefender.com/business/support/en/77209-135324-event-types.html)
+
+### Ransomware Behavior Detection
+
+Detects ransomware behavior patterns including file encryption attempts, mass file modifications, and ransomware-specific malware types detected by Bitdefender GravityZone.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransomware_behavior_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/ransomware_behavior_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Real-time Protection Disabled
+
+Detects when real-time protection features are disabled on an endpoint. This is a critical security event as it leaves the system vulnerable to malware infections and requires immediate investigation.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [realtime_protection_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/realtime_protection_disabled.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Rootkit Detection
+
+Detects rootkit infections and kernel-level threats that attempt to hide malicious activity at the system level using Bitdefender GravityZone's advanced detection capabilities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [rootkit_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/rootkit_detection.yml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+
+### USB-Based Malware Propagation
+
+Detects USB-based malware propagation attempts including autorun infections, removable media threats, and device control violations. This rule monitors for device control events and removable media access patterns that may indicate malware attempting to spread via USB devices.
+
+- **Category:** Lateral Movement, Initial Access
+- **Technique:** T1091 - Replication Through Removable Media
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [usb_malware_propagation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/bitdefender_gz/usb_malware_propagation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1091/](https://attack.mitre.org/techniques/T1091/)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77209-135324-event-types.html](https://www.bitdefender.com/business/support/en/77209-135324-event-types.html)

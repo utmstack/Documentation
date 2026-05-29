@@ -1,0 +1,266 @@
+Detection rules for **Sophos Central** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **19** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Application Hijacking prevented in Sophos Central | Persistence | T1574 - Hijack Execution Flow | C:3 / I:3 / A:3 |
+| Credential Theft Attemp detected in Sophos Central | Credential Access | T1003 - OS Credential Dumping | C:3 / I:3 / A:3 |
+| Endpoint Threat Detection | Malware Detection | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Malware detected in Sophos Central | Execution | T1204 - User Execution | C:3 / I:3 / A:3 |
+| Man in the Middle Attack detected in Sophos Central | Credential Access | T1557 - Adversary-in-the-Middle | C:3 / I:3 / A:3 |
+| Managed Threat Response Critical Alert | Threat Detection | T1562 - Impair Defenses | C:3 / I:3 / A:3 |
+| Possible Botnet detected in Sophos Central | Impact | T1071 - Application Layer Protocol | C:3 / I:3 / A:3 |
+| Possible Brute Force Attack detected in Sophos Central | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:3 |
+| Possible Ransomware Attack detected in Sophos Central | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:2 |
+| Potential Password Spraying Attack detected in Sophos Central | Credential Access | T1110 - Brute Force | C:1 / I:2 / A:2 |
+| Potentially compromised or blocked device detected in Sophos Central | Resource Development | T1584 | C:3 / I:3 / A:3 |
+| Probable attempt to exploit vulnerabilities detected in Sophos Central | Credential Access | T1212 | C:3 / I:3 / A:3 |
+| Real Time Protection disabled in Sophos Central | Defense Evasion | T1562 - Impair Defenses | C:2 / I:2 / A:1 |
+| Server Protection Alerts | Server Security | T1505 - Server Software Component | C:3 / I:3 / A:2 |
+| Sophos Central Behavioral Analysis Alert | Suspicious Behavior | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Sophos Central Exploit Prevention Triggered | Exploit Attempt | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:2 |
+| Sophos Central Ransomware Detection | Ransomware Activity | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Sophos Central Tamper Protection Alert | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:2 |
+| Unknown Threat detected in Sophos Central | Execution | T1204 - User Execution | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Application Hijacking prevented in Sophos Central** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - "sophos-central"
+name: "Application Hijacking prevented in Sophos Central"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: "Persistence"
+technique: "T1574 - Hijack Execution Flow"
+adversary: origin
+references:
+  - "https://attack.mitre.org/tactics/TA0003/"
+  - "https://attack.mitre.org/techniques/T1574/"
+description: "Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs. 
+              Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over time. 
+              Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control or other restrictions on execution."
+where: equals("log.type", "Event::Endpoint::HmpaApplicationHijacking")
+groupBy:
+  - adversary.host
+  - adversary.ip
+
+```
+
+---
+
+## Rule Details
+
+### Application Hijacking prevented in Sophos Central
+
+Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs. Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over time. Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control or other restrictions on execution.
+
+- **Category:** Persistence
+- **Technique:** T1574 - Hijack Execution Flow
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_app_hijacking_prevented.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1574/](https://attack.mitre.org/techniques/T1574/)
+
+### Credential Theft Attemp detected in Sophos Central
+
+The theft of access credentials to different pages or apps occurs due to the use of insecure passwords, which are used in different accounts. This data is often exposed as a result of leaks that arise from the exploitation of vulnerabilities in different platforms.
+
+- **Category:** Credential Access
+- **Technique:** T1003 - OS Credential Dumping
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_credential_theft_attack_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_credential_theft_attack_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/](https://attack.mitre.org/techniques/T1003/)
+
+### Endpoint Threat Detection
+
+Detects threats identified on endpoints by Sophos Central, including malware, PUAs (Potentially Unwanted Applications), and suspicious behavior. This rule triggers when Sophos Central identifies threats such as process injection, malware execution, or other malicious activities on managed endpoints.
+
+- **Category:** Malware Detection
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [endpoint_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/endpoint_threat_detection.yml)
+- **Reference:** [https://developer.sophos.com/docs/endpoint-v1/1/routes/events/get](https://developer.sophos.com/docs/endpoint-v1/1/routes/events/get)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### Malware detected in Sophos Central
+
+A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. Viruses are named after biological viruses because they use similar techniques to spread from one place to another. Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software). Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: after running the infected file, the malicious code is called and executed prior to the execution of the original application. A virus can infect any files that the current user has write permissions for. Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors.
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_malware_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_malware_detected.yml)
+- **Reference:** [https://www.mcafee.com/en-us/antivirus/malware.html](https://www.mcafee.com/en-us/antivirus/malware.html)
+
+### Man in the Middle Attack detected in Sophos Central
+
+Adversaries may attempt to position themselves between two or more networked devices using an adversary-in-the-middle technique to support follow-on behaviors such as Network Sniffing or Transmitted Data Manipulation. By abusing features of common networking protocols that can determine the flow of network traffic (e.g. ARP, DNS, LLMNR, etc.), adversaries may force a device to communicate through an adversary controlled system so they can collect information or perform additional actions.
+
+- **Category:** Credential Access
+- **Technique:** T1557 - Adversary-in-the-Middle
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_man_in_the_middle_attack_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_man_in_the_middle_attack_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1557/](https://attack.mitre.org/techniques/T1557/)
+
+### Managed Threat Response Critical Alert
+
+Detects critical alerts from Sophos Managed Threat Response (MTR) service indicating active threats that require immediate investigation and response, including advanced persistent threats and sophisticated attack techniques.
+
+- **Category:** Threat Detection
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [managed_threat_response_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/managed_threat_response_alerts.yml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/ThreatAnalysisCenter/index.html](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/ThreatAnalysisCenter/index.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### Possible Botnet detected in Sophos Central
+
+A bot, or a web robot is an automated malware program that scans blocks of network addresses and infects vulnerable computers. This allow hackers to take control of many computers at the same time and turn them into bots (also known as a zombie). Hackers typically use bots to infect large numbers of computers, which form a network or a botnet. Once the botnet is in your computer, it can be used in distributed denial of service (DDoS) attacks, proxy and also can be used to perform automated tasks over the Internet, without you knowing it (for example sending spam, viruses or stealing personal and private information such as bank credentials or credit card numbers).
+
+- **Category:** Impact
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_possible_botnet_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_possible_botnet_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+
+### Possible Brute Force Attack detected in Sophos Central
+
+Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained. Without knowledge of the password for an account or set of accounts, an adversary may systematically guess the password using a repetitive or iterative mechanism. Brute forcing passwords can take place via interaction with a service that will check the validity of those credentials or offline against previously acquired credential data, such as password hashes.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_possible_brute_force_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_possible_brute_force_attack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Possible Ransomware Attack detected in Sophos Central
+
+Ransomware, is a type of malware that prevents users from accessing their system or personal files and requires payment of a ransom in order to gain access to them again. Identifies ransomware attempts
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_central_ransomware_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_ransomware_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+
+### Potential Password Spraying Attack detected in Sophos Central
+
+Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained. Without knowledge of the password for an account or set of accounts, an adversary may systematically guess the password using a repetitive or iterative mechanism. Brute forcing passwords can take place via interaction with a service that will check the validity of those credentials or offline against previously acquired credential data, such as password hashes.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:1 / I:2 / A:2
+- **Rule file:** [sophos_central_potential_password_spraying_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_potential_password_spraying_attack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Potentially compromised or blocked device detected in Sophos Central
+
+Adversaries may compromise third-party infrastructure that can be used during targeting
+
+- **Category:** Resource Development
+- **Technique:** T1584
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_device_compromised.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_device_compromised.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1584/](https://attack.mitre.org/techniques/T1584/)
+
+### Probable attempt to exploit vulnerabilities detected in Sophos Central
+
+An exploit is a small program designed to exploit a particular bug in an operating system or program for various purposes. Depending on the type of vulnerability, the exploit can have different purposes, such as gaining administrator permissions on the system or bypassing security measures in order to carry out a deeper infection.
+
+- **Category:** Credential Access
+- **Technique:** T1212
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_exploit_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_exploit_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1212/](https://attack.mitre.org/techniques/T1212/)
+
+### Real Time Protection disabled in Sophos Central
+
+Real-time protection has been disabled, which can help malware and attacks go undetected
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [sophos_central_real_time_protection_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_real_time_protection_disabled.yml)
+- **Reference:** [https://www.makeuseof.com/real-time-protection/](https://www.makeuseof.com/real-time-protection/)
+
+### Server Protection Alerts
+
+Detects critical security alerts on servers protected by Sophos Central, including unauthorized access attempts, service tampering, and malware targeting server infrastructure. This rule monitors for high-severity threats specifically targeting server endpoints.
+
+- **Category:** Server Security
+- **Technique:** T1505 - Server Software Component
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [server_protection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/server_protection_alerts.yml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/Servers/index.html](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/Servers/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1505/](https://attack.mitre.org/techniques/T1505/)
+
+### Sophos Central Behavioral Analysis Alert
+
+Detects suspicious behavior patterns identified by Sophos behavioral analysis engine, including process injection attempts, privilege escalation, and other anomalous activities that indicate potential compromise.
+
+- **Category:** Suspicious Behavior
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [behavioral_analysis_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/behavioral_analysis_alerts.yml)
+- **Reference:** [https://developer.sophos.com/siem-api-schemas](https://developer.sophos.com/siem-api-schemas)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### Sophos Central Exploit Prevention Triggered
+
+Detects when Sophos exploit prevention is triggered, indicating attempted exploitation of vulnerable applications. This includes shellcode protection, CTF protocol exploitation attempts, and process hijacking attempts.
+
+- **Category:** Exploit Attempt
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_prevention_triggers.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/exploit_prevention_triggers.yml)
+- **Reference:** [https://developer.sophos.com/siem-api-schemas](https://developer.sophos.com/siem-api-schemas)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+
+### Sophos Central Ransomware Detection
+
+Detects ransomware activity including CryptoGuard alerts, master boot record attacks, and file system encryption attempts. This is a critical security event requiring immediate response.
+
+- **Category:** Ransomware Activity
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransomware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/ransomware_detection.yml)
+- **Reference:** [https://developer.sophos.com/siem-api-schemas](https://developer.sophos.com/siem-api-schemas)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Sophos Central Tamper Protection Alert
+
+Detects when tamper protection is triggered, indicating an attempt to disable or modify Sophos security components. This could indicate malware or an attacker attempting to bypass security controls.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [tamper_protection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/tamper_protection_alerts.yml)
+- **Reference:** [https://developer.sophos.com/siem-api-schemas](https://developer.sophos.com/siem-api-schemas)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Unknown Threat detected in Sophos Central
+
+A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. Viruses are named after biological viruses because they use similar techniques to spread from one place to another. Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software). Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: after running the infected file, the malicious code is called and executed prior to the execution of the original application. A virus can infect any files that the current user has write permissions for. Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors.
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_central_unknown_threat_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sophos/sophos_central/sophos_central_unknown_threat_detected.yml)
+- **Reference:** [https://www.mcafee.com/en-us/antivirus/malware.html](https://www.mcafee.com/en-us/antivirus/malware.html)

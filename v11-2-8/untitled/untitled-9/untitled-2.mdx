@@ -1,0 +1,255 @@
+Detection rules for **Debian Family** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **17** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Audit or Logging Service Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:3 |
+| Container Escape Technique Detected | Privilege Escalation | T1611 - Escape to Host | C:3 / I:3 / A:3 |
+| Crontab Persistence Mechanism Detected | Persistence | T1053.003 - Scheduled Task/Job: Cron | C:2 / I:3 / A:2 |
+| Debian-Specific Kernel Exploit Attempts | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:3 |
+| Debian-Specific Rootkits | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:3 |
+| Kernel Exploit Indicators Detected | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:3 |
+| LD_PRELOAD Hijacking Detected | Persistence | T1574.006 - Hijack Execution Flow: Dynamic Linker Hijacking | C:3 / I:3 / A:2 |
+| Process Masquerading Detected | Defense Evasion | T1036.004 - Masquerading: Masquerade Task or Service | C:2 / I:3 / A:1 |
+| Reverse Shell Execution Detected | Execution | T1059.004 - Command and Scripting Interpreter: Unix Shell | C:3 / I:3 / A:3 |
+| SSH Authorized Keys Modification | Persistence | T1098.004 - Account Manipulation: SSH Authorized Keys | C:3 / I:3 / A:1 |
+| SSH Tunneling or Port Forwarding Detected | Command and Control | T1572 - Protocol Tunneling | C:3 / I:2 / A:1 |
+| SUID/SGID Binary Creation Detected | Privilege Escalation | T1548.001 - Abuse Elevation Control Mechanism: Setuid and Setgid | C:3 / I:3 / A:2 |
+| Shell RC File Modification for Persistence | Persistence | T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification | C:2 / I:3 / A:1 |
+| Suspicious Binary Execution from Temporary Directory | Execution | T1059.004 - Command and Scripting Interpreter: Unix Shell | C:3 / I:3 / A:2 |
+| Systemd Timer Persistence Mechanism | Persistence | T1053.003 - Scheduled Task/Job: Cron | C:2 / I:3 / A:2 |
+| Unauthorized /etc/shadow or /etc/passwd Access | Credential Access | T1003.008 - OS Credential Dumping: /etc/passwd and /etc/shadow | C:3 / I:3 / A:1 |
+| eBPF Rootkit Activity Detected | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Audit or Logging Service Disabled** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/auditd_syslog_disabling.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: Audit or Logging Service Disabled
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects attempts to stop or disable audit and logging services (auditd, rsyslog, syslog-ng, journald) which attackers do to prevent their activities from being recorded.
+
+  Next Steps:
+  1. Immediately investigate the host where logging was disabled
+  2. Identify the user account that stopped the service
+  3. Restart the logging service and verify log integrity
+  4. Review any gap in logging for potential attack evidence
+  5. Check for other defense evasion techniques on the host
+  6. Investigate the attack chain that led to disabling logging
+where: |
+  (contains("log.message", "systemctl") || contains("log.message", "service")) &&
+  (contains("log.message", "stop") || contains("log.message", "disable") ||
+   contains("log.message", "mask") || contains("log.message", "kill")) &&
+  (contains("log.message", "auditd") || contains("log.message", "rsyslog") ||
+   contains("log.message", "syslog-ng") || contains("log.message", "journald") ||
+   contains("log.message", "syslog")) &&
+  !(contains("log.message", "restart") || contains("log.message", "reload"))
+groupBy:
+  - origin.host
+  - origin.user
+
+```
+
+---
+
+## Rule Details
+
+### Audit or Logging Service Disabled
+
+Detects attempts to stop or disable audit and logging services (auditd, rsyslog, syslog-ng, journald) which attackers do to prevent their activities from being recorded.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [auditd_syslog_disabling.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/auditd_syslog_disabling.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Container Escape Technique Detected
+
+Detects container escape techniques including Docker socket access from within containers, nsenter escapes, cgroups release_agent abuse, and privileged container breakouts.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1611 - Escape to Host
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [container_escape_techniques.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/container_escape_techniques.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1611/](https://attack.mitre.org/techniques/T1611/)
+- **Reference:** [https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/](https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/)
+
+### Crontab Persistence Mechanism Detected
+
+Detects crontab modifications, additions to /etc/cron.d/, or at job creation that may indicate persistence mechanisms installed by an attacker. Adversaries commonly use cron jobs to maintain access or execute malicious payloads on a schedule.
+
+- **Category:** Persistence
+- **Technique:** T1053.003 - Scheduled Task/Job: Cron
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [crontab_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/crontab_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/003/](https://attack.mitre.org/techniques/T1053/003/)
+- **Reference:** [https://man7.org/linux/man-pages/man5/crontab.5.html](https://man7.org/linux/man-pages/man5/crontab.5.html)
+
+### Debian-Specific Kernel Exploit Attempts
+
+Detects potential kernel exploitation attempts specific to Debian systems including dirty COW variants, overlayfs exploits, namespace escapes, and other kernel vulnerability exploitation indicators. This rule monitors for kernel crashes, segmentation faults, exploit attempts, and other anomalous kernel behavior that may indicate an active exploitation attempt.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [debian_kernel_exploits.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/debian_kernel_exploits.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+- **Reference:** [https://www.debian.org/security/](https://www.debian.org/security/)
+- **Reference:** [https://security-tracker.debian.org/tracker/](https://security-tracker.debian.org/tracker/)
+
+### Debian-Specific Rootkits
+
+Detects indicators of known Debian/Linux rootkits including file modifications, hidden processes, network backdoors, and kernel module manipulation commonly seen in Debian environments. This rule identifies various rootkit behaviors such as unauthorized modifications to system binaries, kernel module loading, hidden processes, and suspicious network activity.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [debian_specific_rootkits.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/debian_specific_rootkits.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+- **Reference:** [https://www.debian.org/security/](https://www.debian.org/security/)
+- **Reference:** [https://wiki.debian.org/Teams/Security](https://wiki.debian.org/Teams/Security)
+
+### Kernel Exploit Indicators Detected
+
+Detects indicators of kernel exploitation including known exploit artifacts for Dirty Pipe (CVE-2022-0847), Dirty COW (CVE-2016-5195), OverlayFS exploits, and other kernel privilege escalation vulnerabilities.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [kernel_exploit_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/kernel_exploit_indicators.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### LD_PRELOAD Hijacking Detected
+
+Detects modifications to LD_PRELOAD environment variable or /etc/ld.so.preload file, which attackers use to load malicious shared libraries into every process for persistence and credential interception.
+
+- **Category:** Persistence
+- **Technique:** T1574.006 - Hijack Execution Flow: Dynamic Linker Hijacking
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ld_preload_hijacking.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/ld_preload_hijacking.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1574/006/](https://attack.mitre.org/techniques/T1574/006/)
+- **Reference:** [https://man7.org/linux/man-pages/man8/ld.so.8.html](https://man7.org/linux/man-pages/man8/ld.so.8.html)
+
+### Process Masquerading Detected
+
+Detects processes attempting to masquerade as legitimate system processes by renaming themselves through /proc/self/comm or using misleading process names. This technique is used to evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1036.004 - Masquerading: Masquerade Task or Service
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [process_masquerading.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/process_masquerading.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1036/004/](https://attack.mitre.org/techniques/T1036/004/)
+
+### Reverse Shell Execution Detected
+
+Detects common reverse shell patterns including bash TCP redirects, python socket connections, netcat listeners with execute flags, and socat reverse shells. These are strong indicators of active compromise.
+
+- **Category:** Execution
+- **Technique:** T1059.004 - Command and Scripting Interpreter: Unix Shell
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [reverse_shell_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/reverse_shell_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/004/](https://attack.mitre.org/techniques/T1059/004/)
+- **Reference:** [https://www.revshells.com/](https://www.revshells.com/)
+
+### SSH Authorized Keys Modification
+
+Detects modifications to SSH authorized_keys files, which attackers use to establish persistent access by adding their own public keys to user accounts.
+
+- **Category:** Persistence
+- **Technique:** T1098.004 - Account Manipulation: SSH Authorized Keys
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [ssh_authorized_keys_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/ssh_authorized_keys_modification.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/004/](https://attack.mitre.org/techniques/T1098/004/)
+- **Reference:** [https://man.openbsd.org/sshd.8](https://man.openbsd.org/sshd.8)
+
+### SSH Tunneling or Port Forwarding Detected
+
+Detects SSH local, remote, or dynamic port forwarding which attackers use to tunnel traffic through compromised hosts, bypass network segmentation, and exfiltrate data.
+
+- **Category:** Command and Control
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [ssh_tunneling_port_forwarding.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/ssh_tunneling_port_forwarding.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+- **Reference:** [https://man.openbsd.org/ssh](https://man.openbsd.org/ssh)
+
+### SUID/SGID Binary Creation Detected
+
+Detects when SUID or SGID bits are set on executables using chmod. Attackers use this technique to create binaries that run with elevated privileges for privilege escalation.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1548.001 - Abuse Elevation Control Mechanism: Setuid and Setgid
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suid_sgid_binary_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/suid_sgid_binary_creation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/001/](https://attack.mitre.org/techniques/T1548/001/)
+- **Reference:** [https://gtfobins.github.io/](https://gtfobins.github.io/)
+
+### Shell RC File Modification for Persistence
+
+Detects modifications to shell configuration files (.bashrc, .bash_profile, /etc/profile.d/) that attackers use for persistence by inserting malicious commands executed on every shell session.
+
+- **Category:** Persistence
+- **Technique:** T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [shell_rc_file_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/shell_rc_file_modification.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1546/004/](https://attack.mitre.org/techniques/T1546/004/)
+
+### Suspicious Binary Execution from Temporary Directory
+
+Detects execution of binaries from temporary directories (/tmp, /dev/shm, /var/tmp) which is a common technique used by malware and attackers after initial compromise to stage and run payloads.
+
+- **Category:** Execution
+- **Technique:** T1059.004 - Command and Scripting Interpreter: Unix Shell
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_binary_in_tmp.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/suspicious_binary_in_tmp.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/004/](https://attack.mitre.org/techniques/T1059/004/)
+
+### Systemd Timer Persistence Mechanism
+
+Detects creation or modification of systemd timer units which can be used as a persistence mechanism. Systemd timers are an alternative to cron and can execute commands on a schedule.
+
+- **Category:** Persistence
+- **Technique:** T1053.003 - Scheduled Task/Job: Cron
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [systemd_timer_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/systemd_timer_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/003/](https://attack.mitre.org/techniques/T1053/003/)
+- **Reference:** [https://www.freedesktop.org/software/systemd/man/systemd.timer.html](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)
+
+### Unauthorized /etc/shadow or /etc/passwd Access
+
+Detects unauthorized reading of /etc/shadow or suspicious modifications to /etc/passwd, which may indicate credential harvesting or account manipulation by an attacker.
+
+- **Category:** Credential Access
+- **Technique:** T1003.008 - OS Credential Dumping: /etc/passwd and /etc/shadow
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [etc_shadow_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/etc_shadow_access.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/008/](https://attack.mitre.org/techniques/T1003/008/)
+
+### eBPF Rootkit Activity Detected
+
+Detects malicious eBPF program loading which can be used for rootkit functionality, network traffic interception, and process hiding. eBPF-based rootkits operate at the kernel level and are difficult to detect.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ebpf_rootkit_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/debian_family/ebpf_rootkit_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+- **Reference:** [https://www.elastic.co/security-labs/a-peek-behind-the-bpf-curtain](https://www.elastic.co/security-labs/a-peek-behind-the-bpf-curtain)

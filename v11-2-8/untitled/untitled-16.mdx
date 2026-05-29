@@ -1,0 +1,184 @@
+Detection rules for **SonicWall** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **10** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| SonicWall Anti-Spyware Detection | Discovery | T1082 - System Information Discovery | C:3 / I:2 / A:1 |
+| SonicWall Botnet Activity Detected | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| SonicWall Capture ATP Malicious Verdict | Execution | T1204 - User Execution | C:3 / I:3 / A:2 |
+| SonicWall Capture Client Threat Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| SonicWall Encrypted Threats Detection | Command and Control | T1573 - Encrypted Channel | C:3 / I:3 / A:2 |
+| SonicWall Gateway Anti-Virus Detection | Command and Control | T1105 - Ingress Tool Transfer | C:3 / I:3 / A:2 |
+| SonicWall Intrusion Prevention System Alert | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:3 |
+| SonicWall Management Interface Authentication Failures | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| SonicWall SSL VPN Authentication Failures | Credential Access | T1133 - External Remote Services | C:3 / I:2 / A:1 |
+| SonicWall Zero-Day Threat Detection | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **SonicWall Anti-Spyware Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/anti_spyware_detection.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-sonicwall
+name: SonicWall Anti-Spyware Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Discovery
+technique: "T1082 - System Information Discovery"
+adversary: origin
+references:
+  - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+  - https://attack.mitre.org/techniques/T1082/
+description: |
+  Detects when SonicWall Anti-Spyware service identifies and blocks spyware, adware, or other potentially unwanted programs (PUPs) that may be attempting to collect sensitive information or establish persistence on the network.
+
+  Next Steps:
+  - Review the detected spyware category and priority level
+  - Investigate the source IP address for other malicious activities
+  - Check if the blocked spyware represents a targeted attack or widespread infection
+  - Verify that Anti-Spyware policies are properly configured and up-to-date
+  - Consider quarantining the affected host if multiple spyware detections occur
+  - Review network traffic patterns from the source to identify potential data exfiltration
+where: |
+  (exists("log.spycat") || 
+   contains("log.message", "spyware") ||
+   contains("log.message", "Anti-Spyware") ||
+   contains("log.eventName", "Anti-Spyware") ||
+   contains("log.category", "Anti-Spyware") ||
+   (exists("log.spypri") && !equals("log.spypri", "0"))) &&
+  (equals("action", "blocked") || equals("log.fw_action", "drop"))
+afterEvents:
+  - indexPattern: v11-log-firewall-sonicwall-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-1h
+    count: 3
+deduplicateBy:
+  - adversary.ip
+  - target.host
+
+```
+
+---
+
+## Rule Details
+
+### SonicWall Anti-Spyware Detection
+
+Detects when SonicWall Anti-Spyware service identifies and blocks spyware, adware, or other potentially unwanted programs (PUPs) that may be attempting to collect sensitive information or establish persistence on the network.
+
+- **Category:** Discovery
+- **Technique:** T1082 - System Information Discovery
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [anti_spyware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/anti_spyware_detection.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1082/](https://attack.mitre.org/techniques/T1082/)
+
+### SonicWall Botnet Activity Detected
+
+Detects potential botnet command and control (C2) communication or infected host behavior identified by SonicWall's botnet filter. This includes suspicious outbound connections, HTML infection chains, or known botnet signatures.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [botnet_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/botnet_detection.yml)
+- **Reference:** [https://www.sonicwall.com/support/knowledge-base/understanding-geo-ip-and-botnet-filter-diagnostics-options/200527122256150](https://www.sonicwall.com/support/knowledge-base/understanding-geo-ip-and-botnet-filter-diagnostics-options/200527122256150)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### SonicWall Capture ATP Malicious Verdict
+
+Detects when SonicWall Capture ATP (Advanced Threat Protection) identifies a file as malicious after sandbox analysis. This indicates an attempted malware delivery or execution that was blocked by the ATP service.
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [capture_atp_verdicts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/capture_atp_verdicts.yml)
+- **Reference:** [https://www.sonicwall.com/support/knowledge-base/capture-atp-overview/170503785055490](https://www.sonicwall.com/support/knowledge-base/capture-atp-overview/170503785055490)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/](https://attack.mitre.org/techniques/T1204/)
+
+### SonicWall Capture Client Threat Detection
+
+Detects threats identified by SonicWall Capture Client including advanced malware, zero-day exploits, and sophisticated attack techniques. Capture Client provides advanced threat protection through sandboxing and behavioral analysis.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [capture_client_threats.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/capture_client_threats.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### SonicWall Encrypted Threats Detection
+
+Detects threats hidden in encrypted traffic identified by SonicWall DPI-SSL (Deep Packet Inspection of SSL/TLS) including malware, exploits, and data exfiltration attempts over encrypted channels. This rule identifies when SonicWall's advanced threat protection has detected malicious activity within encrypted communications.
+
+- **Category:** Command and Control
+- **Technique:** T1573 - Encrypted Channel
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [encrypted_threats_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/encrypted_threats_detection.yml)
+- **Reference:** [https://www.sonicwall.com/solutions/advanced-threats/encrypted-threats/](https://www.sonicwall.com/solutions/advanced-threats/encrypted-threats/)
+- **Reference:** [https://attack.mitre.org/techniques/T1573/](https://attack.mitre.org/techniques/T1573/)
+
+### SonicWall Gateway Anti-Virus Detection
+
+Detects when SonicWall Gateway Anti-Virus (GAV) identifies and blocks malicious content. This indicates potential malware attempting to enter the network through web traffic, email attachments, or file downloads. The Gateway Anti-Virus service scans HTTP, HTTPS, FTP, and SMTP traffic in real-time to detect and prevent malware from entering the network perimeter.
+
+- **Category:** Command and Control
+- **Technique:** T1105 - Ingress Tool Transfer
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gateway_antivirus_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/gateway_antivirus_detection.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### SonicWall Intrusion Prevention System Alert
+
+Detects when SonicWall IPS identifies and blocks intrusion attempts, including buffer overflows, SQL injection, cross-site scripting, and other network-based attacks targeting vulnerabilities. This rule triggers when the SonicWall firewall's Intrusion Prevention System detects malicious traffic patterns or known attack signatures.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [intrusion_prevention_alert.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/intrusion_prevention_alert.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### SonicWall Management Interface Authentication Failures
+
+Detects multiple failed authentication attempts to the SonicWall management interface, indicating potential brute force attacks against administrative credentials.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [sonicwall_admin_auth_failures.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/sonicwall_admin_auth_failures.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### SonicWall SSL VPN Authentication Failures
+
+Detects multiple SSL VPN authentication failures from the same source IP on SonicWall firewalls, indicating brute force or credential stuffing attacks against remote access services.
+
+- **Category:** Credential Access
+- **Technique:** T1133 - External Remote Services
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [sonicwall_vpn_failures.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/sonicwall_vpn_failures.yml)
+- **Reference:** [https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf](https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1133/](https://attack.mitre.org/techniques/T1133/)
+
+### SonicWall Zero-Day Threat Detection
+
+Detects zero-day threats and unknown malware identified by SonicWall Capture ATP service including sandbox detonations and RTDMI (Real-Time Deep Memory Inspection) alerts. This rule triggers when the SonicWall firewall identifies previously unknown threats through advanced analysis techniques.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [zero_day_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/sonicwall/sonicwall_firewall/zero_day_threat_detection.yml)
+- **Reference:** [https://www.sonicwall.com/support/knowledge-base/capture-advanced-threat-protection-feature-overview/170504863294345](https://www.sonicwall.com/support/knowledge-base/capture-advanced-threat-protection-feature-overview/170504863294345)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)

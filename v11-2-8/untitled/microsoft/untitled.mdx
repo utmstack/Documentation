@@ -1,0 +1,495 @@
+Detection rules for **Windows** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **34** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| ADFS Authentication Anomalies | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:2 |
+| AS-REP Roasting Attack Detection | Credential Access | T1558.004 - Steal or Forge Kerberos Tickets: AS-REP Roasting | C:3 / I:2 / A:1 |
+| AdminSDHolder Abuse Detection | Persistence, Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Certificate Services Abuse Detection | Credential Access | T1558 - Steal or Forge Kerberos Tickets | C:3 / I:3 / A:1 |
+| Golden Ticket Attack Detection | Credential Access | T1558.001 - Steal or Forge Kerberos Tickets: Golden Ticket | C:3 / I:3 / A:3 |
+| Kerberoasting Attack Detection | Credential Access | T1558.003 - Steal or Forge Kerberos Tickets: Kerberoasting | C:3 / I:2 / A:1 |
+| NTDS.dit Extraction Attempt | Credential Access | T1003.003 - OS Credential Dumping: NTDS | C:3 / I:3 / A:1 |
+| NTLM Authentication Downgrade Attack | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:1 |
+| Pass-the-Hash Attack Detection | Lateral Movement | T1550.002 - Use Alternate Authentication Material: Pass the Hash | C:3 / I:3 / A:2 |
+| PowerShell Empire Detection | Execution | T1059.001 - Command and Scripting Interpreter: PowerShell | C:3 / I:3 / A:2 |
+| Process Masquerading Detection | Defense Evasion | T1036.005 - Masquerading: Match Legitimate Name or Location | C:2 / I:3 / A:2 |
+| RDP Brute Force Attack | Credential Access | T1110.001 - Brute Force: Password Guessing | C:3 / I:2 / A:2 |
+| SAM Database Access Attempt | Credential Access | T1003.002 - OS Credential Dumping: Security Account Manager | C:3 / I:3 / A:1 |
+| SID History Injection Attempt | Defense Evasion, Privilege Escalation | T1134.005 - Access Token Manipulation: SID-History Injection | C:3 / I:3 / A:1 |
+| SMBv1 Usage Detection | Lateral Movement | T1210 - Exploitation of Remote Services | C:3 / I:2 / A:2 |
+| Silver Ticket Attack Detection | Credential Access | T1558.002 - Steal or Forge Kerberos Tickets: Silver Ticket | C:3 / I:3 / A:2 |
+| Windows Remote Management (WinRM) Abuse | Lateral Movement | T1021.006 - Remote Services: Windows Remote Management | C:3 / I:3 / A:2 |
+| Windows audit log was cleared | Defense Evasion | T1070.001 - Indicator Removal: Clear Windows Event Logs | C:1 / I:2 / A:3 |
+| Windows: LSASS Memory Dump Handle Access | Credential Access | T1003.001 - OS Credential Dumping: LSASS Memory | C:2 / I:3 / A:3 |
+| Windows: Multiple Logon Failure Followed by Logon Success | Credential Access | T1110 - Brute Force | C:2 / I:2 / A:3 |
+| Windows: New Windows Service Created to start from windows root path. Suspicious event as the binary may have been dropped using Windows Admin Shares | Execution | T1021.002 - Remote Services: SMB/Windows Admin Shares | C:1 / I:2 / A:3 |
+| Windows: Persistence via PowerShell profile | Persistence | T1546.013 - Event Triggered Execution: PowerShell Profile | C:2 / I:3 / A:1 |
+| Windows: Possible Brute Force Attack | Credential Access | T1110 - Brute Force | C:2 / I:2 / A:3 |
+| Windows: Possible ransomware attack detected. Multiple File Deletion. | Impact | T1486 - Data Encrypted for Impact | C:1 / I:3 / A:2 |
+| Windows: Possible ransomware attack detected. Ransomware Note Creation. | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:2 |
+| Windows: Possible ransomware attack detected. Unusual File Extensions. | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Windows: Printer driver failed to load, possible remote code execution using PrinterNightmare exploit: CVE-2021-34527 | Lateral Movement | T1210 - Exploitation of Remote Services | C:3 / I:2 / A:1 |
+| Windows: Remote File Download via Desktopimgdownldr Utility | Command and Control | T1105 - Ingress Tool Transfer | C:2 / I:3 / A:1 |
+| Windows: Suspicious Print Spooler SPL File Created | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:1 / I:3 / A:2 |
+| Windows: Suspicious PrintSpooler Service Executable File Creation | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:2 / I:3 / A:1 |
+| Windows: UAC Bypass Attempt via Privileged IFileOperation COM Interface | Privilege Escalation | T1548.002 - Abuse Elevation Control Mechanism: Bypass User Account Control | C:1 / I:3 / A:2 |
+| Windows: Unusual File Modification by dns.exe | Lateral Movement | T1210 - Exploitation of Remote Services | C:1 / I:3 / A:2 |
+| Windows: Unusual Process Network Connection | Defense Evasion | Trusted Developer Utilities Proxy Execution | C:3 / I:3 / A:2 |
+| Windows: User logged using Remote Desktop Connection from loopback address, possible exploit over reverse tunneling using stolen credentials | Credential Access | T1021.001 - Remote Services: Remote Desktop Protocol | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **ADFS Authentication Anomalies** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/adfs_authentication_anomalies.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: ADFS Authentication Anomalies
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/troubleshooting/ad-fs-tshoot-logging
+  - https://attack.mitre.org/techniques/T1078/
+description: |
+  Detects anomalous authentication attempts against Active Directory Federation Services (ADFS) including multiple failed attempts that could indicate password spraying or brute force attacks. This rule monitors for authentication failures, token validation failures, and other ADFS security events that may indicate malicious activity.
+
+  Next Steps:
+  1. Review the source IP address and determine if it's from a known/trusted location
+  2. Check for patterns of failed authentication attempts across multiple users
+  3. Examine ADFS audit logs for additional context around the authentication failures
+  4. Verify if the targeted user accounts are valid and active
+  5. Consider implementing IP-based blocking if malicious activity is confirmed
+  6. Review ADFS configuration for security hardening opportunities
+  7. Correlate with other authentication events across the domain
+where: equals("log.providerName", "AD FS") && (equals("log.eventId", "411") || equals("log.eventId", "342") || equals("log.eventId", "516")) && contains("log.message", "token validation failed")
+afterEvents:
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: origin.ip.keyword
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 10
+groupBy:
+  - origin.ip
+  - target.user
+
+```
+
+---
+
+## Rule Details
+
+### ADFS Authentication Anomalies
+
+Detects anomalous authentication attempts against Active Directory Federation Services (ADFS) including multiple failed attempts that could indicate password spraying or brute force attacks. This rule monitors for authentication failures, token validation failures, and other ADFS security events that may indicate malicious activity.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [adfs_authentication_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/adfs_authentication_anomalies.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/troubleshooting/ad-fs-tshoot-logging](https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/troubleshooting/ad-fs-tshoot-logging)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### AS-REP Roasting Attack Detection
+
+Detects AS-REP Roasting attacks targeting accounts with Kerberos pre-authentication disabled.
+Attackers request AS-REP messages encrypted with RC4 (0x17) for accounts that do not require
+pre-authentication, enabling offline password cracking. This is a companion technique to Kerberoasting
+and targets a different set of vulnerable accounts.
+
+- **Category:** Credential Access
+- **Technique:** T1558.004 - Steal or Forge Kerberos Tickets: AS-REP Roasting
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [asrep_roasting_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/asrep_roasting_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1558/004/](https://attack.mitre.org/techniques/T1558/004/)
+- **Reference:** [https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4768](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4768)
+- **Reference:** [https://blog.harmj0y.net/activedirectory/roasting-as-reps/](https://blog.harmj0y.net/activedirectory/roasting-as-reps/)
+
+### AdminSDHolder Abuse Detection
+
+Detects modifications to the AdminSDHolder object which can be used for persistence by granting elevated privileges. The SDProp process propagates these permissions to protected groups every 60 minutes, making this a critical security event.
+
+- **Category:** Persistence, Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [adminsdholder_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/adminsdholder_abuse.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+- **Reference:** [https://adsecurity.org/?p=1906](https://adsecurity.org/?p=1906)
+- **Reference:** [https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory](https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory)
+
+### Certificate Services Abuse Detection
+
+Detects suspicious certificate requests and issuance that could indicate Golden Certificate attacks or unauthorized certificate generation for persistence. This rule monitors Windows Certificate Services events for potentially malicious certificate operations, particularly those involving machine accounts or anonymous logons that could be leveraged for persistence and privilege escalation.
+
+- **Category:** Credential Access
+- **Technique:** T1558 - Steal or Forge Kerberos Tickets
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [certificate_services_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/certificate_services_abuse.yml)
+- **Reference:** [https://www.splunk.com/en_us/blog/security/breaking-the-chain-defending-against-certificate-services-abuse.html](https://www.splunk.com/en_us/blog/security/breaking-the-chain-defending-against-certificate-services-abuse.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1558/](https://attack.mitre.org/techniques/T1558/)
+
+### Golden Ticket Attack Detection
+
+Detects Golden Ticket attacks where adversaries forge Kerberos TGTs using the KRBTGT account
+hash, granting unlimited domain access. The rule detects anomalous TGT usage patterns including
+TGS requests with unusual encryption types, tickets with abnormally long lifetimes, and Kerberos
+authentication from non-domain-controller sources for the KRBTGT service.
+
+- **Category:** Credential Access
+- **Technique:** T1558.001 - Steal or Forge Kerberos Tickets: Golden Ticket
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [golden_ticket_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/golden_ticket_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1558/001/](https://attack.mitre.org/techniques/T1558/001/)
+- **Reference:** [https://adsecurity.org/?p=1640](https://adsecurity.org/?p=1640)
+- **Reference:** [https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4769](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4769)
+
+### Kerberoasting Attack Detection
+
+Detects Kerberoasting attacks where adversaries request Kerberos TGS tickets encrypted with RC4 (0x17) for
+service accounts in order to crack them offline and obtain plaintext credentials. This is the most common
+Active Directory credential theft technique used in real-world compromises. The rule monitors Event ID 4769
+(Kerberos Service Ticket Operations) for RC4 encryption requests while excluding machine accounts (ending in $)
+and legitimate system services.
+
+- **Category:** Credential Access
+- **Technique:** T1558.003 - Steal or Forge Kerberos Tickets: Kerberoasting
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [kerberoasting_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/kerberoasting_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1558/003/](https://attack.mitre.org/techniques/T1558/003/)
+- **Reference:** [https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4769](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4769)
+- **Reference:** [https://adsecurity.org/?p=2293](https://adsecurity.org/?p=2293)
+
+### NTDS.dit Extraction Attempt
+
+Detects attempts to access or copy the Active Directory domain database (NTDS.dit) which contains password hashes for all domain users. This is a critical indicator of credential theft attempts and potential domain compromise.
+
+- **Category:** Credential Access
+- **Technique:** T1003.003 - OS Credential Dumping: NTDS
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [ntds_extraction_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/ntds_extraction_attempts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/003/](https://attack.mitre.org/techniques/T1003/003/)
+- **Reference:** [https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4663](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4663)
+
+### NTLM Authentication Downgrade Attack
+
+Detects NTLM authentication downgrade attacks via registry modifications to LMCompatibilityLevel,
+NtlmMinClientSec, and NtlmMinServerSec. Attackers modify these registry values to weaken NTLM
+authentication security, enabling credential interception, relay attacks, and offline cracking
+of captured NTLM hashes. Downgrading to LM or NTLMv1 authentication makes credential theft
+significantly easier.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [ntlm_downgrade_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/ntlm_downgrade_attack.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+- **Reference:** [https://www.praetorian.com/blog/ntlm-relaying-attacks/](https://www.praetorian.com/blog/ntlm-relaying-attacks/)
+- **Reference:** [https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-lan-manager-authentication-level](https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-lan-manager-authentication-level)
+
+### Pass-the-Hash Attack Detection
+
+Detects Pass-the-Hash attacks by monitoring for NTLM authentication (Event ID 4624) with
+LogonType 9 (NewCredentials) or LogonType 3 (Network) from unusual sources, combined with
+the use of Seclogon service. Attackers use stolen NTLM hashes to authenticate without
+knowing the plaintext password, commonly through tools like Mimikatz sekurlsa::pth,
+Impacket, or CrackMapExec.
+
+- **Category:** Lateral Movement
+- **Technique:** T1550.002 - Use Alternate Authentication Material: Pass the Hash
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [pass_the_hash_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/pass_the_hash_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/002/](https://attack.mitre.org/techniques/T1550/002/)
+- **Reference:** [https://www.sans.org/blog/pass-the-hash-attack-detection/](https://www.sans.org/blog/pass-the-hash-attack-detection/)
+- **Reference:** [https://stealthbits.com/blog/how-to-detect-pass-the-hash-attacks/](https://stealthbits.com/blog/how-to-detect-pass-the-hash-attacks/)
+
+### PowerShell Empire Detection
+
+Detects potential PowerShell Empire framework usage based on characteristic command patterns, obfuscation techniques, and encoded payloads commonly used by this post-exploitation framework. PowerShell Empire is a post-exploitation framework that uses PowerShell and Python agents to maintain persistence and execute commands on compromised systems.
+
+- **Category:** Execution
+- **Technique:** T1059.001 - Command and Scripting Interpreter: PowerShell
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [powershell_empire_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/powershell_empire_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/001/](https://attack.mitre.org/techniques/T1059/001/)
+- **Reference:** [https://www.powershellempire.com/](https://www.powershellempire.com/)
+- **Reference:** [https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging)
+
+### Process Masquerading Detection
+
+Detects executables masquerading as legitimate Windows system processes but running from
+incorrect locations. For example, svchost.exe should only run from C:\Windows\System32,
+and explorer.exe should only run from C:\Windows. Malware commonly uses legitimate process
+names to avoid detection by analysts and automated tools.
+
+- **Category:** Defense Evasion
+- **Technique:** T1036.005 - Masquerading: Match Legitimate Name or Location
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [masquerading_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/masquerading_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1036/005/](https://attack.mitre.org/techniques/T1036/005/)
+- **Reference:** [https://www.elastic.co/blog/how-hunt-masquerade-ball](https://www.elastic.co/blog/how-hunt-masquerade-ball)
+- **Reference:** [https://redcanary.com/threat-detection-report/techniques/masquerading/](https://redcanary.com/threat-detection-report/techniques/masquerading/)
+
+### RDP Brute Force Attack
+
+Detects multiple failed RDP login attempts from the same source IP address, indicating a potential brute force attack. This rule monitors Windows Event ID 4625 (failed logon) with focus on network logon types (type 3) which are commonly used for RDP connections. The rule triggers when 10 or more failed attempts occur from the same IP within 15 minutes.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force: Password Guessing
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [rdp_brute_force_attacks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/rdp_brute_force_attacks.yml)
+- **Reference:** [https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4625](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4625)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### SAM Database Access Attempt
+
+Detects attempts to access the Security Account Manager (SAM) database, which contains local user account hashes. This activity may indicate credential dumping attempts by attackers trying to extract password hashes for offline cracking or lateral movement.
+
+- **Category:** Credential Access
+- **Technique:** T1003.002 - OS Credential Dumping: Security Account Manager
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [sam_database_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/sam_database_access.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/002/](https://attack.mitre.org/techniques/T1003/002/)
+- **Reference:** [https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4661](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4661)
+
+### SID History Injection Attempt
+
+Detects attempts to add SID History to an account, which can be used for privilege escalation. SID History injection allows attackers to inherit permissions from privileged accounts without being members of privileged groups. Both successful (4765) and failed (4766) attempts are monitored.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1134.005 - Access Token Manipulation: SID-History Injection
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [sid_history_injection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/sid_history_injection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1134/005/](https://attack.mitre.org/techniques/T1134/005/)
+- **Reference:** [https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4765](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4765)
+- **Reference:** [https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4766](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4766)
+- **Reference:** [https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4765](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4765)
+
+### SMBv1 Usage Detection
+
+Detects usage of the deprecated and vulnerable SMBv1 protocol which could be exploited for lateral movement or ransomware propagation. SMBv1 is susceptible to numerous security vulnerabilities including EternalBlue and should be disabled in favor of SMBv2/SMBv3.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [smbv1_usage_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/smbv1_usage_detection.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3](https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3)
+- **Reference:** [https://attack.mitre.org/techniques/T1210/](https://attack.mitre.org/techniques/T1210/)
+
+### Silver Ticket Attack Detection
+
+Detects Silver Ticket attacks where adversaries forge Kerberos TGS tickets using a service
+account's NTLM hash, bypassing the KDC entirely. Unlike Golden Tickets, Silver Tickets target
+specific services. The rule detects TGS tickets presented without corresponding TGT requests,
+and service access events with anomalous Kerberos authentication patterns.
+
+- **Category:** Credential Access
+- **Technique:** T1558.002 - Steal or Forge Kerberos Tickets: Silver Ticket
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [silver_ticket_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/silver_ticket_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1558/002/](https://attack.mitre.org/techniques/T1558/002/)
+- **Reference:** [https://adsecurity.org/?p=2011](https://adsecurity.org/?p=2011)
+- **Reference:** [https://www.sans.org/blog/kerberos-in-the-crosshairs-golden-tickets-silver-tickets-mitm-and-more/](https://www.sans.org/blog/kerberos-in-the-crosshairs-golden-tickets-silver-tickets-mitm-and-more/)
+
+### Windows Remote Management (WinRM) Abuse
+
+Detects potential abuse of Windows Remote Management (WinRM) for lateral movement. Monitors for successful logon events (4624) with network logon type 3 combined with privilege escalation (4672) and WinRM-related process activity, indicating remote command execution via WinRM.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021.006 - Remote Services: Windows Remote Management
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [windows_remote_management_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/windows_remote_management_abuse.yml)
+- **Reference:** [https://jpcertcc.github.io/ToolAnalysisResultSheet/details/WinRM.htm](https://jpcertcc.github.io/ToolAnalysisResultSheet/details/WinRM.htm)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/006/](https://attack.mitre.org/techniques/T1021/006/)
+
+### Windows audit log was cleared
+
+Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070.001 - Indicator Removal: Clear Windows Event Logs
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [audit_log_was_cleared.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/audit_log_was_cleared.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/001/](https://attack.mitre.org/techniques/T1070/001/)
+
+### Windows: LSASS Memory Dump Handle Access
+
+Identifies handle requests for the Local Security Authority Subsystem Service (LSASS) object access with specific access masks that many tools with a capability to dump memory to disk use (0x1fffff, 0x1010, 0x120089). This rule is tool agnostic as it has been validated against a host of various LSASS dump tools such as SharpDump, Procdump, Mimikatz, Comsvcs etc. It detects this behavior at a low level and does not depend on a specific tool or dump file name.
+
+- **Category:** Credential Access
+- **Technique:** T1003.001 - OS Credential Dumping: LSASS Memory
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [lsass_memdump_handle_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/lsass_memdump_handle_access.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/](https://attack.mitre.org/techniques/T1003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/001/](https://attack.mitre.org/techniques/T1003/001/)
+
+### Windows: Multiple Logon Failure Followed by Logon Success
+
+This rule is triggered when a sequence of multiple failed login attempts followed immediately by a successful login from the same IP address or source is detected. This unusual sequence of events may indicate a possible unauthorized access attempt using a brute force or password guessing technique. The purpose of this rule is to identify suspicious patterns of login activity and alert you to potential unauthorized access attempts.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [bruteforce_multiple_logon_failure_followed_by_success.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/bruteforce_multiple_logon_failure_followed_by_success.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Windows: New Windows Service Created to start from windows root path. Suspicious event as the binary may have been dropped using Windows Admin Shares
+
+Adversaries may use Valid Accounts to interact with a remote network share using Server Message Block (SMB). The adversary may then perform actions as the logged-on user.
+
+- **Category:** Execution
+- **Technique:** T1021.002 - Remote Services: SMB/Windows Admin Shares
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [suspicious_event_as_the_binary_may_have_been_dropped_using_windows_dmin_shares.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/suspicious_event_as_the_binary_may_have_been_dropped_using_windows_dmin_shares.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/002/](https://attack.mitre.org/techniques/T1021/002/)
+
+### Windows: Persistence via PowerShell profile
+
+Identifies the creation or modification of a PowerShell profile. PowerShell profile is a script that is executed when PowerShell starts to customize the user environment, which can be abused by attackers to persist in a environment where PowerShell is common.
+
+- **Category:** Persistence
+- **Technique:** T1546.013 - Event Triggered Execution: PowerShell Profile
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [powershell_profiles.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/powershell_profiles.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/002/](https://attack.mitre.org/techniques/T1098/002/)
+
+### Windows: Possible Brute Force Attack
+
+This rule is triggered when a pattern of repeated and rapid login attempts from the same IP address or source is detected. These login attempts may target specific user accounts or services in an attempt to crack passwords through automated brute force. The purpose of this rule is to identify possible malicious unauthorized access attempts and prevent a brute force attack against the system.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [bruteforce_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/bruteforce_attack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Windows: Possible ransomware attack detected. Multiple File Deletion.
+
+Detects potential ransomware activity by monitoring multiple file write/modification events (Event ID 4663) with write access masks in user directories within a short timeframe. Modern ransomware typically encrypts files in-place rather than deleting them, making write access monitoring more effective than deletion monitoring alone.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [ransom_multiple_file_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/ransom_multiple_file_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+
+### Windows: Possible ransomware attack detected. Ransomware Note Creation.
+
+Ransomware, is a type of malware that prevents users from accessing their system or personal files and requires payment of a ransom in order to gain access to them again. Identifies ransomware attempts. A known ransomware note file has been detected, potentially indicating an active ransomware infection.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ransom_note_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/ransom_note_creation.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+
+### Windows: Possible ransomware attack detected. Unusual File Extensions.
+
+Ransomware, is a type of malware that prevents users from accessing their system or personal files and requires payment of a ransom in order to gain access to them again. Identifies ransomware attempts. Files with unusual file extensions have been detected, potentially indicating encrypted files created by ransomware.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransom_unusual_file_extension.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/ransom_unusual_file_extension.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+
+### Windows: Printer driver failed to load, possible remote code execution using PrinterNightmare exploit: CVE-2021-34527
+
+Adversaries may exploit remote services to gain unauthorized access to internal systems once inside of a network. Exploitation of a software vulnerability occurs when an adversary takes advantage of a programming error in a program, service, or within the operating system software or kernel itself to execute adversary-controlled code. A common goal for post-compromise exploitation of remote services is for lateral movement to enable access to a remote system.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [possible_remote_code_execution_using_printernightmare.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/possible_remote_code_execution_using_printernightmare.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1210/](https://attack.mitre.org/techniques/T1210/)
+
+### Windows: Remote File Download via Desktopimgdownldr Utility
+
+Identifies the desktopimgdownldr utility being used to download a remote file. An adversary may use desktopimgdownldr to download arbitrary files as an alternative to certutil.
+
+- **Category:** Command and Control
+- **Technique:** T1105 - Ingress Tool Transfer
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [remote_file_copy_desktopimgdownldr.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/remote_file_copy_desktopimgdownldr.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0011/](https://attack.mitre.org/tactics/TA0011/)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### Windows: Suspicious Print Spooler SPL File Created
+
+Detects attempts to exploit privilege escalation vulnerabilities related to the Print Spooler service including CVE-2020-1048 and CVE-2020-1337.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [printspooler_suspicious_spl_file.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/printspooler_suspicious_spl_file.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### Windows: Suspicious PrintSpooler Service Executable File Creation
+
+Detects attempts to exploit privilege escalation vulnerabilities related to the Print Spooler service. For more information refer to the following CVE's - CVE-2020-1048, CVE-2020-1337 and CVE-2020-1300 and verify that the impacted system is patched
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [printspooler_service_suspicious_file.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/printspooler_service_suspicious_file.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### Windows: UAC Bypass Attempt via Privileged IFileOperation COM Interface
+
+Identifies attempts to bypass User Account Control (UAC) via DLL side-loading. Attackers may attempt to bypass UAC to stealthily execute code with elevated permissions.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1548.002 - Abuse Elevation Control Mechanism: Bypass User Account Control
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [uac_bypass_dll_sideloading.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/uac_bypass_dll_sideloading.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/002/](https://attack.mitre.org/techniques/T1548/002/)
+
+### Windows: Unusual File Modification by dns.exe
+
+Identifies an unexpected file being modified by dns.exe, the process responsible for Windows DNS Server services, which may indicate activity related to remote code execution or other forms of exploitation.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [unusual_dns_service_file_writes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/unusual_dns_service_file_writes.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1133/](https://attack.mitre.org/techniques/T1133/)
+
+### Windows: Unusual Process Network Connection
+
+Identifies network activity from unexpected system applications. This may indicate adversarial activity as these applications are often leveraged by adversaries to execute code and evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** Trusted Developer Utilities Proxy Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [unusual_process_network_connection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/unusual_process_network_connection.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1127/](https://attack.mitre.org/techniques/T1127/)
+
+### Windows: User logged using Remote Desktop Connection from loopback address, possible exploit over reverse tunneling using stolen credentials
+
+Adversaries may use Valid Accounts to log into a computer using the Remote Desktop Protocol (RDP). The adversary may then perform actions as the logged-on user.
+
+- **Category:** Credential Access
+- **Technique:** T1021.001 - Remote Services: Remote Desktop Protocol
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [possible_exploit_over_reverse_tunneling_using_stolen_credentials.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/windows/possible_exploit_over_reverse_tunneling_using_stolen_credentials.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/001/](https://attack.mitre.org/techniques/T1021/001/)

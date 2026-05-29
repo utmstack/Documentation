@@ -1,0 +1,284 @@
+Detection rules for **SentinelOne** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **19** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Custom Detection Rule Triggers | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| Deep Visibility Threat Indicators | Defense Evasion | T1070 - Indicator Removal on Host | C:3 / I:3 / A:2 |
+| Kernel-Level Threat Detection | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:3 |
+| Memory Injection Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| SentinelOne AI-Based Threat Hunting Alerts | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| SentinelOne Agent Tampering Attempts | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| SentinelOne Behavioral Threat Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| SentinelOne Cloud Workload Protection Alert | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:2 |
+| SentinelOne Container Security Alert | Defense Evasion, Execution | T1610 - Deploy Container | C:3 / I:3 / A:2 |
+| SentinelOne Endpoint Detection and Response (EDR) Alerts | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| SentinelOne IoT Device Compromise Indicator | Execution | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:2 |
+| SentinelOne Policy Downgraded from Protect to Detect | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| SentinelOne Rollback Operation Patterns Detection | Impact | T1490 - Inhibit System Recovery | C:2 / I:3 / A:3 |
+| SentinelOne Suspicious Exclusion Addition | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| SentinelOne Suspicious Script Execution Detected | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| SentinelOne Threat Mitigation Failures | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:2 |
+| Storyline Correlation Event | Attack Chain Detection | Attack Chain Analysis | C:3 / I:3 / A:2 |
+| Suspicious Process Tree Analysis | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:1 |
+| Threat Intelligence Matches | Execution | T1203 - Exploitation for Client Execution | C:2 / I:2 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Custom Detection Rule Triggers** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/custom_detection_rule_triggers.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-sentinel-one
+name: Custom Detection Rule Triggers
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059 - Command and Scripting Interpreter"
+adversary: origin
+references:
+  - https://docs.sentinelone.com/
+  - https://attack.mitre.org/techniques/T1059/
+description: |
+  Detects when custom detection rules configured in SentinelOne trigger, indicating organization-specific threat patterns or policy violations have been identified. Custom rules are tailored to detect specific behaviors or patterns unique to the organization's security requirements.
+  
+  Next Steps:
+  1. Review the specific custom rule that triggered and understand its purpose
+  2. Investigate the affected endpoint (log.syslogHost) for additional suspicious activity
+  3. Check if the same custom rule has triggered on other endpoints
+  4. Verify if the detection is a false positive based on the custom rule's logic
+  5. If legitimate threat activity, initiate incident response procedures
+  6. Consider updating the custom rule if false positives are frequent
+where: |
+  (contains("log.eventDescription", ["custom rule", "custom detection", "Custom Rules"]) ||
+   equals("log.detectionSource", "CustomRule") ||
+   equals("log.ruleType", "Custom")) &&
+  exists("log.syslogHost")
+groupBy:
+  - lastEvent.log.eventDescription
+  - lastEvent.log.syslogHost
+
+```
+
+---
+
+## Rule Details
+
+### Custom Detection Rule Triggers
+
+Detects when custom detection rules configured in SentinelOne trigger, indicating organization-specific threat patterns or policy violations have been identified. Custom rules are tailored to detect specific behaviors or patterns unique to the organization's security requirements.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [custom_detection_rule_triggers.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/custom_detection_rule_triggers.yml)
+- **Reference:** [https://docs.sentinelone.com/](https://docs.sentinelone.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### Deep Visibility Threat Indicators
+
+Detects advanced threat indicators through SentinelOne's deep visibility monitoring. This rule triggers when specific threat-related events are detected in the SentinelOne logs.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070 - Indicator Removal on Host
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [deep_visibility_threat_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/deep_visibility_threat_indicators.yml)
+- **Reference:** [https://www.sentinelone.com/blog/rapid-threat-hunting-with-deep-visibility-feature-spotlight/](https://www.sentinelone.com/blog/rapid-threat-hunting-with-deep-visibility-feature-spotlight/)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/](https://attack.mitre.org/techniques/T1070/)
+
+### Kernel-Level Threat Detection
+
+Detects kernel-level threats including rootkits, kernel exploits, driver manipulation, and other low-level system attacks that attempt to compromise the operating system kernel.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [kernel_level_threat.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/kernel_level_threat.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+
+### Memory Injection Detection
+
+Detects memory injection attempts including DLL injection, process hollowing, reflective DLL injection, and other in-memory attack techniques detected by SentinelOne.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [memory_injection_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/memory_injection_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/001/](https://attack.mitre.org/techniques/T1055/001/)
+
+### SentinelOne AI-Based Threat Hunting Alerts
+
+Detects threats identified by SentinelOne's AI and machine learning threat hunting capabilities, including zero-day exploits, fileless attacks, and previously unknown malware variants.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ai_based_threat_hunting_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/ai_based_threat_hunting_alerts.yml)
+- **Reference:** [https://www.sentinelone.com/platform/ai-powered-prevention/](https://www.sentinelone.com/platform/ai-powered-prevention/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0043/](https://attack.mitre.org/tactics/TA0043/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### SentinelOne Agent Tampering Attempts
+
+Detects attempts to tamper with, disable, or modify the SentinelOne agent. This is a critical security event as attackers often try to disable security tools before launching their main attack. Immediate response required.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [agent_tampering_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/agent_tampering_attempts.yml)
+- **Reference:** [https://support.sentinelone.com/hc/en-us/articles/360001089343-Protecting-the-SentinelOne-Agent](https://support.sentinelone.com/hc/en-us/articles/360001089343-Protecting-the-SentinelOne-Agent)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### SentinelOne Behavioral Threat Detection
+
+Detects behavioral threat patterns identified by SentinelOne's AI engine, including suspicious process behaviors, anomalous system calls, and deviations from normal endpoint activity patterns.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [behavioral_threat_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/behavioral_threat_detection.yml)
+- **Reference:** [https://www.sentinelone.com/platform/behavioral-ai/](https://www.sentinelone.com/platform/behavioral-ai/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### SentinelOne Cloud Workload Protection Alert
+
+Detects cloud workload protection alerts including suspicious cloud API calls, unauthorized cloud resource access, cloud account compromise, or cloud-native threat detection.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [cloud_workload_protection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/cloud_workload_protection_alerts.yml)
+- **Reference:** [https://www.sentinelone.com/platform/singularity-cloud-workload-security/](https://www.sentinelone.com/platform/singularity-cloud-workload-security/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### SentinelOne Container Security Alert
+
+Detects container-related security events including container drift, unauthorized container deployment, cryptominers in containers, or suspicious container behavior.
+
+- **Category:** Defense Evasion, Execution
+- **Technique:** T1610 - Deploy Container
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [container_security_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/container_security_alerts.yml)
+- **Reference:** [https://www.sentinelone.com/platform/singularity-cloud-workload-security/](https://www.sentinelone.com/platform/singularity-cloud-workload-security/)
+- **Reference:** [https://www.sentinelone.com/resources/cloud-workload-security-for-containers/](https://www.sentinelone.com/resources/cloud-workload-security-for-containers/)
+- **Reference:** [https://attack.mitre.org/techniques/T1610/](https://attack.mitre.org/techniques/T1610/)
+
+### SentinelOne Endpoint Detection and Response (EDR) Alerts
+
+Critical EDR alerts from SentinelOne including suspicious endpoint activities, unauthorized system changes, malicious command execution, and advanced persistent threat (APT) indicators. These alerts indicate potential security incidents that require immediate investigation.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [endpoint_detection_response_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/endpoint_detection_response_alerts.yml)
+- **Reference:** [https://www.sentinelone.com/platform/edr/](https://www.sentinelone.com/platform/edr/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+- **Reference:** [https://attack.mitre.org/techniques/T1547/](https://attack.mitre.org/techniques/T1547/)
+
+### SentinelOne IoT Device Compromise Indicator
+
+Detects indicators of IoT device compromise including unauthorized firmware modifications, suspicious network behavior from IoT devices, or anomalous IoT device activity patterns detected by SentinelOne's Singularity Ranger. This rule triggers when IoT-related threats are identified including compromised embedded systems, firmware backdoors, industrial control system attacks, or SCADA system compromises.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [iot_device_compromise_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/iot_device_compromise_indicators.yml)
+- **Reference:** [https://www.sentinelone.com/platform/singularity-ranger/](https://www.sentinelone.com/platform/singularity-ranger/)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+
+### SentinelOne Policy Downgraded from Protect to Detect
+
+Detects when a SentinelOne policy is downgraded from Protect mode to Detect-only mode, which stops automatic threat remediation. This is a critical defense evasion indicator as attackers with console access weaken protection before deploying malware.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [s1_policy_downgrade.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/s1_policy_downgrade.yml)
+- **Reference:** [https://support.sentinelone.com/](https://support.sentinelone.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### SentinelOne Rollback Operation Patterns Detection
+
+Detects rollback operations in SentinelOne that may indicate ransomware recovery attempts or suspicious rollback activity. Rollback operations are critical system recovery events that should be monitored for both legitimate recovery and potential abuse scenarios.
+
+- **Category:** Impact
+- **Technique:** T1490 - Inhibit System Recovery
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [rollback_operation_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/rollback_operation_patterns.yml)
+- **Reference:** [https://www.cybervigilance.uk/insights/sentinelone-how-does-rollback-work](https://www.cybervigilance.uk/insights/sentinelone-how-does-rollback-work)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+
+### SentinelOne Suspicious Exclusion Addition
+
+Detects suspicious additions to SentinelOne exclusion or allowlist entries, which attackers abuse to prevent detection of their malware or tools after gaining console access.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [s1_exclusion_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/s1_exclusion_abuse.yml)
+- **Reference:** [https://support.sentinelone.com/](https://support.sentinelone.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### SentinelOne Suspicious Script Execution Detected
+
+Detects suspicious script execution activities including PowerShell, Python, Bash, or other scripting interpreters that may indicate malicious activity or fileless attacks. SentinelOne's behavioral detection engine identifies these patterns as potential threats that could compromise system integrity.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_script_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/suspicious_script_execution.yml)
+- **Reference:** [https://www.sentinelone.com/platform/singularity-cloud-workload-security/](https://www.sentinelone.com/platform/singularity-cloud-workload-security/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### SentinelOne Threat Mitigation Failures
+
+Detects failed threat mitigation attempts in SentinelOne, which could indicate advanced malware evading remediation, system compromise preventing cleanup, or configuration issues. Failed mitigations require immediate investigation.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [threat_mitigation_failures.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/threat_mitigation_failures.yml)
+- **Reference:** [https://support.sentinelone.com/hc/en-us/articles/360004195934-Threat-Mitigation-Status](https://support.sentinelone.com/hc/en-us/articles/360004195934-Threat-Mitigation-Status)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### Storyline Correlation Event
+
+Detects correlated attack patterns identified by SentinelOne's Storyline feature, which connects related events to reveal complete attack chains and multi-stage threats.
+
+- **Category:** Attack Chain Detection
+- **Technique:** Attack Chain Analysis
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [storyline_correlation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/storyline_correlation.yml)
+- **Reference:** [https://www.sentinelone.com/platform/storyline-active-response/](https://www.sentinelone.com/platform/storyline-active-response/)
+- **Reference:** [https://attack.mitre.org/tactics/enterprise/](https://attack.mitre.org/tactics/enterprise/)
+
+### Suspicious Process Tree Analysis
+
+Detects suspicious process tree patterns identified by SentinelOne, including unusual parent-child relationships, process hollowing, and malicious process chains commonly used in attacks.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [suspicious_process_tree.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/suspicious_process_tree.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://attack.mitre.org/techniques/T1057/](https://attack.mitre.org/techniques/T1057/)
+
+### Threat Intelligence Matches
+
+Detects matches against threat intelligence feeds including known malicious hashes, IPs, domains, and behavioral patterns associated with APT groups and cybercrime campaigns. This indicates that SentinelOne has identified a file, behavior, or network connection that matches known threat indicators.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:2 / I:2 / A:2
+- **Rule file:** [threat_intelligence_matches.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/sentinel-one/threat_intelligence_matches.yml)
+- **Reference:** [https://www.sentinelone.com/blog/decrypting-sentinelone-cloud-detection-the-threat-intelligence-engine-in-real-time-cwpp/](https://www.sentinelone.com/blog/decrypting-sentinelone-cloud-detection-the-threat-intelligence-engine-in-real-time-cwpp/)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)

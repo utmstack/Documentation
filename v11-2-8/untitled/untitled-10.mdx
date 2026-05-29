@@ -1,0 +1,496 @@
+Detection rules for **macOS** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **36** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Apple Script Abuse Detection | Execution | T1059.002 - Command and Scripting Interpreter: AppleScript | C:3 / I:3 / A:2 |
+| Dynamic Library Hijacking Detected | Persistence | T1574.004 - Hijack Execution Flow: Dylib Hijacking | C:3 / I:3 / A:2 |
+| Endpoint Security Framework Bypass Attempt | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| Folder Actions Script Abuse | Persistence | T1546.002 - Event Triggered Execution: Screensaver | C:2 / I:3 / A:1 |
+| GUI Input Capture via Fake Password Dialog | Credential Access | T1056.002 - Input Capture: GUI Input Capture | C:3 / I:2 / A:1 |
+| Gatekeeper Bypass Attempt Detected | Defense Evasion | T1553.001 - Subvert Trust Controls: Gatekeeper Bypass | C:2 / I:3 / A:2 |
+| Gatekeeper Bypass via Quarantine Attribute Removal | Defense Evasion | T1553.001 - Subvert Trust Controls: Gatekeeper Bypass | C:2 / I:3 / A:2 |
+| Hidden User Account Creation on macOS | Persistence | T1564.002 - Hide Artifacts: Hidden Users | C:3 / I:3 / A:2 |
+| JXA In-Memory Execution Detected | Execution | T1059.002 - Command and Scripting Interpreter: AppleScript | C:3 / I:3 / A:2 |
+| Keychain Access Violations Detection | Credential Access | T1555.001 - Credentials from Password Stores: Keychain | C:3 / I:2 / A:1 |
+| Keychain Credential Dumping Detected | Credential Access | T1555.001 - Credentials from Password Stores: Keychain | C:3 / I:2 / A:1 |
+| Keychain Credential Dumping via CLI | Credential Access | T1555.001 - Credentials from Password Stores: Keychain | C:3 / I:2 / A:0 |
+| Launch Agent/Daemon Persistence Detection | Persistence, Privilege Escalation | T1543.001 - Create or Modify System Process: Launch Agent | C:2 / I:3 / A:2 |
+| Login Items Persistence Modification | Persistence | T1547.015 - Boot or Logon Autostart Execution: Login Items | C:2 / I:3 / A:1 |
+| Notarization Bypass Attempt Detected | Defense Evasion | T1553.001 - Subvert Trust Controls: Gatekeeper Bypass | C:2 / I:3 / A:1 |
+| Osascript Encoded or Suspicious Execution | Execution | T1059.002 - Command and Scripting Interpreter: AppleScript | C:3 / I:3 / A:2 |
+| PlistBuddy Persistence via RunAtLoad | Persistence | T1543.001 - Create or Modify System Process: Launch Agent | C:2 / I:3 / A:2 |
+| Privacy Preferences (TCC) Database Tampering | Privilege Escalation, Defense Evasion | T1548 - Abuse Elevation Control Mechanism | C:3 / I:3 / A:1 |
+| SSH Private Key Theft Attempt | Credential Access | T1552.004 - Unsecured Credentials: Private Keys | C:3 / I:2 / A:0 |
+| Shell Profile Modification for Persistence | Persistence | T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification | C:2 / I:3 / A:1 |
+| Sudo Credential Caching Abuse | Privilege Escalation | T1548.003 - Abuse Elevation Control Mechanism: Sudo and Sudo Caching | C:3 / I:3 / A:1 |
+| Suspicious Browser Child Process on macOS | Initial Access | T1189 - Drive-by Compromise | C:3 / I:3 / A:2 |
+| Suspicious Kernel Extension Loading Detected | Persistence, Privilege Escalation | T1547.006 - Boot or Logon Autostart Execution: Kernel Modules and Extensions | C:3 / I:3 / A:2 |
+| Suspicious Office Application Child Process on macOS | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| System Integrity Protection (SIP) Bypass Attempt | Defense Evasion | T1553.006 - Subvert Trust Controls: Code Signing Policy Modification | C:3 / I:3 / A:2 |
+| TCC Database Manipulation Detected | Privilege Escalation, Defense Evasion | T1548 - Abuse Elevation Control Mechanism | C:3 / I:3 / A:2 |
+| Time Machine Backup Deletion Detected | Impact | T1490 - Inhibit System Recovery | C:1 / I:3 / A:3 |
+| User Added to Admin Group via dscl | Privilege Escalation | T1078.003 - Valid Accounts: Local Accounts | C:3 / I:3 / A:2 |
+| WizardUpdate Malware Indicators Detected | Malware Detection | T1059.002 - Command and Scripting Interpreter: AppleScript | C:3 / I:3 / A:3 |
+| XCSSET Malware Indicators Detected | Malware Detection | T1059.002 - Command and Scripting Interpreter: AppleScript | C:3 / I:3 / A:3 |
+| XProtect Evasion or Tampering Detected | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| macOS Cron Job Persistence | Persistence | T1053.003 - Scheduled Task/Job: Cron | C:2 / I:3 / A:1 |
+| macOS Ransomware Indicators | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| macOS Root Account Enabled | Privilege Escalation | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| macOS Security Tools Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| macOS System Log Clearing Detected | Defense Evasion | T1070.002 - Indicator Removal: Clear Linux or Mac System Logs | C:1 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Apple Script Abuse Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/apple_script_abuse.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - macos
+name: Apple Script Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Execution
+technique: "T1059.002 - Command and Scripting Interpreter: AppleScript"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/002/
+  - https://developer.apple.com/documentation/os/logging
+  - https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/
+description: |
+  Detects suspicious AppleScript execution that could indicate malicious activity, including osascript command-line usage, automation attempts, and script-based attacks on macOS systems. AppleScript can be abused by attackers to execute commands, interact with applications, and perform system manipulation.
+  
+  Next Steps:
+  1. Review the specific AppleScript commands being executed
+  2. Check if the script execution is part of legitimate automation or suspicious activity
+  3. Examine the process tree to understand the execution context
+  4. Verify if the user executing the script has legitimate reasons to do so
+  5. Look for additional indicators of compromise on the affected system
+  6. Consider blocking or monitoring the source if malicious intent is confirmed
+where: |
+  (oneOf("log.process", ["osascript", "Script Editor", "AppleScript", "Automator"]) ||
+   contains("log.eventMessage", "osascript") ||
+   contains("log.eventMessage", "AppleScript") ||
+   equals("log.subsystem", "com.apple.applescript")) &&
+  (contains("log.eventMessage", "tell application") ||
+   contains("log.eventMessage", "do shell script") ||
+   contains("log.eventMessage", "keystroke") ||
+   contains("log.eventMessage", "System Events") ||
+   contains("log.eventMessage", "admin privileges") ||
+   contains("log.eventMessage", "sudo") ||
+   contains("log.eventMessage", "password")) &&
+  oneOf("log.eventType", ["logEvent", "traceEvent"])
+groupBy:
+  - adversary.host
+  - adversary.user
+
+```
+
+---
+
+## Rule Details
+
+### Apple Script Abuse Detection
+
+Detects suspicious AppleScript execution that could indicate malicious activity, including osascript command-line usage, automation attempts, and script-based attacks on macOS systems. AppleScript can be abused by attackers to execute commands, interact with applications, and perform system manipulation.
+
+- **Category:** Execution
+- **Technique:** T1059.002 - Command and Scripting Interpreter: AppleScript
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [apple_script_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/apple_script_abuse.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/002/](https://attack.mitre.org/techniques/T1059/002/)
+- **Reference:** [https://developer.apple.com/documentation/os/logging](https://developer.apple.com/documentation/os/logging)
+- **Reference:** [https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/](https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/)
+
+### Dynamic Library Hijacking Detected
+
+Detects dynamic library (dylib) hijacking on macOS where attackers place malicious dylibs in locations searched before legitimate libraries, allowing code execution in the context of trusted applications.
+
+- **Category:** Persistence
+- **Technique:** T1574.004 - Hijack Execution Flow: Dylib Hijacking
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [dylib_hijacking.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/dylib_hijacking.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1574/004/](https://attack.mitre.org/techniques/T1574/004/)
+- **Reference:** [https://objective-see.org/blog/blog_0x46.html](https://objective-see.org/blog/blog_0x46.html)
+
+### Endpoint Security Framework Bypass Attempt
+
+Detects attempts to bypass or tamper with the macOS Endpoint Security framework, which could indicate malicious activity trying to evade security monitoring. The Endpoint Security framework is a critical component for system security monitoring and its compromise can allow attackers to operate undetected.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [endpoint_security_bypass.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/endpoint_security_bypass.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+- **Reference:** [https://developer.apple.com/documentation/endpointsecurity](https://developer.apple.com/documentation/endpointsecurity)
+
+### Folder Actions Script Abuse
+
+Detects abuse of macOS Folder Actions to establish persistence. Folder Actions allow scripts to be attached to folders and execute when files are added, providing a stealthy persistence mechanism.
+
+- **Category:** Persistence
+- **Technique:** T1546.002 - Event Triggered Execution: Screensaver
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [folder_action_scripts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/folder_action_scripts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1546/002/](https://attack.mitre.org/techniques/T1546/002/)
+- **Reference:** [https://posts.specterops.io/folder-actions-for-persistence-on-macos-8923f222343d](https://posts.specterops.io/folder-actions-for-persistence-on-macos-8923f222343d)
+
+### GUI Input Capture via Fake Password Dialog
+
+Detects osascript displaying fake password dialogs to capture user credentials. Attackers abuse AppleScript's "display dialog" with "hidden answer" to present phishing prompts that mimic legitimate macOS password requests, tricking users into entering their credentials.
+
+- **Category:** Credential Access
+- **Technique:** T1056.002 - Input Capture: GUI Input Capture
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [gui_input_capture.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/gui_input_capture.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1056/002/](https://attack.mitre.org/techniques/T1056/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_gui_input_capture.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_gui_input_capture.yml)
+
+### Gatekeeper Bypass Attempt Detected
+
+Detects attempts to bypass Gatekeeper security checks through database manipulation, quarantine attribute removal, or exploitation of assessment vulnerabilities. Gatekeeper is a macOS security feature that verifies downloaded applications before they run, and bypassing it can allow malicious software to execute without proper verification.
+
+- **Category:** Defense Evasion
+- **Technique:** T1553.001 - Subvert Trust Controls: Gatekeeper Bypass
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [gatekeeper_bypass_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/gatekeeper_bypass_attempts.yml)
+- **Reference:** [https://book.hacktricks.wiki/en/macos-hardening/macos-security-and-privilege-escalation/macos-security-protections/macos-gatekeeper.html](https://book.hacktricks.wiki/en/macos-hardening/macos-security-and-privilege-escalation/macos-security-protections/macos-gatekeeper.html)
+- **Reference:** [https://redcanary.com/blog/threat-detection/gatekeeper/](https://redcanary.com/blog/threat-detection/gatekeeper/)
+- **Reference:** [https://attack.mitre.org/techniques/T1553/001/](https://attack.mitre.org/techniques/T1553/001/)
+
+### Gatekeeper Bypass via Quarantine Attribute Removal
+
+Detects the removal of the com.apple.quarantine extended attribute from files using xattr -d. macOS Gatekeeper uses this attribute to enforce security checks on downloaded files. Removing it allows unsigned or untrusted applications to execute without Gatekeeper verification, bypassing a critical security control.
+
+- **Category:** Defense Evasion
+- **Technique:** T1553.001 - Subvert Trust Controls: Gatekeeper Bypass
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [gatekeeper_xattr_bypass.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/gatekeeper_xattr_bypass.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1553/001/](https://attack.mitre.org/techniques/T1553/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_xattr_gatekeeper_bypass.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_xattr_gatekeeper_bypass.yml)
+
+### Hidden User Account Creation on macOS
+
+Detects creation of hidden user accounts on macOS. Attackers create hidden users (UID < 500, IsHidden flag) to maintain persistent, stealthy access to compromised systems.
+
+- **Category:** Persistence
+- **Technique:** T1564.002 - Hide Artifacts: Hidden Users
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [hidden_user_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/hidden_user_creation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1564/002/](https://attack.mitre.org/techniques/T1564/002/)
+
+### JXA In-Memory Execution Detected
+
+Detects JavaScript for Automation (JXA) in-memory execution via osascript. Attackers use JXA with eval(), NSData.dataWithContentsOfURL, or ObjC.import to download and execute code entirely in memory, avoiding file-based detection. This is a fileless attack technique specific to macOS.
+
+- **Category:** Execution
+- **Technique:** T1059.002 - Command and Scripting Interpreter: AppleScript
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [jxa_in_memory_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/jxa_in_memory_execution.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/002/](https://attack.mitre.org/techniques/T1059/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_jxa_in_memory_execution.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_jxa_in_memory_execution.yml)
+- **Reference:** [https://posts.specterops.io/persistent-jxa-66e1c3cd1cf5](https://posts.specterops.io/persistent-jxa-66e1c3cd1cf5)
+
+### Keychain Access Violations Detection
+
+Detects unauthorized or suspicious attempts to access macOS Keychain, including failed access attempts, unusual process access, and potential credential theft activities. This rule identifies security subsystem events related to keychain access failures, denials, or unauthorized attempts.
+
+- **Category:** Credential Access
+- **Technique:** T1555.001 - Credentials from Password Stores: Keychain
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [keychain_access_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/keychain_access_violations.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1555/001/](https://attack.mitre.org/techniques/T1555/001/)
+- **Reference:** [https://support.apple.com/guide/keychain-access/mac-keychain-password-kyca1242/mac](https://support.apple.com/guide/keychain-access/mac-keychain-password-kyca1242/mac)
+- **Reference:** [https://jumpcloud.com/support/understand-mac-keychain-access](https://jumpcloud.com/support/understand-mac-keychain-access)
+
+### Keychain Credential Dumping Detected
+
+Detects the use of the macOS security command-line tool to extract credentials from the Keychain. Commands like "security find-certificate", "security export", and "security dump-keychain" are used by attackers to harvest stored certificates, passwords, and private keys from the macOS Keychain.
+
+- **Category:** Credential Access
+- **Technique:** T1555.001 - Credentials from Password Stores: Keychain
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [keychain_credential_dumping.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/keychain_credential_dumping.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1555/001/](https://attack.mitre.org/techniques/T1555/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_creds_from_keychain.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_creds_from_keychain.yml)
+
+### Keychain Credential Dumping via CLI
+
+Detects command-line access to macOS Keychain credentials using security commands like dump-keychain, find-generic-password, or find-internet-password with the -w flag to extract passwords.
+
+- **Category:** Credential Access
+- **Technique:** T1555.001 - Credentials from Password Stores: Keychain
+- **Impact:** C:3 / I:2 / A:0
+- **Rule file:** [keychain_dumping_cli.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/keychain_dumping_cli.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1555/001/](https://attack.mitre.org/techniques/T1555/001/)
+
+### Launch Agent/Daemon Persistence Detection
+
+Detects suspicious creation or modification of Launch Agents and Launch Daemons which are commonly used for persistence on macOS systems. Monitors for new plist files being created in LaunchAgents or LaunchDaemons directories.
+
+- **Category:** Persistence, Privilege Escalation
+- **Technique:** T1543.001 - Create or Modify System Process: Launch Agent
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [launch_agent_daemon_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/launch_agent_daemon_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1543/001/](https://attack.mitre.org/techniques/T1543/001/)
+- **Reference:** [https://developer.apple.com/documentation/os/logging](https://developer.apple.com/documentation/os/logging)
+- **Reference:** [https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/](https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/)
+
+### Login Items Persistence Modification
+
+Detects modifications to Login Items on macOS which are used to persist applications that launch at user login. Attackers abuse this mechanism to maintain persistent access.
+
+- **Category:** Persistence
+- **Technique:** T1547.015 - Boot or Logon Autostart Execution: Login Items
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [login_items_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/login_items_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1547/015/](https://attack.mitre.org/techniques/T1547/015/)
+- **Reference:** [https://developer.apple.com/documentation/servicemanagement](https://developer.apple.com/documentation/servicemanagement)
+
+### Notarization Bypass Attempt Detected
+
+Detects attempts to bypass macOS notarization checks through various methods including quarantine attribute manipulation, AppleDouble file format abuse, or ZIP archive exploitation. This rule identifies suspicious activities that attempt to circumvent Apple's security mechanisms designed to protect users from malicious software.
+
+- **Category:** Defense Evasion
+- **Technique:** T1553.001 - Subvert Trust Controls: Gatekeeper Bypass
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [notarization_bypass_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/notarization_bypass_attempts.yml)
+- **Reference:** [https://redcanary.com/threat-detection-report/techniques/gatekeeper-bypass/](https://redcanary.com/threat-detection-report/techniques/gatekeeper-bypass/)
+- **Reference:** [https://attack.mitre.org/techniques/T1553/001/](https://attack.mitre.org/techniques/T1553/001/)
+
+### Osascript Encoded or Suspicious Execution
+
+Detects suspicious osascript executions from the command line including encoded scripts, scripts executing shell commands, or scripts performing system modifications. Attackers abuse AppleScript for execution and evasion.
+
+- **Category:** Execution
+- **Technique:** T1059.002 - Command and Scripting Interpreter: AppleScript
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [osascript_encoded_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/osascript_encoded_execution.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/002/](https://attack.mitre.org/techniques/T1059/002/)
+
+### PlistBuddy Persistence via RunAtLoad
+
+Detects the use of PlistBuddy to set RunAtLoad to true in LaunchAgent or LaunchDaemon plist files. This is a persistence technique where attackers modify property list files to ensure their malicious payload runs automatically at system boot or user login.
+
+- **Category:** Persistence
+- **Technique:** T1543.001 - Create or Modify System Process: Launch Agent
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [plistbuddy_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/plistbuddy_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1543/001/](https://attack.mitre.org/techniques/T1543/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_persistence_via_plistbuddy.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_persistence_via_plistbuddy.yml)
+
+### Privacy Preferences (TCC) Database Tampering
+
+Detects unauthorized modifications to the macOS TCC (Transparency, Consent, and Control) database which controls application privacy permissions. The TCC database manages access permissions for sensitive resources like camera, microphone, location services, and file system access. Unauthorized modifications to this database can allow malicious applications to bypass privacy controls and gain access to sensitive user data.
+
+- **Category:** Privilege Escalation, Defense Evasion
+- **Technique:** T1548 - Abuse Elevation Control Mechanism
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [privacy_preferences_tampering.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/privacy_preferences_tampering.yml)
+- **Reference:** [https://www.huntress.com/blog/full-transparency-controlling-apples-tcc](https://www.huntress.com/blog/full-transparency-controlling-apples-tcc)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/](https://attack.mitre.org/techniques/T1548/)
+
+### SSH Private Key Theft Attempt
+
+Detects attempts to access or copy SSH private keys from user home directories on macOS, which attackers use for lateral movement and unauthorized access to remote systems.
+
+- **Category:** Credential Access
+- **Technique:** T1552.004 - Unsecured Credentials: Private Keys
+- **Impact:** C:3 / I:2 / A:0
+- **Rule file:** [ssh_key_theft.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/ssh_key_theft.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/004/](https://attack.mitre.org/techniques/T1552/004/)
+
+### Shell Profile Modification for Persistence
+
+Detects modifications to shell profile files (.bash_profile, .zshrc, .zprofile) on macOS which attackers use to execute malicious commands every time a shell session starts.
+
+- **Category:** Persistence
+- **Technique:** T1546.004 - Event Triggered Execution: Unix Shell Configuration Modification
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [shell_profile_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/shell_profile_modification.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1546/004/](https://attack.mitre.org/techniques/T1546/004/)
+
+### Sudo Credential Caching Abuse
+
+Detects abuse of sudo credential caching on macOS including timestamp manipulation, sudoers file modifications to extend timeout, and tty_tickets bypass attempts.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1548.003 - Abuse Elevation Control Mechanism: Sudo and Sudo Caching
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [sudo_caching_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/sudo_caching_abuse.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/003/](https://attack.mitre.org/techniques/T1548/003/)
+
+### Suspicious Browser Child Process on macOS
+
+Detects web browsers (Safari, Chrome, Firefox) spawning suspicious child processes such as bash, curl, wget, python, or osascript. This behavior indicates potential browser exploitation, drive-by download, or malicious content execution. Legitimate browsers rarely spawn shell interpreters or download utilities directly.
+
+- **Category:** Initial Access
+- **Technique:** T1189 - Drive-by Compromise
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [browser_child_process_exploitation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/browser_child_process_exploitation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1189/](https://attack.mitre.org/techniques/T1189/)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_susp_browser_child_process.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_susp_browser_child_process.yml)
+
+### Suspicious Kernel Extension Loading Detected
+
+Detects suspicious or unauthorized kernel extension (kext) loading attempts that could indicate rootkit installation or system compromise. This rule monitors for kext loading activities that bypass normal security protections, involve unsigned or invalid extensions, or occur in sensitive system directories.
+
+- **Category:** Persistence, Privilege Escalation
+- **Technique:** T1547.006 - Boot or Logon Autostart Execution: Kernel Modules and Extensions
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [kernel_extension_loading.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/kernel_extension_loading.yml)
+- **Reference:** [https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/](https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/)
+- **Reference:** [https://attack.mitre.org/techniques/T1547/006/](https://attack.mitre.org/techniques/T1547/006/)
+
+### Suspicious Office Application Child Process on macOS
+
+Detects Microsoft Office applications (Word, Excel, PowerPoint) spawning suspicious child processes such as bash, curl, wget, python, or osascript on macOS. This strongly indicates macro-based malware or document exploitation, as Office applications should not normally spawn shell interpreters or download utilities.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [office_macro_exploitation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/office_macro_exploitation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_office_susp_child_processes.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_office_susp_child_processes.yml)
+
+### System Integrity Protection (SIP) Bypass Attempt
+
+Detects attempts to bypass System Integrity Protection (SIP) through unauthorized modifications to protected locations or suspicious kernel extension loading with rootless entitlements. SIP is a critical security mechanism in macOS that protects system files and processes from modification, even by privileged users.
+
+- **Category:** Defense Evasion
+- **Technique:** T1553.006 - Subvert Trust Controls: Code Signing Policy Modification
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [system_integrity_protection_bypass.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/system_integrity_protection_bypass.yml)
+- **Reference:** [https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/](https://www.microsoft.com/en-us/security/blog/2025/01/13/analyzing-cve-2024-44243-a-macos-system-integrity-protection-bypass-through-kernel-extensions/)
+- **Reference:** [https://attack.mitre.org/techniques/T1553/006/](https://attack.mitre.org/techniques/T1553/006/)
+
+### TCC Database Manipulation Detected
+
+Detects unauthorized attempts to manipulate the Transparency, Consent, and Control (TCC) database to bypass privacy protections and gain access to protected resources. This detection identifies various methods of TCC database manipulation including direct database modifications, unauthorized access attempts, and privilege escalation through TCC bypass techniques.
+
+- **Category:** Privilege Escalation, Defense Evasion
+- **Technique:** T1548 - Abuse Elevation Control Mechanism
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [tcc_database_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/tcc_database_manipulation.yml)
+- **Reference:** [https://interpressecurity.com/resources/report/return-of-the-macos-transparency-consent-and-control-tcc-database-manipulation/](https://interpressecurity.com/resources/report/return-of-the-macos-transparency-consent-and-control-tcc-database-manipulation/)
+- **Reference:** [https://www.sentinelone.com/labs/bypassing-macos-tcc-user-privacy-protections-by-accident-and-design/](https://www.sentinelone.com/labs/bypassing-macos-tcc-user-privacy-protections-by-accident-and-design/)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/](https://attack.mitre.org/techniques/T1548/)
+
+### Time Machine Backup Deletion Detected
+
+Detects the use of tmutil to delete Time Machine backups on macOS. This is a common ransomware preparation technique where attackers delete backups to prevent recovery after encryption. Legitimate backup deletions are rare and should be closely monitored.
+
+- **Category:** Impact
+- **Technique:** T1490 - Inhibit System Recovery
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [time_machine_backup_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/time_machine_backup_deletion.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_tmutil_delete_backup.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_tmutil_delete_backup.yml)
+
+### User Added to Admin Group via dscl
+
+Detects the use of dscl to add a user to the admin group on macOS. This is a privilege escalation technique where attackers grant themselves or a compromised account administrative privileges to gain elevated access to the system.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078.003 - Valid Accounts: Local Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [admin_group_addition.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/admin_group_addition.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/003/](https://attack.mitre.org/techniques/T1078/003/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dscl_add_user_to_admin_group.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dscl_add_user_to_admin_group.yml)
+
+### WizardUpdate Malware Indicators Detected
+
+Detects indicators of the WizardUpdate (UpdateAgent) macOS trojan. This malware uses curl piped to bash/eval patterns and references characteristic paths like _intermediate_agent_ for staging and execution. WizardUpdate is a known macOS trojan that downloads and executes additional payloads.
+
+- **Category:** Malware Detection
+- **Technique:** T1059.002 - Command and Scripting Interpreter: AppleScript
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [wizardupdate_malware.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/wizardupdate_malware.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/002/](https://attack.mitre.org/techniques/T1059/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_wizardupdate_malware_infection.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_wizardupdate_malware_infection.yml)
+- **Reference:** [https://www.sentinelone.com/blog/from-the-front-lines-new-macos-covid-malware-wizardupdate-changes-infection-tactics/](https://www.sentinelone.com/blog/from-the-front-lines-new-macos-covid-malware-wizardupdate-changes-infection-tactics/)
+
+### XCSSET Malware Indicators Detected
+
+Detects indicators of XCSSET malware on macOS. XCSSET is a sophisticated malware that targets Xcode projects, steals browser data, and installs backdoors. Key indicators include curl requests to /sys/log.php C2 endpoints, osacompile commands in Library/Group Containers paths, and characteristic repl staging patterns.
+
+- **Category:** Malware Detection
+- **Technique:** T1059.002 - Command and Scripting Interpreter: AppleScript
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [xcsset_malware.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/xcsset_malware.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/002/](https://attack.mitre.org/techniques/T1059/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_xcsset_malware_infection.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_xcsset_malware_infection.yml)
+- **Reference:** [https://www.trendmicro.com/en_us/research/20/h/xcsset-mac-malware--infects-xcode-projects--uses-0-days.html](https://www.trendmicro.com/en_us/research/20/h/xcsset-mac-malware--infects-xcode-projects--uses-0-days.html)
+
+### XProtect Evasion or Tampering Detected
+
+Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [xprotect_evasion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/xprotect_evasion.yml)
+- **Reference:** [https://www.sentinelone.com/blog/macos-malware-researchers-how-to-bypass-xprotect-on-catalina/](https://www.sentinelone.com/blog/macos-malware-researchers-how-to-bypass-xprotect-on-catalina/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### macOS Cron Job Persistence
+
+Detects crontab modifications on macOS systems. Although cron is deprecated on macOS in favor of launchd, attackers still use it for persistence as it is less commonly monitored.
+
+- **Category:** Persistence
+- **Technique:** T1053.003 - Scheduled Task/Job: Cron
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [cron_job_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/cron_job_persistence.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/003/](https://attack.mitre.org/techniques/T1053/003/)
+
+### macOS Ransomware Indicators
+
+Detects mass file encryption patterns on macOS that may indicate ransomware activity, including rapid file modifications with suspicious extensions and encryption tool usage.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [macos_ransomware_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/macos_ransomware_indicators.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### macOS Root Account Enabled
+
+Detects the execution of dsenableroot to enable the root account on macOS. The root account is disabled by default on macOS for security. Enabling it grants the highest level of system privileges and is commonly done by attackers for privilege escalation and persistent elevated access.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [root_account_enable.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/root_account_enable.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dsenableroot_enable_root_account.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_dsenableroot_enable_root_account.yml)
+- **Reference:** [https://support.apple.com/en-us/102367](https://support.apple.com/en-us/102367)
+
+### macOS Security Tools Disabled
+
+Detects attempts to disable or unload macOS security tools using launchctl or spctl. Attackers commonly disable endpoint security products such as LuLu, BlockBlock, Santa, CarbonBlack, CrowdStrike, and osquery, or disable Gatekeeper via spctl to execute malicious payloads without detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [security_tools_disabling.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/security_tools_disabling.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_disable_security_tools.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_disable_security_tools.yml)
+
+### macOS System Log Clearing Detected
+
+Detects attempts to clear or delete macOS system logs using rm, unlink, or shred commands targeting /var/log or ~/Library/Logs directories. Attackers clear logs to remove evidence of their activities and hinder forensic investigation.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070.002 - Indicator Removal: Clear Linux or Mac System Logs
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [system_log_clearing.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/macos/system_log_clearing.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/002/](https://attack.mitre.org/techniques/T1070/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_clear_system_logs.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/macos/process_creation/proc_creation_macos_clear_system_logs.yml)

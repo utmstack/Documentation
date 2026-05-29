@@ -1,56 +1,88 @@
-# SOAR — Security Orchestration, Automation, and Response
+# Detection Rules
 
-UTMStack SOAR enables automated incident response by executing predefined workflows when specific alert conditions are detected. Instead of requiring manual intervention for every security event, SOAR workflows can automatically take containment and remediation actions on affected endpoints within seconds of detection.
+UTMStack includes a comprehensive library of **622 built-in detection rules** that continuously monitor your environment for threats, suspicious activity, and policy violations. These rules are powered by the UTMStack correlation engine and map directly to the **MITRE ATT&CK** framework.
 
-## What SOAR Does
+## What Are Detection Rules?
 
-SOAR workflows connect UTMStack alert detection directly to response actions on your endpoints. When an alert triggers, the associated workflow runs commands on the target agent — blocking IPs, killing processes, disabling compromised accounts, or isolating hosts — without waiting for an analyst to respond.
+Detection rules are YAML-based definitions that describe specific patterns of malicious or suspicious activity across your log sources. When incoming events match a rule's conditions, UTMStack generates an alert with the appropriate severity, MITRE ATT&CK classification, and recommended next steps.
 
-## Key Concepts
+Each rule includes:
 
-| Concept | Description |
-|---|---|
-| **Workflow** | A complete automation rule that links a trigger condition to one or more response actions |
-| **Trigger** | The condition that activates a workflow, typically matching on an alert name or alert attributes |
-| **Action** | A command executed on an endpoint agent (e.g., block an IP, kill a process, disable a user) |
-| **Action Template** | A reusable, pre-built command block that can be added to any workflow |
-| **Agent** | The UTMStack endpoint agent that executes the workflow commands on the target system |
-| **Proxy Agent** | An agent used to run commands on devices that cannot host their own agent (firewalls, network devices) |
-| **Shell** | The command interpreter used to execute actions: CMD, PowerShell (Windows), or Bash (Linux/macOS) |
-| **Dynamic Variables** | Alert field placeholders (e.g., `$(adversary.ip)`) that are replaced with actual values at execution time |
+- **Name** — A human-readable title describing what the rule detects.
+- **Description** — An explanation of the threat scenario and why it matters.
+- **Category** — The MITRE ATT&CK tactic (e.g., Credential Access, Lateral Movement, Persistence).
+- **Technique** — The specific MITRE ATT&CK technique ID and name.
+- **Impact** — A Confidentiality / Integrity / Availability score (1-3 scale).
+- **Detection Logic** — The conditions and event patterns that trigger the rule.
+- **References** — Links to MITRE ATT&CK entries and other resources.
 
-## How It Works
+## Supported Data Sources
 
-```mermaid
-flowchart LR
-    A[Alert Detected] --> B{Trigger Match?}
-    B -->|Yes| C[Select Target Agent]
-    C --> D[Execute Action 1]
-    D --> E{Step Logic}
-    E -->|Always / On Success / On Failure| F[Execute Action 2]
-    F --> G[...]
-    B -->|No| H[No Action]
-```
+Rules are organized by the data source or integration they apply to. UTMStack provides detection rules for the following categories:
 
-1. A correlation rule or detection engine generates an **alert**
-2. SOAR checks if any active workflow's **trigger condition** matches the alert
-3. If matched, the workflow identifies the **target agent** (the agent associated with the alert source, or a configured proxy agent)
-4. The workflow executes its **action sequence** on the target agent using the specified shell
-5. Each action step can be configured to run **always**, **only on success**, or **only on failure** of the previous step
+**Endpoint and Operating Systems**
 
-## Supported Platforms
+- **Windows** — Active Directory attacks, credential theft, ransomware, lateral movement, and more.
+- **Linux** — Brute force attacks, kernel module manipulation, reverse shells, privilege escalation (General, Debian, and RHEL families).
+- **macOS** — Persistence mechanisms, privilege escalation, keychain access, malware indicators.
 
-| Platform | Shell Options | Example Use Cases |
-|---|---|---|
-| **Windows** | CMD, PowerShell | Block IPs via Windows Firewall, kill processes, disable users, manage Windows Defender |
-| **Linux (Debian/Ubuntu)** | Bash | Block IPs via iptables/ufw, kill processes, disable users, stop services |
-| **Linux (RHEL/CentOS)** | Bash | Block IPs via firewall-cmd, kill processes, disable users, stop services |
-| **Linux (OpenSUSE)** | Bash | Block IPs via firewall-cmd, kill processes, disable users |
-| **macOS** | Bash | Block IPs via pfctl, kill processes, disable users, stop services |
+**Network Security**
 
-## Built-in Content
+- **Cisco** — ASA, Firepower, Meraki, and Switch rules for firewall events, intrusion detection, and network anomalies.
+- **Fortinet** — FortiGate and FortiWeb rules for firewall and web application firewall events.
+- **Palo Alto** — PA Firewall rules for threat detection and traffic anomalies.
+- **SonicWall** — Firewall rules for intrusion and access control events.
+- **pfSense** — Firewall rules for open-source firewall deployments.
+- **MikroTik** — Firewall rules for RouterOS-based network devices.
 
-UTMStack ships with **73 pre-built action templates** and **23 ready-to-use playbooks** covering common response scenarios across all supported platforms. These can be used as-is or customized to fit your environment.
+**Cloud Platforms**
 
-> [!TIP]
-> Start with the built-in playbooks and customize them for your environment rather than building workflows from scratch. This saves time and ensures you follow proven response patterns.
+- **AWS** — 73 rules covering IAM, S3, EC2, CloudTrail, GuardDuty, and more.
+- **Azure** — 46 rules covering identity, storage, compute, and security center events.
+- **Google Cloud** — 34 rules covering IAM, compute, storage, and audit logs.
+
+**SaaS and Productivity**
+
+- **Office 365** — 54 rules covering Exchange, SharePoint, Teams, and Azure AD events.
+- **GitHub** — Repository security, workflow injection, secret scanning, and access control.
+
+**Antivirus and EDR**
+
+- **Bitdefender GravityZone**, **ESMC/ESET**, **Kaspersky**, **SentinelOne**, **Deceptive Bytes** — Threat detection, agent tampering, policy violations.
+- **CrowdStrike** — Falcon EPP and XDR detection alerts, credential dumping, defense evasion.
+
+**Network Monitoring**
+
+- **Netflow** — Traffic analysis, beaconing detection, cryptomining, DDoS, and data exfiltration.
+- **NIDS / Suricata** — Network intrusion detection signatures and alerts.
+
+**Infrastructure**
+
+- **VMware ESXi** — Hypervisor security events and virtual machine anomalies.
+- **IBM AIX and AS/400** — Mainframe and midrange system security events.
+- **Sophos** — Central and XG Firewall events.
+
+**Log Formats**
+
+- **Syslog / CEF** — Common Event Format log analysis.
+- **JSON Input** — Generic JSON-based log source rules.
+
+## How Rules Work
+
+1. **Log Ingestion** — UTMStack collects logs from your configured data sources.
+2. **Normalization** — Logs are parsed and normalized into the UTMStack standard event schema.
+3. **Correlation** — The correlation engine evaluates each event against all active rules.
+4. **Alert Generation** — When a rule's conditions are met, an alert is created with full context.
+5. **Response** — Alerts can trigger automated response actions via the SOAR module.
+
+## Rule Source Code
+
+All detection rules are open source and available in the UTMStack GitHub repository:
+
+**[github.com/utmstack/UTMStack/tree/v11/rules](https://github.com/utmstack/UTMStack/tree/v11/rules)**
+
+Browse the pages in this section to see every rule organized by category, with descriptions, MITRE ATT&CK mappings, impact scores, and links to the source YAML files.
+
+## Creating Custom Rules
+
+UTMStack supports custom detection rules. For guidance on writing your own rules, see the **SIEM** section under **Configuration and Implementation** for the rule authoring guide, CEL overloads reference, and real-world examples.

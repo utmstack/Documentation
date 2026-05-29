@@ -1,0 +1,292 @@
+Detection rules for **Kaspersky** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **19** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Code Injection Attempt Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Kaspersky Agent Disabled or Tampered | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| Kaspersky Application Privilege Escalation Detection | Defense Evasion, Privilege Escalation | T1055/T1134 - Process Injection and Access Token Manipulation | C:3 / I:3 / A:2 |
+| Kaspersky Command and Control Communication Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| Kaspersky Critical Object Detection | Execution | T1204 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Kaspersky Data Exfiltration Attempts Detection | Exfiltration | T1048 - Exfiltration Over Alternative Protocol | C:3 / I:2 / A:1 |
+| Kaspersky Ransomware Behavior Detection | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Kaspersky Rootkit Detection | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:3 |
+| Kaspersky Sandbox Evasion Attempts Detection | Defense Evasion, Discovery | T1497 - Virtualization/Sandbox Evasion | C:3 / I:3 / A:2 |
+| Kaspersky Suspicious Network Activity Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:2 / A:2 |
+| Kaspersky Suspicious Scheduled Tasks Detection | Execution, Persistence, Privilege Escalation | T1053 - Scheduled Task/Job | C:3 / I:3 / A:2 |
+| Kaspersky Suspicious Service Installation Detection | Persistence, Privilege Escalation | T1543.003 - Create or Modify System Process: Windows Service | C:2 / I:2 / A:2 |
+| Kaspersky System File Tampering Detection | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:1 |
+| Kaspersky Trusted Application Compromise Detection | Defense Evasion | T1218 - Signed Binary Proxy Execution | C:3 / I:3 / A:2 |
+| Kaspersky WMI Abuse Detection | Execution | T1047 - Windows Management Instrumentation | C:3 / I:3 / A:2 |
+| Lateral Movement Indicators Detection | Lateral Movement | T1021 - Remote Services | C:3 / I:3 / A:2 |
+| Living Off the Land Binaries (LOLBins) Abuse Detection | Defense Evasion | T1218 - System Binary Proxy Execution | C:3 / I:3 / A:2 |
+| Process Hollowing Detection | Defense Evasion, Privilege Escalation | T1055.012 - Process Injection: Process Hollowing | C:3 / I:3 / A:2 |
+| Suspicious Packed Executable Detection | Defense Evasion | T1027.002 - Obfuscated Files or Information: Software Packing | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Code Injection Attempt Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/code_injection_attempts.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-kaspersky
+name: Code Injection Attempt Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1055/
+  - https://support.kaspersky.com/KESWin/11/en-us/151065.htm
+description: |
+  Detects attempts to inject malicious code into legitimate processes. This technique is commonly used by malware to evade detection and gain elevated privileges by running within trusted processes.
+  
+  Next Steps:
+  1. Immediately isolate the affected system to prevent lateral movement
+  2. Identify the source process that attempted the injection
+  3. Check if the malware was successfully quarantined or if manual removal is needed
+  4. Review system logs for any suspicious activities around the same timeframe
+  5. Scan the system with updated antivirus definitions
+  6. Check for persistence mechanisms (scheduled tasks, registry keys, services)
+  7. Review network connections from the affected host for C2 communications
+  8. Consider reimaging the system if critical processes were compromised
+where: |
+  (regexMatch("log.msg", "(?i).*(inject|injection|CreateRemoteThread|SetWindowsHookEx|WriteProcessMemory).*") ||
+   (contains("log.cs4", ["inject", "hooking", "trojan", "backdoor"]) && 
+    contains("action", ["terminate", "delete", "quarantine"]))) &&
+  contains("log.msg", ["lsass", "csrss", "winlogon", "services", "svchost", "explorer"])
+deduplicateBy:
+  - origin.host
+  - log.cs4
+
+```
+
+---
+
+## Rule Details
+
+### Code Injection Attempt Detection
+
+Detects attempts to inject malicious code into legitimate processes. This technique is commonly used by malware to evade detection and gain elevated privileges by running within trusted processes.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [code_injection_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/code_injection_attempts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://support.kaspersky.com/KESWin/11/en-us/151065.htm](https://support.kaspersky.com/KESWin/11/en-us/151065.htm)
+
+### Kaspersky Agent Disabled or Tampered
+
+Detects when the Kaspersky security agent is disabled, stopped, or tampered with. This is a critical indicator of defense evasion as attackers disable endpoint protection to execute malware undetected.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [kaspersky_agent_tampering.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/kaspersky_agent_tampering.yml)
+- **Reference:** [https://support.kaspersky.com/](https://support.kaspersky.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Kaspersky Application Privilege Escalation Detection
+
+Detects attempts to escalate privileges through application manipulation, process injection, or unauthorized elevation of permissions monitored by Kaspersky endpoint protection. These techniques are commonly used by attackers to gain higher-level permissions on compromised systems.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055/T1134 - Process Injection and Access Token Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [privilege_escalation_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/privilege_escalation_attempts.yml)
+- **Reference:** [https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm](https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://attack.mitre.org/techniques/T1134/](https://attack.mitre.org/techniques/T1134/)
+
+### Kaspersky Command and Control Communication Detection
+
+Detects potential command and control (C2) communication attempts identified by Kaspersky, including suspicious outbound connections, malware callbacks, and botnet communication patterns. This rule triggers when Kaspersky identifies network threats related to botnet activity, C2 communications, or malware beaconing that was not successfully blocked.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [command_and_control_communication.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/command_and_control_communication.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://support.kaspersky.com/KLMS/8.2/en-US/151504.htm](https://support.kaspersky.com/KLMS/8.2/en-US/151504.htm)
+
+### Kaspersky Critical Object Detection
+
+Detects when Kaspersky identifies critical threats including malware, trojans, or other dangerous objects that require immediate attention. High severity detections often indicate active threats.
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [critical_object_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/critical_object_detected.yml)
+- **Reference:** [https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm](https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/](https://attack.mitre.org/techniques/T1204/)
+
+### Kaspersky Data Exfiltration Attempts Detection
+
+Detects potential data exfiltration attempts identified by Kaspersky through suspicious network traffic patterns, large data transfers, or connections to suspicious external destinations. This rule monitors for network threats, trojan/backdoor detections, and suspicious data transfer patterns that may indicate data exfiltration.
+
+- **Category:** Exfiltration
+- **Technique:** T1048 - Exfiltration Over Alternative Protocol
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [data_exfiltration_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/data_exfiltration_attempts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1048/](https://attack.mitre.org/techniques/T1048/)
+- **Reference:** [https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm](https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm)
+
+### Kaspersky Ransomware Behavior Detection
+
+Detects ransomware behavior patterns identified by Kaspersky including mass file encryption, ransom note creation, and ransomware-specific malware classifications.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [kaspersky_ransomware_behavior.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/kaspersky_ransomware_behavior.yml)
+- **Reference:** [https://support.kaspersky.com/](https://support.kaspersky.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Kaspersky Rootkit Detection
+
+Detects rootkit activity identified by Kaspersky security, including hidden processes, kernel-level modifications, and rootkit-specific malware classifications that indicate a deeply compromised system.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [kaspersky_rootkit_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/kaspersky_rootkit_detection.yml)
+- **Reference:** [https://support.kaspersky.com/](https://support.kaspersky.com/)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+
+### Kaspersky Sandbox Evasion Attempts Detection
+
+Identifies malware attempting to detect and evade sandbox environments. This includes time-based evasion, environment checks, anti-VM techniques, and other behaviors designed to avoid analysis in controlled environments.
+
+- **Category:** Defense Evasion, Discovery
+- **Technique:** T1497 - Virtualization/Sandbox Evasion
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sandbox_evasion_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/sandbox_evasion_attempts.yml)
+- **Reference:** [https://www.kaspersky.com/enterprise-security/malware-sandbox](https://www.kaspersky.com/enterprise-security/malware-sandbox)
+- **Reference:** [https://attack.mitre.org/techniques/T1497/](https://attack.mitre.org/techniques/T1497/)
+- **Reference:** [https://attack.mitre.org/techniques/T1497/001/](https://attack.mitre.org/techniques/T1497/001/)
+
+### Kaspersky Suspicious Network Activity Detection
+
+Detects suspicious network activities including unusual connections, potential C2 communications, or network-based attacks identified by Kaspersky security monitoring. This rule triggers when Kaspersky blocks network connections that match suspicious patterns and multiple similar events occur from the same host.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [suspicious_network_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/suspicious_network_activity.yml)
+- **Reference:** [https://support.kaspersky.com/kwts/6.1/267200](https://support.kaspersky.com/kwts/6.1/267200)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://attack.mitre.org/techniques/T1043/](https://attack.mitre.org/techniques/T1043/)
+
+### Kaspersky Suspicious Scheduled Tasks Detection
+
+Detects suspicious scheduled task creation or modification identified by Kaspersky, which could indicate persistence mechanisms used by malware or attackers. Scheduled tasks are commonly abused by attackers to maintain persistence, execute malicious code at specific times, or escalate privileges.
+
+- **Category:** Execution, Persistence, Privilege Escalation
+- **Technique:** T1053 - Scheduled Task/Job
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_scheduled_tasks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/suspicious_scheduled_tasks.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/](https://attack.mitre.org/techniques/T1053/)
+- **Reference:** [https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm](https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm)
+
+### Kaspersky Suspicious Service Installation Detection
+
+Detects suspicious Windows service installation or modification attempts identified by Kaspersky, which could indicate malware persistence mechanisms or privilege escalation attempts. Service manipulation is a common technique used by malware to maintain persistence on compromised systems.
+
+- **Category:** Persistence, Privilege Escalation
+- **Technique:** T1543.003 - Create or Modify System Process: Windows Service
+- **Impact:** C:2 / I:2 / A:2
+- **Rule file:** [suspicious_service_installation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/suspicious_service_installation.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1543/003/](https://attack.mitre.org/techniques/T1543/003/)
+- **Reference:** [https://support.kaspersky.com/ScanEngine/2.1/en-US/186767.htm](https://support.kaspersky.com/ScanEngine/2.1/en-US/186767.htm)
+
+### Kaspersky System File Tampering Detection
+
+Detects attempts to tamper with critical system files, Windows services, or protected system components. This includes unauthorized modifications to system binaries, service configurations, or attempts to manipulate security-critical files.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [system_file_tampering_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/system_file_tampering_detection.yml)
+- **Reference:** [https://support.kaspersky.com/kwts/6.1/267200](https://support.kaspersky.com/kwts/6.1/267200)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1036/](https://attack.mitre.org/techniques/T1036/)
+
+### Kaspersky Trusted Application Compromise Detection
+
+Identifies when legitimate or trusted applications exhibit malicious behavior, potentially indicating compromise or exploitation. This includes detecting when signed binaries are used for malicious purposes or when trusted processes perform suspicious activities. This is a critical security event that indicates an attacker may be using living-off-the-land techniques to evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1218 - Signed Binary Proxy Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [trusted_application_compromise.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/trusted_application_compromise.yml)
+- **Reference:** [https://www.kaspersky.com/enterprise-security/wiki-section/products/kaspersky-anti-targeted-attack-platform](https://www.kaspersky.com/enterprise-security/wiki-section/products/kaspersky-anti-targeted-attack-platform)
+- **Reference:** [https://attack.mitre.org/techniques/T1218/](https://attack.mitre.org/techniques/T1218/)
+- **Reference:** [https://attack.mitre.org/techniques/T1574/](https://attack.mitre.org/techniques/T1574/)
+
+### Kaspersky WMI Abuse Detection
+
+Detects potential Windows Management Instrumentation (WMI) abuse identified by Kaspersky, including suspicious WMI queries, event subscriptions, or process creation via WMI. WMI is a legitimate Windows component often abused by attackers for lateral movement, persistence, and code execution.
+
+- **Category:** Execution
+- **Technique:** T1047 - Windows Management Instrumentation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [wmi_abuse_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/wmi_abuse_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1047/](https://attack.mitre.org/techniques/T1047/)
+- **Reference:** [https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm](https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm)
+
+### Lateral Movement Indicators Detection
+
+Detects indicators of lateral movement attempts within the network through Kaspersky antivirus logs. 
+Attackers use various techniques including PSExec, WMI, RDP, SMB shares, and exploitation tools to move 
+from one compromised system to others, expanding their access and control across the network. This rule 
+identifies blocked or detected activities that may indicate lateral movement attempts.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021 - Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [lateral_movement_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/lateral_movement_indicators.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0008/](https://attack.mitre.org/tactics/TA0008/)
+- **Reference:** [https://support.kaspersky.com/KESWin/11/en-us/151065.htm](https://support.kaspersky.com/KESWin/11/en-us/151065.htm)
+
+### Living Off the Land Binaries (LOLBins) Abuse Detection
+
+Detects the malicious use of legitimate Windows system binaries (LOLBins) to execute malicious code. Attackers abuse these trusted tools to bypass security controls and maintain persistence. LOLBins are particularly dangerous because they are signed Microsoft binaries that are trusted by most security products.
+
+- **Category:** Defense Evasion
+- **Technique:** T1218 - System Binary Proxy Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [lolbins_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/lolbins_abuse.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1218/](https://attack.mitre.org/techniques/T1218/)
+- **Reference:** [https://lolbas-project.github.io/](https://lolbas-project.github.io/)
+- **Reference:** [https://www.kaspersky.com/enterprise-security/wiki-section/products/fileless-threats-protection](https://www.kaspersky.com/enterprise-security/wiki-section/products/fileless-threats-protection)
+
+### Process Hollowing Detection
+
+Detects process hollowing attempts where malware creates a new process in suspended state, unmaps its memory, and replaces it with malicious code. This advanced technique is used to evade detection by hiding malicious code within legitimate processes.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055.012 - Process Injection: Process Hollowing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [process_hollowing_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/process_hollowing_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/012/](https://attack.mitre.org/techniques/T1055/012/)
+- **Reference:** [https://www.kaspersky.com/enterprise-security/wiki-section/products/behavior-based-protection](https://www.kaspersky.com/enterprise-security/wiki-section/products/behavior-based-protection)
+
+### Suspicious Packed Executable Detection
+
+Detects when Kaspersky identifies suspicious packed executables, which are often used by malware to evade detection and analysis. Packed executables use compression or encryption to hide their true content and make reverse engineering more difficult.
+
+- **Category:** Defense Evasion
+- **Technique:** T1027.002 - Obfuscated Files or Information: Software Packing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_packed_executables.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/kaspersky/suspicious_packed_executables.yml)
+- **Reference:** [https://www.kaspersky.com/resource-center/threats/suspicious-packers](https://www.kaspersky.com/resource-center/threats/suspicious-packers)
+- **Reference:** [https://attack.mitre.org/techniques/T1027/002/](https://attack.mitre.org/techniques/T1027/002/)

@@ -1,0 +1,952 @@
+Detection rules for **AWS** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **73** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| AWS Backup Deletion for Impact | Impact | T1490 - Inhibit System Recovery | C:1 / I:3 / A:3 |
+| AWS CloudFormation Stack Deletion | Impact | T1485 - Data Destruction | C:1 / I:3 / A:3 |
+| AWS CloudTrail Event Selector Manipulation | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:3 / I:3 / A:2 |
+| AWS CloudTrail Log Deleted | Defense Evasion | T1562 - Impair Defenses | C:2 / I:3 / A:2 |
+| AWS CloudTrail Log Suspended | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS CloudTrail Log Updated | Impact | T1565 - Data Manipulation | C:2 / I:2 / A:1 |
+| AWS CloudTrail Logging Disabled | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:3 / I:3 / A:2 |
+| AWS CloudWatch Log Group Deletion | Impact | T1485 - Data Destruction | C:3 / I:2 / A:2 |
+| AWS CloudWatch Log Stream Deletion | Impact | T1485 - Data Destruction | C:3 / I:2 / A:2 |
+| AWS Config Service Disabled | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:2 / I:3 / A:2 |
+| AWS Config Service Tampering | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS Configuration Recorder Stopped | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS Console GetSigninToken Abuse | Credential Access | T1550.001 - Use Alternate Authentication Material: Application Access Token | C:3 / I:2 / A:1 |
+| AWS Console Login Impossible Travel Detection | Credential Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:2 / A:1 |
+| AWS Cross-Account Access Anomalies | Unauthorized Access | T1550.001 - Use Alternate Authentication Material: Application Access Token | C:3 / I:3 / A:1 |
+| AWS EC2 Cryptomining Instance Launch Detection | Resource Hijacking | T1496 - Resource Hijacking | C:1 / I:2 / A:3 |
+| AWS EC2 Encryption Disabled | Impact | T1565 - Data Manipulation | C:3 / I:2 / A:2 |
+| AWS EC2 Flow Log Deletion | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS EC2 Full Network Packet Capture Detected | Exfiltration | T1020 - Automated Exfiltration | C:3 / I:2 / A:2 |
+| AWS EC2 Instance Startup Script Modified | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| AWS EC2 Snapshot Activity | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:2 |
+| AWS EC2 Snapshot Shared with External Account | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| AWS EC2 VM Export Failure | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:2 |
+| AWS ECS Task Credential Endpoint Query | Credential Access | T1552.005 - Unsecured Credentials: Cloud Instance Metadata API | C:3 / I:2 / A:1 |
+| AWS ECS/EKS Container Abuse Detection | Execution | T1610 - Deploy Container | C:3 / I:3 / A:2 |
+| AWS Execution via System Manager | Initial Access | T1566 - Phishing | C:2 / I:1 / A:1 |
+| AWS Glue Development Endpoint Privilege Escalation | Privilege Escalation | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:2 |
+| AWS Golden SAML Attack Detected | Credential Access | T1556 - Modify Authentication Process | C:3 / I:3 / A:3 |
+| AWS GuardDuty Detector Deletion | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS GuardDuty High-Severity Finding | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| AWS IAM Assume Role Policy Update | Initial Access | T1078 - Valid Accounts | C:2 / I:2 / A:1 |
+| AWS IAM Backdoor Creation Attempts | Privilege Escalation | T1136.003 - Create Account: Cloud Account | C:3 / I:3 / A:2 |
+| AWS IAM Brute Force of Assume Role Policy | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| AWS IAM Deactivation of MFA Device | Impact | T1531 - Account Access Removal | C:3 / I:2 / A:2 |
+| AWS IAM Login Profile Modified for Another User | Persistence | T1098 - Account Manipulation | C:3 / I:3 / A:1 |
+| AWS IAM Password Recovery Requested | Initial Access | T1078 - Valid Accounts | C:2 / I:1 / A:0 |
+| AWS IAM Privilege Escalation Path Detection | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| AWS KMS Key Material Import or Deletion | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| AWS Lambda Function URL Backdoor Creation | Persistence | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:1 |
+| AWS Management Console Brute Force of Root User Identity | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| AWS Management Console Root Login | Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:3 |
+| AWS Mass Resource Deletion | Impact | T1485 - Data Destruction | C:1 / I:3 / A:3 |
+| AWS RDS Cluster Deletion | Impact | T1485 - Data Destruction | C:3 / I:2 / A:2 |
+| AWS RDS Database Restored as Publicly Accessible | Exfiltration | T1020 - Automated Exfiltration | C:3 / I:2 / A:1 |
+| AWS RDS Snapshot Export | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:2 |
+| AWS RDS Snapshot Sharing for Data Exfiltration | Data Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| AWS Root Account Usage Without MFA | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:2 |
+| AWS Root Login Without MFA | Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:2 |
+| AWS Route 53 DNS Hijacking Attempt | Initial Access | T1584.002 - Compromise Infrastructure: DNS Server | C:3 / I:3 / A:3 |
+| AWS Route 53 Domain Transfer Lock Disabled | Persistence | T1098 - Account Manipulation | C:3 / I:2 / A:2 |
+| AWS Route 53 Domain Transferred to Another Account | Persistence | T1098 - Account Manipulation | C:3 / I:3 / A:3 |
+| AWS S3 Bucket Configuration Deletion | Defense Evasion | T1070 - Indicator Removal | C:3 / I:2 / A:2 |
+| AWS S3 Bucket Public Exposure | Collection | T1530 - Data from Cloud Storage Object | C:3 / I:2 / A:1 |
+| AWS S3 Bucket Versioning Suspended | Impact | T1490 - Inhibit System Recovery | C:2 / I:3 / A:3 |
+| AWS S3 Bulk Data Exfiltration Detected | Data Exfiltration | T1530 - Data from Cloud Storage Object | C:2 / I:1 / A:1 |
+| AWS SSM SendCommand Remote Execution | Execution | T1059 - Command and Scripting Interpreter | C:2 / I:3 / A:2 |
+| AWS SSO Identity Provider Configuration Changed | Credential Access | T1556 - Modify Authentication Process | C:3 / I:3 / A:2 |
+| AWS SSO Suspicious Activities | Credential Access, Defense Evasion, Persistence | T1556.006 - Modify Authentication Process: Multi-Factor Authentication | C:3 / I:3 / A:1 |
+| AWS STS Token Abuse Detection | Privilege Escalation | T1078.004 - Cloud Accounts | C:3 / I:3 / A:1 |
+| AWS Secrets Manager Suspicious Access Pattern | Credential Access | T1552.004 - Private Keys | C:3 / I:2 / A:1 |
+| AWS Security Group Modifications | Defense Evasion | T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall | C:2 / I:3 / A:2 |
+| AWS SecurityHub Finding Evasion | Defense Evasion | T1562 - Impair Defenses | C:2 / I:3 / A:2 |
+| AWS Systems Manager Session Abuse | Lateral Movement | T1021 - Remote Services | C:3 / I:3 / A:2 |
+| AWS TruffleHog Credential Scanning Detected | Credential Access | T1552 - Unsecured Credentials | C:3 / I:1 / A:0 |
+| AWS Unusual API Call Patterns | Execution | T1106 - Execution through API | C:2 / I:1 / A:1 |
+| AWS VPC Flow Log Anomalies | Discovery | T1046 - Network Service Discovery | C:3 / I:2 / A:2 |
+| AWS WAF Access Control List Deletion | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS WAF Rule or Rule Group Deletion | Defense Evasion | T1562 - Impair Defenses | C:3 / I:2 / A:2 |
+| AWS WAF and Shield Rule Modifications | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:3 |
+| EBS Snapshot Sharing Violations | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| EC2 Instance Metadata Abuse | Credential Access | T1552.005 - Unsecured Credentials: Cloud Instance Metadata API | C:3 / I:2 / A:1 |
+| Lambda Function Privilege Escalation | Privilege Escalation | T1548 - Abuse Elevation Control Mechanism | C:3 / I:3 / A:2 |
+| RDS Security Group Changes | Defense Evasion | T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall | C:3 / I:2 / A:2 |
+
+---
+
+## Rule Details
+
+### AWS Backup Deletion for Impact
+
+Detects deletion of AWS Backup vaults, recovery points, or backup plans which could indicate an attacker attempting to prevent recovery after a destructive attack. Removing backups is a common precursor to ransomware or data destruction campaigns.
+
+- **Category:** Impact
+- **Technique:** T1490 - Inhibit System Recovery
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [aws_backup_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_backup_deletion.yml)
+- **Reference:** [https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Operations.html](https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Operations.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+
+### AWS CloudFormation Stack Deletion
+
+Detects deletion of CloudFormation stacks which could indicate destructive actions by an attacker or unauthorized infrastructure changes. This rule monitors for DeleteStack operations that could result in loss of critical infrastructure. Multiple stack deletions from the same user within a short time frame may indicate malicious activity.
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [cloudformation_stack_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/cloudformation_stack_deletion.yml)
+- **Reference:** [https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/logging-cloudformation-api-calls.html](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/logging-cloudformation-api-calls.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+
+### AWS CloudTrail Event Selector Manipulation
+
+Detects manipulation of CloudTrail event selectors which can be used to selectively exclude data events from logging. Attackers may use PutEventSelectors to disable logging of S3, Lambda, or DynamoDB data events to hide their data exfiltration or manipulation activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [cloudtrail_event_selector_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/cloudtrail_event_selector_manipulation.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+
+### AWS CloudTrail Log Deleted
+
+Identifies the deletion of an AWS log trail. An adversary may delete trails in an attempt to evade defenses
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [defense_evasion_cloudtrail_logging_deleted.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_cloudtrail_logging_deleted.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_DeleteTrail.html](https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_DeleteTrail.html)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/delete-trail.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/delete-trail.html)
+
+### AWS CloudTrail Log Suspended
+
+Identifies suspending the recording of AWS API calls and log file delivery for the specified trail. An adversary may suspend trails in an attempt to evade defenses
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_cloudtrail_logging_suspended.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_cloudtrail_logging_suspended.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_StopLogging.html](https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_StopLogging.html)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/stop-logging.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/stop-logging.html)
+
+### AWS CloudTrail Log Updated
+
+Identifies an update to an AWS log trail setting that specifies the delivery of log files
+
+- **Category:** Impact
+- **Technique:** T1565 - Data Manipulation
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [impact_cloudtrail_logging_updated.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_cloudtrail_logging_updated.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_UpdateTrail.html](https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_UpdateTrail.html)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/update-trail.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/update-trail.html)
+
+### AWS CloudTrail Logging Disabled
+
+Detects attempts to disable CloudTrail logging which could be used to hide malicious activities and evade detection. CloudTrail provides audit logs of all AWS API calls and is critical for security monitoring and compliance.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [cloudtrail_logging_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/cloudtrail_logging_disabled.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+
+### AWS CloudWatch Log Group Deletion
+
+Identifies the deletion of a specified AWS CloudWatch log group. When a log group is deleted, all the archived log events associated with the log group are also permanently deleted
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [impact_cloudwatch_log_group_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_cloudwatch_log_group_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-group.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-group.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogGroup.html](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogGroup.html)
+
+### AWS CloudWatch Log Stream Deletion
+
+Identifies the deletion of an AWS CloudWatch log stream, which permanently deletes all associated archived log events with the stream
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [impact_cloudwatch_log_stream_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_cloudwatch_log_stream_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-stream.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-stream.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogStream.html](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogStream.html)
+
+### AWS Config Service Disabled
+
+Detects attempts to disable AWS Config by stopping the configuration recorder or deleting the delivery channel. AWS Config tracks resource configuration changes and compliance, and disabling it is a common defense evasion technique.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [aws_config_service_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_config_service_disabled.yml)
+- **Reference:** [https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html](https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+
+### AWS Config Service Tampering
+
+Identifies attempts to delete an AWS Config Service resource. An adversary may tamper with Config services in order to reduce visibility into the security posture of an account and / or its workload instances
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_config_service_rule_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_config_service_rule_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://docs.aws.amazon.com/config/latest/developerguide/how-does-config-work.html](https://docs.aws.amazon.com/config/latest/developerguide/how-does-config-work.html)
+- **Reference:** [https://docs.aws.amazon.com/config/latest/APIReference/API_Operations.html](https://docs.aws.amazon.com/config/latest/APIReference/API_Operations.html)
+
+### AWS Configuration Recorder Stopped
+
+Identifies an AWS configuration change to stop recording a designated set of resources
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_configuration_recorder_stopped.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_configuration_recorder_stopped.yml)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configservice/stop-configuration-recorder.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configservice/stop-configuration-recorder.html)
+- **Reference:** [https://docs.aws.amazon.com/config/latest/APIReference/API_StopConfigurationRecorder.html](https://docs.aws.amazon.com/config/latest/APIReference/API_StopConfigurationRecorder.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### AWS Console GetSigninToken Abuse
+
+Detects GetSigninToken API calls which allow federated users to get a console sign-in token. Attackers abuse this to pivot from programmatic credentials to console access, potentially bypassing MFA requirements.
+
+- **Category:** Credential Access
+- **Technique:** T1550.001 - Use Alternate Authentication Material: Application Access Token
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [aws_console_getsignintoken_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_console_getsignintoken_abuse.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/001/](https://attack.mitre.org/techniques/T1550/001/)
+
+### AWS Console Login Impossible Travel Detection
+
+Detects AWS Console logins from different geographic locations within a short time window, indicating potential credential compromise. This correlation identifies when the same user authenticates from different countries within 30 minutes, which would be physically impossible.
+
+- **Category:** Credential Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [console_login_impossible_travel.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/console_login_impossible_travel.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-user-identity.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-user-identity.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### AWS Cross-Account Access Anomalies
+
+Detects anomalous cross-account access patterns in AWS that may indicate account compromise or privilege escalation. Monitors for AssumeRole activities across different accounts where the assumed role ARN does not match the originating account ID, potentially indicating unauthorized cross-account access.
+
+- **Category:** Unauthorized Access
+- **Technique:** T1550.001 - Use Alternate Authentication Material: Application Access Token
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [cross_account_access_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/cross_account_access_anomalies.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-user-identity.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-user-identity.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/001/](https://attack.mitre.org/techniques/T1550/001/)
+
+### AWS EC2 Cryptomining Instance Launch Detection
+
+Detects EC2 instance launches using GPU or high-compute instance types commonly associated with cryptomining operations. Attackers with compromised AWS credentials frequently launch expensive GPU instances (p3, p4, g4, g5) or large compute-optimized instances for cryptocurrency mining.
+
+- **Category:** Resource Hijacking
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [ec2_cryptomining_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/ec2_cryptomining_detection.yml)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+
+### AWS EC2 Encryption Disabled
+
+Identifies disabling of Amazon Elastic Block Store (EBS) encryption by default in the current region. Disabling encryption by default does not change the encryption status of your existing volumes
+
+- **Category:** Impact
+- **Technique:** T1565 - Data Manipulation
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [impact_ec2_disable_ebs_encryption.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_ec2_disable_ebs_encryption.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/disable-ebs-encryption-by-default.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/disable-ebs-encryption-by-default.html)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DisableEbsEncryptionByDefault.html](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DisableEbsEncryptionByDefault.html)
+
+### AWS EC2 Flow Log Deletion
+
+Identifies the deletion of one or more flow logs in AWS Elastic Compute Cloud (EC2). An adversary may delete flow logs in an attempt to evade defenses
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_ec2_flow_log_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_ec2_flow_log_deletion.yml)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-flow-logs.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-flow-logs.html)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteFlowLogs.html](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteFlowLogs.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### AWS EC2 Full Network Packet Capture Detected
+
+Identifies potential Traffic Mirroring in an Amazon Elastic Compute Cloud (EC2) instance. Traffic Mirroring is an Amazon VPC feature that you can use to copy network traffic from an elastic network interface. This feature can potentially be abused to exfiltrate sensitive data from unencrypted internal traffic
+
+- **Category:** Exfiltration
+- **Technique:** T1020 - Automated Exfiltration
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [exfiltration_ec2_full_network_packet_capture_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/exfiltration_ec2_full_network_packet_capture_detected.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+- **Reference:** [https://attack.mitre.org/techniques/T1020/](https://attack.mitre.org/techniques/T1020/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+- **Reference:** [https://attack.mitre.org/techniques/T1074/](https://attack.mitre.org/techniques/T1074/)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_TrafficMirrorFilter.html](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_TrafficMirrorFilter.html)
+- **Reference:** [https://github.com/easttimor/aws-incident-response](https://github.com/easttimor/aws-incident-response)
+
+### AWS EC2 Instance Startup Script Modified
+
+Detects ModifyInstanceAttribute API calls targeting userData, which modifies the EC2 instance startup script. Attackers use this for persistent code execution with root/SYSTEM privileges on instance start.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [aws_ec2_startup_script_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_ec2_startup_script_modification.yml)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### AWS EC2 Snapshot Activity
+
+An attempt was made to modify AWS EC2 snapshot attributes. Snapshots are sometimes shared by threat actors in order to exfiltrate bulk data from an EC2 fleet. If the permissions were modified, verify the snapshot was not shared with an unauthorized or unexpected AWS account
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [exfiltration_ec2_snapshot_change_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/exfiltration_ec2_snapshot_change_activity.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/modify-snapshot-attribute.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/modify-snapshot-attribute.html)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifySnapshotAttribute.html](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifySnapshotAttribute.html)
+
+### AWS EC2 Snapshot Shared with External Account
+
+Detects ModifySnapshotAttribute API calls that share EBS snapshots with external AWS accounts. Attackers exfiltrate data by sharing snapshots containing sensitive data with accounts they control.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [aws_snapshot_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_snapshot_exfiltration.yml)
+- **Reference:** [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modifying-snapshot-permissions.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modifying-snapshot-permissions.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### AWS EC2 VM Export Failure
+
+Identifies an attempt to export an AWS EC2 instance. A virtual machine (VM) export may indicate an attempt to extract or exfiltrate information
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [exfiltration_ec2_vm_export_failure.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/exfiltration_ec2_vm_export_failure.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+- **Reference:** [https://attack.mitre.org/techniques/T1005/](https://attack.mitre.org/techniques/T1005/)
+- **Reference:** [https://docs.aws.amazon.com/vm-import/latest/userguide/vmexport.html#export-instance](https://docs.aws.amazon.com/vm-import/latest/userguide/vmexport.html#export-instance)
+
+### AWS ECS Task Credential Endpoint Query
+
+Detects queries to the ECS task credential endpoint that may indicate container credential theft. Attackers who compromise a container can query the credential endpoint to steal IAM role credentials attached to the ECS task.
+
+- **Category:** Credential Access
+- **Technique:** T1552.005 - Unsecured Credentials: Cloud Instance Metadata API
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [aws_ecs_credential_theft.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_ecs_credential_theft.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/005/](https://attack.mitre.org/techniques/T1552/005/)
+
+### AWS ECS/EKS Container Abuse Detection
+
+Detects suspicious container operations in AWS ECS and EKS including registration of task definitions with privileged mode, host network access, or sensitive volume mounts. Attackers may deploy malicious containers to execute code, escalate privileges, or access host resources.
+
+- **Category:** Execution
+- **Technique:** T1610 - Deploy Container
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ecs_eks_container_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/ecs_eks_container_abuse.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security.html](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1610/](https://attack.mitre.org/techniques/T1610/)
+
+### AWS Execution via System Manager
+
+Identifies the execution of commands and scripts via System Manager. Execution methods such as RunShellScript, RunPowerShellScript, and alike can be abused by an authenticated attacker to install a backdoor or to interact with a compromised instance via reverse-shell using system only commands<br><strong>Potential false positives</strong><br>Verify whether the user identity, user agent, and/or hostname should be making changes in your environment. Suspicious commands from unfamiliar users or hosts should be investigated. If known behavior is causing false positives, it can be exempted from the rule.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [initial_access_via_system_manager.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/initial_access_via_system_manager.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+- **Reference:** [https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-plugins.html](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-plugins.html)
+
+### AWS Glue Development Endpoint Privilege Escalation
+
+Detects creation or modification of AWS Glue development endpoints which can be used for privilege escalation. An attacker can pass an IAM role to a Glue dev endpoint and then use it to execute code with that role's permissions, potentially escalating privileges.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [aws_glue_privilege_escalation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_glue_privilege_escalation.yml)
+- **Reference:** [https://rhinosecuritylabs.com/aws/escalating-aws-iam-privileges-undocumented-codestar-api/](https://rhinosecuritylabs.com/aws/escalating-aws-iam-privileges-undocumented-codestar-api/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### AWS Golden SAML Attack Detected
+
+Detects potential Golden SAML attacks by monitoring for AssumeRoleWithSAML calls combined with UpdateSAMLProvider or CreateSAMLProvider operations. Golden SAML was the technique used in the SolarWinds attack, allowing attackers to forge SAML tokens and assume any role in the AWS account.
+
+- **Category:** Credential Access
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [aws_golden_saml_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_golden_saml_attack.yml)
+- **Reference:** [https://www.cyberark.com/resources/threat-research-blog/golden-saml-newly-discovered-attack-technique-forges-authentication-to-cloud-apps](https://www.cyberark.com/resources/threat-research-blog/golden-saml-newly-discovered-attack-technique-forges-authentication-to-cloud-apps)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+
+### AWS GuardDuty Detector Deletion
+
+Identifies the deletion of an Amazon GuardDuty detector. Upon deletion, GuardDuty stops monitoring the environment and all existing findings are lost
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_guardduty_detector_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_guardduty_detector_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/guardduty/delete-detector.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/guardduty/delete-detector.html)
+- **Reference:** [https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html](https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html)
+
+### AWS GuardDuty High-Severity Finding
+
+Detects high-severity findings from AWS GuardDuty indicating potential security threats such as malicious activity, unauthorized access, or compromised instances. GuardDuty analyzes CloudTrail events, VPC Flow Logs, and DNS logs to identify threats.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [guardduty_high_severity_findings.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/guardduty_high_severity_findings.yml)
+- **Reference:** [https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### AWS IAM Assume Role Policy Update
+
+Identifies attempts to modify an AWS IAM Assume Role Policy. An adversary may attempt to modify the AssumeRolePolicy of a misconfigured role in order to gain the privileges of that role
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [privilege_escalation_updateassumerolepolicy.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/privilege_escalation_updateassumerolepolicy.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://labs.bishopfox.com/tech-blog/5-privesc-attack-vectors-in-aws](https://labs.bishopfox.com/tech-blog/5-privesc-attack-vectors-in-aws)
+
+### AWS IAM Backdoor Creation Attempts
+
+Detects potential IAM backdoor creation attempts through suspicious IAM user creation, access key generation, or policy attachment activities that could provide persistent access.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1136.003 - Create Account: Cloud Account
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [iam_backdoor_creation_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/iam_backdoor_creation_attempts.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1136/003/](https://attack.mitre.org/techniques/T1136/003/)
+
+### AWS IAM Brute Force of Assume Role Policy
+
+Identifies a high number of failed attempts to assume an AWS Identity and Access Management (IAM) role. IAM roles are used to delegate access to users or services. An adversary may attempt to enumerate IAM roles in order to determine if a role exists before attempting to assume or hijack the discovered role
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [credential_access_aws_iam_assume_role_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/credential_access_aws_iam_assume_role_brute_force.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://www.praetorian.com/blog/aws-iam-assume-role-vulnerabilities](https://www.praetorian.com/blog/aws-iam-assume-role-vulnerabilities)
+- **Reference:** [https://rhinosecuritylabs.com/aws/assume-worst-aws-assume-role-enumeration/](https://rhinosecuritylabs.com/aws/assume-worst-aws-assume-role-enumeration/)
+
+### AWS IAM Deactivation of MFA Device
+
+Identifies the deactivation of a specified multi-factor authentication (MFA) device and removes it from association with the user name for which it was originally enabled. In AWS Identity and Access Management (IAM), a device must be deactivated before it can be deleted
+
+- **Category:** Impact
+- **Technique:** T1531 - Account Access Removal
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [impact_iam_deactivate_mfa_device.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_iam_deactivate_mfa_device.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1531/](https://attack.mitre.org/techniques/T1531/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iam/deactivate-mfa-device.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iam/deactivate-mfa-device.html)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/APIReference/API_DeactivateMFADevice.html](https://docs.aws.amazon.com/IAM/latest/APIReference/API_DeactivateMFADevice.html)
+
+### AWS IAM Login Profile Modified for Another User
+
+Detects UpdateLoginProfile API calls where the modifier is potentially different from the target user. This can indicate an attacker changing another user's password to maintain access or enable console login for a compromised programmatic-only account.
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [aws_iam_login_profile_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_iam_login_profile_modification.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_admin-change-user.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_admin-change-user.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### AWS IAM Password Recovery Requested
+
+Identifies AWS IAM password recovery requests. An adversary may attempt to gain unauthorized AWS access by abusing password recovery mechanisms.<br><strong>Potential false positives</strong><br>Verify whether the user identity, user agent, and/or hostname should be requesting changes in your environment. Password reset attempts from unfamiliar users should be investigated. If known behavior is causing false positives, it can be exempted from the rule.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:2 / I:1 / A:0
+- **Rule file:** [initial_access_password_recovery.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/initial_access_password_recovery.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://www.cadosecurity.com/2020/06/11/an-ongoing-aws-phishing-campaign/](https://www.cadosecurity.com/2020/06/11/an-ongoing-aws-phishing-campaign/)
+
+### AWS IAM Privilege Escalation Path Detection
+
+Detects IAM actions commonly chained for privilege escalation including PassRole, CreatePolicyVersion, AttachUserPolicy, and AssumeRole. Attackers exploit these API calls to elevate their permissions within an AWS environment by creating new policy versions with elevated privileges or assuming roles with higher access.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [iam_privilege_escalation_paths.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/iam_privilege_escalation_paths.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+- **Reference:** [https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/](https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/)
+
+### AWS KMS Key Material Import or Deletion
+
+Detects ImportKeyMaterial or DeleteImportedKeyMaterial operations on AWS KMS. These are extremely rare operations that could indicate cloud ransomware preparation - an attacker importing their own key material to encrypt data and then deleting the imported key material to make decryption impossible without paying ransom.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [aws_kms_key_material_import.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_kms_key_material_import.yml)
+- **Reference:** [https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html](https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### AWS Lambda Function URL Backdoor Creation
+
+Detects creation of Lambda function URLs which provide direct HTTPS endpoints to Lambda functions. Attackers may create function URL configurations as backdoor endpoints for persistent access, command execution, or data exfiltration without requiring API Gateway.
+
+- **Category:** Persistence
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [lambda_url_backdoor.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/lambda_url_backdoor.yml)
+- **Reference:** [https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### AWS Management Console Brute Force of Root User Identity
+
+Identifies a high number of failed authentication attempts to the AWS management console for the Root user identity. An adversary may attempt to brute force the password for the Root user identity, as it has complete access to all services and resources for the AWS account
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [credential_access_root_console_failure_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/credential_access_root_console_failure_brute_force.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html)
+
+### AWS Management Console Root Login
+
+Identifies a successful login to the AWS Management Console by the Root user.<br>Adversaries may obtain and abuse credentials of a cloud account as a means of gaining Initial Access, Persistence, Privilege Escalation, or Defense Evasion.<br>Compromised credentials for cloud accounts can be used to harvest sensitive data from online storage accounts and databases.<br><strong>Potential false positives</strong><br>It's strongly recommended that the root user is not used for everyday tasks, including the administrative ones. Verify whether the IP address, location, and/or hostname should be logging in as root in your environment. Unfamiliar root logins should be investigated immediately. If known behavior is causing false positives, it can be exempted from the rule.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [initial_access_console_login_root.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/initial_access_console_login_root.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html)
+
+### AWS Mass Resource Deletion
+
+Detects mass deletion of AWS resources which could indicate destructive attack or insider threat. Monitors for multiple delete operations across various AWS services within a 10-minute window.
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [mass_resource_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/mass_resource_deletion.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+
+### AWS RDS Cluster Deletion
+
+Identifies the deletion of an Amazon Relational Database Service (RDS) Aurora database cluster or global database cluster
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [impact_rds_cluster_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/impact_rds_cluster_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-db-cluster.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-db-cluster.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteDBCluster.html](https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteDBCluster.html)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-global-cluster.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/delete-global-cluster.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteGlobalCluster.html](https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DeleteGlobalCluster.html)
+
+### AWS RDS Database Restored as Publicly Accessible
+
+Detects RestoreDBInstanceFromDBSnapshot or RestoreDBClusterFromSnapshot API calls that may create publicly accessible database instances. Attackers use this to exfiltrate database contents by restoring a snapshot as a publicly accessible instance.
+
+- **Category:** Exfiltration
+- **Technique:** T1020 - Automated Exfiltration
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [aws_rds_public_restore.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_rds_public_restore.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1020/](https://attack.mitre.org/techniques/T1020/)
+
+### AWS RDS Snapshot Export
+
+Identifies the export of an Amazon Relational Database Service (RDS) Aurora database snapshot
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [exfiltration_rds_snapshot_export.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/exfiltration_rds_snapshot_export.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html](https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html)
+
+### AWS RDS Snapshot Sharing for Data Exfiltration
+
+Detects RDS snapshot sharing modifications that could be used for data exfiltration. Attackers may share database snapshots with external AWS accounts to exfiltrate sensitive data, or make snapshots public to download them from an attacker-controlled account.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [rds_snapshot_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/rds_snapshot_exfiltration.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### AWS Root Account Usage Without MFA
+
+Detects usage of AWS root account without Multi-Factor Authentication (MFA). Root account usage should be avoided for daily operations and must always use MFA when necessary. This is a critical security violation as the root account has unrestricted access to all AWS resources.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [root_account_usage_without_mfa.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/root_account_usage_without_mfa.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### AWS Root Login Without MFA
+
+Identifies attempts to login to AWS as the root user without using multi-factor authentication (MFA). Amazon AWS best practices indicate that the root user should be protected by MFA
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [privilege_escalation_root_login_without_mfa.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/privilege_escalation_root_login_without_mfa.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html)
+
+### AWS Route 53 DNS Hijacking Attempt
+
+Detects potential DNS hijacking attempts through unauthorized changes to Route 53 DNS records. This rule monitors for ChangeResourceRecordSets operations that could indicate an attacker modifying DNS entries to redirect traffic.
+
+- **Category:** Initial Access
+- **Technique:** T1584.002 - Compromise Infrastructure: DNS Server
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [route53_dns_hijacking.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/route53_dns_hijacking.yml)
+- **Reference:** [https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/logging-using-cloudtrail.html](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/logging-using-cloudtrail.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1584/002/](https://attack.mitre.org/techniques/T1584/002/)
+
+### AWS Route 53 Domain Transfer Lock Disabled
+
+Identifies when a transfer lock was removed from a Route 53 domain. It is recommended to refrain from performing this action unless intending to transfer the domain to a different registrar
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [persistence_route_53_domain_transfer_lock_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/persistence_route_53_domain_transfer_lock_disabled.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html](https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html)
+- **Reference:** [https://docs.aws.amazon.com/Route53/latest/APIReference/API_domains_DisableDomainTransferLock.html](https://docs.aws.amazon.com/Route53/latest/APIReference/API_domains_DisableDomainTransferLock.html)
+
+### AWS Route 53 Domain Transferred to Another Account
+
+Identifies when a request has been made to transfer a Route 53 domain to another AWS account
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [persistence_route_53_domain_transferred_to_another_account.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/persistence_route_53_domain_transferred_to_another_account.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html](https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html)
+
+### AWS S3 Bucket Configuration Deletion
+
+Identifies the deletion of various Amazon Simple Storage Service (S3) bucket configuration components
+
+- **Category:** Defense Evasion
+- **Technique:** T1070 - Indicator Removal
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_s3_bucket_configuration_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_s3_bucket_configuration_deletion.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/](https://attack.mitre.org/techniques/T1070/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketPolicy.html](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketPolicy.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
+
+### AWS S3 Bucket Public Exposure
+
+Detects S3 bucket configuration changes that expose buckets to public access, including ACL modifications and public access block removal. This can lead to unauthorized data exposure and potential data breach.
+
+- **Category:** Collection
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [s3_bucket_public_exposure.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/s3_bucket_public_exposure.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### AWS S3 Bucket Versioning Suspended
+
+Detects when S3 bucket versioning is suspended via PutBucketVersioning. Disabling versioning is a cloud ransomware preparation technique that prevents recovery of overwritten or deleted objects from version history.
+
+- **Category:** Impact
+- **Technique:** T1490 - Inhibit System Recovery
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [aws_s3_versioning_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_s3_versioning_disabled.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+
+### AWS S3 Bulk Data Exfiltration Detected
+
+Detects bulk GetObject operations from S3 buckets indicating potential data exfiltration. When an attacker gains access to AWS credentials, they may attempt to download large amounts of data from S3 buckets in a short period.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [s3_bulk_data_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/s3_bulk_data_exfiltration.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### AWS SSM SendCommand Remote Execution
+
+Detects AWS Systems Manager SendCommand API calls which allow remote command execution on EC2 instances. Attackers with sufficient IAM permissions abuse SSM to execute commands across multiple instances without SSH/RDP access.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [aws_ssm_sendcommand_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_ssm_sendcommand_abuse.yml)
+- **Reference:** [https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command.html](https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### AWS SSO Identity Provider Configuration Changed
+
+Detects changes to AWS SSO identity provider configuration including directory association and external IdP configuration changes. Modifying the identity provider can enable impersonation of any user in the organization.
+
+- **Category:** Credential Access
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [aws_sso_idp_change.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_sso_idp_change.yml)
+- **Reference:** [https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-identity-source.html](https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-identity-source.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+
+### AWS SSO Suspicious Activities
+
+Detects suspicious AWS SSO activities including multiple failed login attempts, unusual permission set assignments, or SSO configuration changes that could indicate an attempt to compromise single sign-on authentication mechanisms.
+
+- **Category:** Credential Access, Defense Evasion, Persistence
+- **Technique:** T1556.006 - Modify Authentication Process: Multi-Factor Authentication
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [aws_sso_suspicious_activities.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_sso_suspicious_activities.yml)
+- **Reference:** [https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/006/](https://attack.mitre.org/techniques/T1556/006/)
+
+### AWS STS Token Abuse Detection
+
+Detects potential abuse of AWS STS AssumeRole operations. This rule identifies when roles are assumed from unusual IP addresses or when there are multiple role assumptions in a short time period, which could indicate lateral movement or privilege escalation. The rule specifically flags AssumeRole operations performed without MFA authentication.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078.004 - Cloud Accounts
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [sts_token_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/sts_token_abuse.yml)
+- **Reference:** [https://docs.aws.amazon.com/IAM/latest/UserGuide/cloudtrail-integration.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/cloudtrail-integration.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+- **Reference:** [https://www.elastic.co/security-labs/exploring-aws-sts-assumeroot](https://www.elastic.co/security-labs/exploring-aws-sts-assumeroot)
+
+### AWS Secrets Manager Suspicious Access Pattern
+
+Detects unusual access patterns to AWS Secrets Manager that could indicate credential theft or unauthorized access attempts. This rule monitors for multiple GetSecretValue or BatchGetSecretValue operations from the same source within a short time window, which may indicate an attacker attempting to harvest credentials.
+
+- **Category:** Credential Access
+- **Technique:** T1552.004 - Private Keys
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [secrets_manager_suspicious_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/secrets_manager_suspicious_access.yml)
+- **Reference:** [https://docs.aws.amazon.com/secretsmanager/latest/userguide/monitoring-cloudtrail.html](https://docs.aws.amazon.com/secretsmanager/latest/userguide/monitoring-cloudtrail.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/004/](https://attack.mitre.org/techniques/T1552/004/)
+
+### AWS Security Group Modifications
+
+Detects modifications to AWS security groups that could weaken network security posture. Monitors for changes that add permissive rules or remove restrictive rules, particularly those allowing unrestricted access (0.0.0.0/0 or ::/0).
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [security_group_modifications.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/security_group_modifications.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/007/](https://attack.mitre.org/techniques/T1562/007/)
+
+### AWS SecurityHub Finding Evasion
+
+Detects attempts to suppress or manipulate AWS SecurityHub findings through BatchUpdateFindings, DeleteInsight, or UpdateFindings operations. Attackers use these to hide evidence of their activities from security monitoring.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [aws_securityhub_finding_evasion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_securityhub_finding_evasion.yml)
+- **Reference:** [https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings.html](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### AWS Systems Manager Session Abuse
+
+Detects suspicious use of AWS Systems Manager (SSM) for remote access including StartSession, SendCommand, and SendSSHPublicKey. Attackers use SSM to establish interactive sessions or execute commands on EC2 instances without requiring direct SSH access or security group changes.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021 - Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ssm_session_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/ssm_session_abuse.yml)
+- **Reference:** [https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/](https://attack.mitre.org/techniques/T1021/)
+
+### AWS TruffleHog Credential Scanning Detected
+
+Detects TruffleHog credential scanning tool activity in AWS CloudTrail logs identified by its characteristic user agent string. TruffleHog is used to scan for exposed secrets and credentials in AWS environments.
+
+- **Category:** Credential Access
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:3 / I:1 / A:0
+- **Rule file:** [aws_trufflehog_scanning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/aws_trufflehog_scanning.yml)
+- **Reference:** [https://github.com/trufflesecurity/trufflehog](https://github.com/trufflesecurity/trufflehog)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+
+### AWS Unusual API Call Patterns
+
+Detects unusual API call patterns in AWS that may indicate unauthorized access or reconnaissance activities. This rule triggers when multiple sensitive API calls are made from the same source IP within a short time window, suggesting potential enumeration or discovery activities by attackers.
+
+- **Category:** Execution
+- **Technique:** T1106 - Execution through API
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [unusual_api_call_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/unusual_api_call_patterns.yml)
+- **Reference:** [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1106/](https://attack.mitre.org/techniques/T1106/)
+
+### AWS VPC Flow Log Anomalies
+
+Detects anomalies in VPC Flow Logs configuration that could indicate attempts to hide malicious network activity. Monitors for deletion or modification of flow log configurations.
+
+- **Category:** Discovery
+- **Technique:** T1046 - Network Service Discovery
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [vpc_flow_log_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/vpc_flow_log_anomalies.yml)
+- **Reference:** [https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1046/](https://attack.mitre.org/techniques/T1046/)
+
+### AWS WAF Access Control List Deletion
+
+Identifies the deletion of a specified AWS Web Application Firewall (WAF) access control list
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_waf_acl_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_waf_acl_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf-regional/delete-web-acl.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf-regional/delete-web-acl.html)
+- **Reference:** [https://docs.aws.amazon.com/waf/latest/APIReference/API_wafRegional_DeleteWebACL.html](https://docs.aws.amazon.com/waf/latest/APIReference/API_wafRegional_DeleteWebACL.html)
+
+### AWS WAF Rule or Rule Group Deletion
+
+Identifies the deletion of a specified AWS Web Application Firewall (WAF) rule or rule group
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [defense_evasion_waf_rule_or_rule_group_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/defense_evasion_waf_rule_or_rule_group_deletion.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf/delete-rule-group.html](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf/delete-rule-group.html)
+- **Reference:** [https://docs.aws.amazon.com/waf/latest/APIReference/API_waf_DeleteRuleGroup.html](https://docs.aws.amazon.com/waf/latest/APIReference/API_waf_DeleteRuleGroup.html)
+
+### AWS WAF and Shield Rule Modifications
+
+Detects modifications or deletions of AWS WAF web ACLs and rules which could be used to remove web application protections before launching an attack. Attackers may disable WAF rules to allow malicious traffic or remove rate limiting protections.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [waf_shield_rule_modifications.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/waf_shield_rule_modifications.yml)
+- **Reference:** [https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### EBS Snapshot Sharing Violations
+
+Detects potential data exfiltration through EBS snapshot sharing. Monitors for CreateSnapshot followed by ModifySnapshotAttribute events that could indicate an attacker creating snapshots and sharing them with external accounts or making them public.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [ebs_snapshot_sharing_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/ebs_snapshot_sharing_violations.yml)
+- **Reference:** [https://securitylabs.datadoghq.com/cloud-security-atlas/attacks/sharing-ebs-snapshot/](https://securitylabs.datadoghq.com/cloud-security-atlas/attacks/sharing-ebs-snapshot/)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### EC2 Instance Metadata Abuse
+
+Detects potential abuse of EC2 instance metadata service (IMDS) which could indicate SSRF exploitation or credential theft. Monitors for unusual API calls using credentials with IMDSv1 role delivery or suspicious patterns of EC2 metadata access.
+
+- **Category:** Credential Access
+- **Technique:** T1552.005 - Unsecured Credentials: Cloud Instance Metadata API
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [ec2_metadata_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/ec2_metadata_abuse.yml)
+- **Reference:** [https://hackingthe.cloud/aws/exploitation/ec2-metadata-ssrf/](https://hackingthe.cloud/aws/exploitation/ec2-metadata-ssrf/)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/005/](https://attack.mitre.org/techniques/T1552/005/)
+
+### Lambda Function Privilege Escalation
+
+Detects potential privilege escalation through Lambda functions when IAM policies are attached to roles or users that can be exploited. This may indicate an attacker attempting to escalate privileges by attaching administrative policies to Lambda execution roles.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1548 - Abuse Elevation Control Mechanism
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [lambda_privilege_escalation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/lambda_privilege_escalation.yml)
+- **Reference:** [https://bishopfox.com/blog/privilege-escalation-in-aws](https://bishopfox.com/blog/privilege-escalation-in-aws)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/](https://attack.mitre.org/techniques/T1548/)
+
+### RDS Security Group Changes
+
+Detects modifications to RDS database security groups that could expose databases to unauthorized access. This includes adding new ingress rules or modifying existing security group configurations that may compromise database security.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.007 - Impair Defenses: Disable or Modify Cloud Firewall
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [rds_security_group_changes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/aws/rds_security_group_changes.yml)
+- **Reference:** [https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/logging-using-cloudtrail.html](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/logging-using-cloudtrail.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/007/](https://attack.mitre.org/techniques/T1562/007/)

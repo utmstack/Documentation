@@ -1,0 +1,135 @@
+# Custom Actions
+
+While UTMStack ships with 73 built-in action templates, you can create fully custom actions to handle scenarios unique to your environment. Custom actions let you run any shell command, call external APIs, execute scripts, or interact with third-party tools — all triggered automatically by SOAR workflows.
+
+## When to Use Custom Actions
+
+Use custom actions when:
+
+- No built-in template covers your use case
+- You need to integrate with a third-party tool (ITSM, ticketing, SOAR platforms, cloud APIs)
+- You want to run a custom script or automation specific to your infrastructure
+- You need to chain multiple commands that don't fit a single template
+- You want to call REST APIs from the endpoint (e.g., notify a Slack channel, create a Jira ticket, update a CMDB)
+
+## Creating a Custom Action
+
+In the workflow builder, click the **Define Custom Action** card at the bottom of the action sidebar on the left panel.
+
+The custom action editor opens with three fields:
+
+| Field | Requirement | Description |
+|---|---|---|
+| **Action Name** | Min 5 characters | A descriptive name for the action |
+| **Description** | Min 5 characters | What the action does |
+| **Command** | Required | The shell command to execute |
+
+### Writing the Command
+
+The command editor is a terminal-style text area. You write the exact shell command that will be executed on the target agent.
+
+**For Windows agents**, the command runs in the shell selected for the workflow (CMD or PowerShell):
+
+```powershell
+# PowerShell example: Query Active Directory for a compromised user
+Get-ADUser -Identity $(adversary.user) -Properties LockedOut,Enabled,LastLogonDate | Format-List
+```
+
+```cmd
+# CMD example: Add a persistent firewall rule
+netsh advfirewall firewall add rule name="Block-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+```
+
+**For Linux/macOS agents**, the command runs in Bash:
+
+```bash
+# Block an IP and log the action
+iptables -A INPUT -s $(adversary.ip) -j DROP && echo "$(date): Blocked $(adversary.ip) from alert $(name)" >> /var/log/soar-actions.log
+```
+
+### Inserting Dynamic Variables
+
+While typing in the command editor, press **TAB** to open the variable picker. Two categories are available:
+
+**Alert Fields** — Values extracted from the triggering alert:
+
+- `$(adversary.ip)` — Attacker IP address
+- `$(adversary.user)` — Attacker username
+- `$(target.user)` — Victim username
+- `$(adversary.process)` — Suspicious process path
+- `$(log.message)` — Raw log message
+- `$(name)` — Alert name
+- `$(severity)` — Alert severity level
+- And 50+ additional fields covering adversary/target geolocation, network, file, hash, and system data
+
+Click any field to insert it at the cursor position in the command.
+
+**Automation Variables** — Reusable values you define in **SOAR > Automation Variables**:
+
+- Referenced as `$[variables.variableName]`
+- **Regular variables** — stored in plain text, visible in logs
+- **Secret variables** — encrypted at rest, decrypted only at execution time on the agent, masked in all logs
+
+## Examples of Custom Actions
+
+### Call a REST API to create an incident ticket
+
+```bash
+curl -sk -X POST \"https://itsm.example.com/api/incidents\" 
+  -H \"Authorization: Bearer $[variables.itsmApiKey]\" 
+  -H \"Content-Type: application/json\" 
+  -d '{\"title\": \"SOAR Alert: $(name)\", \"severity\": \"$(severity)\", \"source_ip\": \"$(adversary.ip)\", \"description\": \"Automated incident from UTMStack alert\"}'
+```
+
+### Send a Slack notification
+
+```bash
+curl -sk -X POST \"https://hooks.slack.com/services/$[variables.slackWebhook]\" 
+  -H \"Content-Type: application/json\" 
+  -d '{\"text\": \"SOAR Alert: $(name) detected from $(adversary.ip) targeting $(target.user). Severity: $(severity)\"}'
+```
+
+### Run a custom Python script
+
+```bash
+python3 /opt/soar-scripts/remediate.py --alert-name \"$(name)\" --source-ip \"$(adversary.ip)\" --target-user \"$(target.user)\"
+```
+
+### Block an IP on a remote firewall via SSH (using proxy agent)
+
+```bash
+ssh -o StrictHostKeyChecking=no -i $[variables.fwSshKey] admin@$[variables.firewallIp] \"set security address-book global address blocked-$(adversary.ip) $(adversary.ip)/32 && commit\"
+```
+
+### Query VirusTotal for a file hash
+
+```bash
+curl -sk \"https://www.virustotal.com/api/v3/files/$(adversary.filehash)\" 
+  -H \"x-apikey: $[variables.vtApiKey]\" 
+  | python3 -c \"import sys,json; d=json.load(sys.stdin); print('Malicious' if d['data']['attributes']['last_analysis_stats']['malicious'] > 5 else 'Clean')\"
+```
+
+### Windows: Quarantine a file and log the action
+
+```powershell
+$path = \"$(adversary.path)\"; $quarantine = \"C:\\Quarantine\\$(Get-Date -Format yyyyMMdd_HHmmss)\"; New-Item -ItemType Directory -Path $quarantine -Force; Move-Item -Path $path -Destination $quarantine -Force; Add-Content -Path \"C:\\Quarantine\\quarantine.log\" -Value \"$(Get-Date): Quarantined $path to $quarantine from alert $(name)\"
+```
+
+## Saving Custom Actions as Templates
+
+After creating a custom action in a workflow, it becomes part of that workflow's action sequence. If you want to reuse the same custom action across multiple workflows, you can:
+
+1. Create the custom action in one workflow and save the workflow
+2. In subsequent workflows, recreate the action with the same command, or copy the workflow and modify the trigger
+
+> [!TIP]
+> For commands you use frequently, keep a documented library of tested command templates. This makes it easy to copy them into new workflows without re-testing.
+
+## Security Considerations
+
+> [!WARNING]
+> Custom actions execute with the privileges of the UTMStack agent on the target system. Be cautious with:
+> - **Destructive commands** (rm -rf, format, shutdown) — always test in a non-production environment first
+> - **Secret exposure** — never use echo/print/cat to output secret variable values. The system blocks commands that attempt to expose secrets.
+> - **Injection risks** — dynamic variables are inserted as-is. If an attacker can control a field value (e.g., a crafted hostname), the command could be manipulated. Validate inputs when building complex commands.
+> - **Network access** — commands that call external APIs require the agent to have outbound network access to those endpoints"}

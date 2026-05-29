@@ -1,0 +1,117 @@
+Detection rules for **Firepower** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **5** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Advanced Malware Protection (AMP) Alert Detection | Initial Access | T1566 - Phishing | C:3 / I:3 / A:2 |
+| Command and Control on Non-Standard Ports | Command and Control | T1571 - Non-Standard Port | C:3 / I:2 / A:1 |
+| Firepower IOC (Indicator of Compromise) Detection | Initial Access | T1566 - Phishing | C:3 / I:3 / A:2 |
+| Intrusion Prevention System High Priority Events | Execution | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:3 |
+| Threat Intelligence Director (TID) Alert Detection | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Advanced Malware Protection (AMP) Alert Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/advanced_malware_protection_alerts.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-cisco-firepower
+name: Advanced Malware Protection (AMP) Alert Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html
+  - https://attack.mitre.org/techniques/T1566/
+description: |
+  Detects when Cisco Firepower Advanced Malware Protection (AMP) identifies malware or malicious files, including retrospective detections and high threat score files. This rule triggers on various malware dispositions including confirmed malware, custom detections, retrospective malware (files later identified as malicious), and files with high threat scores (>=70).
+
+  Next Steps:
+  1. Identify the affected host using the origin.ip and log.deviceName fields
+  2. Review the file hash (log.sha256) in threat intelligence databases
+  3. Check if the malware was successfully blocked or if remediation is needed
+  4. Look for lateral movement attempts from the affected host
+  5. Verify if other hosts accessed the same malicious file
+  6. Consider isolating the affected system if malware execution is confirmed
+  7. Review the file trajectory to understand the infection vector
+  8. Update endpoint protection rules to prevent similar infections
+where: |
+  equals("log.eventType", "MALWARE_EVENT") && 
+  (equals("log.disposition", "MALWARE") || 
+   equals("log.disposition", "CUSTOM_DETECTION") ||
+   equals("log.disposition", "RETROSPECTIVE_MALWARE") ||
+   greaterOrEqual("log.threatScore", 70))
+groupBy:
+  - lastEvent.log.sha256
+  - adversary.ip
+
+```
+
+---
+
+## Rule Details
+
+### Advanced Malware Protection (AMP) Alert Detection
+
+Detects when Cisco Firepower Advanced Malware Protection (AMP) identifies malware or malicious files, including retrospective detections and high threat score files. This rule triggers on various malware dispositions including confirmed malware, custom detections, retrospective malware (files later identified as malicious), and files with high threat scores (>=70).
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [advanced_malware_protection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/advanced_malware_protection_alerts.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html](https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Command and Control on Non-Standard Ports
+
+Detects connections on non-standard ports that may indicate command and control (C2) communication. Identifies HTTP traffic on non-HTTP ports, encrypted traffic on unexpected ports, and application protocol mismatches detected by Firepower's application identification engine.
+
+- **Category:** Command and Control
+- **Technique:** T1571 - Non-Standard Port
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [c2_nonstandard_port.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/c2_nonstandard_port.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/connection-log-fields.html](https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/connection-log-fields.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1571/](https://attack.mitre.org/techniques/T1571/)
+
+### Firepower IOC (Indicator of Compromise) Detection
+
+Detects when Firepower identifies an Indicator of Compromise (IOC), indicating a host may be infected with malware or compromised. IOCs can include file hashes, malware signatures, or behavioral patterns that suggest malicious activity.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ioc_matches.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/ioc_matches.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html](https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Intrusion Prevention System High Priority Events
+
+Detects high priority IPS events from Cisco Firepower indicating potential exploitation attempts, zero-day attacks, or critical vulnerabilities being targeted. These events represent immediate threats that require urgent investigation.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [intrusion_prevention_high_priority_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/intrusion_prevention_high_priority_events.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/intrusion-overview.html](https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/710/management-center-device-config-71/intrusion-overview.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+
+### Threat Intelligence Director (TID) Alert Detection
+
+Detects when Cisco Firepower Threat Intelligence Director identifies connections to known malicious indicators including IPs, domains, URLs, and SHA256 hashes from threat feeds. This rule triggers when TID blocks or would block connections based on threat intelligence matches with high confidence scores.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [threat_intelligence_director_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/firepower/threat_intelligence_director_alerts.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/tid_overview.html](https://www.cisco.com/c/en/us/td/docs/security/firepower/70/configuration/guide/fpmc-config-guide-v70/tid_overview.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)

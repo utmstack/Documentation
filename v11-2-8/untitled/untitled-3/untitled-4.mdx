@@ -1,0 +1,137 @@
+Detection rules for **Meraki** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **7** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Air Marshal Rogue Access Point Detection | Initial Access | T1200 - Hardware Additions | C:3 / I:3 / A:2 |
+| Evil Twin Access Point Detection | Wireless Security | T1557 - Adversary-in-the-Middle | C:3 / I:3 / A:1 |
+| Meraki Advanced Malware Protection Alert | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Meraki Client VPN Brute Force Attempts | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| Meraki IDS High Priority Intrusion Alert | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| Rogue SSID Detection | Initial Access | T1200 - Hardware Additions | C:3 / I:3 / A:2 |
+| Wireless Intrusion Attempts | Reconnaissance | T1595.002 - Active Scanning: Vulnerability Scanning | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Air Marshal Rogue Access Point Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/air_marshal_rogue_ap.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-meraki
+name: Air Marshal Rogue Access Point Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1200 - Hardware Additions"
+adversary: origin
+references:
+  - https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal
+  - https://attack.mitre.org/techniques/T1200/
+description: |
+  Detects when Meraki Air Marshal identifies rogue access points or unauthorized SSIDs in the wireless environment. This could indicate malicious wireless infrastructure attempting to intercept traffic or perform man-in-the-middle attacks.
+
+  Next Steps:
+  1. Verify if the detected BSSID and SSID are known legitimate access points that may not be properly registered
+  2. Check the RSSI value to determine proximity - higher values indicate the rogue AP is closer to your infrastructure
+  3. Use wireless scanning tools to physically locate the rogue access point using the BSSID
+  4. Review network traffic logs for any suspicious connections to unknown wireless networks
+  5. Check if any sensitive data might have been exposed through connections to the rogue AP
+  6. Consider implementing MAC address filtering or 802.1X authentication to prevent unauthorized connections
+  7. Document the incident and update the wireless security policy if needed
+where: |
+  equals("log.eventType", "airmarshal_events") &&
+  equals("log.type", "rogue_ssid_detected") &&
+  exists("log.bssid") &&
+  greaterOrEqual("log.rssi", -50)
+groupBy:
+  - adversary.host
+
+```
+
+---
+
+## Rule Details
+
+### Air Marshal Rogue Access Point Detection
+
+Detects when Meraki Air Marshal identifies rogue access points or unauthorized SSIDs in the wireless environment. This could indicate malicious wireless infrastructure attempting to intercept traffic or perform man-in-the-middle attacks.
+
+- **Category:** Initial Access
+- **Technique:** T1200 - Hardware Additions
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [air_marshal_rogue_ap.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/air_marshal_rogue_ap.yml)
+- **Reference:** [https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal](https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal)
+- **Reference:** [https://attack.mitre.org/techniques/T1200/](https://attack.mitre.org/techniques/T1200/)
+
+### Evil Twin Access Point Detection
+
+Detects evil twin attacks where a rogue access point mimics a legitimate corporate SSID to intercept wireless traffic. Meraki Air Marshal identifies spoofed SSIDs that match corporate network names but originate from unauthorized hardware.
+
+- **Category:** Wireless Security
+- **Technique:** T1557 - Adversary-in-the-Middle
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [evil_twin_ap_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/evil_twin_ap_detection.yml)
+- **Reference:** [https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal](https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal)
+- **Reference:** [https://attack.mitre.org/techniques/T1557/](https://attack.mitre.org/techniques/T1557/)
+
+### Meraki Advanced Malware Protection Alert
+
+Detects when Meraki Advanced Malware Protection (AMP) identifies malicious files being downloaded or executed on the network. This includes retrospective alerts where files previously considered safe are later identified as malicious.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [advanced_malware_protection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/advanced_malware_protection_alerts.yml)
+- **Reference:** [https://documentation.meraki.com/MX/Content_Filtering_and_Threat_Protection/Advanced_Malware_Protection_(AMP)](https://documentation.meraki.com/MX/Content_Filtering_and_Threat_Protection/Advanced_Malware_Protection_(AMP))
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Meraki Client VPN Brute Force Attempts
+
+Detects multiple failed client VPN authentication attempts from the same source IP on Meraki MX appliances, indicating potential brute force attacks against VPN credentials.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [meraki_vpn_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/meraki_vpn_brute_force.yml)
+- **Reference:** [https://documentation.meraki.com/MX/Client_VPN/Client_VPN_Overview](https://documentation.meraki.com/MX/Client_VPN/Client_VPN_Overview)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Meraki IDS High Priority Intrusion Alert
+
+Detects high and medium priority intrusion detection alerts from Meraki IDS/IPS system. These alerts indicate potential exploitation attempts, malicious traffic patterns, or known attack signatures detected by the Snort engine.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [intrusion_detection_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/intrusion_detection_alerts.yml)
+- **Reference:** [https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples](https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### Rogue SSID Detection
+
+Detects when a rogue SSID is identified in the wireless environment. This could indicate an evil twin attack or unauthorized access point deployment attempting to intercept wireless traffic or credentials.
+
+- **Category:** Initial Access
+- **Technique:** T1200 - Hardware Additions
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [rogue_ssid_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/rogue_ssid_detection.yml)
+- **Reference:** [https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples](https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples)
+- **Reference:** [https://attack.mitre.org/techniques/T1200/](https://attack.mitre.org/techniques/T1200/)
+
+### Wireless Intrusion Attempts
+
+Detects wireless intrusion attempts including deauthentication attacks, association floods, and other wireless-specific attack patterns that could compromise the wireless network integrity.
+
+- **Category:** Reconnaissance
+- **Technique:** T1595.002 - Active Scanning: Vulnerability Scanning
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [wireless_intrusion_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/meraki/wireless_intrusion_attempts.yml)
+- **Reference:** [https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples](https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples)
+- **Reference:** [https://attack.mitre.org/techniques/T1595/002/](https://attack.mitre.org/techniques/T1595/002/)

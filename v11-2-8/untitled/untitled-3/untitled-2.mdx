@@ -1,0 +1,99 @@
+Detection rules for **Switch** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **3** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| ARP Poisoning Attack Detection | Credential Access, Collection | T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning | C:3 / I:3 / A:2 |
+| MAC Address Spoofing Detection | Initial Access | MAC Spoofing | C:2 / I:3 / A:1 |
+| VLAN Hopping Attack Detection | Defense Evasion | T1599 - Network Boundary Bridging | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **ARP Poisoning Attack Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/cs_switch/arp_poisoning_detection.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - cisco-switch
+name: ARP Poisoning Attack Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Credential Access, Collection
+technique: "T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning"
+adversary: origin
+references:
+  - https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/25ew/configuration/guide/conf/dynarp.html
+  - https://attack.mitre.org/techniques/T1557/002/
+description: |
+  Detects potential ARP poisoning attacks by monitoring for invalid ARP packets, DHCP snooping violations, and gratuitous ARP abuse. These attacks can enable man-in-the-middle attacks by corrupting the ARP cache of network devices and redirecting network traffic through an attacker-controlled system.
+
+  Next Steps:
+  1. Identify the source MAC and IP addresses involved in the suspicious ARP activity
+  2. Check if the source device is authorized to be on the network segment
+  3. Review DHCP snooping and dynamic ARP inspection logs for additional violations
+  4. Verify if legitimate network changes (new devices, IP changes) may have triggered the alert
+  5. If confirmed malicious, immediately isolate the affected switch port and investigate the compromised device
+  6. Review network traffic for signs of data interception, credential harvesting, or traffic redirection
+  7. Update switch security configurations (enable port security, DHCP snooping, DAI if not already enabled)
+  8. Consider implementing additional network segmentation to limit attack impact
+where: |
+  (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY", "ACL_DENY"]))
+  || (equals("log.facility", "IP") && oneOf("log.facilityMnemonic", ["DUPADDR", "SOURCEGUARD"]))
+  || contains("log.message", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
+  || (lessOrEqual("log.severity", 3) && contains("log.message", ["arp spoofing", "arp poison", "man in the middle"]))
+afterEvents:
+  - indexPattern: v11-log-cisco-switch-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - adversary.mac
+
+```
+
+---
+
+## Rule Details
+
+### ARP Poisoning Attack Detection
+
+Detects potential ARP poisoning attacks by monitoring for invalid ARP packets, DHCP snooping violations, and gratuitous ARP abuse. These attacks can enable man-in-the-middle attacks by corrupting the ARP cache of network devices and redirecting network traffic through an attacker-controlled system.
+
+- **Category:** Credential Access, Collection
+- **Technique:** T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [arp_poisoning_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/cs_switch/arp_poisoning_detection.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/25ew/configuration/guide/conf/dynarp.html](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/25ew/configuration/guide/conf/dynarp.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1557/002/](https://attack.mitre.org/techniques/T1557/002/)
+
+### MAC Address Spoofing Detection
+
+Detects potential MAC address spoofing attempts by monitoring for MAC address flapping between ports, duplicate MAC addresses, or MAC addresses appearing on unexpected ports. This could indicate an attacker attempting to impersonate legitimate devices.
+
+- **Category:** Initial Access
+- **Technique:** MAC Spoofing
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [mac_address_spoofing.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/cs_switch/mac_address_spoofing.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html](https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1200/](https://attack.mitre.org/techniques/T1200/)
+
+### VLAN Hopping Attack Detection
+
+Detects potential VLAN hopping attacks through switch spoofing or double tagging. Monitors for DTP negotiation attempts, trunk port changes, or multiple VLAN tags that could indicate an attacker trying to gain unauthorized access to other VLANs.
+
+- **Category:** Defense Evasion
+- **Technique:** T1599 - Network Boundary Bridging
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [vlan_hopping_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cisco/cs_switch/vlan_hopping_attempts.yml)
+- **Reference:** [https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html](https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1599/](https://attack.mitre.org/techniques/T1599/)

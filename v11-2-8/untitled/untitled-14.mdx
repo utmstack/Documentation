@@ -1,0 +1,142 @@
+Detection rules for **Palo Alto** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **7** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| IOC Match from Threat Intelligence Feed | Defense Evasion | T1027 - Obfuscated Files or Information | C:3 / I:3 / A:2 |
+| PAN-OS DNS Security Alert Detection | Command and Control | T1071.004 - Application Layer Protocol: DNS | C:3 / I:2 / A:1 |
+| PAN-OS Malicious URL Category Block | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:2 / A:1 |
+| PAN-OS Management Plane Login Brute Force | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:1 |
+| PAN-OS Spyware and Vulnerability Threat Detection | Intrusion Detection | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| WildFire Malware Detection | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Zero-Day Exploit Prevention | Execution | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **IOC Match from Threat Intelligence Feed** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/ioc_threat_intel_match.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-paloalto
+name: IOC Match from Threat Intelligence Feed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1027 - Obfuscated Files or Information"
+adversary: origin
+references:
+  - https://docs.paloaltonetworks.com/cortex/cortex-xsoar/threat-intelligence-management
+  - https://attack.mitre.org/techniques/T1027/
+description: |
+  Detects when network traffic matches known Indicators of Compromise (IOCs) from threat intelligence feeds. This includes malicious IPs, domains, URLs, or file hashes associated with known threat actors or campaigns. The Palo Alto firewall has identified and blocked traffic based on threat intelligence data.
+
+  Next Steps:
+  1. Review the specific IOC that triggered the alert and verify its legitimacy
+  2. Investigate the source IP address for additional suspicious activities
+  3. Check if the same IOC has been observed from other internal hosts
+  4. Examine the target destination for potential compromise indicators
+  5. Update threat intelligence feeds and firewall rules as necessary
+  6. Consider isolating affected hosts if compromise is confirmed
+  7. Document the incident and IOC details for threat hunting activities
+where: |
+  (contains("log.panOSThreatCategory", "malware") ||
+   contains("log.panOSThreatCategory", "command-and-control") ||
+   contains("log.panOSThreatCategory", "phishing") ||
+   contains("log.panOSThreatCategory", "botnet") ||
+   contains("log.msg", "threat-intel") ||
+   contains("log.msg", "ioc-match")) &&
+  oneOf("log.panOSAction", ["block", "deny", "drop", "reset-both", "reset-client", "reset-server"])
+groupBy:
+  - lastEvent.log.panOSThreatID
+  - adversary.ip
+  - target.ip
+
+```
+
+---
+
+## Rule Details
+
+### IOC Match from Threat Intelligence Feed
+
+Detects when network traffic matches known Indicators of Compromise (IOCs) from threat intelligence feeds. This includes malicious IPs, domains, URLs, or file hashes associated with known threat actors or campaigns. The Palo Alto firewall has identified and blocked traffic based on threat intelligence data.
+
+- **Category:** Defense Evasion
+- **Technique:** T1027 - Obfuscated Files or Information
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ioc_threat_intel_match.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/ioc_threat_intel_match.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/cortex/cortex-xsoar/threat-intelligence-management](https://docs.paloaltonetworks.com/cortex/cortex-xsoar/threat-intelligence-management)
+- **Reference:** [https://attack.mitre.org/techniques/T1027/](https://attack.mitre.org/techniques/T1027/)
+
+### PAN-OS DNS Security Alert Detection
+
+Detects PAN-OS DNS Security alerts including DNS sinkholing, domain generation algorithm (DGA) detection, DNS tunneling, and queries to known malicious domains. These alerts indicate potential C2 communication or data exfiltration via DNS.
+
+- **Category:** Command and Control
+- **Technique:** T1071.004 - Application Layer Protocol: DNS
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [panos_dns_security_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/panos_dns_security_alerts.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention/dns-security](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention/dns-security)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/004/](https://attack.mitre.org/techniques/T1071/004/)
+
+### PAN-OS Malicious URL Category Block
+
+Detects URL filtering blocks for malicious, phishing, or command-and-control URL categories on Palo Alto firewalls. Repeated blocks from the same host may indicate malware infection or compromised credentials.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [panos_url_filtering_blocks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/panos_url_filtering_blocks.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/url-filtering](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/url-filtering)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+
+### PAN-OS Management Plane Login Brute Force
+
+Detects multiple failed login attempts to the PAN-OS management plane (web UI, SSH, or API), indicating potential brute force attacks against firewall administrative credentials.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [panos_admin_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/panos_admin_brute_force.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/system-log-fields](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/system-log-fields)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### PAN-OS Spyware and Vulnerability Threat Detection
+
+Detects spyware and vulnerability threat detections from PAN-OS threat prevention engine. These alerts indicate active exploitation attempts, spyware callbacks, or known vulnerability exploitation against protected hosts.
+
+- **Category:** Intrusion Detection
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [panos_spyware_vulnerability.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/panos_spyware_vulnerability.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### WildFire Malware Detection
+
+Detects when WildFire identifies malicious files or malware based on threat analysis. This rule triggers on files with malicious verdicts from WildFire's advanced analysis engine, indicating potential malware execution or file-based threats.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [wildfire_malware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/wildfire_malware_detection.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/advanced-wildfire/administration/advanced-wildfire-overview](https://docs.paloaltonetworks.com/advanced-wildfire/administration/advanced-wildfire-overview)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Zero-Day Exploit Prevention
+
+Detects potential zero-day exploits blocked by Palo Alto's threat prevention engine. This rule triggers on high-severity vulnerability attempts and unknown threat patterns that may indicate zero-day exploit attempts. The rule looks for THREAT type events with vulnerability or exploit subtypes that have high or critical severity, and either contain CVE references or are categorized as unknown threats.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [zero_day_exploit_prevention.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/paloalto/pa_firewall/zero_day_exploit_prevention.yml)
+- **Reference:** [https://docs.paloaltonetworks.com/threat-prevention/administration/best-practices/best-practices-for-securing-your-network-from-layer-4-and-layer-7-evasions/evasion-signatures](https://docs.paloaltonetworks.com/threat-prevention/administration/best-practices/best-practices-for-securing-your-network-from-layer-4-and-layer-7-evasions/evasion-signatures)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)

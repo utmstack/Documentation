@@ -1,231 +1,185 @@
-# Use Cases
+Detection rules for **JSON Input** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
 
-This page walks through real-world SOAR use cases with complete workflow configurations you can adapt for your environment. Each use case includes the threat scenario, trigger configuration, action sequence, and the resulting automated response.
+This category contains **10** detection rules.
 
-## Use Case 1: Block a Compromised User Account
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| GraphQL Abuse Detection | API Abuse | T1190 - Exploit Public-Facing Application | C:2 / I:1 / A:1 |
+| JSON Hijacking Attempt Detected | Execution | JSON Hijacking | C:3 / I:2 / A:1 |
+| JSON Injection Attack Attempt | Defense Evasion | JSON Injection | C:3 / I:3 / A:2 |
+| JSONP Vulnerability Exploitation Detected | Execution | JSONP Exploitation | C:3 / I:3 / A:1 |
+| JWT Algorithm Confusion Attack Detection | Authentication Bypass | T1550 - Use Alternate Authentication Material | C:3 / I:3 / A:1 |
+| JWT Token Security Issue Detected | Defense Evasion, Lateral Movement | T1550.001 - Use Alternate Authentication Material: Application Access Token | C:3 / I:3 / A:2 |
+| Mass Assignment Attack Detection | Data Manipulation | T1565 - Data Manipulation | C:2 / I:3 / A:1 |
+| NoSQL Injection via JSON Detection | Injection Attack | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| Prototype Pollution Attempt Detected | Defense Evasion, Privilege Escalation | Prototype Pollution | C:2 / I:3 / A:2 |
+| Unsafe Deserialization Attack Detected | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
 
-### Scenario
-
-An attacker gains access to a user's credentials through phishing or credential stuffing. UTMStack detects multiple suspicious activities under the same user account — privilege escalation attempts, access to sensitive resources, or lateral movement. The SOAR workflow immediately disables the account and terminates all active sessions before the attacker can cause further damage.
-
-### Threat Indicators
-
-- Multiple failed logins followed by a successful login from an unusual IP
-- User account added to an administrative group unexpectedly
-- Anomalous process execution under the user's context
-
-### Workflow Configuration
-
-**Trigger** (matches the correlation rule alert):
-
-| Field | Operator | Value |
-|---|---|---|
-| `name` | `IS` | `Windows: Multiple Logon Failure Followed by Logon Success` |
-
-**Platform**: Windows (PowerShell)
-
-**Actions** (3 steps, sequential):
-
-| Step | Action | Command | Logic |
-|---|---|---|---|
-| 1 | **Block attacker IP** | `netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes` | Always run |
-| 2 | **Disable the compromised user** | `net user $(target.user) /active:no` | Run on success |
-| 3 | **Force logout all sessions** | `logoff $(target.user)` | Run on success |
-
-### What Happens
-
-1. The correlation rule detects that 10+ failed logins from IP `203.0.113.45` were followed by a successful login as `john.doe`
-2. The alert fires: "Windows: Multiple Logon Failure Followed by Logon Success"
-3. SOAR matches the trigger and sends the commands to the Windows agent on the affected server
-4. The attacker's IP is blocked at the Windows Firewall level
-5. The `john.doe` account is disabled — no further logins are possible
-6. Any active sessions for `john.doe` are terminated
-
-**Total time from detection to containment**: seconds (vs. minutes or hours for manual response).
-
-### Variations
-
-**Linux variant** — same trigger concept, different commands:
-
-| Step | Command |
-|---|---|
-| Block IP | `iptables -A INPUT -s $(adversary.ip) -j DROP` |
-| Disable user | `usermod -s /sbin/nologin $(target.user)` |
-| Kill sessions | `pkill -KILL -u $(target.user)` |
-
-**Enhanced version** — add notification:
-
-| Step | Command | Logic |
-|---|---|---|
-| 4 | `curl -sk -X POST "https://hooks.slack.com/services/$[variables.slackWebhook]" -H "Content-Type: application/json" -d '{"text": "SOAR: Blocked user $(target.user) and IP $(adversary.ip) on $(dataSource). Alert: $(name)"}'` | Always run |
 ---
-## Use Case 2: Block an IP on a Firewall
 
-### Scenario
+## Rule Example
 
-UTMStack detects an RDP brute force attack against a Windows server. The attacker is coming from an external IP. Rather than just blocking the IP on the target server's local firewall, you want to block it at the **perimeter firewall** — stopping the attacker from reaching any system in your network.
+Below is an example of a rule definition for **GraphQL Abuse Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/graphql_abuse.yml)):
 
-This requires a **proxy agent** since the firewall doesn't run a UTMStack agent.
+```yaml
+# Rule version v1.0.0
 
-### Threat Indicators
+dataTypes:
+  - json-input
+name: GraphQL Abuse Detection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: API Abuse
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects GraphQL abuse patterns including introspection queries, query batching, deeply nested queries for DoS, and unauthorized schema discovery. These techniques are used to enumerate APIs and exploit GraphQL endpoints.
 
-- Repeated failed RDP login attempts (Windows Event ID 4625) from the same external IP
-- High-severity alert: "RDP Brute Force Attack"
+  Next Steps:
+  1. Review the GraphQL queries for malicious patterns
+  2. Check if introspection queries exposed the schema
+  3. Verify if query batching was used for brute force
+  4. Implement query depth limiting and complexity analysis
+  5. Disable introspection in production environments
+  6. Deploy rate limiting for GraphQL endpoints
+where: |
+  exists("origin.ip") &&
+  (
+    regexMatch("raw", "(?i)\\{\\s*__schema\\s*\\{") ||
+    contains("raw", "IntrospectionQuery") ||
+    contains("raw", "introspectionQuery") ||
+    regexMatch("raw", "(?i)(query|mutation)\\s*\\{.*\\{.*\\{.*\\{.*\\{.*\\{.*\\{")
+  )
+afterEvents:
+  - indexPattern: v11-log-json-input-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.host
 
-### Workflow Configuration
-
-**Trigger**:
-
-| Field | Operator | Value |
-|---|---|---|
-| `name` | `IS` | `RDP Brute Force Attack` |
-
-**Platform**: Linux (Bash) — the proxy agent is a Linux server
-
-**Agent**: Run on specific agent — select the Linux proxy that has SSH/API access to the firewall
-
-**Automation Variables needed**:
-
-| Variable | Type | Value |
-|---|---|---|
-| `firewallIp` | Regular | `10.0.0.1` |
-| `fwApiToken` | Secret | *(FortiGate API token)* |
-
-**Actions** (2 steps):
-
-| Step | Action | Command | Logic |
-|---|---|---|---|
-| 1 | **Block IP on FortiGate firewall via API** | See command below | Always run |
-| 2 | **Log the block action** | `echo "$(date): SOAR blocked $(adversary.ip) on firewall for alert $(name)" >> /var/log/soar-firewall-blocks.log` | Always run |
-
-**Step 1 command** (FortiGate REST API):
-
-```bash
-curl -sk -X POST "https://$[variables.firewallIp]/api/v2/cmdb/firewall/address" 
-  -H "Authorization: Bearer $[variables.fwApiToken]" 
-  -d '{"name": "soar-block-$(adversary.ip)", "subnet": "$(adversary.ip)/32"}' 
-&& curl -sk -X POST "https://$[variables.firewallIp]/api/v2/cmdb/firewall/policy" 
-  -H "Authorization: Bearer $[variables.fwApiToken]" 
-  -d '{"name": "soar-deny-$(adversary.ip)", "srcaddr": [{"name": "soar-block-$(adversary.ip)"}], "dstaddr": [{"name": "all"}], "action": "deny", "schedule": "always", "service": [{"name": "ALL"}]}'
 ```
 
-### What Happens
+---
 
-1. UTMStack detects 15+ failed RDP login attempts from `203.0.113.99` in 5 minutes
-2. The correlation rule fires: "RDP Brute Force Attack"
-3. SOAR matches the trigger and sends the command to the **Linux proxy agent**
-4. The proxy calls the FortiGate REST API to create an address object and deny policy for `203.0.113.99`
-5. The attacker is now blocked at the perimeter — cannot reach any internal system
+## Rule Details
 
-### Alternative: SSH-based firewall block
+### GraphQL Abuse Detection
 
-If the firewall doesn't have a REST API, use SSH:
+Detects GraphQL abuse patterns including introspection queries, query batching, deeply nested queries for DoS, and unauthorized schema discovery. These techniques are used to enumerate APIs and exploit GraphQL endpoints.
 
-```bash
-ssh -o StrictHostKeyChecking=no -i $[variables.fwSshKey] admin@$[variables.firewallIp] 
-  "config firewall address
-   edit soar-block-$(adversary.ip)
-   set subnet $(adversary.ip)/32
-   end"
-```
+- **Category:** API Abuse
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [graphql_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/graphql_abuse.yml)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
 
-### Alternative: pfSense, Palo Alto, Cisco ASA
+### JSON Hijacking Attempt Detected
 
-## The same pattern applies to any firewall — just swap the API call or SSH command for the target platform. See the **Proxy Agents** page for more examples.
+Detects attempts to hijack JSON data through malicious script tags, Array constructor overrides, or cross-domain data theft patterns. JSON hijacking attacks attempt to steal sensitive data by exploiting vulnerabilities in JSON responses through script tag inclusion or prototype manipulation.
 
-## Use Case 3: Stop a Malicious Process or Ransomware
+- **Category:** Execution
+- **Technique:** JSON Hijacking
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [json_hijacking_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/json_hijacking_attempts.yml)
+- **Reference:** [https://owasp.org/www-community/attacks/JSON_Hijacking](https://owasp.org/www-community/attacks/JSON_Hijacking)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/007/](https://attack.mitre.org/techniques/T1059/007/)
 
-### Scenario
+### JSON Injection Attack Attempt
 
-UTMStack detects signs of ransomware or malicious process execution — PowerShell Empire activity, suspicious keylogging scripts, or unauthorized file encryption. The SOAR workflow immediately kills the malicious process, deletes the payload, disables the compromised user, and optionally isolates the host to prevent lateral movement.
+Detects potential JSON injection attempts including malicious payloads, script injections, and attempts to manipulate JSON structure. These attacks can lead to XSS, authentication bypass, or remote code execution.
 
-### Threat Indicators
+- **Category:** Defense Evasion
+- **Technique:** JSON Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [json_injection_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/json_injection_attempts.yml)
+- **Reference:** [https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/](https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/)
+- **Reference:** [https://attack.mitre.org/techniques/T1027/](https://attack.mitre.org/techniques/T1027/)
 
-- PowerShell Empire detection (characteristic command patterns, encoded payloads)
-- Volume Shadow Copy deletion (common ransomware precursor)
-- Keylogging scripts detected via Windows API function calls
-- Anomalous process execution patterns
+### JSONP Vulnerability Exploitation Detected
 
-### Workflow Configuration: PowerShell Empire Response
+Detects attempts to exploit JSONP endpoints through callback manipulation, XSS injection via callbacks, or unauthorized cross-domain data access. This rule identifies malicious callback parameters containing script tags, JavaScript execution functions, or non-standard callback names that could indicate exploitation attempts.
 
-**Trigger**:
+- **Category:** Execution
+- **Technique:** JSONP Exploitation
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [jsonp_vulnerabilities.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/jsonp_vulnerabilities.yml)
+- **Reference:** [https://owasp.org/www-community/attacks/Server_Side_Request_Forgery](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/007/](https://attack.mitre.org/techniques/T1059/007/)
 
-| Field | Operator | Value |
-|---|---|---|
-| `name` | `IS` | `PowerShell Empire Detection` |
+### JWT Algorithm Confusion Attack Detection
 
-**Platform**: Windows (PowerShell)
+Detects JWT algorithm confusion attacks including alg:none bypass, RS256 to HS256 key confusion, and forged JWT tokens. These attacks exploit JWT libraries that don't properly validate the algorithm header.
 
-**Actions** (4 steps):
+- **Category:** Authentication Bypass
+- **Technique:** T1550 - Use Alternate Authentication Material
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [jwt_algorithm_confusion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/jwt_algorithm_confusion.yml)
+- **Reference:** [https://portswigger.net/web-security/jwt/algorithm-confusion](https://portswigger.net/web-security/jwt/algorithm-confusion)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/](https://attack.mitre.org/techniques/T1550/)
 
-| Step | Action | Command | Logic |
-|---|---|---|---|
-| 1 | **Kill the malicious process** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Always run |
-| 2 | **Delete the malware artifact** | `Remove-Item -LiteralPath "$(target.file)" -Force -Recurse` | Run on success |
-| 3 | **Disable the compromised user** | `net user $(target.user) /active:no` | Always run |
-| 4 | **Force logout** | `logoff $(target.user)` | Run on success |
+### JWT Token Security Issue Detected
 
-### What Happens
+Detects JWT token security issues including algorithm confusion, none algorithm usage, expired tokens, invalid signatures, or token manipulation attempts. These vulnerabilities can lead to authentication bypass and unauthorized access to protected resources.
 
-1. UTMStack detects PowerShell Empire command patterns in Windows Event Logs
-2. The alert fires with the process name, target file, and compromised user populated from the log data
-3. SOAR kills the malicious PowerShell process immediately
-4. The Empire payload file is deleted from disk
-5. The compromised user account is disabled
-6. All sessions for that user are terminated
+- **Category:** Defense Evasion, Lateral Movement
+- **Technique:** T1550.001 - Use Alternate Authentication Material: Application Access Token
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [jwt_token_security_issues.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/jwt_token_security_issues.yml)
+- **Reference:** [https://research.securitum.com/jwt-json-web-token-security/](https://research.securitum.com/jwt-json-web-token-security/)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/001/](https://attack.mitre.org/techniques/T1550/001/)
 
-### Workflow Configuration: Ransomware Response (Maximum Containment)
+### Mass Assignment Attack Detection
 
-For confirmed ransomware, you may want to escalate to **full host isolation**:
+Detects mass assignment attacks where unexpected fields like isAdmin, role, permissions, or password are injected in JSON request bodies. Attackers exploit API endpoints that blindly bind user input to object properties.
 
-**Trigger**:
+- **Category:** Data Manipulation
+- **Technique:** T1565 - Data Manipulation
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [mass_assignment_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/mass_assignment_attack.yml)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
 
-| Field | Operator | Value |
-|---|---|---|
-| `name` | `IS` | `Volume Shadow Copy Deletion` |
+### NoSQL Injection via JSON Detection
 
-**Platform**: Windows (PowerShell)
+Detects MongoDB-style NoSQL injection patterns in JSON payloads including $gt, $ne, $regex, $where, and other operator-based injection techniques. These attacks bypass authentication or extract data from NoSQL databases.
 
-**Actions** (4 steps):
+- **Category:** Injection Attack
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [nosql_injection_json.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/nosql_injection_json.yml)
+- **Reference:** [https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
 
-| Step | Action | Command | Logic |
-|---|---|---|---|
-| 1 | **Kill the suspicious process** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Always run |
-| 2 | **Disable the user** | `net user $(target.user) /active:no` | Always run |
-| 3 | **Force logout** | `logoff $(target.user)` | Always run |
-| 4 | **Isolate the host** | `Get-NetAdapter | Disable-NetAdapter -Confirm:$false` |
+### Prototype Pollution Attempt Detected
 
-> [!DANGER]
-> Step 4 (host isolation) disables all network adapters. The agent will lose connectivity to UTMStack. **Physical or out-of-band access** (iLO, iDRAC, console) will be required to restore the machine. Only use this for confirmed critical threats where stopping the attack outweighs the cost of losing remote access.
+Detects attempts to pollute JavaScript object prototypes through malicious JSON input containing __proto__, constructor, or prototype properties. This attack can lead to application compromise by modifying the behavior of all objects in the application.
 
-### Workflow Configuration: Keylogger Response
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** Prototype Pollution
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [prototype_pollution_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/prototype_pollution_attempts.yml)
+- **Reference:** [https://www.netspi.com/blog/technical-blog/web-application-pentesting/ultimate-guide-to-prototype-pollution/](https://www.netspi.com/blog/technical-blog/web-application-pentesting/ultimate-guide-to-prototype-pollution/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
 
-**Trigger**:
+### Unsafe Deserialization Attack Detected
 
-| Field | Operator | Value |
-|---|---|---|
-| `name` | `IS` | `Windows: PowerShell Keylogging Script` |
+Detects attempts to exploit unsafe deserialization vulnerabilities through malicious JSON payloads containing serialized objects or code execution patterns. These attacks can lead to remote code execution, privilege escalation, or data compromise.
 
-**Platform**: Windows (CMD)
-
-**Actions** (2 steps):
-
-| Step | Action | Command | Logic |
-|---|---|---|---|
-| 1 | **Kill by PID** | `taskkill /F /PID $(log.winlogEventDataProcessId)` | Always run |
-| 2 | **Kill by name (fallback)** | `taskkill /F /IM $(log.winlogEventDataProcessName)` | Run on failure |
-
-## This uses the **Run on failure** logic: if killing by PID fails (process already restarted with a new PID), fall back to killing by process name.
-
-## Combining Use Cases
-
-These use cases can be combined into comprehensive response workflows. For example, a full brute force response might:
-
-1. **Block the attacker IP on the local firewall** (built-in action)
-2. **Block the IP on the perimeter firewall** (proxy agent + API call)
-3. **Disable the compromised user** (built-in action)
-4. **Kill active sessions** (built-in action)
-5. **Send a Slack notification** (custom action)
-6. **Create a Jira ticket** (custom action)
-
-By chaining built-in actions, proxy-based commands, and custom API calls, you can build end-to-end automated response workflows that span your entire infrastructure — from endpoints to firewalls to cloud services to ticketing systems."}
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [deserialization_attacks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/json/json-input/deserialization_attacks.yml)
+- **Reference:** [https://knowledge-base.secureflag.com/vulnerabilities/unsafe_deserialization/unsafe_deserialization_java.html](https://knowledge-base.secureflag.com/vulnerabilities/unsafe_deserialization/unsafe_deserialization_java.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)

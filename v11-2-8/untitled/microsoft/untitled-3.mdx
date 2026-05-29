@@ -1,0 +1,221 @@
+Detection rules for **GitHub** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **13** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| GitHub Action Secret Access Activity | Collection | T1552 - Unsecured Credentials | C:3 / I:3 / A:1 |
+| GitHub App Installation Token Suspicious Access | Credential Access | T1528 - Steal Application Access Token | C:2 / I:2 / A:1 |
+| GitHub CODEOWNERS File Modification | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:1 |
+| GitHub Dependabot Configuration Poisoning | Supply Chain Compromise | T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain | C:2 / I:3 / A:1 |
+| GitHub Environment Protection Rule Bypass | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:1 |
+| GitHub Mass Repository Cloning Detection | Collection | T1213 - Data from Information Repositories | C:3 / I:2 / A:1 |
+| GitHub Organization Member to Owner Role Escalation | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| GitHub Repository Visibility Changed to Public | Data Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| GitHub Secret Scanning Alert Detected | Credential Access | T1552: Unsecured Credentials | C:3 / I:2 / A:1 |
+| GitHub Self-Hosted Runner Compromise Detection | Supply Chain Compromise | T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain | C:3 / I:3 / A:2 |
+| GitHub Sensitive Data Commit Detection | Collection | T1074 - Data Staged | C:3 / I:2 / A:1 |
+| GitHub Workflow Modifications Detected | Initial Access | T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools | C:3 / I:3 / A:2 |
+| GitHub Workflow pull_request_target Injection | Supply Chain Compromise | T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools | C:3 / I:3 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **GitHub Action Secret Access Activity** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/github/action_secret_access.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - github
+name: GitHub Action Secret Access Activity
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Collection
+technique: "T1552 - Unsecured Credentials"
+adversary: origin
+references:
+  - https://docs.github.com/en/actions/security-guides/encrypted-secrets
+  - https://attack.mitre.org/techniques/T1552/
+description: |
+  Detects access, modification, or suspicious activities related to GitHub Action secrets. This could indicate attempts to steal credentials, API keys, or other sensitive information stored in repository or organization secrets.
+  
+  Next Steps:
+  1. Review the GitHub audit logs to identify who accessed or modified the secrets
+  2. Check if the user performing the action has legitimate business need for secret access
+  3. Verify if any secrets were exposed in workflow logs or outputs
+  4. Rotate any potentially compromised secrets immediately
+  5. Review repository and organization permissions to ensure proper access controls
+  6. Check for any unusual API calls or automated scripts accessing secrets
+  7. Enable secret scanning alerts if not already configured
+  8. Consider implementing additional controls like environment-specific secrets and approval workflows
+where: |
+  oneOf("log.action", ["secret.create", "secret.update", "secret.remove"]) ||
+  oneOf("log.action", ["actions.secret.create", "actions.secret.update", "actions.secret.remove", "dependabot.secret.create", "dependabot.secret.update", "dependabot.secret.remove"])
+afterEvents:
+  - indexPattern: v11-log-github-*
+    with:
+      - field: log.repositoryName
+        operator: filter_term
+        value: '{{.log.repositoryName}}'
+      - field: log.action
+        operator: filter_match
+        value: secret
+    within: now-1h
+    count: 3
+groupBy:
+  - lastEvent.log.action
+  - lastEvent.log.repositoryName
+  - lastEvent.log.senderLogin
+
+```
+
+---
+
+## Rule Details
+
+### GitHub Action Secret Access Activity
+
+Detects access, modification, or suspicious activities related to GitHub Action secrets. This could indicate attempts to steal credentials, API keys, or other sensitive information stored in repository or organization secrets.
+
+- **Category:** Collection
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [action_secret_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/action_secret_access.yml)
+- **Reference:** [https://docs.github.com/en/actions/security-guides/encrypted-secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+
+### GitHub App Installation Token Suspicious Access
+
+Detects suspicious GitHub App installation and token activity from unexpected sources. Attackers who steal GitHub App private keys can generate installation tokens for any organization that installed the app, gaining broad access to repositories.
+
+- **Category:** Credential Access
+- **Technique:** T1528 - Steal Application Access Token
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [github_app_token_theft.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/github_app_token_theft.yml)
+- **Reference:** [https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app)
+- **Reference:** [https://attack.mitre.org/techniques/T1528/](https://attack.mitre.org/techniques/T1528/)
+
+### GitHub CODEOWNERS File Modification
+
+Detects modifications to CODEOWNERS files which define required reviewers for code changes. Attackers may modify CODEOWNERS to remove review requirements for sensitive paths, enabling them to merge malicious code without proper review.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [codeowners_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/codeowners_modification.yml)
+- **Reference:** [https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### GitHub Dependabot Configuration Poisoning
+
+Detects modifications to dependabot.yml configuration files that could redirect dependency updates to malicious registries or introduce malicious packages. Attackers may modify the Dependabot configuration to substitute legitimate dependencies with malicious alternatives.
+
+- **Category:** Supply Chain Compromise
+- **Technique:** T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [dependabot_config_poisoning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/dependabot_config_poisoning.yml)
+- **Reference:** [https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates)
+- **Reference:** [https://attack.mitre.org/techniques/T1195/002/](https://attack.mitre.org/techniques/T1195/002/)
+
+### GitHub Environment Protection Rule Bypass
+
+Detects changes to GitHub environment protection rules including removal of required reviewers, wait timers, or branch restrictions. Attackers may modify these protections to deploy malicious code to production environments without approval.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [environment_protection_bypass.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/environment_protection_bypass.yml)
+- **Reference:** [https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### GitHub Mass Repository Cloning Detection
+
+Detects when multiple repositories are cloned or accessed in a short time period, which could indicate data exfiltration or reconnaissance activities. This rule monitors for patterns of repository access that exceed normal user behavior, potentially indicating an insider threat or compromised account attempting to steal source code.
+
+- **Category:** Collection
+- **Technique:** T1213 - Data from Information Repositories
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [mass_repository_cloning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/mass_repository_cloning.yml)
+- **Reference:** [https://docs.github.com/en/webhooks/webhook-events-and-payloads#push](https://docs.github.com/en/webhooks/webhook-events-and-payloads#push)
+- **Reference:** [https://attack.mitre.org/techniques/T1213/](https://attack.mitre.org/techniques/T1213/)
+
+### GitHub Organization Member to Owner Role Escalation
+
+Detects escalation of GitHub organization member roles from member to owner. Organization owners have full administrative access including managing billing, teams, repositories, and security settings. Unauthorized role escalation can lead to complete organizational compromise.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [org_member_role_escalation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/org_member_role_escalation.yml)
+- **Reference:** [https://docs.github.com/en/organizations/managing-peoples-access-to-your-organization-with-roles/roles-in-an-organization](https://docs.github.com/en/organizations/managing-peoples-access-to-your-organization-with-roles/roles-in-an-organization)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### GitHub Repository Visibility Changed to Public
+
+Detects when a private repository's visibility is changed to public, potentially exposing proprietary source code, credentials, and sensitive configuration. This is a critical event that can lead to data exposure and intellectual property theft.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [repo_visibility_public.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/repo_visibility_public.yml)
+- **Reference:** [https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### GitHub Secret Scanning Alert Detected
+
+Detects when GitHub's secret scanning feature identifies potential secrets, API keys, or credentials committed to a repository. This could indicate inadvertent exposure of sensitive information that could be exploited by attackers.
+
+- **Category:** Credential Access
+- **Technique:** T1552: Unsecured Credentials
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [secret_scanning_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/secret_scanning_alerts.yml)
+- **Reference:** [https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning](https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+
+### GitHub Self-Hosted Runner Compromise Detection
+
+Detects suspicious self-hosted runner operations including unexpected runner registration, deregistration, or workflows specifically targeting self-hosted runners. Compromised self-hosted runners can provide access to the internal network and secrets stored on the runner machine.
+
+- **Category:** Supply Chain Compromise
+- **Technique:** T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [self_hosted_runner_compromise.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/self_hosted_runner_compromise.yml)
+- **Reference:** [https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners)
+- **Reference:** [https://attack.mitre.org/techniques/T1195/002/](https://attack.mitre.org/techniques/T1195/002/)
+
+### GitHub Sensitive Data Commit Detection
+
+Detects commits that may contain sensitive data such as API keys, passwords, private keys, or other credentials based on commit message patterns or file names.
+
+- **Category:** Collection
+- **Technique:** T1074 - Data Staged
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [sensitive_data_commits.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/sensitive_data_commits.yml)
+- **Reference:** [https://docs.github.com/en/webhooks/webhook-events-and-payloads#push](https://docs.github.com/en/webhooks/webhook-events-and-payloads#push)
+- **Reference:** [https://attack.mitre.org/techniques/T1074/](https://attack.mitre.org/techniques/T1074/)
+
+### GitHub Workflow Modifications Detected
+
+Detects modifications to GitHub Actions workflows which could be used to inject malicious code into the CI/CD pipeline or steal secrets. Attackers may modify workflows to execute arbitrary code, exfiltrate secrets, or compromise the software supply chain.
+
+- **Category:** Initial Access
+- **Technique:** T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [workflow_modifications.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/workflow_modifications.yml)
+- **Reference:** [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+- **Reference:** [https://attack.mitre.org/techniques/T1195/001/](https://attack.mitre.org/techniques/T1195/001/)
+
+### GitHub Workflow pull_request_target Injection
+
+Detects modifications to GitHub Actions workflow files that may introduce pull_request_target trigger abuse. This trigger runs with repository write permissions and secrets access even on forked PRs, making it a high-value target for supply chain attacks.
+
+- **Category:** Supply Chain Compromise
+- **Technique:** T1195.001 - Supply Chain Compromise: Compromise Software Dependencies and Development Tools
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [workflow_injection_pr_target.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/github/workflow_injection_pr_target.yml)
+- **Reference:** [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target)
+- **Reference:** [https://attack.mitre.org/techniques/T1195/001/](https://attack.mitre.org/techniques/T1195/001/)

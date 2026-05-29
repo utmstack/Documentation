@@ -1,0 +1,228 @@
+Detection rules for **VMware ESXi** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **14** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| ESXi Direct SSH Login Detection | Remote Access | T1021.004 - Remote Services: SSH | C:3 / I:3 / A:2 |
+| ESXi Firewall Rule Modification Detection | Defense Evasion | T1562.004 - Impair Defenses: Disable or Modify System Firewall | C:2 / I:3 / A:2 |
+| ESXi Host Compromise Indicators | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:3 |
+| ESXi Local Account Manipulation Detection | Persistence | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| ESXi Ransomware Attack Detection | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| ESXi Syslog Forwarding Disruption Detection | Defense Evasion | T1562.002 - Impair Defenses: Disable Windows Event Logging | C:1 / I:3 / A:2 |
+| ESXi Unsigned VIB Installation Detection | Persistence | T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain | C:3 / I:3 / A:3 |
+| ESXi Virtual Disk Theft Detection | Collection | T1005 - Data from Local System | C:3 / I:1 / A:1 |
+| PowerCLI Script Execution Detection | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| VMware ESXi Hypervisor Escape Attempt Detection | Privilege Escalation | T1611 - Escape to Host | C:3 / I:3 / A:3 |
+| VMware Tools Vulnerability Exploitation | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| VMware vCenter Server Attack Indicators | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:3 |
+| Virtual Machine Escape Detection | Privilege Escalation | T1611 - Escape to Host | C:3 / I:3 / A:3 |
+| vSphere API Abuse Detection | Lateral Movement | T1210 - Exploitation of Remote Services | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **ESXi Direct SSH Login Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_ssh_access.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - vmware-esxi
+name: ESXi Direct SSH Login Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Remote Access
+technique: "T1021.004 - Remote Services: SSH"
+adversary: origin
+references:
+  - https://kb.vmware.com/s/article/1017910
+  - https://attack.mitre.org/techniques/T1021/004/
+description: |
+  Detects direct SSH login to ESXi hosts, which is a security concern as ESXi management should primarily be done through vCenter. Direct SSH access is commonly used by attackers for ransomware deployment and post-exploitation activities.
+
+  Next Steps:
+  1. Verify the SSH login was from an authorized administrator
+  2. Check if SSH was enabled as part of authorized maintenance
+  3. Review commands executed during the SSH session
+  4. Disable SSH access after maintenance is complete
+  5. Implement SSH access controls and key-based authentication
+  6. Monitor for post-login suspicious activity
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "SSH") && contains("log.message", "login")) ||
+    (contains("log.message", "sshd") && contains("log.message", "Accepted")) ||
+    (contains("log.message", "SSH session") && contains("log.message", "opened")) ||
+    (contains("log.message", "SSH") && contains("log.message", "enabled")) ||
+    (contains("log.message", "ssh") && contains("log.message", "connection from"))
+  )
+groupBy:
+  - adversary.hostname
+  - adversary.ip
+
+```
+
+---
+
+## Rule Details
+
+### ESXi Direct SSH Login Detection
+
+Detects direct SSH login to ESXi hosts, which is a security concern as ESXi management should primarily be done through vCenter. Direct SSH access is commonly used by attackers for ransomware deployment and post-exploitation activities.
+
+- **Category:** Remote Access
+- **Technique:** T1021.004 - Remote Services: SSH
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [esxi_ssh_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_ssh_access.yml)
+- **Reference:** [https://kb.vmware.com/s/article/1017910](https://kb.vmware.com/s/article/1017910)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/004/](https://attack.mitre.org/techniques/T1021/004/)
+
+### ESXi Firewall Rule Modification Detection
+
+Detects modifications to ESXi firewall ruleset configurations using esxcli network firewall commands. Attackers modify firewall rules to enable outbound connections for C2 communication or to expose management interfaces.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.004 - Impair Defenses: Disable or Modify System Firewall
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [esxi_firewall_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_firewall_modification.yml)
+- **Reference:** [https://kb.vmware.com/s/article/2008226](https://kb.vmware.com/s/article/2008226)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/004/](https://attack.mitre.org/techniques/T1562/004/)
+
+### ESXi Host Compromise Indicators
+
+Detects indicators of ESXi host compromise including ransomware preparation activities, suspicious file operations on virtual machines, logging tampering, and abnormal system changes. Monitors for encryption tools, VM power operations, and file system modifications.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [esxi_host_compromise.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_host_compromise.yml)
+- **Reference:** [https://www.forescout.com/blog/vmware-esxi-servers-a-major-attack-vector-for-ransomware/](https://www.forescout.com/blog/vmware-esxi-servers-a-major-attack-vector-for-ransomware/)
+- **Reference:** [https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass](https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### ESXi Local Account Manipulation Detection
+
+Detects creation or modification of local ESXi user accounts. Attackers create backdoor accounts on ESXi hosts for persistent access, or modify existing accounts to escalate privileges.
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [esxi_account_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_account_manipulation.yml)
+- **Reference:** [https://kb.vmware.com/s/article/1006530](https://kb.vmware.com/s/article/1006530)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### ESXi Ransomware Attack Detection
+
+Detects ESXi ransomware attack patterns including mass VM shutdown, VMDK encryption indicators, suspicious script execution, and deletion of VM snapshots. ESXiArgs and similar ransomware families target ESXi hosts to encrypt virtual machine disk files.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [esxi_ransomware_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_ransomware_detection.yml)
+- **Reference:** [https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-039a](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-039a)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### ESXi Syslog Forwarding Disruption Detection
+
+Detects attempts to disable or modify ESXi syslog forwarding to prevent security monitoring. Attackers disable syslog to operate without detection by the SIEM.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.002 - Impair Defenses: Disable Windows Event Logging
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [esxi_syslog_disruption.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_syslog_disruption.yml)
+- **Reference:** [https://kb.vmware.com/s/article/2003322](https://kb.vmware.com/s/article/2003322)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/002/](https://attack.mitre.org/techniques/T1562/002/)
+
+### ESXi Unsigned VIB Installation Detection
+
+Detects installation of unsigned or community-supported VIB (vSphere Installation Bundle) packages on ESXi hosts. APT groups use malicious VIBs for persistent backdoor access to hypervisors that survive reboots and updates.
+
+- **Category:** Persistence
+- **Technique:** T1195.002 - Supply Chain Compromise: Compromise Software Supply Chain
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [esxi_vib_sideloading.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_vib_sideloading.yml)
+- **Reference:** [https://www.mandiant.com/resources/blog/esxi-hypervisors-malware-persistence](https://www.mandiant.com/resources/blog/esxi-hypervisors-malware-persistence)
+- **Reference:** [https://attack.mitre.org/techniques/T1195/002/](https://attack.mitre.org/techniques/T1195/002/)
+
+### ESXi Virtual Disk Theft Detection
+
+Detects potential theft of virtual machine disk files (.vmdk) through Datastore Browser downloads, SCP transfers, or unauthorized vmkfstools operations. Attackers exfiltrate VMDK files to obtain complete system images.
+
+- **Category:** Collection
+- **Technique:** T1005 - Data from Local System
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [esxi_disk_theft.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/esxi_disk_theft.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1005/](https://attack.mitre.org/techniques/T1005/)
+
+### PowerCLI Script Execution Detection
+
+Detects PowerCLI script execution on VMware ESXi hosts by monitoring for authentication events and command execution patterns associated with MS Web Services Client Protocol, which is unique to PowerCLI connections. PowerCLI is VMware's powerful command-line tool that can be used by attackers to perform reconnaissance, lateral movement, or persistence on virtualized infrastructure.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [powercli_script_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/powercli_script_execution.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+- **Reference:** [https://blogs.vmware.com/vsphere/2013/07/capturing-logins-to-esxi-by-a-root-account.html](https://blogs.vmware.com/vsphere/2013/07/capturing-logins-to-esxi-by-a-root-account.html)
+
+### VMware ESXi Hypervisor Escape Attempt Detection
+
+Detects potential hypervisor escape attempts through suspicious VMX process activity, abnormal privilege escalation, or unauthorized access to host resources from guest VMs. This rule identifies various indicators of compromise including CVE-2024-37085 exploitation, VMCI backdoor attempts, and unauthorized vpxuser activities.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1611 - Escape to Host
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [hypervisor_escape_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/hypervisor_escape_attempts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1611/](https://attack.mitre.org/techniques/T1611/)
+- **Reference:** [https://www.usenix.org/system/files/woot19-paper_zhao.pdf](https://www.usenix.org/system/files/woot19-paper_zhao.pdf)
+- **Reference:** [https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html)
+
+### VMware Tools Vulnerability Exploitation
+
+Detects potential exploitation of VMware Tools vulnerabilities by monitoring for suspicious authentication events, command execution patterns, and error messages related to VMware Tools operations. VMware Tools vulnerabilities can be exploited to gain unauthorized access to virtual machines or escalate privileges within the virtualized environment.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [vmware_tools_vulnerabilities.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/vmware_tools_vulnerabilities.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+- **Reference:** [https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-F35D7005-58EB-48AC-99D5-B9942EB2A8EF.html)
+
+### VMware vCenter Server Attack Indicators
+
+Detects potential attacks targeting vCenter Server including authentication anomalies, privilege escalation attempts, and suspicious command execution. Monitors for indicators of compromise such as unusual SSH enablement, service modifications, and administrative group changes.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [vcenter_server_attacks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/vcenter_server_attacks.yml)
+- **Reference:** [https://us-cert.cisa.gov/ncas/alerts/aa22-138b](https://us-cert.cisa.gov/ncas/alerts/aa22-138b)
+- **Reference:** [https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html](https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### Virtual Machine Escape Detection
+
+Detects VM escape attempts through abnormal guest operations, suspicious VMware Tools activity, or attempts to access host resources from guest VMs. VM escape is a critical security event where an attacker breaks out of virtual machine containment to access the hypervisor or host system.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1611 - Escape to Host
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [vm_escape_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/vm_escape_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1611/](https://attack.mitre.org/techniques/T1611/)
+- **Reference:** [https://www.csoonline.com/article/3837874/vmware-esxi-gets-critical-patches-for-in-the-wild-virtual-machine-escape-attack.html](https://www.csoonline.com/article/3837874/vmware-esxi-gets-critical-patches-for-in-the-wild-virtual-machine-escape-attack.html)
+- **Reference:** [https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html](https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html)
+
+### vSphere API Abuse Detection
+
+Detects potential vSphere API abuse including unauthorized access attempts, suspicious API calls, and exploitation attempts. Monitors for authentication failures, unusual vpxuser activity, and rapid API requests that could indicate compromise or abuse of VMware vSphere infrastructure.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [vsphere_api_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/vmware/vmware-esxi/vsphere_api_abuse.yml)
+- **Reference:** [https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass](https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass)
+- **Reference:** [https://attack.mitre.org/techniques/T1210/](https://attack.mitre.org/techniques/T1210/)

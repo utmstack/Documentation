@@ -1,0 +1,272 @@
+Detection rules for **Deceptive Bytes** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **16** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Advanced Threat Tactic Identification | Advanced Persistent Threat | Multiple Tactics | C:3 / I:3 / A:3 |
+| Criminal Group Signatures | Organized Crime Activity | Criminal Group TTPs | C:3 / I:3 / A:2 |
+| Data Theft Attempt on Decoy Files | Collection | T1005 - Data from Local System | C:3 / I:2 / A:1 |
+| Deception API Call Tracking | Execution | T1106 - Native API | C:2 / I:2 / A:1 |
+| Deception Token Access Patterns | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078 - Valid Accounts: Credential Access | C:3 / I:3 / A:1 |
+| Decoy Share Access Monitoring | Discovery | T1135 - Network Share Discovery | C:3 / I:2 / A:1 |
+| Decoy System Enumeration | Discovery | T1082 - System Information Discovery | C:3 / I:2 / A:1 |
+| Fake User Authentication Attempts | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:1 |
+| Honey Table Query Detection | Collection | T1005 - Data from Local System | C:3 / I:2 / A:1 |
+| Lateral Movement Trap Triggered | Lateral Movement | T1021 - Remote Services | C:3 / I:3 / A:2 |
+| Living Off The Land Attack Using Deceptive Resources | Defense Evasion | T1218 - Signed Binary Proxy Execution | C:3 / I:3 / A:2 |
+| Nation-State Tactic Detection | Advanced Persistent Threat | T1595 - Active Scanning / Nation-State Attack Patterns | C:3 / I:3 / A:3 |
+| Privilege Escalation Bait Accessed | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:2 |
+| Ransomware Behavior Detected in Deception Environment | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Threat Actor Attribution | Threat Intelligence | T1583 - Acquire Infrastructure | C:2 / I:2 / A:2 |
+| Zero-Day Behavior Patterns Detection | Defense Evasion | T1211 - Exploitation for Defense Evasion | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Advanced Threat Tactic Identification** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/advanced_threat_tactic_identification.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - deceptive-bytes
+name: Advanced Threat Tactic Identification
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Advanced Persistent Threat
+technique: Multiple Tactics
+adversary: origin
+references:
+  - https://attack.mitre.org/tactics/TA0001/
+  - https://attack.mitre.org/tactics/TA0002/
+  - https://attack.mitre.org/tactics/TA0003/
+description: |
+  Detects advanced threat tactics including initial access, execution, and persistence techniques by monitoring deception environment interactions and behavioral patterns. This rule triggers when deceptive assets are accessed with high behavior scores indicating sophisticated attack patterns.
+  
+  Next Steps:
+  1. Immediately isolate the affected endpoint(s) associated with the source IP
+  2. Review the specific tactic name to understand the attack phase (initial access, execution, persistence, etc.)
+  3. Check all deception assets that were triggered to map the attacker's movement
+  4. Analyze the behavior score details to understand the sophistication level
+  5. Look for related alerts from the same source IP across different systems
+  6. Collect forensic data from the endpoint before any remediation
+  7. Review authentication logs for any credential abuse from this source
+  8. Check network logs for lateral movement attempts
+  9. Update security controls to block the identified tactics
+  10. Consider deploying additional deception assets in the path of the attacker
+where: |
+  equals("log.eventType", "advanced_threat_detected") &&
+  equals("log.threatLevel", "critical") &&
+  (oneOf("log.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
+  equals("log.deceptionTriggered", true) &&
+  greaterOrEqual("log.behaviorScore", 80)
+afterEvents:
+  - indexPattern: v11-log-deceptive-bytes-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.tacticName
+        operator: filter_term
+        value: '{{.log.tacticName}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - lastEvent.log.tacticName
+  - lastEvent.log.threatLevel
+  - adversary.ip
+
+```
+
+---
+
+## Rule Details
+
+### Advanced Threat Tactic Identification
+
+Detects advanced threat tactics including initial access, execution, and persistence techniques by monitoring deception environment interactions and behavioral patterns. This rule triggers when deceptive assets are accessed with high behavior scores indicating sophisticated attack patterns.
+
+- **Category:** Advanced Persistent Threat
+- **Technique:** Multiple Tactics
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [advanced_threat_tactic_identification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/advanced_threat_tactic_identification.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+
+### Criminal Group Signatures
+
+Identifies attack signatures and behavioral patterns associated with known criminal groups including ransomware operators, financial crime syndicates, and organized cybercrime operations. Deception technology detects malicious activity by monitoring interactions with decoy assets that should never be accessed in legitimate workflows.
+
+- **Category:** Organized Crime Activity
+- **Technique:** Criminal Group TTPs
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [criminal_group_signatures.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/criminal_group_signatures.yml)
+- **Reference:** [https://attack.mitre.org/groups/](https://attack.mitre.org/groups/)
+- **Reference:** [https://www.ic3.gov/Media/PDF/AnnualReport/2023_IC3Report.pdf](https://www.ic3.gov/Media/PDF/AnnualReport/2023_IC3Report.pdf)
+- **Reference:** [https://www.acalvio.com/cyber-deception/the-role-of-deception-technology-in-the-endpoint-security-reference-architecture/](https://www.acalvio.com/cyber-deception/the-role-of-deception-technology-in-the-endpoint-security-reference-architecture/)
+- **Reference:** [https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a)
+
+### Data Theft Attempt on Decoy Files
+
+Detects attempts to access, copy, or exfiltrate deceptive decoy files and honeypot data, indicating potential data theft activities by an attacker. This rule triggers when an attacker interacts with high-sensitivity decoy files planted by Deceptive Bytes.
+
+- **Category:** Collection
+- **Technique:** T1005 - Data from Local System
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [data_theft_attempt_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/data_theft_attempt_indicators.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1005/](https://attack.mitre.org/techniques/T1005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1567/](https://attack.mitre.org/techniques/T1567/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Deception API Call Tracking
+
+Tracks suspicious API calls made to decoy services or endpoints. This behavior indicates an attacker is attempting to interact with what they believe are legitimate services but are actually deception assets.
+
+- **Category:** Execution
+- **Technique:** T1106 - Native API
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [deception_api_call_tracking.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/deception_api_call_tracking.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1106/](https://attack.mitre.org/techniques/T1106/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Deception Token Access Patterns
+
+Detects when deception tokens or honeytokens are accessed, indicating potential unauthorized activity or insider threat. Multiple token accesses from the same source within a short timeframe suggest systematic reconnaissance or data harvesting attempts. Honeytokens are fake credentials or access tokens planted as traps to detect unauthorized access.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078 - Valid Accounts: Credential Access
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [deception_token_access_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/deception_token_access_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://deceptivebytes.com/](https://deceptivebytes.com/)
+
+### Decoy Share Access Monitoring
+
+Detects when an attacker attempts to access decoy network shares set up by Deceptive Bytes. This indicates potential lateral movement or reconnaissance activity within the network. Any interaction with decoy shares is a high-confidence indicator of malicious activity since legitimate users should never access these resources.
+
+- **Category:** Discovery
+- **Technique:** T1135 - Network Share Discovery
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [decoy_share_access_monitoring.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/decoy_share_access_monitoring.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1135/](https://attack.mitre.org/techniques/T1135/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Decoy System Enumeration
+
+Detects when an attacker performs system enumeration activities on decoy systems or services. This includes port scanning, service discovery, or system information gathering on deception assets.
+
+- **Category:** Discovery
+- **Technique:** T1082 - System Information Discovery
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [decoy_system_enumeration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/decoy_system_enumeration.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1082/](https://attack.mitre.org/techniques/T1082/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Fake User Authentication Attempts
+
+Detects authentication attempts using decoy user accounts created by Deceptive Bytes. This indicates an attacker has obtained what they believe are valid credentials and is attempting to use them.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [fake_user_authentication_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/fake_user_authentication_attempts.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Honey Table Query Detection
+
+Detects when an attacker queries honey tables or decoy database objects deployed by Deceptive Bytes. This indicates potential data exfiltration attempts or database reconnaissance. Honey tables are deliberately placed decoy data designed to attract and identify unauthorized access attempts.
+
+- **Category:** Collection
+- **Technique:** T1005 - Data from Local System
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [honey_table_query_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/honey_table_query_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1005/](https://attack.mitre.org/techniques/T1005/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Lateral Movement Trap Triggered
+
+Detects when an attacker triggers a deceptive trap while attempting lateral movement across the network. This indicates potential compromise and active threat movement within the environment.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021 - Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [lateral_movement_trap_triggers.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/lateral_movement_trap_triggers.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/](https://attack.mitre.org/techniques/T1021/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Living Off The Land Attack Using Deceptive Resources
+
+Detects when attackers use legitimate system tools and binaries to interact with deceptive resources, indicating Living Off The Land (LOLBins) attack techniques. This is a high-confidence indicator of malicious activity as legitimate users should not be accessing deceptive resources with system binaries.
+
+- **Category:** Defense Evasion
+- **Technique:** T1218 - Signed Binary Proxy Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [living_off_the_land_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/living_off_the_land_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1218/](https://attack.mitre.org/techniques/T1218/)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/](https://attack.mitre.org/techniques/T1053/)
+- **Reference:** [https://lolbas-project.github.io/](https://lolbas-project.github.io/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Nation-State Tactic Detection
+
+Detects sophisticated attack patterns and techniques commonly associated with nation-state actors including advanced persistence mechanisms, custom tooling, and strategic lateral movement.
+
+- **Category:** Advanced Persistent Threat
+- **Technique:** T1595 - Active Scanning / Nation-State Attack Patterns
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [nation_state_tactic_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/nation_state_tactic_detection.yml)
+- **Reference:** [https://attack.mitre.org/groups/](https://attack.mitre.org/groups/)
+- **Reference:** [https://www.cisa.gov/topics/cyber-threats-and-advisories/advanced-persistent-threats](https://www.cisa.gov/topics/cyber-threats-and-advisories/advanced-persistent-threats)
+
+### Privilege Escalation Bait Accessed
+
+Detects when an attacker accesses deceptive privileged account baits or attempts to escalate privileges using trapped credentials, indicating active exploitation attempts. This is a high-priority alert as it indicates an active attacker who has progressed beyond initial access and is attempting to gain elevated privileges.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [privilege_escalation_bait_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/privilege_escalation_bait_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://www.checkpoint.com/cyber-hub/cyber-security/what-is-deception-technology/](https://www.checkpoint.com/cyber-hub/cyber-security/what-is-deception-technology/)
+
+### Ransomware Behavior Detected in Deception Environment
+
+Detects ransomware-like behavior patterns when attackers interact with deceptive files, including rapid file enumeration, encryption attempts, and ransom note creation in the Deceptive Bytes deception environment.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransomware_behavior_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/ransomware_behavior_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+- **Reference:** [https://deceptivebytes.com/solution/](https://deceptivebytes.com/solution/)
+
+### Threat Actor Attribution
+
+Correlates observed attack patterns, tools, techniques, and infrastructure with known threat actor profiles to provide attribution intelligence and identify potential threat actors based on high-confidence indicators.
+
+- **Category:** Threat Intelligence
+- **Technique:** T1583 - Acquire Infrastructure
+- **Impact:** C:2 / I:2 / A:2
+- **Rule file:** [threat_actor_attribution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/threat_actor_attribution.yml)
+- **Reference:** [https://attack.mitre.org/groups/](https://attack.mitre.org/groups/)
+- **Reference:** [https://malpedia.caad.fkie.fraunhofer.de/](https://malpedia.caad.fkie.fraunhofer.de/)
+
+### Zero-Day Behavior Patterns Detection
+
+Identifies potential zero-day exploits and unknown malware through abnormal behavior patterns, deception interactions, and anomaly detection in endpoint activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1211 - Exploitation for Defense Evasion
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [zero_day_behavior_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/deceptive-bytes/zero_day_behavior_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1211/](https://attack.mitre.org/techniques/T1211/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://attack.mitre.org/techniques/T1620/](https://attack.mitre.org/techniques/T1620/)

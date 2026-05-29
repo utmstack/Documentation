@@ -1,0 +1,468 @@
+Detection rules for **NIDS / Suricata** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **33** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| ARP Spoofing Detection | Network Attack | T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning | C:3 / I:3 / A:2 |
+| Baby Shark C2 Communication Pattern Detected | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:3 / A:2 |
+| Base64-Encoded DNS Query Detected | Exfiltration | T1048.003 - Exfiltration Over Alternative Protocol: Exfiltration Over Unencrypted Non-C2 Protocol | C:3 / I:2 / A:1 |
+| Base64-Encoded User Agent String Detected | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:2 / I:2 / A:1 |
+| Cobalt Strike DNS Beacon Pattern Detected | Command and Control | T1071.004 - Application Layer Protocol: DNS | C:3 / I:3 / A:2 |
+| Cobalt Strike Malleable C2 Profile Detected | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:3 / A:2 |
+| Command and Control Traffic Detection | Command and Control | T1095 - Non-Application Layer Protocol | C:3 / I:3 / A:2 |
+| Covert Channel Detection | Exfiltration | Covert Channel Communication | C:3 / I:2 / A:1 |
+| Cryptocurrency Mining Pool DNS Lookup Detected | Resource Hijacking | T1496 - Resource Hijacking | C:1 / I:1 / A:3 |
+| DDoS Attack Patterns | Impact | T1498 - Network Denial of Service | C:1 / I:2 / A:3 |
+| DNS Query to Out-of-Band Interaction Domain | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:2 / A:1 |
+| DNS TXT Record Contains Execution Strings | Command and Control | T1071.004 - Application Layer Protocol: DNS | C:3 / I:3 / A:2 |
+| DNS Tunneling Detection | Command and Control | T1071.004 - Application Layer Protocol: DNS | C:2 / I:2 / A:1 |
+| Data Exfiltration Pattern Detection | Exfiltration | T1048 - Exfiltration Over Alternative Protocol | C:3 / I:1 / A:1 |
+| Exploit Attempt Detection | Lateral Movement | T1210 - Exploitation of Remote Services | C:3 / I:3 / A:2 |
+| Exploit Framework User Agent Detected in HTTP Traffic | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:3 / A:2 |
+| Hack Tool User Agent Detected in HTTP Traffic | Reconnaissance | T1595.002 - Active Scanning: Vulnerability Scanning | C:2 / I:2 / A:1 |
+| ICMP Tunneling Detection via Suricata | Command and Control | T1572 - Protocol Tunneling | C:3 / I:2 / A:2 |
+| IPFS-Based Credential Harvesting Page Access | Credential Access | T1056 - Input Capture | C:3 / I:2 / A:0 |
+| JA3 Fingerprint Threat Intelligence Match | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:2 / A:1 |
+| Known Malware User Agent String Detected | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:3 / I:3 / A:2 |
+| Lateral Movement Indicators | Lateral Movement | T1021 - Remote Services | C:3 / I:3 / A:2 |
+| Malicious File Download Detection | Execution | T1105 - Ingress Tool Transfer | C:3 / I:3 / A:2 |
+| Malware Callback Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| NKN Blockchain C2 Communication Detected | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| Port Scan Detection | Discovery | T1046 - Network Service Scanning | C:2 / I:1 / A:1 |
+| PwnDrop File Hosting Server Access Detected | Command and Control | T1102 - Web Service | C:2 / I:3 / A:1 |
+| Rclone Data Exfiltration Tool Detected | Exfiltration | T1567.002 - Exfiltration Over Web Service: Exfiltration to Cloud Storage | C:3 / I:2 / A:1 |
+| SSH Brute Force and Tunneling Detection | Lateral Movement | T1021.004 - Remote Services: SSH | C:3 / I:2 / A:2 |
+| TLS Certificate Anomaly Detection | Defense Evasion | T1573 - Encrypted Channel | C:3 / I:2 / A:1 |
+| Threat Intelligence IOC Match | Command and Control | Command and Control | C:3 / I:2 / A:2 |
+| Tor Proxy/Gateway DNS Lookup Detected | Command and Control | T1090.003 - Proxy: Multi-hop Proxy | C:3 / I:2 / A:1 |
+| Tunneling Detection | Command and Control | T1572 - Protocol Tunneling | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **ARP Spoofing Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_arp_spoofing.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - suricata
+name: ARP Spoofing Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Network Attack
+technique: "T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning"
+adversary: origin
+references:
+  - https://suricata.readthedocs.io/en/latest/rules/index.html
+  - https://attack.mitre.org/techniques/T1557/002/
+description: |
+  Detects ARP spoofing and ARP cache poisoning attacks identified by Suricata. ARP spoofing allows attackers to intercept traffic between hosts on the same network segment, enabling man-in-the-middle attacks, credential theft, and session hijacking.
+
+  Next Steps:
+  1. Identify the source MAC address involved in the ARP spoofing
+  2. Locate the physical port and switch where the spoofing originates
+  3. Check if the ARP responses are claiming to be the default gateway
+  4. Review affected hosts for intercepted credentials or modified traffic
+  5. Enable Dynamic ARP Inspection (DAI) on switches if not configured
+  6. Investigate the device for attack tools (Ettercap, Bettercap, arpspoof)
+where: |
+  equals("log.eventType", "alert") &&
+  (contains("log.alert.signature", ["ARP", "arp"]) &&
+   contains("log.alert.signature", ["spoof", "poison", "duplicate", "conflict", "gratuitous"])) &&
+  exists("origin.ip")
+groupBy:
+  - adversary.ip
+  - adversary.mac
+
+```
+
+---
+
+## Rule Details
+
+### ARP Spoofing Detection
+
+Detects ARP spoofing and ARP cache poisoning attacks identified by Suricata. ARP spoofing allows attackers to intercept traffic between hosts on the same network segment, enabling man-in-the-middle attacks, credential theft, and session hijacking.
+
+- **Category:** Network Attack
+- **Technique:** T1557.002 - Adversary-in-the-Middle: ARP Cache Poisoning
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [nids_arp_spoofing.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_arp_spoofing.yml)
+- **Reference:** [https://suricata.readthedocs.io/en/latest/rules/index.html](https://suricata.readthedocs.io/en/latest/rules/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1557/002/](https://attack.mitre.org/techniques/T1557/002/)
+
+### Baby Shark C2 Communication Pattern Detected
+
+Detects HTTP traffic matching the Baby Shark C2 framework URL pattern. Baby Shark is a reconnaissance tool and C2 framework used primarily by North Korean APT groups (Kimsuky/Thallium). The distinctive URL pattern 'momyshark?key=' is unique to this framework and has very low false positive rates.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [baby_shark_c2.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/baby_shark_c2.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_baby_shark_default_agent_url.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_baby_shark_default_agent_url.yml)
+- **Reference:** [https://unit42.paloaltonetworks.com/new-babyshark-malware-targets-u-s-national-security-think-tanks/](https://unit42.paloaltonetworks.com/new-babyshark-malware-targets-u-s-national-security-think-tanks/)
+
+### Base64-Encoded DNS Query Detected
+
+Detects DNS queries containing base64-encoded data, identified by the presence of '==' padding followed by a dot separator. This pattern is commonly used in DNS-based data exfiltration where stolen data is encoded in base64 and split across DNS query subdomains. Legitimate DNS queries almost never contain base64 padding characters.
+
+- **Category:** Exfiltration
+- **Technique:** T1048.003 - Exfiltration Over Alternative Protocol: Exfiltration Over Unencrypted Non-C2 Protocol
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [base64_dns_queries.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/base64_dns_queries.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1048/003/](https://attack.mitre.org/techniques/T1048/003/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_b64_queries.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_b64_queries.yml)
+
+### Base64-Encoded User Agent String Detected
+
+Detects HTTP traffic where the user agent string appears to be a base64-encoded value. Some malware families (notably YamaBot/Torisma attributed to North Korean APT Lazarus) use base64-encoded browser strings as user agents. This evasion technique attempts to bypass user agent-based detection while still being identifiable by the base64 encoding pattern.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [base64_encoded_user_agent.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/base64_encoded_user_agent.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_base64_encoded.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_base64_encoded.yml)
+
+### Cobalt Strike DNS Beacon Pattern Detected
+
+Detects DNS queries matching known Cobalt Strike DNS beacon patterns. Cobalt Strike uses specific DNS query prefixes for its DNS-based C2 channel, including 'aaa.stage.' for staging and 'post.1' for data exfiltration. These patterns are highly specific to Cobalt Strike and rarely appear in legitimate DNS traffic.
+
+- **Category:** Command and Control
+- **Technique:** T1071.004 - Application Layer Protocol: DNS
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [cobalt_strike_dns_beacon.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/cobalt_strike_dns_beacon.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/004/](https://attack.mitre.org/techniques/T1071/004/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_mal_cobaltstrike.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_mal_cobaltstrike.yml)
+- **Reference:** [https://blog.sekoia.io/hunting-and-detecting-cobalt-strike/](https://blog.sekoia.io/hunting-and-detecting-cobalt-strike/)
+
+### Cobalt Strike Malleable C2 Profile Detected
+
+Detects HTTP traffic patterns matching known Cobalt Strike malleable C2 profiles. Cobalt Strike operators use malleable C2 profiles to disguise their C2 traffic as legitimate services (Amazon, OCSP, OneDrive, jQuery). This rule matches specific URI patterns, HTTP headers, and user agent combinations that are characteristic of common malleable C2 profiles.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [cobalt_strike_malleable_c2.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/cobalt_strike_malleable_c2.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_cobalt_strike_malleable_c2_requests.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_hktl_cobalt_strike_malleable_c2_requests.yml)
+- **Reference:** [https://www.cobaltstrike.com/help-malleable-c2](https://www.cobaltstrike.com/help-malleable-c2)
+
+### Command and Control Traffic Detection
+
+Detects command and control (C2) communication patterns including suspicious periodic connections, non-standard ports, encrypted channels on unusual ports, DNS tunneling, and known C2 infrastructure indicators. This rule identifies malicious communications between compromised systems and command and control servers through various techniques including signature-based detection, protocol analysis, and behavioral indicators.
+
+- **Category:** Command and Control
+- **Technique:** T1095 - Non-Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [command_and_control_traffic.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/command_and_control_traffic.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1095/](https://attack.mitre.org/techniques/T1095/)
+- **Reference:** [https://attack.mitre.org/techniques/T1571/](https://attack.mitre.org/techniques/T1571/)
+- **Reference:** [https://www.snort.org/rule_docs/](https://www.snort.org/rule_docs/)
+
+### Covert Channel Detection
+
+Detects potential covert channel communication through unusual protocols, DNS tunneling, or ICMP data exfiltration patterns. This rule identifies suspicious network communications that may be used to bypass security controls and exfiltrate data through legitimate-looking traffic.
+
+- **Category:** Exfiltration
+- **Technique:** Covert Channel Communication
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [covert_channel_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/covert_channel_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1048/](https://attack.mitre.org/techniques/T1048/)
+- **Reference:** [https://docs.suricata.io/en/latest/output/eve/eve-json-format.html](https://docs.suricata.io/en/latest/output/eve/eve-json-format.html)
+
+### Cryptocurrency Mining Pool DNS Lookup Detected
+
+Detects DNS queries to known cryptocurrency mining pool domains. Unauthorized mining software on corporate systems indicates compromise, as attackers deploy cryptominers for profit using stolen compute resources. This degrades system performance and increases energy costs.
+
+- **Category:** Resource Hijacking
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:1 / I:1 / A:3
+- **Rule file:** [dns_mining_pool_lookups.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/dns_mining_pool_lookups.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_mining_pools.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_mining_pools.yml)
+
+### DDoS Attack Patterns
+
+Detects various DDoS attack patterns including SYN floods, UDP floods, ICMP floods, HTTP floods, and amplification attacks based on Suricata network intrusion detection system alerts and traffic patterns.
+
+- **Category:** Impact
+- **Technique:** T1498 - Network Denial of Service
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [ddos_attack_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/ddos_attack_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1498/](https://attack.mitre.org/techniques/T1498/)
+- **Reference:** [https://attack.mitre.org/techniques/T1499/](https://attack.mitre.org/techniques/T1499/)
+- **Reference:** [https://docs.suricata.io/en/latest/output/eve/eve-json-format.html](https://docs.suricata.io/en/latest/output/eve/eve-json-format.html)
+
+### DNS Query to Out-of-Band Interaction Domain
+
+Detects DNS queries to known out-of-band (OOB) interaction testing domains used by penetration testing tools and exploit frameworks. These domains (Burp Collaborator, interactsh, dnslog.cn, canarytokens) are almost exclusively used during active exploitation attempts such as SSRF, RCE, XXE, and Log4Shell attacks. Legitimate use is extremely rare outside of authorized security testing.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [dns_oob_interaction_domains.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/dns_oob_interaction_domains.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_external_service_interaction_domains.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_external_service_interaction_domains.yml)
+- **Reference:** [https://portswigger.net/burp/documentation/collaborator](https://portswigger.net/burp/documentation/collaborator)
+
+### DNS TXT Record Contains Execution Strings
+
+Detects DNS TXT record responses containing Windows command execution strings such as IEX, Invoke-Expression, cmd.exe, powershell, and other execution indicators. This technique is used for DNS-based C2 payload delivery where commands are encoded in DNS TXT records and executed by the compromised host.
+
+- **Category:** Command and Control
+- **Technique:** T1071.004 - Application Layer Protocol: DNS
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [dns_txt_execution_strings.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/dns_txt_execution_strings.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/004/](https://attack.mitre.org/techniques/T1071/004/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_txt_exec_strings.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_txt_exec_strings.yml)
+
+### DNS Tunneling Detection
+
+Detects potential DNS tunneling activity based on abnormal DNS query patterns, including unusually long domain names, high frequency of DNS requests, or suspicious TXT record queries. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
+
+- **Category:** Command and Control
+- **Technique:** T1071.004 - Application Layer Protocol: DNS
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [dns_tunneling_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/dns_tunneling_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/004/](https://attack.mitre.org/techniques/T1071/004/)
+- **Reference:** [https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152](https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152)
+
+### Data Exfiltration Pattern Detection
+
+Detects potential data exfiltration activities through unusual outbound traffic patterns, large data transfers, suspicious protocols, base64 encoded data, and connections to external file sharing services. This rule identifies various indicators of data theft including large uploads, connections to file sharing services, DNS tunneling, and TOR usage.
+
+- **Category:** Exfiltration
+- **Technique:** T1048 - Exfiltration Over Alternative Protocol
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [data_exfiltration_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/data_exfiltration_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1048/](https://attack.mitre.org/techniques/T1048/)
+- **Reference:** [https://attack.mitre.org/techniques/T1041/](https://attack.mitre.org/techniques/T1041/)
+- **Reference:** [https://www.snort.org/rule_docs/](https://www.snort.org/rule_docs/)
+
+### Exploit Attempt Detection
+
+Detects potential exploit attempts based on suspicious payload patterns, buffer overflow indicators, shellcode execution attempts, and known vulnerability signatures in network traffic. This rule triggers on Suricata IDS alerts that indicate active exploitation attempts against network services.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_attempt_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/exploit_attempt_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1210/](https://attack.mitre.org/techniques/T1210/)
+- **Reference:** [https://www.snort.org/rule_docs/](https://www.snort.org/rule_docs/)
+
+### Exploit Framework User Agent Detected in HTTP Traffic
+
+Detects HTTP traffic containing user agent strings from known C2 frameworks and exploit tools including Cobalt Strike, Metasploit, Empire, Havoc, Sliver, Brute Ratel, Mythic, and other offensive security frameworks. These user agents are strong indicators of active command and control communication or exploitation attempts.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_framework_user_agents.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/exploit_framework_user_agents.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_frameworks.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_frameworks.yml)
+
+### Hack Tool User Agent Detected in HTTP Traffic
+
+Detects HTTP traffic containing user agent strings from known offensive security and hacking tools including vulnerability scanners, brute force tools, SQL injection tools, and web application testing tools. These tools are commonly used during reconnaissance and exploitation phases of attacks.
+
+- **Category:** Reconnaissance
+- **Technique:** T1595.002 - Active Scanning: Vulnerability Scanning
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [hacktool_user_agents.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/hacktool_user_agents.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1595/002/](https://attack.mitre.org/techniques/T1595/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_hacktool.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_hacktool.yml)
+
+### ICMP Tunneling Detection via Suricata
+
+Detects potential ICMP tunneling activity based on abnormal ICMP packet patterns, including oversized ICMP packets, unusual ICMP types, high payload entropy, or abnormal ICMP codes. ICMP tunneling is a covert channel technique used by attackers to bypass network security controls and establish command and control communications.
+
+- **Category:** Command and Control
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [icmp_tunneling_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/icmp_tunneling_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+- **Reference:** [https://www.sans.org/reading-room/whitepapers/covert/icmp-tunneling-is-is-secure-1857](https://www.sans.org/reading-room/whitepapers/covert/icmp-tunneling-is-is-secure-1857)
+
+### IPFS-Based Credential Harvesting Page Access
+
+Detects HTTP access to IPFS (InterPlanetary File System) URLs containing email parameters, which is a strong indicator of credential harvesting phishing pages. Attackers host phishing pages on IPFS because the content is decentralized and extremely difficult to take down. The presence of email parameters in IPFS URLs indicates the page is pre-populated with the victim's email for credential theft.
+
+- **Category:** Credential Access
+- **Technique:** T1056 - Input Capture
+- **Impact:** C:3 / I:2 / A:0
+- **Rule file:** [ipfs_credential_harvesting.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/ipfs_credential_harvesting.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1056/](https://attack.mitre.org/techniques/T1056/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_susp_ipfs_cred_harvest.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_susp_ipfs_cred_harvest.yml)
+- **Reference:** [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/ipfs-abuse-in-phishing-campaigns/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/ipfs-abuse-in-phishing-campaigns/)
+
+### JA3 Fingerprint Threat Intelligence Match
+
+Detects TLS client fingerprints (JA3 hashes) matching known malicious software, C2 frameworks, or threat intelligence feeds. JA3 fingerprinting identifies unique TLS client behaviors regardless of destination IP.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [nids_ja3_threat_matching.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_ja3_threat_matching.yml)
+- **Reference:** [https://suricata.readthedocs.io/en/latest/rules/ja3-keywords.html](https://suricata.readthedocs.io/en/latest/rules/ja3-keywords.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+
+### Known Malware User Agent String Detected
+
+Detects HTTP traffic containing user agent strings associated with known malware families including RATs, stealers, ransomware, and other malicious software. These user agents are hardcoded or generated by specific malware families and serve as high-confidence indicators of compromise.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [malware_user_agent_strings.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/malware_user_agent_strings.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_malware.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_malware.yml)
+
+### Lateral Movement Indicators
+
+Detects indicators of lateral movement within the network including SMB/RDP scanning, authentication attempts across multiple systems, suspicious remote access patterns, and administrative tool usage. This rule identifies various lateral movement techniques including PsExec usage, WMI commands, RDP brute force attempts, SMB scanning, and connections to common administrative ports.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021 - Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [lateral_movement_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/lateral_movement_indicators.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/](https://attack.mitre.org/techniques/T1021/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0008/](https://attack.mitre.org/tactics/TA0008/)
+- **Reference:** [https://www.snort.org/rule_docs/](https://www.snort.org/rule_docs/)
+
+### Malicious File Download Detection
+
+Detects downloads of potentially malicious executable files over HTTP identified by Suricata file inspection. This includes PE executables, scripts, and other suspicious file types being transferred from external sources.
+
+- **Category:** Execution
+- **Technique:** T1105 - Ingress Tool Transfer
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [nids_malicious_file_downloads.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_malicious_file_downloads.yml)
+- **Reference:** [https://suricata.readthedocs.io/en/latest/rules/file-keywords.html](https://suricata.readthedocs.io/en/latest/rules/file-keywords.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### Malware Callback Detection
+
+Detects potential malware callback activities including beaconing behavior, known malicious domains, suspicious user agents, and communication patterns typical of command and control infrastructure.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [malware_callbacks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/malware_callbacks.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://www.virustotal.com/gui/home/upload](https://www.virustotal.com/gui/home/upload)
+- **Reference:** [https://www.snort.org/rule_docs/](https://www.snort.org/rule_docs/)
+
+### NKN Blockchain C2 Communication Detected
+
+Detects DNS queries to NKN (New Kind of Network) blockchain seed nodes. NKN is a blockchain-based overlay network that has been abused by malware as a decentralized C2 channel. The use of blockchain-based C2 makes takedown extremely difficult and provides high resilience for malware communications.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [nkn_blockchain_c2.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nkn_blockchain_c2.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_nkn.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_nkn.yml)
+- **Reference:** [https://research.checkpoint.com/2023/cloud-based-botnet-used-nkn-for-its-c2-communication/](https://research.checkpoint.com/2023/cloud-based-botnet-used-nkn-for-its-c2-communication/)
+
+### Port Scan Detection
+
+Detects various port scanning techniques including TCP SYN scans, connect scans, UDP scans, NULL scans, FIN scans, and XMAS scans. Port scanning is a reconnaissance technique used by attackers to discover open ports and services on target systems, which can be used to identify potential attack vectors.
+
+This rule detects port scans through multiple indicators:
+- Suricata alert signatures containing scan-related keywords
+- TCP SYN packets with short duration flows (SYN scan)
+- TCP packets with unusual flag combinations (NULL, FIN, XMAS scans)
+- Anomaly events indicating scan activity
+
+- **Category:** Discovery
+- **Technique:** T1046 - Network Service Scanning
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [port_scan_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/port_scan_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1046/](https://attack.mitre.org/techniques/T1046/)
+- **Reference:** [https://docs.suricata.io/en/latest/output/eve/eve-json-format.html](https://docs.suricata.io/en/latest/output/eve/eve-json-format.html)
+
+### PwnDrop File Hosting Server Access Detected
+
+Detects HTTP access to PwnDrop file hosting servers. PwnDrop is a self-hosted file hosting tool designed for red teamers and attackers to serve payloads. The /pwndrop/ path in the URL is the default admin and API endpoint, and its presence in web traffic strongly indicates malicious file hosting or payload delivery.
+
+- **Category:** Command and Control
+- **Technique:** T1102 - Web Service
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [pwndrop_file_hosting.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/pwndrop_file_hosting.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1102/](https://attack.mitre.org/techniques/T1102/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_pwndrop.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_pwndrop.yml)
+- **Reference:** [https://github.com/kgretzky/pwndrop](https://github.com/kgretzky/pwndrop)
+
+### Rclone Data Exfiltration Tool Detected
+
+Detects HTTP traffic with the rclone user agent string. Rclone is a command-line program to manage files on cloud storage and is the most commonly used data exfiltration tool in ransomware operations. Threat groups including Conti, BlackMatter, LockBit, and many others use rclone to exfiltrate data before deploying ransomware.
+
+- **Category:** Exfiltration
+- **Technique:** T1567.002 - Exfiltration Over Web Service: Exfiltration to Cloud Storage
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [rclone_data_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/rclone_data_exfiltration.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1567/002/](https://attack.mitre.org/techniques/T1567/002/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_rclone.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_rclone.yml)
+- **Reference:** [https://research.nccgroup.com/2021/05/27/detecting-rclone-an-effective-tool-for-exfiltration/](https://research.nccgroup.com/2021/05/27/detecting-rclone-an-effective-tool-for-exfiltration/)
+
+### SSH Brute Force and Tunneling Detection
+
+Detects SSH-based attacks including brute force attempts, SSH tunneling indicators, and anomalous SSH traffic patterns identified by Suricata. SSH is commonly abused for lateral movement and encrypted tunneling.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021.004 - Remote Services: SSH
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [nids_ssh_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_ssh_anomalies.yml)
+- **Reference:** [https://suricata.readthedocs.io/en/latest/rules/ssh-keywords.html](https://suricata.readthedocs.io/en/latest/rules/ssh-keywords.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/004/](https://attack.mitre.org/techniques/T1021/004/)
+
+### TLS Certificate Anomaly Detection
+
+Detects TLS certificate anomalies including self-signed certificates, expired certificates, certificate subject mismatches, and certificates from untrusted authorities. These anomalies are common indicators of C2 infrastructure, man-in-the-middle attacks, or phishing sites.
+
+- **Category:** Defense Evasion
+- **Technique:** T1573 - Encrypted Channel
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [nids_tls_certificate_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/nids_tls_certificate_anomalies.yml)
+- **Reference:** [https://suricata.readthedocs.io/en/latest/rules/tls-keywords.html](https://suricata.readthedocs.io/en/latest/rules/tls-keywords.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1573/](https://attack.mitre.org/techniques/T1573/)
+
+### Threat Intelligence IOC Match
+
+Detects network traffic matching known malicious indicators from threat intelligence feeds including malicious IPs, domains, and URLs. This rule triggers when Suricata identifies traffic involving known threat actors, command and control servers, botnet infrastructure, or other malicious network indicators based on threat intelligence data.
+
+- **Category:** Command and Control
+- **Technique:** Command and Control
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [threat_intelligence_iocs.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/threat_intelligence_iocs.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://www.snort.org/faq/what-is-snort](https://www.snort.org/faq/what-is-snort)
+
+### Tor Proxy/Gateway DNS Lookup Detected
+
+Detects DNS lookups to known Tor proxy and gateway domains. These services allow web traffic to be routed through the Tor network without installing the Tor browser, commonly used by attackers to anonymize C2 traffic or access dark web resources from corporate networks.
+
+- **Category:** Command and Control
+- **Technique:** T1090.003 - Proxy: Multi-hop Proxy
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [tor_proxy_dns_lookups.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/tor_proxy_dns_lookups.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1090/003/](https://attack.mitre.org/techniques/T1090/003/)
+- **Reference:** [https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_torproxy.yml](https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_torproxy.yml)
+
+### Tunneling Detection
+
+Detects various tunneling techniques including SSH tunneling, HTTP tunneling, VPN over non-standard ports, and protocol mismatches. Tunneling is used by attackers to bypass network security controls and establish covert communication channels.
+
+- **Category:** Command and Control
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [tunneling_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/nids/suricata/tunneling_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+- **Reference:** [https://docs.suricata.io/en/latest/output/eve/eve-json-format.html](https://docs.suricata.io/en/latest/output/eve/eve-json-format.html)

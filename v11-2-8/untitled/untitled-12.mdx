@@ -1,0 +1,203 @@
+Detection rules for **Netflow** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **12** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Abnormally Long-Lived Network Connection | Command and Control | T1571 - Non-Standard Port | C:2 / I:1 / A:1 |
+| C2 Beaconing Behavior Detection | Command and Control | T1071 - Application Layer Protocol | C:2 / I:2 / A:1 |
+| Cryptocurrency Mining Pool Traffic Detection | Resource Hijacking | T1496 - Resource Hijacking | C:1 / I:2 / A:3 |
+| DDoS Attack Pattern Detection | Impact | T1498 - Network Denial of Service | C:1 / I:1 / A:3 |
+| DNS-over-HTTPS (DoH) Traffic Detection | Command and Control | T1071.004 - Application Layer Protocol: DNS | C:1 / I:0 / A:0 |
+| Data Exfiltration Detection | Exfiltration | T1041 - Exfiltration Over C2 Channel | C:3 / I:2 / A:1 |
+| ICMP Tunneling Detection via NetFlow | Command and Control | T1095 - Non-Application Layer Protocol | C:3 / I:2 / A:1 |
+| Internal Network Host Scanning Detection | Discovery | T1046 - Network Service Scanning | C:2 / I:1 / A:1 |
+| Internal SMB/RDP Lateral Movement Detection | Lateral Movement | T1021 - Remote Services | C:3 / I:3 / A:2 |
+| Port Scanning Activity Detection | Discovery | T1046 - Network Service Scanning | C:2 / I:1 / A:1 |
+| Tor Network Usage Detection | Command and Control | T1090 - Proxy: Multi-hop Proxy | C:3 / I:2 / A:1 |
+| VPN Protocol to Non-Corporate Destination | Exfiltration | T1572 - Protocol Tunneling | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Abnormally Long-Lived Network Connection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_long_duration_connections.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - netflow
+name: Abnormally Long-Lived Network Connection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Command and Control
+technique: "T1571 - Non-Standard Port"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1571/
+  - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+description: |
+  Detects abnormally long-lived network connections (lasting over 24 hours) to external destinations. Persistent connections may indicate C2 channels, backdoor access, or data exfiltration tunnels that maintain ongoing communication.
+
+  Next Steps:
+  1. Investigate the internal host maintaining the long connection
+  2. Identify the application or process responsible for the connection
+  3. Review the destination IP and port for known C2 indicators
+  4. Check the data transfer volume during the connection
+  5. Review connection patterns for beaconing behavior
+  6. If suspicious, terminate the connection and scan the host
+where: |
+  exists("origin.ip") &&
+  exists("target.ip") &&
+  greaterThan("log.duration", 86400) &&
+  equals("protocol", "TCP") &&
+  !inCIDR("target.ip", "10.0.0.0/8") &&
+  !inCIDR("target.ip", "172.16.0.0/12") &&
+  !inCIDR("target.ip", "192.168.0.0/16") &&
+  !oneOf("target.port", [443, 80, 22, 993, 995, 587])
+groupBy:
+  - adversary.ip
+  - target.ip
+  - target.port
+
+```
+
+---
+
+## Rule Details
+
+### Abnormally Long-Lived Network Connection
+
+Detects abnormally long-lived network connections (lasting over 24 hours) to external destinations. Persistent connections may indicate C2 channels, backdoor access, or data exfiltration tunnels that maintain ongoing communication.
+
+- **Category:** Command and Control
+- **Technique:** T1571 - Non-Standard Port
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [netflow_long_duration_connections.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_long_duration_connections.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1571/](https://attack.mitre.org/techniques/T1571/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### C2 Beaconing Behavior Detection
+
+Detects potential command and control beaconing behavior based on periodic connections with consistent intervals and small data transfers. This rule identifies suspicious network patterns where an internal host makes repeated small connections to an external host, which may indicate C2 communication.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [beaconing_behavior_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/beaconing_behavior_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### Cryptocurrency Mining Pool Traffic Detection
+
+Detects network connections to known cryptocurrency mining pool ports (Stratum protocol on 3333, 4444, 5555, 7777, 8888, 9999, 14444). Internal hosts connecting to mining pools indicate cryptojacking or unauthorized mining activity.
+
+- **Category:** Resource Hijacking
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [netflow_cryptomining_traffic.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_cryptomining_traffic.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### DDoS Attack Pattern Detection
+
+Detects potential DDoS attack patterns based on high volume of network flows from multiple sources targeting a single destination within a short time window. This rule identifies suspicious traffic volumes that may indicate volumetric DDoS attacks such as UDP floods, TCP floods, or other amplification attacks.
+
+- **Category:** Impact
+- **Technique:** T1498 - Network Denial of Service
+- **Impact:** C:1 / I:1 / A:3
+- **Rule file:** [ddos_traffic_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/ddos_traffic_patterns.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1498/](https://attack.mitre.org/techniques/T1498/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### DNS-over-HTTPS (DoH) Traffic Detection
+
+Detects DNS-over-HTTPS traffic to known public DoH resolvers. While DoH provides privacy, malware and attackers use it to bypass DNS monitoring and exfiltrate data through encrypted DNS channels.
+
+- **Category:** Command and Control
+- **Technique:** T1071.004 - Application Layer Protocol: DNS
+- **Impact:** C:1 / I:0 / A:0
+- **Rule file:** [netflow_doh_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_doh_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/004/](https://attack.mitre.org/techniques/T1071/004/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### Data Exfiltration Detection
+
+Detects potential data exfiltration based on unusually large outbound data transfers to external IP addresses. This rule identifies network flows where significant amounts of data (>10MB) are transferred from internal systems to external destinations in different countries, potentially indicating unauthorized data theft or exfiltration attempts.
+
+- **Category:** Exfiltration
+- **Technique:** T1041 - Exfiltration Over C2 Channel
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [data_exfiltration_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/data_exfiltration_indicators.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1041/](https://attack.mitre.org/techniques/T1041/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### ICMP Tunneling Detection via NetFlow
+
+Detects potential ICMP tunneling by identifying ICMP traffic with unusually large packet sizes or high data volumes. Attackers use ICMP tunneling (tools like ptunnel, icmpsh) to exfiltrate data or establish covert C2 channels through protocols that are often allowed by firewalls.
+
+- **Category:** Command and Control
+- **Technique:** T1095 - Non-Application Layer Protocol
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [netflow_icmp_tunnel.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_icmp_tunnel.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1095/](https://attack.mitre.org/techniques/T1095/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### Internal Network Host Scanning Detection
+
+Detects east-west network scanning where an internal host connects to many other internal hosts on the same or multiple ports, indicating internal reconnaissance or worm propagation.
+
+- **Category:** Discovery
+- **Technique:** T1046 - Network Service Scanning
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [netflow_internal_scanning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_internal_scanning.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1046/](https://attack.mitre.org/techniques/T1046/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### Internal SMB/RDP Lateral Movement Detection
+
+Detects internal hosts connecting to multiple internal targets on SMB (445) or RDP (3389) ports in a short time window, indicating potential lateral movement or internal reconnaissance.
+
+- **Category:** Lateral Movement
+- **Technique:** T1021 - Remote Services
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [netflow_lateral_movement_smb_rdp.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_lateral_movement_smb_rdp.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/](https://attack.mitre.org/techniques/T1021/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+
+### Port Scanning Activity Detection
+
+Detects port scanning activities based on patterns of connections to multiple ports with minimal data transfer. This could indicate reconnaissance activities or vulnerability scanning attempts.
+
+- **Category:** Discovery
+- **Technique:** T1046 - Network Service Scanning
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [port_scanning_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/port_scanning_patterns.yml)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1046/](https://attack.mitre.org/techniques/T1046/)
+
+### Tor Network Usage Detection
+
+Detects potential Tor network usage based on connections to known Tor entry node ports (9001, 9030, 9050, 9051) and traffic patterns consistent with Tor usage. Tor is commonly used by attackers to anonymize their traffic and evade detection.
+
+- **Category:** Command and Control
+- **Technique:** T1090 - Proxy: Multi-hop Proxy
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [tor_usage_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/tor_usage_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1090/](https://attack.mitre.org/techniques/T1090/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)
+- **Reference:** [https://www.torproject.org/](https://www.torproject.org/)
+
+### VPN Protocol to Non-Corporate Destination
+
+Detects VPN protocol traffic (OpenVPN, WireGuard, IPsec) from internal hosts to non-corporate external destinations. This may indicate data exfiltration through unauthorized VPN tunnels or policy-violating VPN usage.
+
+- **Category:** Exfiltration
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [netflow_vpn_unusual_destinations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/netflow/netflow_vpn_unusual_destinations.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+- **Reference:** [https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html](https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html)

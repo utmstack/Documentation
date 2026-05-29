@@ -1,0 +1,479 @@
+Detection rules for **Google Cloud** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **34** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Anthos Security Policy Violations | Security Control Bypass | T1562 - Impair Defenses | C:3 / I:3 / A:2 |
+| Binary Authorization Bypass Detection | Defense Evasion | T1553 - Subvert Trust Controls | C:3 / I:3 / A:2 |
+| Cloud Identity Suspicious Sign-ins Detection | Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| GCP 2-step verification disabled | Defense Evasion | T1562 - Impair Defenses | C:1 / I:2 / A:3 |
+| GCP Audit Log Disabling or Tampering | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:3 / I:3 / A:2 |
+| GCP BigQuery Data Exfiltration Detection | Data Exfiltration | T1567 - Exfiltration Over Web Service | C:3 / I:1 / A:1 |
+| GCP Break-Glass Container Workload Deployed | Defense Evasion | T1548 - Abuse Elevation Control Mechanism | C:3 / I:3 / A:2 |
+| GCP Cloud Function and Cloud Run Abuse | Persistence | T1059 - Command and Scripting Interpreter | C:2 / I:2 / A:1 |
+| GCP Cloud Storage Data Exfiltration | Data Exfiltration | T1530 - Data from Cloud Storage Object | C:3 / I:1 / A:1 |
+| GCP Cryptomining Instance Launch Detection | Resource Hijacking | T1496 - Resource Hijacking | C:1 / I:2 / A:3 |
+| GCP Custom Role with Overly Permissive Permissions | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:1 |
+| GCP DLP Re-Identification API Call | Collection | T1565 - Data Manipulation | C:3 / I:2 / A:0 |
+| GCP Domain-Wide API Access Granted | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| GCP KMS Key Destruction or Disabling | Impact | T1552 - Unsecured Credentials | C:1 / I:3 / A:3 |
+| GCP Network Packet Capture Configuration | Credential Access | T1040 - Network Sniffing | C:3 / I:1 / A:1 |
+| GCP Project Manipulation and Shadow Projects | Account Manipulation | T1578 - Modify Cloud Compute Infrastructure | C:2 / I:3 / A:3 |
+| GCP Secret Manager Bulk Access Detection | Credential Access | T1552 - Unsecured Credentials | C:3 / I:1 / A:1 |
+| GCP Service Account Impersonation Detection | Credential Access | T1550.001 - Use Alternate Authentication Material: Application Access Token | C:3 / I:3 / A:1 |
+| GCP Workload Identity Federation Abuse | Credential Access | T1078 - Valid Accounts | C:3 / I:3 / A:1 |
+| GCP account is probably used for spamming | Initial Access | T1566 - Phishing | C:1 / I:2 / A:3 |
+| GCP detected account with password leak | Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| GCP probable Defense Evasion, Logging Sink Deletion | Defense Evasion | T1562 - Impair Defenses | C:1 / I:2 / A:3 |
+| GCP probable Exfiltration, Logging Sink Modification | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:2 |
+| GCP probable Government-backed attack | Collection | T1560 - Archive Collected Data | C:3 / I:3 / A:2 |
+| GCP probable Impact, Storage Bucket Deleted | Impact | T1485 - Data Destruction | C:1 / I:2 / A:3 |
+| GCP probable Password Guessing | Credential Access | T1110.001 - Brute Force: Password Guessing | C:3 / I:3 / A:2 |
+| GCP probable Privilege Escalation, Kubernetes role bindings created or patched | Privilege Escalation | T1548 - Abuse Elevation Control Mechanism | C:1 / I:2 / A:3 |
+| GCP probable hijacked account | Collection | T1560 - Archive Collected Data | C:3 / I:3 / A:2 |
+| GCP suspicious login blocked | Initial Access | T1078 - Valid Accounts | C:1 / I:2 / A:3 |
+| GCP suspicious login from less secure app | Initial Access | T1190 - Exploit Public-Facing Application | C:1 / I:2 / A:3 |
+| GCP suspicious programmatic login | Credential Access | T1110 - Brute Force | C:1 / I:2 / A:3 |
+| GKE Kubernetes Admission Webhook Modified | Persistence | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:2 |
+| Google Cloud Service Account Key Creation Spike | Credential Access | Account Manipulation | C:3 / I:3 / A:2 |
+| Google Workspace MFA Enforcement Disabled | Defense Evasion | T1556 - Modify Authentication Process | C:3 / I:3 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Anthos Security Policy Violations** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/anthos_security_events.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - google
+name: Anthos Security Policy Violations
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Security Control Bypass
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://cloud.google.com/anthos/docs/concepts/overview
+  - https://attack.mitre.org/techniques/T1562/
+description: |
+  Detects security-related events in Google Anthos environments including policy violations, authentication failures, and suspicious container activities. Monitors Anthos Service Mesh, Config Management, and Policy Controller events.
+  
+  Next Steps:
+  - Review the specific policy violation details in the event logs
+  - Verify if the violation was authorized or represents a legitimate security concern
+  - Check the source IP and user account associated with the violation
+  - Examine recent configuration changes to Anthos security policies
+  - Validate that security controls are properly configured and enforced
+  - Consider implementing additional monitoring for the affected resources
+where: |
+  (
+    oneOf("log.protoPayload.serviceName", ["anthos.googleapis.com", "anthospolicycontroller.googleapis.com", "anthosservicemesh.googleapis.com"]) ||
+    oneOf("log.resourceType", ["k8s_cluster", "gke_cluster"])
+  ) && 
+  (
+    contains("log.protoPayload.methodName", "Policy") ||
+    oneOf("log.jsonPayload.type", ["admission.k8s.io/violation", "policy.violation", "security.alert"]) ||
+    oneOf("log.severity", ["ERROR", "WARNING"])
+  ) &&
+  (
+    equals("log.protoPayload.response.status", "PERMISSION_DENIED") ||
+    contains("log.protoPayload.status.message", "violation") ||
+    contains("log.protoPayload.status.message", "denied") ||
+    contains("log.jsonPayload.details", "policy")
+  )
+groupBy:
+  - lastEvent.log.protoPayload.resourceName
+  - lastEvent.log.resource.labels.project_id
+
+```
+
+---
+
+## Rule Details
+
+### Anthos Security Policy Violations
+
+Detects security-related events in Google Anthos environments including policy violations, authentication failures, and suspicious container activities. Monitors Anthos Service Mesh, Config Management, and Policy Controller events.
+
+- **Category:** Security Control Bypass
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [anthos_security_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/anthos_security_events.yml)
+- **Reference:** [https://cloud.google.com/anthos/docs/concepts/overview](https://cloud.google.com/anthos/docs/concepts/overview)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### Binary Authorization Bypass Detection
+
+Detects attempts to bypass Binary Authorization controls including use of breakglass deployments, policy violations, and unauthorized container deployments. These events could indicate attempts to deploy untrusted or malicious container images.
+
+- **Category:** Defense Evasion
+- **Technique:** T1553 - Subvert Trust Controls
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [binary_authorization_bypasses.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/binary_authorization_bypasses.yml)
+- **Reference:** [https://cloud.google.com/binary-authorization/docs/audit-logging](https://cloud.google.com/binary-authorization/docs/audit-logging)
+- **Reference:** [https://cloud.google.com/binary-authorization/docs/run/using-breakglass-cloud-run](https://cloud.google.com/binary-authorization/docs/run/using-breakglass-cloud-run)
+- **Reference:** [https://attack.mitre.org/techniques/T1553/](https://attack.mitre.org/techniques/T1553/)
+
+### Cloud Identity Suspicious Sign-ins Detection
+
+Detects suspicious sign-in attempts to Google Cloud Identity, including logins from unfamiliar locations, unusual IP addresses, or after multiple failed attempts. These could indicate compromised credentials or unauthorized access attempts.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [cloud_identity_suspicious_signins.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/cloud_identity_suspicious_signins.yml)
+- **Reference:** [https://support.google.com/cloudidentity/answer/4580120?hl=en](https://support.google.com/cloudidentity/answer/4580120?hl=en)
+- **Reference:** [https://cloud.google.com/blog/products/identity-security/logs-based-security-alerting-in-google-cloud](https://cloud.google.com/blog/products/identity-security/logs-based-security-alerting-in-google-cloud)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### GCP 2-step verification disabled
+
+Google Cloud has detected that 2-step verification was disabled for the organization or a user
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_two_step_verification_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_two_step_verification_disabled.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005](https://attack.mitre.org/tactics/TA0005)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### GCP Audit Log Disabling or Tampering
+
+Detects attempts to disable GCP audit logging including sink deletion, log exclusion filter creation, and audit configuration changes. Attackers may manipulate logging infrastructure to hide their activities from security monitoring.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_audit_log_disabling.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_audit_log_disabling.yml)
+- **Reference:** [https://cloud.google.com/logging/docs/audit](https://cloud.google.com/logging/docs/audit)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+
+### GCP BigQuery Data Exfiltration Detection
+
+Detects BigQuery operations that may indicate data exfiltration including large data exports, table copies to external projects, and extract jobs writing to external storage. Attackers may use BigQuery to query and export large datasets from compromised projects.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1567 - Exfiltration Over Web Service
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [gcp_bigquery_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_bigquery_exfiltration.yml)
+- **Reference:** [https://cloud.google.com/bigquery/docs/audit-logging](https://cloud.google.com/bigquery/docs/audit-logging)
+- **Reference:** [https://attack.mitre.org/techniques/T1567/](https://attack.mitre.org/techniques/T1567/)
+
+### GCP Break-Glass Container Workload Deployed
+
+Detects deployment of container workloads using the break-glass mechanism to bypass Binary Authorization policy. While legitimate in emergency scenarios, this bypasses security controls and can be abused to deploy malicious or untrusted container images.
+
+- **Category:** Defense Evasion
+- **Technique:** T1548 - Abuse Elevation Control Mechanism
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_breakglass_container_deploy.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_breakglass_container_deploy.yml)
+- **Reference:** [https://cloud.google.com/binary-authorization/docs/using-breakglass](https://cloud.google.com/binary-authorization/docs/using-breakglass)
+- **Reference:** [https://attack.mitre.org/techniques/T1548/](https://attack.mitre.org/techniques/T1548/)
+
+### GCP Cloud Function and Cloud Run Abuse
+
+Detects creation or modification of Cloud Functions and Cloud Run services which can be used for persistence, backdoor access, or command execution. Attackers may deploy serverless functions with high-privilege service accounts to maintain access or exfiltrate data.
+
+- **Category:** Persistence
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [gcp_cloud_function_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_cloud_function_abuse.yml)
+- **Reference:** [https://cloud.google.com/functions/docs/securing](https://cloud.google.com/functions/docs/securing)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### GCP Cloud Storage Data Exfiltration
+
+Detects GCP Cloud Storage operations indicating potential data exfiltration including making buckets publicly accessible, modifying IAM policies to grant allUsers access, or bulk object downloads. These actions may indicate an attacker attempting to exfiltrate data from cloud storage.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [gcp_storage_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_storage_exfiltration.yml)
+- **Reference:** [https://cloud.google.com/storage/docs/access-control](https://cloud.google.com/storage/docs/access-control)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### GCP Cryptomining Instance Launch Detection
+
+Detects creation of GPU-accelerated or high-compute GCP instances commonly used for cryptomining. Attackers with compromised GCP credentials frequently launch expensive GPU instances (a2, g2) or compute-optimized instances in unusual regions for cryptocurrency mining operations.
+
+- **Category:** Resource Hijacking
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_cryptomining_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_cryptomining_detection.yml)
+- **Reference:** [https://cloud.google.com/compute/docs/machine-types](https://cloud.google.com/compute/docs/machine-types)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+
+### GCP Custom Role with Overly Permissive Permissions
+
+Detects creation or modification of GCP custom IAM roles which may include overly permissive permissions for privilege escalation. Attackers may create custom roles with broad permissions like iam.serviceAccountKeys.create, iam.serviceAccounts.actAs, or compute.instances.setMetadata to escalate privileges.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [gcp_custom_role_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_custom_role_creation.yml)
+- **Reference:** [https://cloud.google.com/iam/docs/creating-custom-roles](https://cloud.google.com/iam/docs/creating-custom-roles)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### GCP DLP Re-Identification API Call
+
+Detects calls to the DLP re-identification API which reverses data de-identification. This is a sensitive operation that could expose previously protected PII, financial data, or health records. Unauthorized use indicates potential data exfiltration attempts.
+
+- **Category:** Collection
+- **Technique:** T1565 - Data Manipulation
+- **Impact:** C:3 / I:2 / A:0
+- **Rule file:** [gcp_dlp_reidentification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_dlp_reidentification.yml)
+- **Reference:** [https://cloud.google.com/dlp/docs/reference/rest/v2/projects.content/reidentify](https://cloud.google.com/dlp/docs/reference/rest/v2/projects.content/reidentify)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+
+### GCP Domain-Wide API Access Granted
+
+Detects when domain-wide delegation is granted to a service account in Google Workspace. This allows the service account to impersonate any user in the domain and access their data, making it a high-impact privilege escalation vector.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_domain_api_access_granted.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_domain_api_access_granted.yml)
+- **Reference:** [https://cloud.google.com/iam/docs/using-iam-securely](https://cloud.google.com/iam/docs/using-iam-securely)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### GCP KMS Key Destruction or Disabling
+
+Detects destruction or disabling of Cloud KMS key versions which could render encrypted data unrecoverable. Attackers may destroy encryption keys as part of a destructive attack to prevent data recovery or to disrupt operations dependent on encrypted resources.
+
+- **Category:** Impact
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [gcp_kms_key_modifications.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_kms_key_modifications.yml)
+- **Reference:** [https://cloud.google.com/kms/docs/destroy-restore](https://cloud.google.com/kms/docs/destroy-restore)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+
+### GCP Network Packet Capture Configuration
+
+Detects creation or modification of Packet Mirroring configurations in GCP. Attackers use packet mirroring to capture network traffic for credential theft, data exfiltration, or reconnaissance.
+
+- **Category:** Credential Access
+- **Technique:** T1040 - Network Sniffing
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [gcp_packet_capture_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_packet_capture_abuse.yml)
+- **Reference:** [https://cloud.google.com/vpc/docs/packet-mirroring](https://cloud.google.com/vpc/docs/packet-mirroring)
+- **Reference:** [https://attack.mitre.org/techniques/T1040/](https://attack.mitre.org/techniques/T1040/)
+
+### GCP Project Manipulation and Shadow Projects
+
+Detects GCP project creation, deletion, and undelete operations that could indicate shadow project creation for persistence or project deletion for impact. Attackers may create new projects outside organizational controls to host malicious workloads.
+
+- **Category:** Account Manipulation
+- **Technique:** T1578 - Modify Cloud Compute Infrastructure
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [gcp_project_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_project_manipulation.yml)
+- **Reference:** [https://cloud.google.com/resource-manager/docs/creating-managing-projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+- **Reference:** [https://attack.mitre.org/techniques/T1578/](https://attack.mitre.org/techniques/T1578/)
+
+### GCP Secret Manager Bulk Access Detection
+
+Detects bulk access to GCP Secret Manager secrets which may indicate credential harvesting. Attackers who gain access to a GCP project may enumerate and retrieve all stored secrets to obtain API keys, database credentials, and other sensitive data.
+
+- **Category:** Credential Access
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [gcp_secret_manager_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_secret_manager_access.yml)
+- **Reference:** [https://cloud.google.com/secret-manager/docs/audit-logging](https://cloud.google.com/secret-manager/docs/audit-logging)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+
+### GCP Service Account Impersonation Detection
+
+Detects service account impersonation through token generation APIs including GenerateAccessToken, GenerateIdToken, and SignBlob. Attackers may impersonate service accounts to escalate privileges or access resources the service account has been granted.
+
+- **Category:** Credential Access
+- **Technique:** T1550.001 - Use Alternate Authentication Material: Application Access Token
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [gcp_service_account_impersonation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_service_account_impersonation.yml)
+- **Reference:** [https://cloud.google.com/iam/docs/create-short-lived-credentials-direct](https://cloud.google.com/iam/docs/create-short-lived-credentials-direct)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/001/](https://attack.mitre.org/techniques/T1550/001/)
+
+### GCP Workload Identity Federation Abuse
+
+Detects creation or modification of workload identity pools and providers that enable external identities to access GCP resources. Attackers may create workload identity configurations to grant access to external attacker-controlled identity providers for persistent cloud access.
+
+- **Category:** Credential Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [gcp_workload_identity_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_workload_identity_abuse.yml)
+- **Reference:** [https://cloud.google.com/iam/docs/workload-identity-federation](https://cloud.google.com/iam/docs/workload-identity-federation)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### GCP account is probably used for spamming
+
+A user's account was disabled because Google has become aware that it was used to engage in spamming. Usually, spamming is used to perform other attacks like phishing or spread malware.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_account_disabled_spamming.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_account_disabled_spamming.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001](https://attack.mitre.org/tactics/TA0001)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### GCP detected account with password leak
+
+A user's account was disabled because a password leak was detected by google.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_account_disabled_password_leak.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_account_disabled_password_leak.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078](https://attack.mitre.org/techniques/T1078)
+
+### GCP probable Defense Evasion, Logging Sink Deletion
+
+Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for defense evasion include uninstalling/disabling security software or obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes to hide and masquerade their malware. Other tactics are cross-listed here when those techniques include the added benefit of subverting defenses. Identifies a Logging sink deletion in Google Cloud Platform (GCP). Every time a log entry arrives, Logging compares the log entry to the sinks in that resource. Each sink whose filter matches the log entry writes a copy of the log entry to the sink's export destination. An adversary may delete a Logging sink to evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_defense_evasion_logging_sink_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_defense_evasion_logging_sink_deletion.yml)
+- **Reference:** [https://cloud.google.com/logging/docs/export](https://cloud.google.com/logging/docs/export)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### GCP probable Exfiltration, Logging Sink Modification
+
+Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they've collected data, adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for getting data out of a target network typically include transferring it over their command and control channel or an alternate channel and may also include putting size limits on the transmission. Identifies a modification to a Logging sink in Google Cloud Platform (GCP). Logging compares the log entry to the sinks in that resource. Each sink whose filter matches the log entry writes a copy of the log entry to the sink's export destination. An adversary may update a Logging sink to exfiltrate logs to a different export destination.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [gcp_exfiltration_logging_sink_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_exfiltration_logging_sink_modification.yml)
+- **Reference:** [https://cloud.google.com/logging/docs/export#how_sinks_work](https://cloud.google.com/logging/docs/export#how_sinks_work)
+- **Reference:** [https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks#LogSink](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks#LogSink)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+
+### GCP probable Government-backed attack
+
+A user's account might have been targeted by government-backed attack. Government-backed attackers are trying to access the account of one of your users. An attack happens to less than 0.1% of all Google Account users. There's a chance the alert is a false alarm. However, we believe we detected activities that government-backed attackers use to try to steal a password or other personal information. Such activity includes the user receiving an email containing a harmful attachment, links to malicious software downloads, or links to fake websites that are designed to access passwords.
+
+- **Category:** Collection
+- **Technique:** T1560 - Archive Collected Data
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_gov_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_gov_attack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+- **Reference:** [https://attack.mitre.org/techniques/T1560](https://attack.mitre.org/techniques/T1560)
+
+### GCP probable Impact, Storage Bucket Deleted
+
+Impact consists of techniques that adversaries use to disrupt availability or compromise integrity by manipulating business and operational processes. Techniques used for impact can include destroying or tampering with data. In some cases, business processes can look fine, but may have been altered to benefit the adversaries goals. These techniques might be used by adversaries to follow through on their end goal or to provide cover for a confidentiality breach. Identifies when a Google Cloud Platform (GCP) storage bucket is deleted. An adversary may delete a storage bucket in order to disrupt their target's business operations.
+
+- **Category:** Impact
+- **Technique:** T1485 - Data Destruction
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_impact_storage_bucket_deleted.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_impact_storage_bucket_deleted.yml)
+- **Reference:** [https://cloud.google.com/logging/docs/buckets](https://cloud.google.com/logging/docs/buckets)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)
+- **Reference:** [https://attack.mitre.org/techniques/T1485/](https://attack.mitre.org/techniques/T1485/)
+
+### GCP probable Password Guessing
+
+Adversaries with no prior knowledge of legitimate credentials within the system or environment may guess passwords to attempt access to accounts. Without knowledge of the password for an account, an adversary may opt to systematically guess the password using a repetitive or iterative mechanism. An adversary may guess login credentials without prior knowledge of system or environment passwords during an operation by using a list of common passwords. Password guessing may or may not take into account the target's policies on password complexity or use policies that may lock accounts out after a number of failed attempts.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force: Password Guessing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_probable_password_guess.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_probable_password_guess.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006](https://attack.mitre.org/tactics/TA0006)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### GCP probable Privilege Escalation, Kubernetes role bindings created or patched
+
+Privilege Escalation consists of techniques that adversaries use to gain higher-level permissions on a system or network. Adversaries can often enter and explore a network with unprivileged access but require elevated permissions to follow through on their objectives. Common approaches are to take advantage of system weaknesses, misconfigurations, and vulnerabilities. Identifies the creation or patching of potentially malicious role bindings. Users can use role bindings and cluster role bindings to assign roles to Kubernetes subjects (users, groups, or service accounts).
+
+- **Category:** Privilege Escalation
+- **Technique:** T1548 - Abuse Elevation Control Mechanism
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_privilege_escalation_kubernetes_rolebindings_created_or_patched.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_privilege_escalation_kubernetes_rolebindings_created_or_patched.yml)
+- **Reference:** [https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1548](https://attack.mitre.org/techniques/T1548)
+
+### GCP probable hijacked account
+
+A user's account was disabled because Google has detected a suspicious activity indicating it might have been compromised. Hijacked account can be used to perform other attacks like data collection and exfiltration
+
+- **Category:** Collection
+- **Technique:** T1560 - Archive Collected Data
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_account_disabled_hijacked.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_account_disabled_hijacked.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+- **Reference:** [https://attack.mitre.org/techniques/T1560](https://attack.mitre.org/techniques/T1560)
+
+### GCP suspicious login blocked
+
+A suspicious login to a user's account was detected and blocked by Google Cloud.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_suspicious_login_blocked.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_suspicious_login_blocked.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078](https://attack.mitre.org/techniques/T1078)
+
+### GCP suspicious login from less secure app
+
+Less secure apps (LSAs) are non-Google apps that can access your Google account with only a username and password. They make your account more vulnerable to hijacking attempts.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_suspicious_login_less_secure_app.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_suspicious_login_less_secure_app.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1190](https://attack.mitre.org/techniques/T1190)
+
+### GCP suspicious programmatic login
+
+Google Cloud has detected a suspicious programmatic login. Programmatic login can be use to perform brute force attack.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [gcp_suspicious_programmatic_login.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_suspicious_programmatic_login.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006](https://attack.mitre.org/tactics/TA0006)
+- **Reference:** [https://attack.mitre.org/techniques/T1110](https://attack.mitre.org/techniques/T1110)
+
+### GKE Kubernetes Admission Webhook Modified
+
+Detects creation or modification of admission webhook configurations in Google Kubernetes Engine. Attackers use malicious admission controllers to inject sidecar containers, modify workload specs, or intercept secrets.
+
+- **Category:** Persistence
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [gcp_kubernetes_admission_controller.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_kubernetes_admission_controller.yml)
+- **Reference:** [https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Google Cloud Service Account Key Creation Spike
+
+Detects spikes in service account key creation which could indicate credential harvesting or preparation for unauthorized access. Service account keys provide long-term credentials that can be used to authenticate as the service account. Multiple key creations by the same user within a short timeframe may indicate malicious activity or preparation for privilege escalation attacks.
+
+- **Category:** Credential Access
+- **Technique:** Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [service_account_key_creation_spikes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/service_account_key_creation_spikes.yml)
+- **Reference:** [https://cloud.google.com/iam/docs/audit-logging/examples-service-accounts](https://cloud.google.com/iam/docs/audit-logging/examples-service-accounts)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+
+### Google Workspace MFA Enforcement Disabled
+
+Detects when MFA enforcement is disabled in Google Workspace. Disabling MFA removes a critical security control and enables credential-based attacks against all users in the organization.
+
+- **Category:** Defense Evasion
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [gcp_workspace_mfa_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/cloud/google/gcp_workspace_mfa_disabled.yml)
+- **Reference:** [https://support.google.com/a/answer/9176657](https://support.google.com/a/answer/9176657)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)

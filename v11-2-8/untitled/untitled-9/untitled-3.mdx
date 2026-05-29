@@ -1,0 +1,304 @@
+Detection rules for **General** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **22** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| System Linux: A user has been added to the administrators group | Privilege Escalation | T1484 - Domain Policy Modification | C:3 / I:3 / A:2 |
+| System Linux: Attempt to Disable Syslog Service | Defense Evasion | T1562.001 - Impair Defenses | C:1 / I:2 / A:3 |
+| System Linux: BPF filter applied using TC | Execution | T1059.004 - Command and Scripting Interpreter | C:2 / I:3 / A:3 |
+| System Linux: File Deletion via Shred | Defense Evasion | T1070.004 - Indicator Removal | C:1 / I:2 / A:3 |
+| System Linux: File Transfer or Listener Established via Netcat | Execution | T1059.004 - Command and Scripting Interpreter | C:1 / I:2 / A:3 |
+| System Linux: File made Immutable by Chattr | Defense Evasion | T1222 - File and Directory Permissions Modification | C:1 / I:2 / A:3 |
+| System Linux: Hping Process Activity | Discovery | T1082 - System Information Discovery | C:1 / I:1 / A:2 |
+| System Linux: Interactive Terminal Spawned via Perl | Execution | T1059 - Command and Scripting Interpreter | C:2 / I:3 / A:2 |
+| System Linux: Interactive Terminal Spawned via Python | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:2 / A:3 |
+| System Linux: Kernel Module Removal | Defense Evasion | T1562.001 - Impair Defenses | C:1 / I:3 / A:3 |
+| System Linux: Kernel module load via insmod | Persistence | T1547.006 - Boot or Logon Autostart Execution | C:3 / I:3 / A:3 |
+| System Linux: Modification of OpenSSH Binaries | Persistence | T1543 - Create or Modify System Process | C:3 / I:3 / A:2 |
+| System Linux: Namespace Manipulation Using Unshare | Privilege Escalation | T1543 - Create or Modify System Process | C:3 / I:3 / A:2 |
+| System Linux: Nping Process Activity | Discovery | T1046 - Network Service Discovery | C:1 / I:1 / A:2 |
+| System Linux: Persistence via KDE AutoStart Script or Desktop File Modification | Persistence | T1547 - Boot or Logon Autostart Execution | C:2 / I:2 / A:3 |
+| System Linux: Possible Brute Force Attack | Credential Access | T1110 - Brute Force | C:2 / I:2 / A:3 |
+| System Linux: Potential DNS Tunneling via Iodine | Command and Control | T1572 - Protocol Tunneling | C:3 / I:2 / A:2 |
+| System Linux: Potential Disabling of SELinux | Defense Evasion | T1562.001 - Impair Defenses | C:1 / I:2 / A:3 |
+| System Linux: Potential Privilege Escalation via PKEXEC | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:2 / I:3 / A:3 |
+| System Linux: Potential Protocol Tunneling via EarthWorm | Command and Control | T1572 - Protocol Tunneling | C:3 / I:3 / A:2 |
+| System Linux: Reverse Shell Created via Named Pipe | Execution | T1059.004 - Command and Scripting Interpreter | C:3 / I:2 / A:3 |
+| System Linux: System Log File Deletion | Defense Evasion | T1070.002 - Indicator Removal | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **System Linux: A user has been added to the administrators group** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/user_added_to_admin_group.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - linux
+name: "System Linux: A user has been added to the administrators group"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: "Privilege Escalation"
+technique: "T1484 - Domain Policy Modification"
+adversary: origin
+description: "Detects when a user has been added to the administrators group (sudo) on a Linux system."
+references:
+  - "https://attack.mitre.org/tactics/TA0004"
+  - "https://attack.mitre.org/techniques/T1484/"
+where: regexMatch("log.message", "(((adduser|useradd|usermod)(.+)([Aa]dded user|new user|add)(.+)to(.+)group)(.+)sudo)") && contains("log.message", "usermod -aG sudo")
+groupBy:
+  - origin.ip
+  - origin.user
+
+```
+
+---
+
+## Rule Details
+
+### System Linux: A user has been added to the administrators group
+
+Detects when a user has been added to the administrators group (sudo) on a Linux system.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1484 - Domain Policy Modification
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [user_added_to_admin_group.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/user_added_to_admin_group.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004](https://attack.mitre.org/tactics/TA0004)
+- **Reference:** [https://attack.mitre.org/techniques/T1484/](https://attack.mitre.org/techniques/T1484/)
+
+### System Linux: Attempt to Disable Syslog Service
+
+Adversaries may attempt to disable the syslog service in an attempt to an attempt to disrupt event logging and evade detection by security controls.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [attempt_to_disable_syslog_service.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/attempt_to_disable_syslog_service.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### System Linux: BPF filter applied using TC
+
+Detects when the tc (transmission control) binary is utilized to set a BPF (Berkeley Packet Filter) on a network interface. Tc is used to configure Traffic Control in the Linux kernel. It can shape, schedule, police and drop traffic. A threat actor can utilize tc to set a bpf filter on an interface for the purpose of manipulating the incoming traffic. This technique is not at all common and should indicate abnormal, suspicious or malicious activity.
+
+- **Category:** Execution
+- **Technique:** T1059.004 - Command and Scripting Interpreter
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [tc_bpf_filter.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/tc_bpf_filter.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/004/](https://attack.mitre.org/techniques/T1059/004/)
+
+### System Linux: File Deletion via Shred
+
+Malware or other files dropped or created on a system by an adversary may leave traces behind as to what was done within a network and how. Adversaries may remove these files over the course of an intrusion to keep their footprint low or remove them at the end as part of the post-intrusion cleanup process.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070.004 - Indicator Removal
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [file_deletion_via_shred.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/file_deletion_via_shred.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/004/](https://attack.mitre.org/techniques/T1070/004/)
+
+### System Linux: File Transfer or Listener Established via Netcat
+
+A netcat process is engaging in network activity on a Linux host. Netcat is often used as a persistence mechanism by exporting a reverse shell or by serving a shell on a listening port. Netcat is also sometimes used for data exfiltration.
+
+- **Category:** Execution
+- **Technique:** T1059.004 - Command and Scripting Interpreter
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [file_transfer_or_listener_established_via_netcat.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/file_transfer_or_listener_established_via_netcat.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/004/](https://attack.mitre.org/techniques/T1059/004/)
+
+### System Linux: File made Immutable by Chattr
+
+Detects a file being made immutable using the chattr binary. Making a file immutable means it cannot be deleted or renamed, no link can be created to this file, most of the file is metadata can not be modified, and the file can not be opened in write mode. Threat actors will commonly utilize this to prevent tampering or modification of their malicious files or any system files they have modified for purposes of persistence
+
+- **Category:** Defense Evasion
+- **Technique:** T1222 - File and Directory Permissions Modification
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [chattr_immutable_file.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/chattr_immutable_file.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1222/](https://attack.mitre.org/techniques/T1222/)
+
+### System Linux: Hping Process Activity
+
+Hping ran on a Linux host. Hping is a FOSS command-line packet analyzer and has the ability to construct network packets for a wide variety of network security testing applications, including scanning and firewall auditing.
+
+- **Category:** Discovery
+- **Technique:** T1082 - System Information Discovery
+- **Impact:** C:1 / I:1 / A:2
+- **Rule file:** [linux_hping_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/linux_hping_activity.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0007/](https://attack.mitre.org/tactics/TA0007/)
+- **Reference:** [https://attack.mitre.org/techniques/T1082/](https://attack.mitre.org/techniques/T1082/)
+
+### System Linux: Interactive Terminal Spawned via Perl
+
+Identifies when a terminal (tty) is spawned via Perl. Attackers may upgrade a simple reverse shell to a fully interactive tty after obtaining initial access to a host.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [perl_tty_shell.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/perl_tty_shell.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### System Linux: Interactive Terminal Spawned via Python
+
+Identifies when a terminal (tty) is spawned via Python. Attackers may upgrade a simple reverse shell to a fully interactive tty after obtaining initial access to a host.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:2 / A:3
+- **Rule file:** [python_tty_shell.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/python_tty_shell.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### System Linux: Kernel Module Removal
+
+Kernel modules are pieces of code that can be loaded and unloaded into the kernel upon demand. They extend the functionality of the kernel without the need to reboot the system. This rule identifies attempts to remove a kernel module.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [kernel_module_removal.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/kernel_module_removal.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### System Linux: Kernel module load via insmod
+
+Detects the use of the insmod binary to load a Linux kernel object file. Threat actors can use this binary, given they have root privileges, to load a rootkit on a system providing them with complete control and the ability to hide from security products. Manually loading a kernel module in this manner should not be at all common and can indicate suspcious or malicious behavior.
+
+- **Category:** Persistence
+- **Technique:** T1547.006 - Boot or Logon Autostart Execution
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [insmod_kernel_module_load.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/insmod_kernel_module_load.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1547/006/](https://attack.mitre.org/techniques/T1547/006/)
+
+### System Linux: Modification of OpenSSH Binaries
+
+Adversaries may modify SSH related binaries for persistence or credential access by patching sensitive functions to enable unauthorized access or by logging SSH credentials for exfiltration.
+
+- **Category:** Persistence
+- **Technique:** T1543 - Create or Modify System Process
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [modify_ssh_binaries.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/modify_ssh_binaries.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1543/](https://attack.mitre.org/techniques/T1543/)
+
+### System Linux: Namespace Manipulation Using Unshare
+
+Identifies  suspicious usage of unshare to manipulate system namespaces. Unshare can be utilized to escalate privileges or escape container security boundaries. Threat actors have utilized this binary to allow themselves to escape to the host and access other resources or escalate privileges.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1543 - Create or Modify System Process
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [unshare_namesapce_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/unshare_namesapce_manipulation.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1543/](https://attack.mitre.org/techniques/T1543/)
+
+### System Linux: Nping Process Activity
+
+Some normal use of this command may originate from security engineers and network or server administrators, but this is usually not routine or unannounced. Use of Nping by non-engineers or ordinary users is uncommon.
+
+- **Category:** Discovery
+- **Technique:** T1046 - Network Service Discovery
+- **Impact:** C:1 / I:1 / A:2
+- **Rule file:** [linux_nping_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/linux_nping_activity.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0007/](https://attack.mitre.org/tactics/TA0007/)
+- **Reference:** [https://attack.mitre.org/techniques/T1046/](https://attack.mitre.org/techniques/T1046/)
+
+### System Linux: Persistence via KDE AutoStart Script or Desktop File Modification
+
+Identifies the creation or modification of a K Desktop Environment (KDE) AutoStart script or desktop file that will execute upon each user logon. Adversaries may abuse this method for persistence.
+
+- **Category:** Persistence
+- **Technique:** T1547 - Boot or Logon Autostart Execution
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [kde_autostart_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/kde_autostart_modification.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1547/](https://attack.mitre.org/techniques/T1547/)
+
+### System Linux: Possible Brute Force Attack
+
+Identifies multiple SSH login failures followed by a successful one from the same source address. Adversaries can attempt to login into multiple users with a common or known password to gain access to accounts.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [bruteforce_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/bruteforce_attack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### System Linux: Potential DNS Tunneling via Iodine
+
+Iodine is a tool for tunneling Internet protocol version 4 (IPV4) traffic over the DNS protocol to circumvent firewalls, network security groups, and network access lists while evading detection.
+
+- **Category:** Command and Control
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [linux_iodine_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/linux_iodine_activity.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0011/](https://attack.mitre.org/tactics/TA0011/)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+
+### System Linux: Potential Disabling of SELinux
+
+Identifies potential attempts to disable Security-Enhanced Linux (SELinux), which is a Linux kernel security feature to support access control policies. Adversaries may disable security tools to avoid possible detection of their tools and activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses
+- **Impact:** C:1 / I:2 / A:3
+- **Rule file:** [disable_selinux_attempt.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/disable_selinux_attempt.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### System Linux: Potential Privilege Escalation via PKEXEC
+
+Identifies an attempt to exploit a local privilege escalation in polkit pkexec (CVE-2021-4034) via unsecure environment variable injection. Successful exploitation allows an unprivileged user to escalate to the root user.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [pkexec_envar_hijack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/pkexec_envar_hijack.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0004/](https://attack.mitre.org/tactics/TA0004/)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### System Linux: Potential Protocol Tunneling via EarthWorm
+
+Identifies the execution of the EarthWorm tunneler. Adversaries may tunnel network communications to and from a victim system within a separate protocol to avoid detection and network filtering, or to enable access to otherwise unreachable systems.
+
+- **Category:** Command and Control
+- **Technique:** T1572 - Protocol Tunneling
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [tunneling_via_earthworm.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/tunneling_via_earthworm.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0011/](https://attack.mitre.org/tactics/TA0011/)
+- **Reference:** [https://attack.mitre.org/techniques/T1572/](https://attack.mitre.org/techniques/T1572/)
+
+### System Linux: Reverse Shell Created via Named Pipe
+
+Identifies a reverse shell via the abuse of named pipes on Linux with the help of OpenSSL or Netcat. First in, first out (FIFO) files are special files for reading and writing to by Linux processes. For this to work, a named pipe is created and passed to a Linux shell where the use of a network connection tool such as Netcat or OpenSSL has been established. The stdout and stderr are captured in the named pipe from the network connection and passed back to the shell for execution.
+
+- **Category:** Execution
+- **Technique:** T1059.004 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:2 / A:3
+- **Rule file:** [reverse_shell_via_named_pipe.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/reverse_shell_via_named_pipe.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0002/](https://attack.mitre.org/tactics/TA0002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/004/](https://attack.mitre.org/techniques/T1059/004/)
+
+### System Linux: System Log File Deletion
+
+Identifies the deletion of sensitive Linux system logs. This may indicate an attempt to evade detection or destroy forensic evidence on a system.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070.002 - Indicator Removal
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [log_files_deleted.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/linux/log_files_deleted.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/002/](https://attack.mitre.org/techniques/T1070/002/)

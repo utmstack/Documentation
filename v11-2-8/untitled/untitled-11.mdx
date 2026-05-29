@@ -1,0 +1,137 @@
+Detection rules for **MikroTik** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **6** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| DNS Cache Poisoning Attempt | Resource Development | T1584.002 - Acquire Infrastructure: DNS Server | C:3 / I:3 / A:2 |
+| MikroTik DNS Static Entry Redirection | Credential Access | T1584.002 - Compromise Infrastructure: DNS Server | C:3 / I:3 / A:1 |
+| MikroTik New Admin User Creation | Persistence | T1136 - Create Account | C:3 / I:3 / A:2 |
+| MikroTik SOCKS Proxy Enablement Detection | Command and Control | T1090 - Proxy | C:3 / I:3 / A:2 |
+| RouterOS Multiple Authentication Failures | Credential Access | T1110.001 - Brute Force: Password Guessing | C:3 / I:3 / A:2 |
+| SSH Brute Force Attack on MikroTik Device | Credential Access | T1110.001 - Brute Force: Password Guessing | C:3 / I:2 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **DNS Cache Poisoning Attempt** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/dns_cache_poisoning.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-mikrotik
+name: DNS Cache Poisoning Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Resource Development
+technique: "T1584.002 - Acquire Infrastructure: DNS Server"
+adversary: origin
+references:
+  - https://help.mikrotik.com/docs/spaces/ROS/pages/37748767/DNS
+  - https://attack.mitre.org/techniques/T1584/002/
+description: |
+  Detects potential DNS cache poisoning attempts where multiple DNS responses are received from different sources for the same domain in a short time window, which could indicate an attacker trying to inject malicious DNS records.
+
+  Next Steps:
+  1. Verify the legitimacy of the DNS responses by checking the source IP addresses
+  2. Review DNS query logs to identify the original query that triggered these responses
+  3. Check if the responding IP addresses match known legitimate DNS servers
+  4. Examine the timing patterns of the responses to identify potential spoofing
+  5. Verify DNS server configurations and check for unauthorized DNS server additions
+  6. Monitor for subsequent DNS queries to verify if poisoned cache entries are being used
+  7. Consider implementing DNS security measures like DNSSEC if not already in place
+where: |
+  equals("log.topics", "dns") && 
+  equals("target.port", 53) && 
+  exists("origin.ip") &&
+  contains("log.chain", "response")
+afterEvents:
+  - indexPattern: v11-log-firewall-mikrotik-*
+    with:
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+      - field: log.topics
+        operator: filter_term
+        value: 'dns'
+    within: now-5m
+    count: 10
+groupBy:
+  - adversary.ip
+  - target.ip
+
+```
+
+---
+
+## Rule Details
+
+### DNS Cache Poisoning Attempt
+
+Detects potential DNS cache poisoning attempts where multiple DNS responses are received from different sources for the same domain in a short time window, which could indicate an attacker trying to inject malicious DNS records.
+
+- **Category:** Resource Development
+- **Technique:** T1584.002 - Acquire Infrastructure: DNS Server
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [dns_cache_poisoning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/dns_cache_poisoning.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/37748767/DNS](https://help.mikrotik.com/docs/spaces/ROS/pages/37748767/DNS)
+- **Reference:** [https://attack.mitre.org/techniques/T1584/002/](https://attack.mitre.org/techniques/T1584/002/)
+
+### MikroTik DNS Static Entry Redirection
+
+Detects creation or modification of static DNS entries on MikroTik routers that could redirect traffic to attacker-controlled servers for credential harvesting or man-in-the-middle attacks.
+
+- **Category:** Credential Access
+- **Technique:** T1584.002 - Compromise Infrastructure: DNS Server
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [mikrotik_dns_redirection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/mikrotik_dns_redirection.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log](https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log)
+- **Reference:** [https://attack.mitre.org/techniques/T1584/002/](https://attack.mitre.org/techniques/T1584/002/)
+
+### MikroTik New Admin User Creation
+
+Detects creation of new administrative users on MikroTik RouterOS devices. Attackers who gain access to MikroTik routers frequently create backdoor accounts for persistent access.
+
+- **Category:** Persistence
+- **Technique:** T1136 - Create Account
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [mikrotik_user_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/mikrotik_user_creation.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log](https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log)
+- **Reference:** [https://attack.mitre.org/techniques/T1136/](https://attack.mitre.org/techniques/T1136/)
+
+### MikroTik SOCKS Proxy Enablement Detection
+
+Detects SOCKS proxy enablement on MikroTik routers, a common indicator of Meris botnet infection and other RouterOS-targeting malware. Attackers enable SOCKS proxy to route malicious traffic through compromised routers.
+
+- **Category:** Command and Control
+- **Technique:** T1090 - Proxy
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [mikrotik_socks_proxy.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/mikrotik_socks_proxy.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log](https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log)
+- **Reference:** [https://attack.mitre.org/techniques/T1090/](https://attack.mitre.org/techniques/T1090/)
+
+### RouterOS Multiple Authentication Failures
+
+Detects multiple failed authentication attempts to RouterOS from the same source IP, which may indicate a brute force attack against the device. This rule monitors for login failures across all services including SSH, Telnet, Winbox, and web interface.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force: Password Guessing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [routeros_brute_force_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/routeros_brute_force_attempts.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log](https://help.mikrotik.com/docs/spaces/ROS/pages/328094/Log)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### SSH Brute Force Attack on MikroTik Device
+
+Detects SSH brute force attempts against MikroTik devices. Monitors for multiple SSH connection attempts on port 22 from the same source IP within a short time window, which may indicate password guessing attacks.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force: Password Guessing
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [ssh_brute_force_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/mikrotik/mikrotik_fw/ssh_brute_force_attempts.yml)
+- **Reference:** [https://help.mikrotik.com/docs/spaces/ROS/pages/132350014/SSH](https://help.mikrotik.com/docs/spaces/ROS/pages/132350014/SSH)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)

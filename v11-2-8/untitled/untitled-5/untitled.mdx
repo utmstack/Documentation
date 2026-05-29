@@ -1,0 +1,154 @@
+Detection rules for **FortiGate** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **7** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Admin Account Compromise Indicators | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| Data Loss Prevention Trigger | Exfiltration | T1048 - Exfiltration Over Alternative Protocol | C:3 / I:2 / A:1 |
+| FortiGate Admin Login from Unusual Source | Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| FortiGate VPN Authentication Brute Force | Credential Access | T1133 - External Remote Services | C:3 / I:2 / A:1 |
+| FortiSandbox Malicious File Detection | Execution | T1204 - User Execution | C:3 / I:3 / A:2 |
+| Fortinet Antivirus Malware Outbreak Detection | Initial Access | T1566 - Phishing | C:3 / I:3 / A:2 |
+| Fortinet IPS Critical Severity Detection | Execution | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Admin Account Compromise Indicators** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/admin_account_compromise.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortigate-traffic
+name: Admin Account Compromise Indicators
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1078/
+  - https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes
+description: |
+  Detects multiple failed admin login attempts followed by a successful login from the same IP address, indicating potential account compromise through credential stuffing or brute force attacks.
+
+  Next Steps:
+  1. Review the source IP address and check if it's from an expected location
+  2. Contact the admin user to verify if the login was legitimate
+  3. Check for any suspicious activities performed after the successful login
+  4. Review other authentication logs from the same IP address
+  5. Consider implementing IP-based access controls for admin accounts
+  6. Enable multi-factor authentication if not already configured
+  7. Reset the compromised admin account password if unauthorized access is confirmed
+where: |
+  equals("log.logid", "0100032001") && 
+  equals("log.type", "event") && 
+  equals("log.subtype", "system") && 
+  equals("log.logdesc", "Admin login successful") && 
+  exists("origin.ip") &&
+  exists("log.user")
+afterEvents:
+  - indexPattern: v11-log-firewall-fortigate-traffic-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.logdesc
+        operator: filter_term
+        value: 'Admin login failed'
+      - field: log.user
+        operator: filter_term
+        value: '{{.log.user}}'
+    within: now-15m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.user
+
+```
+
+---
+
+## Rule Details
+
+### Admin Account Compromise Indicators
+
+Detects multiple failed admin login attempts followed by a successful login from the same IP address, indicating potential account compromise through credential stuffing or brute force attacks.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [admin_account_compromise.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/admin_account_compromise.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes](https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes)
+
+### Data Loss Prevention Trigger
+
+Detects attempts to exfiltrate sensitive data that triggers DLP policies. This includes detection of credit card numbers, social security numbers, PII, financial records, and other regulated data attempting to leave the network.
+
+- **Category:** Exfiltration
+- **Technique:** T1048 - Exfiltration Over Alternative Protocol
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [dlp_data_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/dlp_data_exfiltration.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.6.3/administration-guide/153498/data-loss-prevention](https://docs.fortinet.com/document/fortigate/7.6.3/administration-guide/153498/data-loss-prevention)
+- **Reference:** [https://attack.mitre.org/techniques/T1048/](https://attack.mitre.org/techniques/T1048/)
+
+### FortiGate Admin Login from Unusual Source
+
+Detects FortiGate admin logins from unusual or external IP addresses. Successful administrative access from non-management networks may indicate credential compromise.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [fortigate_admin_session_anomaly.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/fortigate_admin_session_anomaly.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes](https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### FortiGate VPN Authentication Brute Force
+
+Detects multiple SSL-VPN or IPsec VPN authentication failures from the same source IP on FortiGate, indicating brute force or credential stuffing attacks against remote access services.
+
+- **Category:** Credential Access
+- **Technique:** T1133 - External Remote Services
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [fortigate_vpn_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/fortigate_vpn_brute_force.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes](https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes)
+- **Reference:** [https://attack.mitre.org/techniques/T1133/](https://attack.mitre.org/techniques/T1133/)
+
+### FortiSandbox Malicious File Detection
+
+Detects when FortiSandbox identifies a file as malicious based on behavioral analysis and static scanning. This indicates active malware attempting to infiltrate the network through file transfers or downloads.
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sandbox_malicious_verdict.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/sandbox_malicious_verdict.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortisandbox/4.4.0/administration-guide/274898/how-files-determined-to-be-suspicious-low-medium-or-high](https://docs.fortinet.com/document/fortisandbox/4.4.0/administration-guide/274898/how-files-determined-to-be-suspicious-low-medium-or-high)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/](https://attack.mitre.org/techniques/T1204/)
+
+### Fortinet Antivirus Malware Outbreak Detection
+
+Detects potential malware outbreak when multiple antivirus detections occur from the same source or targeting multiple destinations in a short time period. This could indicate a widespread infection attempt or a compromised system attempting to spread malware.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [antivirus_outbreak_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/antivirus_outbreak_detection.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/198726/antivirus](https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/198726/antivirus)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Fortinet IPS Critical Severity Detection
+
+Detects critical severity IPS events indicating active exploitation attempts or severe security threats targeting the network.
+
+- **Category:** Execution
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [ips_critical_severity_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortinet/ips_critical_severity_events.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/331728/ips-sensors](https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/331728/ips-sensors)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)

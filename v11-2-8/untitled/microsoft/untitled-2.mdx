@@ -1,0 +1,729 @@
+Detection rules for **Office 365** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **54** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Abnormal Guest User Invitation Activity | Identity and Access Management | Account Creation | C:3 / I:2 / A:1 |
+| Attempts to Brute Force a Microsoft 365 User Account | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:3 |
+| Audit Log Tampering Detection | Defense Evasion | T1070.001 - Indicator Removal: Clear Windows Event Logs | C:3 / I:3 / A:2 |
+| Azure AD Integration Suspicious Activity | Identity and Access Management | T1098 - Account Manipulation | C:2 / I:2 / A:1 |
+| Conditional Access Bypass Detection | Defense Evasion | T1550 - Use Alternate Authentication Material | C:2 / I:2 / A:1 |
+| Data Loss Prevention Policy Violation | Data Loss Prevention | T1213 - Data from Information Repositories | C:3 / I:2 / A:1 |
+| Exchange Admin Configuration Changes | Configuration Changes | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Information Barriers Policy Violation | Privilege Escalation | Valid Accounts | C:3 / I:2 / A:1 |
+| Insider Risk Indicator Detection | Collection | Data from Local System | C:3 / I:3 / A:2 |
+| M365 Data Exfiltration to Unsanctioned Application | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| M365 Mailbox PST Export Detected | Collection | T1114.002 - Email Collection: Remote Email Collection | C:3 / I:1 / A:1 |
+| M365 New Federated Domain Added | Persistence | T1556 - Modify Authentication Process | C:3 / I:3 / A:3 |
+| M365 Suspicious OAuth Application File Downloads | Collection | T1530 - Data from Cloud Storage Object | C:3 / I:2 / A:1 |
+| MFA Fatigue Push Spam Attack Detection | Credential Access | T1621 - Multi-Factor Authentication Request Generation | C:3 / I:2 / A:1 |
+| Mass Email Deletion Detected | Data Loss | T1114 - Email Collection | C:2 / I:3 / A:2 |
+| Microsoft 365 Detection of a connection to a .onion domain | Command and Control | T1090 - Proxy | C:3 / I:2 / A:2 |
+| Microsoft 365 Exchange Anti-Phish Policy Deletion | Initial Access | T1566 - Phishing | C:2 / I:3 / A:2 |
+| Microsoft 365 Exchange Anti-Phish Rule Modification | Initial Access | T1566 - Phishing | C:2 / I:3 / A:2 |
+| Microsoft 365 Exchange Malware Filter Policy Deletion | Defense Evasion | T1562 - Impair Defenses | C:3 / I:3 / A:2 |
+| Microsoft 365 Exchange Malware Filter Rule Modification | Defense Evasion | T1562 - Impair Defenses | C:3 / I:3 / A:2 |
+| Microsoft 365 Exchange Safe Attachment Rule Disabled | Defense Evasion | T1562 - Impair Defenses | C:3 / I:3 / A:2 |
+| Microsoft 365 Exchange Safe Link Policy Disabled | Initial Access | T1566 - Phishing | C:3 / I:2 / A:2 |
+| Microsoft 365 Exchange Transport Rule Creation | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| Microsoft 365 Exchange Transport Rule Modification | Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| Microsoft 365 New Inbox Rule Created | Collection | T1114 - Email Collection | C:3 / I:2 / A:1 |
+| Microsoft 365 Possible Successful Password Guessing detected | Credential Access | T1110.001 - Brute Force | C:3 / I:2 / A:2 |
+| Microsoft Teams External User Phishing Detection | Initial Access | T1566 - Phishing | C:2 / I:2 / A:1 |
+| Multi-Geo Data Violations | Data Loss | T1030 - Data Transfer Size Limits | C:3 / I:2 / A:1 |
+| O365 Excessive Single Sign-On Logon Errors | Credential Access | T1110 - Brute Force | C:2 / I:3 / A:2 |
+| Office 365 Anti-Phishing Policy Bypass Detected | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:1 |
+| Office 365 App Consent Grants Detected | Persistence | T1098.003 - Account Manipulation: Additional Cloud Credentials | C:3 / I:3 / A:1 |
+| Office 365 Forms and Sway Phishing Detection | Initial Access | T1566 - Phishing | C:2 / I:2 / A:1 |
+| Office 365 Global Admin Role Assignment | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Office 365 Mail Flow Rule Modified | Defense Evasion | T1564.008 - Hide Artifacts: Email Hiding Rules | C:3 / I:3 / A:2 |
+| Office 365 Mailbox Delegation Abuse | Persistence | T1098.002 - Account Manipulation: Additional Email Delegate Permissions | C:3 / I:2 / A:1 |
+| Office 365 Mailbox Export to PST | Data Exfiltration | T1114.002 - Email Collection: Remote Email Collection | C:3 / I:1 / A:1 |
+| Office 365 OAuth Application Anomalous Activity | Credential Access | T1528 - Steal Application Access Token | C:3 / I:3 / A:2 |
+| Office 365 Safe Attachment Policy Violation | Initial Access | T1566.001 - Phishing: Spearphishing Attachment | C:3 / I:3 / A:2 |
+| OneDrive Mass File Access Detected | Data Reconnaissance | T1530 - Data from Cloud Storage Object | C:3 / I:1 / A:2 |
+| Potential Password Spraying of Microsoft 365 User Accounts | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:2 |
+| Power Apps Data Connector Suspicious Activity | Data Exfiltration | T1530 - Data from Cloud Storage Object | C:3 / I:2 / A:1 |
+| Power BI Suspicious Data Export | Data Exfiltration | T1567 - Exfiltration Over Web Service | C:3 / I:1 / A:1 |
+| Safe Links Click Pattern Anomaly | Defense Evasion | T1204.001 - User Execution: Malicious Link | C:2 / I:3 / A:1 |
+| Service Principal Credential Addition | Persistence | T1098.001 - Account Manipulation: Additional Cloud Credentials | C:3 / I:3 / A:1 |
+| SharePoint Mass File Download Detected | Data Exfiltration | T1213 - Data from Information Repositories | C:3 / I:1 / A:2 |
+| SharePoint Permission Escalation Detection | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:2 / A:1 |
+| Suspicious Compliance Alert Activity | Policy and Compliance | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Suspicious Email Forwarding Rule Created | Persistence | T1114.003 - Email Collection: Email Forwarding Rule | C:3 / I:2 / A:1 |
+| Suspicious External Sharing Activity | Data Loss Prevention | T1567 - Exfiltration Over Web Service | C:3 / I:2 / A:1 |
+| Suspicious Mail Forwarding Rule Creation | Data Exfiltration | T1114.001 - Email Collection: Local Email Collection | C:3 / I:2 / A:1 |
+| Suspicious Power Automate Flow Activity | Process Automation Abuse | Automated Collection | C:3 / I:3 / A:2 |
+| Suspicious Teams Message Export Activity | Data Exfiltration | T1114 - Email Collection | C:3 / I:2 / A:1 |
+| Threat Intelligence Alert Pattern | Initial Access | Phishing | C:3 / I:3 / A:2 |
+| eDiscovery Abuse Detection | Data Exfiltration | T1074 - Data Staged | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Abnormal Guest User Invitation Activity** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/guest_user_invitation_spikes.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Abnormal Guest User Invitation Activity
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Identity and Access Management
+technique: Account Creation
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1136/
+description: |
+  Detects unusual spikes in guest user invitations which could indicate an attempt to establish persistence through external accounts or potential data exfiltration preparation by adding unauthorized external collaborators.
+  
+  Next Steps:
+  1. Review the user account initiating the invitations for any signs of compromise
+  2. Verify the legitimacy of the invited external users and their business justification
+  3. Check if the inviting user has appropriate permissions for guest invitations
+  4. Examine the invited users' email domains for suspicious or unexpected organizations
+  5. Review any subsequent activity by the invited guest users
+  6. Validate that the invitation frequency aligns with normal business processes
+  7. Consider implementing additional approval workflows for guest user invitations
+where: |
+  equals("log.Workload", "AzureActiveDirectory") && 
+  (
+    equals("action", "Invite external user") ||
+    equals("action", "InviteGuest") ||
+    equals("action", "Add guest to group") ||
+    equals("action", "Guest user invite redeemed")
+  ) &&
+  equals("actionResult", "Success")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'Invite external user'
+    within: now-1h
+    count: 10
+groupBy:
+  - adversary.user
+
+```
+
+---
+
+## Rule Details
+
+### Abnormal Guest User Invitation Activity
+
+Detects unusual spikes in guest user invitations which could indicate an attempt to establish persistence through external accounts or potential data exfiltration preparation by adding unauthorized external collaborators.
+
+- **Category:** Identity and Access Management
+- **Technique:** Account Creation
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [guest_user_invitation_spikes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/guest_user_invitation_spikes.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1136/](https://attack.mitre.org/techniques/T1136/)
+
+### Attempts to Brute Force a Microsoft 365 User Account
+
+Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br> Identifies attempts to brute force a Microsoft 365 user account. An adversary may attempt a brute force attack to obtain unauthorized access to user accounts.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [credential_access_microsoft_365_brute_force_user_account_attempt.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/credential_access_microsoft_365_brute_force_user_account_attempt.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+
+### Audit Log Tampering Detection
+
+Detects attempts to tamper with audit logs by disabling auditing, modifying audit configurations, or clearing audit data. This could indicate an attempt to hide malicious activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070.001 - Indicator Removal: Clear Windows Event Logs
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [audit_log_tampering.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/audit_log_tampering.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-enable-disable](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/001/](https://attack.mitre.org/techniques/T1070/001/)
+
+### Azure AD Integration Suspicious Activity
+
+Detects suspicious Azure Active Directory integration events including multiple failed authentication attempts, unusual role assignments, or bulk user modifications that could indicate an attempted compromise of identity management systems. This rule identifies patterns of authentication failures, privilege escalations, and bulk account modifications that may suggest malicious activity targeting the organization's identity infrastructure.
+
+- **Category:** Identity and Access Management
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [azure_ad_integration_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/azure_ad_integration_events.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Conditional Access Bypass Detection
+
+Detects attempts to bypass conditional access policies through various methods including legacy authentication, trusted location manipulation, or session token abuse. This rule identifies when users successfully authenticate despite conditional access policy failures or use legacy authentication methods that may bypass modern security controls.
+
+- **Category:** Defense Evasion
+- **Technique:** T1550 - Use Alternate Authentication Material
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [conditional_access_bypasses.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/conditional_access_bypasses.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/overview](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/overview)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/](https://attack.mitre.org/techniques/T1550/)
+
+### Data Loss Prevention Policy Violation
+
+Detects violations of Data Loss Prevention (DLP) policies including attempts to share, access, or exfiltrate sensitive information such as credit card numbers, social security numbers, or confidential business data.
+
+This rule triggers when Office 365 DLP policies detect unauthorized handling of sensitive data across Exchange, SharePoint, OneDrive, Teams, or Security Compliance Center workloads.
+
+**
+
+- **Category:** Data Loss Prevention
+- **Technique:** T1213 - Data from Information Repositories
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [dlp_policy_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/dlp_policy_violations.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp](https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp)
+- **Reference:** [https://attack.mitre.org/techniques/T1213/](https://attack.mitre.org/techniques/T1213/)
+
+### Exchange Admin Configuration Changes
+
+Detects changes to Exchange administrative configuration that could impact security settings, user permissions, or mail flow policies. This rule monitors for successful execution of critical Exchange administrative cmdlets that can affect organizational security posture.
+
+- **Category:** Configuration Changes
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exchange_admin_changes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/exchange_admin_changes.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/exchange/security-and-compliance/exchange-auditing-reports/view-administrator-audit-log](https://docs.microsoft.com/en-us/exchange/security-and-compliance/exchange-auditing-reports/view-administrator-audit-log)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Information Barriers Policy Violation
+
+Detects violations of information barrier policies designed to prevent conflicts of interest by restricting communications and collaborations between specific groups or individuals within the organization. Information barriers are critical security controls that prevent unauthorized information sharing between different business units or roles.
+
+- **Category:** Privilege Escalation
+- **Technique:** Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [information_barriers_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/information_barriers_violations.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/information-barriers](https://learn.microsoft.com/en-us/purview/information-barriers)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Insider Risk Indicator Detection
+
+Detects insider risk indicators such as unusual data access patterns, mass downloads, sensitive data exfiltration attempts, or policy violations that may indicate malicious insider activity or compromised accounts.
+
+- **Category:** Collection
+- **Technique:** Data from Local System
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [insider_risk_indicators.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/insider_risk_indicators.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/insider-risk-management](https://learn.microsoft.com/en-us/purview/insider-risk-management)
+- **Reference:** [https://attack.mitre.org/techniques/T1005/](https://attack.mitre.org/techniques/T1005/)
+
+### M365 Data Exfiltration to Unsanctioned Application
+
+Detects Microsoft Defender for Cloud Apps (CASB) alerts for data exfiltration to unsanctioned applications. This indicates sensitive organizational data is being transferred to unauthorized cloud services.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [m365_data_exfiltration_unsanctioned.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/m365_data_exfiltration_unsanctioned.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-cloud-apps/discovered-apps](https://learn.microsoft.com/en-us/defender-cloud-apps/discovered-apps)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### M365 Mailbox PST Export Detected
+
+Detects PST file exports from Microsoft 365 mailboxes. Bulk email export to PST format is a primary method of email exfiltration, often performed by compromised admin accounts or insider threats.
+
+- **Category:** Collection
+- **Technique:** T1114.002 - Email Collection: Remote Email Collection
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [m365_pst_export.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/m365_pst_export.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/ediscovery-export-search-results](https://learn.microsoft.com/en-us/purview/ediscovery-export-search-results)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/002/](https://attack.mitre.org/techniques/T1114/002/)
+
+### M365 New Federated Domain Added
+
+Detects when a new federated domain is added to Microsoft 365. Adding federated domains is a critical attack technique that enables Golden SAML attacks, allowing attackers to forge authentication tokens and maintain persistent backdoor access to the tenant.
+
+- **Category:** Persistence
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [m365_federated_domain_added.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/m365_federated_domain_added.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/microsoft-365/enterprise/plan-for-third-party-ssl-certificates](https://learn.microsoft.com/en-us/microsoft-365/enterprise/plan-for-third-party-ssl-certificates)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+
+### M365 Suspicious OAuth Application File Downloads
+
+Detects Microsoft Defender for Cloud Apps alerts for suspicious OAuth application file download activities. Malicious OAuth apps granted consent by phished users can mass-download files from SharePoint and OneDrive.
+
+- **Category:** Collection
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [m365_oauth_app_file_downloads.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/m365_oauth_app_file_downloads.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-anomaly-alerts](https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-anomaly-alerts)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### MFA Fatigue Push Spam Attack Detection
+
+Detects MFA fatigue attacks where an attacker repeatedly triggers MFA push notifications to overwhelm a user into accepting. Multiple failed MFA challenges followed by a successful authentication strongly indicates an MFA fatigue attack.
+
+- **Category:** Credential Access
+- **Technique:** T1621 - Multi-Factor Authentication Request Generation
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [mfa_fatigue_push_spam.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mfa_fatigue_push_spam.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-mfa-howitworks](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-mfa-howitworks)
+- **Reference:** [https://attack.mitre.org/techniques/T1621/](https://attack.mitre.org/techniques/T1621/)
+
+### Mass Email Deletion Detected
+
+Detects when a user performs mass deletion of emails which could indicate data destruction, covering tracks, or malicious insider activity. Monitors for multiple HardDelete or SoftDelete operations within a short time window.
+
+- **Category:** Data Loss
+- **Technique:** T1114 - Email Collection
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [mass_email_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mass_email_deletion.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-mailboxes](https://learn.microsoft.com/en-us/purview/audit-mailboxes)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/](https://attack.mitre.org/techniques/T1114/)
+
+### Microsoft 365 Detection of a connection to a .onion domain
+
+Tor is a software suite and network that provides increased anonymity on the Internet. It creates a multi-hop proxy network and utilizes multilayer encryption to protect both the message and routing information. Tor utilizes Onion Routing, in which messages are encrypted with multiple layers of encryption; at each step in the proxy network, the topmost layer is decrypted and the contents forwarded on to the next node until it reaches its destination.
+
+- **Category:** Command and Control
+- **Technique:** T1090 - Proxy
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [detection_of_a_connection_to_onion_domain.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/detection_of_a_connection_to_onion_domain.yml)
+- **Reference:** [https://attack.mitre.org/software/S0183/](https://attack.mitre.org/software/S0183/)
+- **Reference:** [https://attack.mitre.org/software/](https://attack.mitre.org/software/)
+
+### Microsoft 365 Exchange Anti-Phish Policy Deletion
+
+Adversaries may send phishing messages to gain access to victim systems. All forms of phishing are electronically delivered social engineering. Phishing can be targeted, known as spearphishing. In spearphishing, a specific individual, company, or industry will be targeted by the adversary. More generally, adversaries can conduct non-targeted phishing, such as in mass malware spam campaigns.<br> Adversaries may send victims emails containsing malicious attachments or links, typically to execute malicious code on victim systems. Phishing may also be conducted via third-party services, like social media platforms. Phishing may also involve social engineering techniques, such as posing as a trusted source.<br> Identifies the deletion of an anti-phishing policy in Microsoft 365. By default, Microsoft 365 includes built-in features that help protect users from phishing attacks. Anti-phishing polices increase this protection by refining settings to better detect and prevent attacks.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [initial_access_microsoft_365_exchange_anti_phish_policy_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/initial_access_microsoft_365_exchange_anti_phish_policy_deletion.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-anti-phishing-policies?view=o365-worldwide](https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-anti-phishing-policies?view=o365-worldwide)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+
+### Microsoft 365 Exchange Anti-Phish Rule Modification
+
+Adversaries may send phishing messages to gain access to victim systems. All forms of phishing are electronically delivered social engineering. Phishing can be targeted, known as spearphishing. In spearphishing, a specific individual, company, or industry will be targeted by the adversary. More generally, adversaries can conduct non-targeted phishing, such as in mass malware spam campaigns.<br> Adversaries may send victims emails containsing malicious attachments or links, typically to execute malicious code on victim systems. Phishing may also be conducted via third-party services, like social media platforms. Phishing may also involve social engineering techniques, such as posing as a trusted source.<br> Identifies the modification of an anti-phishing rule in Microsoft 365. By default, Microsoft 365 includes built-in features that help protect users from phishing attacks. Anti-phishing rules increase this protection by refining settings to better detect and prevent attacks.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [initial_access_microsoft_365_exchange_anti_phish_rule_mod.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/initial_access_microsoft_365_exchange_anti_phish_rule_mod.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+
+### Microsoft 365 Exchange Malware Filter Policy Deletion
+
+Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for defense evasion include uninstalling/disabling security software or obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes to hide and masquerade their malware. Other tactics’ techniques are cross-listed here when those techniques include the added benefit of subverting defenses.<br> Identifies when a malware filter policy has been deleted in Microsoft 365. A malware filter policy is used to alert administrators that an internal user sent a message that containsed malware. This may indicate an account or machine compromise that would need to be investigated. Deletion of a malware filter policy may be done to evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [defense_evasion_microsoft_365_exchange_malware_filter_policy_deletion.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/defense_evasion_microsoft_365_exchange_malware_filter_policy_deletion.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### Microsoft 365 Exchange Malware Filter Rule Modification
+
+Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for defense evasion include uninstalling/disabling security software or obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes to hide and masquerade their malware. Other tactics’ techniques are cross-listed here when those techniques include the added benefit of subverting defenses.<br> Identifies when a malware filter rule has been deleted or disabled in Microsoft 365. An adversary or insider threat may want to modify a malware filter rule to evade detection.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [defense_evasion_microsoft_365_exchange_malware_filter_rule_mod.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/defense_evasion_microsoft_365_exchange_malware_filter_rule_mod.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### Microsoft 365 Exchange Safe Attachment Rule Disabled
+
+Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for defense evasion include uninstalling/disabling security software or obfuscating/encrypting data and scripts. Adversaries also leverage and abuse trusted processes to hide and masquerade their malware. Other tactics’ techniques are cross-listed here when those techniques include the added benefit of subverting defenses.<br> Identifies when a safe attachment rule is disabled in Microsoft 365. Safe attachment rules can extend malware protections to include routing all messages and attachments without a known malware signature to a special hypervisor environment. An adversary or insider threat may disable a safe attachment rule to exfiltrate data or evade defenses.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [defense_evasion_microsoft_365_exchange_safe_attach_rule_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/defense_evasion_microsoft_365_exchange_safe_attach_rule_disabled.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### Microsoft 365 Exchange Safe Link Policy Disabled
+
+When it comes to protecting its users, Microsoft takes the threat of phishing seriously. Spoofing is a common technique that's used by attackers. Spoofed messages appear to originate from someone or somewhere other than the actual source. This technique is often used in phishing campaigns that are designed to obtain user credentials. The anti-spoofing technology in EOP specifically examines forgery of the From header in the message body (used to display the message sender in email clients). When EOP has high confidence that the From header is forged, the message is identified as spoofed.<br> Identifies when a Safe Link policy is disabled in Microsoft 365. Safe Link policies for Office applications extend phishing protection to documents that contains hyperlinks, even after they have been delivered to a user.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [initial_access_microsoft_365_exchange_safelinks_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/initial_access_microsoft_365_exchange_safelinks_disabled.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/atp-safe-links?view=o365-worldwide](https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/atp-safe-links?view=o365-worldwide)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Microsoft 365 Exchange Transport Rule Creation
+
+Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they’ve collected data, adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for getting data out of a target network typically include transferring it over their command and control channel or an alternate channel and may also include putting size limits on the transmission.<br> Identifies a transport rule creation in Microsoft 365. Exchange Online mail transport rules should be set to not forward email to domains outside of your organization as a best practice. An adversary may create transport rules to exfiltrate data.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [exfiltration_microsoft_365_exchange_transport_rule_creation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/exfiltration_microsoft_365_exchange_transport_rule_creation.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules](https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+
+### Microsoft 365 Exchange Transport Rule Modification
+
+Exfiltration consists of techniques that adversaries may use to steal data from your network. Once they’ve collected data, adversaries often package it to avoid detection while removing it. This can include compression and encryption. Techniques for getting data out of a target network typically include transferring it over their command and control channel or an alternate channel and may also include putting size limits on the transmission.<br> Identifies when a transport rule has been disabled or deleted in Microsoft 365. Mail flow rules (also known as transport rules) are used to identify and take action on messages that flow through your organization. An adversary or insider threat may modify a transport rule to exfiltrate data or evade defenses.
+
+- **Category:** Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [exfiltration_microsoft_365_exchange_transport_rule_mod.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/exfiltration_microsoft_365_exchange_transport_rule_mod.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules](https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0010/](https://attack.mitre.org/tactics/TA0010/)
+
+### Microsoft 365 New Inbox Rule Created
+
+Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br> Identifies when a new Inbox rule is created in Microsoft 365. Inbox rules process messages in the Inbox based on conditions and take actions, such as moving a message to a specified folder or deleting a message. Adequate permissions are required on the mailbox to create an Inbox rule.
+
+- **Category:** Collection
+- **Technique:** T1114 - Email Collection
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [collection_microsoft_365_new_inbox_rule.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/collection_microsoft_365_new_inbox_rule.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/responding-to-a-compromised-email-account?view=o365-worldwide](https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/responding-to-a-compromised-email-account?view=o365-worldwide)
+- **Reference:** [https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboxrule?view=exchange-ps](https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboxrule?view=exchange-ps)
+- **Reference:** [https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/detect-and-remediate-outlook-rules-forms-attack?view=o365-worldwide](https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/detect-and-remediate-outlook-rules-forms-attack?view=o365-worldwide)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/](https://attack.mitre.org/techniques/T1114/)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/003/](https://attack.mitre.org/techniques/T1114/003/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0009/](https://attack.mitre.org/tactics/TA0009/)
+
+### Microsoft 365 Possible Successful Password Guessing detected
+
+Adversaries with no prior knowledge of legitimate credentials within the system or environment may guess passwords to attempt access to accounts. Without knowledge of the password for an account, an adversary may opt to systematically guess the password using a repetitive or iterative mechanism. An adversary may guess login credentials without prior knowledge of system or environment passwords during an operation by using a list of common passwords. Password guessing may or may not take into account the target's policies on password complexity or use policies that may lock accounts out after a number of failed attempts.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [possible_succesfull_password_guessing_o365.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/possible_succesfull_password_guessing_o365.yml)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006](https://attack.mitre.org/tactics/TA0006)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### Microsoft Teams External User Phishing Detection
+
+Detects suspicious external user interactions in Microsoft Teams including external users sending messages with links, file sharing from external users, and mass external user additions. Teams is increasingly used as a phishing vector to bypass email security controls.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [teams_external_user_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/teams_external_user_abuse.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/microsoftteams/communicate-with-users-from-other-organizations](https://learn.microsoft.com/en-us/microsoftteams/communicate-with-users-from-other-organizations)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Multi-Geo Data Violations
+
+Detects violations of multi-geo data residency policies including unauthorized data movements between regions, cross-geo access violations, or attempts to bypass geo-restrictions. This rule identifies activities such as site geo moves, cross-geo file operations, and data location parameter modifications that may indicate unauthorized data transfer or policy violations.
+
+- **Category:** Data Loss
+- **Technique:** T1030 - Data Transfer Size Limits
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [multi_geo_data_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/multi_geo_data_violations.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-multi-geo](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-multi-geo)
+- **Reference:** [https://attack.mitre.org/techniques/T1030/](https://attack.mitre.org/techniques/T1030/)
+
+### O365 Excessive Single Sign-On Logon Errors
+
+Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br> Identifies accounts with a high number of single sign-on (SSO) logon errors. Excessive logon errors may indicate an attempt to brute force a password or SSO token.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [credential_access_user_excessive_sso_logon_errors.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/credential_access_user_excessive_sso_logon_errors.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+
+### Office 365 Anti-Phishing Policy Bypass Detected
+
+Detects potential bypasses or modifications to anti-phishing policies including changes to safe sender lists, domain exclusions, or policy disabling that could allow phishing emails to reach users. This rule identifies successful administrative actions on anti-phishing configurations that could weaken email security defenses.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [anti_phishing_policy_bypasses.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/anti_phishing_policy_bypasses.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-office-365/anti-phishing-policies-about](https://learn.microsoft.com/en-us/defender-office-365/anti-phishing-policies-about)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Office 365 App Consent Grants Detected
+
+Detects when OAuth consent is granted to an application in Office 365. Attackers may use malicious OAuth apps to gain persistent access to user data without requiring credentials. This technique allows attackers to maintain access even after password changes.
+
+- **Category:** Persistence
+- **Technique:** T1098.003 - Account Manipulation: Additional Cloud Credentials
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [app_consent_grants.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/app_consent_grants.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants](https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/003/](https://attack.mitre.org/techniques/T1098/003/)
+
+### Office 365 Forms and Sway Phishing Detection
+
+Detects suspicious usage of Microsoft Forms and Sway for phishing page creation. Attackers leverage these legitimate Microsoft services to host phishing pages that bypass email security controls and appear trustworthy to victims due to the microsoft.com domain.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [forms_sway_phishing.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/forms_sway_phishing.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/anti-phishing-policies-about](https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/anti-phishing-policies-about)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Office 365 Global Admin Role Assignment
+
+Detects assignment of high-privilege administrative roles in Office 365, particularly Global Administrator, Exchange Administrator, and SharePoint Administrator. These roles provide extensive control over the tenant and are high-value targets for persistence.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [o365_admin_role_assignment.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/o365_admin_role_assignment.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Office 365 Mail Flow Rule Modified
+
+Detects modifications to mail flow rules (transport rules) in Office 365. Attackers may create or modify mail flow rules to redirect, delete, or hide emails, bypassing security controls or exfiltrating data. Mail flow rules can be used to automatically delete emails containing specific keywords, forward sensitive emails to external addresses, or modify email content.
+
+- **Category:** Defense Evasion
+- **Technique:** T1564.008 - Hide Artifacts: Email Hiding Rules
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [mail_flow_rule_changes.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mail_flow_rule_changes.yml)
+- **Reference:** [https://admindroid.com/how-to-audit-transport-rule-changes-report-in-microsoft-365](https://admindroid.com/how-to-audit-transport-rule-changes-report-in-microsoft-365)
+- **Reference:** [https://attack.mitre.org/techniques/T1564/008/](https://attack.mitre.org/techniques/T1564/008/)
+
+### Office 365 Mailbox Delegation Abuse
+
+Detects addition of mailbox delegation permissions including FullAccess, SendAs, and SendOnBehalf. Attackers may add mailbox permissions to access sensitive emails, send phishing messages as the compromised user, or maintain persistent access to communications.
+
+- **Category:** Persistence
+- **Technique:** T1098.002 - Account Manipulation: Additional Email Delegate Permissions
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [mailbox_delegation_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mailbox_delegation_abuse.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/manage-permissions-for-recipients](https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/manage-permissions-for-recipients)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/002/](https://attack.mitre.org/techniques/T1098/002/)
+
+### Office 365 Mailbox Export to PST
+
+Detects creation of mailbox export requests which generate PST files containing email data. Attackers with compromised admin credentials may use New-MailboxExportRequest or eDiscovery export to bulk exfiltrate email data from target mailboxes.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1114.002 - Email Collection: Remote Email Collection
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [mailbox_export_pst.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mailbox_export_pst.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/exchange/policy-and-compliance/ediscovery/export-results-to-pst](https://learn.microsoft.com/en-us/exchange/policy-and-compliance/ediscovery/export-results-to-pst)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/002/](https://attack.mitre.org/techniques/T1114/002/)
+
+### Office 365 OAuth Application Anomalous Activity
+
+Detects anomalous OAuth application activities including suspicious consent patterns, high-privilege permission grants, or rapid consent events from a single user which may indicate compromised accounts or malicious OAuth apps. This rule identifies when users consent to OAuth applications with high-risk permissions such as Mail access, Files access, or User.ReadWrite permissions, followed by multiple consent events from the same IP address.
+
+- **Category:** Credential Access
+- **Technique:** T1528 - Steal Application Access Token
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [oauth_app_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/oauth_app_anomalies.yml)
+- **Reference:** [https://office365itpros.com/2023/12/15/oauth-apps-security/](https://office365itpros.com/2023/12/15/oauth-apps-security/)
+- **Reference:** [https://attack.mitre.org/techniques/T1528/](https://attack.mitre.org/techniques/T1528/)
+
+### Office 365 Safe Attachment Policy Violation
+
+Detects violations of Safe Attachment policies including malicious files blocked during detonation, policy modifications that reduce protection, or attempts to bypass attachment scanning that could lead to malware delivery. This rule identifies when Safe Attachment policies are modified, disabled, or when malicious attachments are detected and blocked by Office 365 security controls.
+
+- **Category:** Initial Access
+- **Technique:** T1566.001 - Phishing: Spearphishing Attachment
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [safe_attachment_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/safe_attachment_violations.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-office-365/safe-attachments-about](https://learn.microsoft.com/en-us/defender-office-365/safe-attachments-about)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/001/](https://attack.mitre.org/techniques/T1566/001/)
+
+### OneDrive Mass File Access Detected
+
+Detects when a user accesses an abnormally high number of files in OneDrive within a short time period (200+ files in 30 minutes), which could indicate automated data collection, reconnaissance, or preparation for data exfiltration. This behavior is often associated with insider threats, compromised accounts, or malicious scripts designed to harvest sensitive data from cloud storage.
+
+- **Category:** Data Reconnaissance
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:1 / A:2
+- **Rule file:** [onedrive_mass_file_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/onedrive_mass_file_access.yml)
+- **Reference:** [https://o365reports.com/2024/01/30/audit-file-access-in-sharepoint-online-using-powershell/](https://o365reports.com/2024/01/30/audit-file-access-in-sharepoint-online-using-powershell/)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### Potential Password Spraying of Microsoft 365 User Accounts
+
+Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br> Identifies a high number (25) of failed Microsoft 365 user authentication attempts from a single IP address within 30 minutes, which could be indicative of a password spraying attack. An adversary may attempt a password spraying attack to obtain unauthorized access to user accounts.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [credential_access_microsoft_365_potential_password_spraying_attack.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/credential_access_microsoft_365_potential_password_spraying_attack.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+
+### Power Apps Data Connector Suspicious Activity
+
+Detects creation or modification of Power Apps data connectors that could lead to unauthorized data access or exfiltration from corporate data sources. This rule identifies suspicious Power Apps activities including app creation/modification, data connection changes, and data export/import operations that may indicate an attempt to access or exfiltrate sensitive organizational data.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [power_apps_data_leaks.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/power_apps_data_leaks.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/power-platform/admin/audit-data-user-activity](https://docs.microsoft.com/en-us/power-platform/admin/audit-data-user-activity)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### Power BI Suspicious Data Export
+
+Detects bulk Power BI report exports and data downloads that may indicate data exfiltration. Attackers with access to Power BI may export reports and underlying datasets containing sensitive business data.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1567 - Exfiltration Over Web Service
+- **Impact:** C:3 / I:1 / A:1
+- **Rule file:** [power_bi_data_export.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/power_bi_data_export.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/power-bi/admin/service-admin-auditing](https://learn.microsoft.com/en-us/power-bi/admin/service-admin-auditing)
+- **Reference:** [https://attack.mitre.org/techniques/T1567/](https://attack.mitre.org/techniques/T1567/)
+
+### Safe Links Click Pattern Anomaly
+
+Detects unusual patterns in Safe Links click behavior that may indicate phishing attempts or malicious URL access. This rule monitors for multiple clicks on suspicious URLs from the same user within a short timeframe, which could indicate either a persistent phishing campaign or user behavior that poses security risks.
+
+- **Category:** Defense Evasion
+- **Technique:** T1204.001 - User Execution: Malicious Link
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [safe_links_click_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/safe_links_click_patterns.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-office-365/safe-links-about](https://learn.microsoft.com/en-us/defender-office-365/safe-links-about)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/001/](https://attack.mitre.org/techniques/T1204/001/)
+
+### Service Principal Credential Addition
+
+Detects addition of credentials (secrets or certificates) to application registrations and service principals. Attackers may add new credentials to existing service principals to establish persistent backdoor access to the tenant without relying on user credentials.
+
+- **Category:** Persistence
+- **Technique:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [service_principal_credential_addition.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/service_principal_credential_addition.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+
+### SharePoint Mass File Download Detected
+
+Detects when a user downloads an unusually large number of files from SharePoint or OneDrive within a short time period, which could indicate data exfiltration or insider threat activity. This rule triggers when a user downloads 100 or more files within 30 minutes.
+
+**
+
+- **Category:** Data Exfiltration
+- **Technique:** T1213 - Data from Information Repositories
+- **Impact:** C:3 / I:1 / A:2
+- **Rule file:** [sharepoint_mass_downloads.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/sharepoint_mass_downloads.yml)
+- **Reference:** [https://www.sharepointdiary.com/2020/10/how-to-track-document-downloads-using-audit-log-in-sharepoint-online.html](https://www.sharepointdiary.com/2020/10/how-to-track-document-downloads-using-audit-log-in-sharepoint-online.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1213/](https://attack.mitre.org/techniques/T1213/)
+
+### SharePoint Permission Escalation Detection
+
+Detects escalation of SharePoint permissions including adding site collection administrators and granting site admin privileges to external users. These changes can provide unauthorized access to sensitive SharePoint data and configuration settings.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [sharepoint_permission_escalation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/sharepoint_permission_escalation.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/sharepoint/manage-site-collection-administrators](https://learn.microsoft.com/en-us/sharepoint/manage-site-collection-administrators)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Suspicious Compliance Alert Activity
+
+Detects suspicious patterns in compliance-related activities including alert suppression, policy modifications, or audit log tampering that could indicate attempts to evade security monitoring or hide malicious activities in Office 365 Security & Compliance Center.
+
+- **Category:** Policy and Compliance
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [compliance_alert_patterns.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/compliance_alert_patterns.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Suspicious Email Forwarding Rule Created
+
+Detects creation or modification of inbox rules that forward emails to external domains, which is a common technique used by attackers to exfiltrate emails and maintain persistence after compromising an account. Attackers often create these rules to automatically forward sensitive emails to external addresses under their control.
+
+- **Category:** Persistence
+- **Technique:** T1114.003 - Email Collection: Email Forwarding Rule
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [suspicious_inbox_rules.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/suspicious_inbox_rules.yml)
+- **Reference:** [https://redcanary.com/blog/threat-detection/email-forwarding-rules/](https://redcanary.com/blog/threat-detection/email-forwarding-rules/)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/003/](https://attack.mitre.org/techniques/T1114/003/)
+
+### Suspicious External Sharing Activity
+
+Detects unauthorized or suspicious external sharing activities in SharePoint and OneDrive that could indicate data exfiltration attempts or policy violations when sharing sensitive content with external parties.
+
+- **Category:** Data Loss Prevention
+- **Technique:** T1567 - Exfiltration Over Web Service
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [external_sharing_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/external_sharing_violations.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1567/](https://attack.mitre.org/techniques/T1567/)
+
+### Suspicious Mail Forwarding Rule Creation
+
+Detects creation or modification of inbox rules that forward emails to external recipients, which could indicate data exfiltration attempts. This rule monitors for the creation of new inbox rules or modifications to existing rules that contain forwarding parameters.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1114.001 - Email Collection: Local Email Collection
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [mail_forwarding_rules.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/mail_forwarding_rules.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/microsoft-365/compliance/auditing-troubleshooting-scenarios](https://docs.microsoft.com/en-us/microsoft-365/compliance/auditing-troubleshooting-scenarios)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/001/](https://attack.mitre.org/techniques/T1114/001/)
+
+### Suspicious Power Automate Flow Activity
+
+Detects creation or modification of Power Automate flows that could be used for automated data exfiltration or unauthorized process automation. This rule identifies suspicious Power Automate activity including flow creation, modification, sharing, and connection management that may indicate malicious automation attempts.
+
+- **Category:** Process Automation Abuse
+- **Technique:** Automated Collection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [power_automate_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/power_automate_abuse.yml)
+- **Reference:** [https://docs.microsoft.com/en-us/power-platform/admin/audit-data-user-activity](https://docs.microsoft.com/en-us/power-platform/admin/audit-data-user-activity)
+- **Reference:** [https://attack.mitre.org/techniques/T1119/](https://attack.mitre.org/techniques/T1119/)
+
+### Suspicious Teams Message Export Activity
+
+Detects when Teams messages are exported or accessed in bulk through API calls, which could indicate an attempt to exfiltrate chat history and shared files from Microsoft Teams.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1114 - Email Collection
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [teams_data_exfiltration.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/teams_data_exfiltration.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-teams-audit-log-events](https://learn.microsoft.com/en-us/purview/audit-teams-audit-log-events)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/](https://attack.mitre.org/techniques/T1114/)
+
+### Threat Intelligence Alert Pattern
+
+Detects threat intelligence alerts from Office 365 security services indicating known malicious activities, threat actor patterns, or indicators of compromise matching threat intelligence feeds. These alerts are generated when Microsoft's threat intelligence systems identify suspicious activities, malicious file attachments, URLs, or communication patterns associated with known threat actors.
+
+- **Category:** Initial Access
+- **Technique:** Phishing
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [threat_intelligence_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/threat_intelligence_alerts.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/microsoft-365/security/defender/threat-analytics](https://learn.microsoft.com/en-us/microsoft-365/security/defender/threat-analytics)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### eDiscovery Abuse Detection
+
+Detects potential abuse of eDiscovery features including excessive searches, exports, or unauthorized access to sensitive data through eDiscovery operations. This rule identifies users performing multiple eDiscovery actions within a short timeframe, which could indicate malicious data staging or exfiltration attempts.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1074 - Data Staged
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [ediscovery_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/office365/ediscovery_abuse.yml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/ediscovery-search-for-activities-in-the-audit-log](https://learn.microsoft.com/en-us/purview/ediscovery-search-for-activities-in-the-audit-log)
+- **Reference:** [https://attack.mitre.org/techniques/T1074/](https://attack.mitre.org/techniques/T1074/)

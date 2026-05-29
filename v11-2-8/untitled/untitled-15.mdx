@@ -1,0 +1,94 @@
+Detection rules for **pfSense** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **3** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| DNS Resolver Cache Poisoning Attempt | Credential Access, Collection | T1584.002 - Compromise Infrastructure: DNS Server | C:2 / I:3 / A:2 |
+| pfSense Snort/Suricata IDS Alerts | Execution | T1059 - Command and Scripting Interpreter | C:2 / I:2 / A:2 |
+| pfSense WebGUI Authentication Brute Force | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **DNS Resolver Cache Poisoning Attempt** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/pfsense/dns_resolver_cache_poisoning.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-pfsense
+name: DNS Resolver Cache Poisoning Attempt
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Credential Access, Collection
+technique: "T1584.002 - Compromise Infrastructure: DNS Server"
+adversary: origin
+references:
+  - https://docs.netgate.com/pfsense/en/latest/services/dns/resolver.html
+  - https://attack.mitre.org/techniques/T1584/002/
+description: |
+  Detects potential DNS cache poisoning attempts on pfSense DNS resolver (Unbound) by monitoring for suspicious DNS responses with mismatched query IDs or unexpected responses from non-authoritative servers. This rule identifies anomalous DNS traffic patterns that may indicate an attacker attempting to poison DNS cache entries.
+
+  Next Steps:
+  1. Investigate the source IP address for other suspicious DNS activities
+  2. Verify DNS resolver configuration and check for unauthorized changes
+  3. Review DNS query logs for patterns of cache poisoning attempts
+  4. Check if legitimate DNS servers are responding with forged packets
+  5. Consider implementing DNS response validation and DNSSEC if not already enabled
+  6. Monitor for subsequent DNS queries to verify if cache poisoning was successful
+where: equals("log.eventType", "unbound") && contains("log.reason", "reply") && (!equals("log.rcode", "NOERROR") || contains("log.flags", "FORGED"))
+afterEvents:
+  - indexPattern: v11-log-firewall-pfsense-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-5m
+    count: 10
+groupBy:
+  - lastEvent.log.query_name
+  - adversary.ip
+
+```
+
+---
+
+## Rule Details
+
+### DNS Resolver Cache Poisoning Attempt
+
+Detects potential DNS cache poisoning attempts on pfSense DNS resolver (Unbound) by monitoring for suspicious DNS responses with mismatched query IDs or unexpected responses from non-authoritative servers. This rule identifies anomalous DNS traffic patterns that may indicate an attacker attempting to poison DNS cache entries.
+
+- **Category:** Credential Access, Collection
+- **Technique:** T1584.002 - Compromise Infrastructure: DNS Server
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [dns_resolver_cache_poisoning.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/pfsense/dns_resolver_cache_poisoning.yml)
+- **Reference:** [https://docs.netgate.com/pfsense/en/latest/services/dns/resolver.html](https://docs.netgate.com/pfsense/en/latest/services/dns/resolver.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1584/002/](https://attack.mitre.org/techniques/T1584/002/)
+
+### pfSense Snort/Suricata IDS Alerts
+
+Detects high-priority IDS alerts from Snort or Suricata indicating malicious activity, exploits, or known attack patterns. These alerts typically indicate active threats such as trojans, exploits, malware, backdoors, shellcode, rootkits, or various attack attempts including scans, intrusions, and compromises.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:2 / I:2 / A:2
+- **Rule file:** [snort_suricata_ids_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/pfsense/snort_suricata_ids_alerts.yml)
+- **Reference:** [https://docs.netgate.com/pfsense/en/latest/packages/snort/alerts.html](https://docs.netgate.com/pfsense/en/latest/packages/snort/alerts.html)
+- **Reference:** [https://docs.netgate.com/pfsense/en/latest/packages/snort/index.html](https://docs.netgate.com/pfsense/en/latest/packages/snort/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### pfSense WebGUI Authentication Brute Force
+
+Detects multiple failed WebGUI authentication attempts on pfSense firewalls, indicating potential brute force attacks against the administrative interface.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [pfsense_admin_brute_force.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/pfsense/pfsense_admin_brute_force.yml)
+- **Reference:** [https://docs.netgate.com/pfsense/en/latest/monitoring/logs/index.html](https://docs.netgate.com/pfsense/en/latest/monitoring/logs/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)

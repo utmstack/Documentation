@@ -1,0 +1,222 @@
+Detection rules for **ESMC / ESET** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **13** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Advanced Heuristic Detection Triggers | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| ESET Agent Disabled or Tampered | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| ESET Blocked Suspicious PowerShell Activity | Execution | T1059.001 - Command and Scripting Interpreter: PowerShell | C:3 / I:3 / A:1 |
+| ESET Botnet Communication Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| ESET ERA/ESMC Console Suspicious Activity | Lateral Movement | T1072 - Software Deployment Tools | C:3 / I:3 / A:2 |
+| ESET Exploit Detection Alert | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:2 |
+| ESET Host Intrusion Prevention System Triggered | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| ESET Network Attack Detection | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:2 / A:1 |
+| ESET Repeated Quarantine Failures | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:2 |
+| Machine Learning Detection Anomalies | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Registry Modification Attempts Blocked | Defense Evasion, Persistence | T1112 - Modify Registry | C:2 / I:3 / A:2 |
+| Suspicious Encrypted File Activity | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:2 |
+| Suspicious Process Behavior Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Advanced Heuristic Detection Triggers** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Advanced Heuristic Detection Triggers
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://help.eset.com/eea/8/en-US/idh_config_threat_sense.html
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects when ESET's advanced heuristic engine identifies suspicious behavior patterns that may indicate novel malware or zero-day threats. These detections use DNA signatures and behavioral analysis.
+  
+  Next Steps:
+  - Review the affected hostname and user context to understand the scope
+  - Check the process name (if available) that triggered the detection
+  - Verify if the action taken (cleaned/deleted/quarantined) was successful
+  - Look for related alerts from the same host within the past 24 hours
+  - If multiple hosts show similar detections, investigate potential lateral movement
+  - Consider isolating the affected system if threat persists
+  - Review ESET console link (if available) for detailed threat information
+  - Check file hash against threat intelligence databases if available
+  - Capture and analyze the malicious file sample if quarantined
+  - Review system logs for any unusual activities before and after detection
+  - Update ESET signatures and run a full system scan
+where: |
+  oneOf("log.msgType", ["EnterpriseInspectorAlert_Event", "threat_event", "FirewallAggregatedAlert_Event"]) &&
+  contains("log.jsonMessage", ["heuristic", "NewHeur", "suspicious behavior"]) &&
+  contains("log.jsonMessage", ["cleaned", "deleted", "quarantined", "blocked"])
+afterEvents:
+  - indexPattern: v11-log-antivirus-esmc-eset-*
+    with:
+      - field: log.headHostname
+        operator: filter_term
+        value: '{{.log.headHostname}}'
+    within: now-30m
+    count: 3
+groupBy:
+  - lastEvent.log.headHostname
+  - lastEvent.log.msgType
+
+```
+
+---
+
+## Rule Details
+
+### Advanced Heuristic Detection Triggers
+
+Detects when ESET's advanced heuristic engine identifies suspicious behavior patterns that may indicate novel malware or zero-day threats. These detections use DNA signatures and behavioral analysis.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [advanced_heuristic_detection_triggers.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml)
+- **Reference:** [https://help.eset.com/eea/8/en-US/idh_config_threat_sense.html](https://help.eset.com/eea/8/en-US/idh_config_threat_sense.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### ESET Agent Disabled or Tampered
+
+Detects when the ESET security agent is disabled, uninstalled, or tampered with. This is a critical defense evasion indicator as attackers commonly disable endpoint protection before executing their payload.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [eset_agent_tampering.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/eset_agent_tampering.yml)
+- **Reference:** [https://help.eset.com/ees/8/en-US/idh_config_era_agent.html](https://help.eset.com/ees/8/en-US/idh_config_era_agent.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### ESET Blocked Suspicious PowerShell Activity
+
+Detects when ESET blocks suspicious PowerShell commands or scripts that exhibit malicious behavior patterns, including obfuscated scripts, encoded commands, or attempts to bypass execution policies. This is a high-priority security event that indicates potential malicious activity was prevented.
+
+- **Category:** Execution
+- **Technique:** T1059.001 - Command and Scripting Interpreter: PowerShell
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [suspicious_powershell_activity_blocked.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yml)
+- **Reference:** [https://help.eset.com/ees/8/en-US/idh_hips_main.html](https://help.eset.com/ees/8/en-US/idh_hips_main.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/001/](https://attack.mitre.org/techniques/T1059/001/)
+
+### ESET Botnet Communication Detection
+
+Detects attempts to communicate with known botnet command and control servers. ESET identifies typical communication patterns when a computer is infected and a bot is attempting to communicate with malicious C2 infrastructure.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [botnet_communication_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/botnet_communication_attempts.yml)
+- **Reference:** [https://www.eset.com/us/botnet/](https://www.eset.com/us/botnet/)
+- **Reference:** [https://support.eset.com/en/kb7487-resolve-the-incomingattackgeneric-or-botnetcncgeneric-network-protection-alert](https://support.eset.com/en/kb7487-resolve-the-incomingattackgeneric-or-botnetcncgeneric-network-protection-alert)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### ESET ERA/ESMC Console Suspicious Activity
+
+Detects suspicious activity on the ESET ERA/ESMC management console including unauthorized policy changes, mass task deployments, or admin account modifications that could indicate console compromise.
+
+- **Category:** Lateral Movement
+- **Technique:** T1072 - Software Deployment Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [eset_console_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/eset_console_abuse.yml)
+- **Reference:** [https://help.eset.com/esmc_admin/70/en-US/](https://help.eset.com/esmc_admin/70/en-US/)
+- **Reference:** [https://attack.mitre.org/techniques/T1072/](https://attack.mitre.org/techniques/T1072/)
+
+### ESET Exploit Detection Alert
+
+Detects when ESET's Exploit Blocker identifies and blocks exploitation attempts targeting vulnerabilities in commonly exploited applications such as browsers, document readers, email clients, Flash, and Java.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_detection_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/exploit_detection_events.yml)
+- **Reference:** [https://www.eset.com/us/about/technology/](https://www.eset.com/us/about/technology/)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### ESET Host Intrusion Prevention System Triggered
+
+Detects when ESET's Host-based Intrusion Prevention System (HIPS) blocks suspicious behavior, including process manipulation, registry modifications, and file system changes that indicate potential malware activity. HIPS events indicate active attempts to compromise system integrity through various attack techniques.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [host_intrusion_prevention_triggers.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yml)
+- **Reference:** [https://help.eset.com/ees/8/en-US/idh_hips_main.html](https://help.eset.com/ees/8/en-US/idh_hips_main.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### ESET Network Attack Detection
+
+Detects network-based attacks and exploits blocked by ESET's Network Attack Protection (IDS). This includes attempts to exploit known vulnerabilities in network services and protocols.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [network_attack_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/network_attack_detection.yml)
+- **Reference:** [https://help.eset.com/ees/7/en-US/idh_config_epfw_network_attack_protection.html](https://help.eset.com/ees/7/en-US/idh_config_epfw_network_attack_protection.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### ESET Repeated Quarantine Failures
+
+Detects repeated quarantine failures in ESET, which may indicate malware actively resisting quarantine through file locks, permission manipulation, or rapid re-creation of malicious files.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [eset_quarantine_failures.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/eset_quarantine_failures.yml)
+- **Reference:** [https://help.eset.com/ees/8/en-US/](https://help.eset.com/ees/8/en-US/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Machine Learning Detection Anomalies
+
+Identifies threats detected by ESET's machine learning engine that analyzes file behavior patterns and characteristics to identify previously unknown malware variants. Machine learning detection indicates advanced malware that may evade signature-based detection methods.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [machine_learning_detection_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yml)
+- **Reference:** [https://help.eset.com/protect_admin/11.0/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/11.0/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Registry Modification Attempts Blocked
+
+Identifies attempts to modify critical Windows registry keys that were blocked by ESET, indicating potential persistence or system tampering attempts. Registry modifications are a common technique used by malware to establish persistence, disable security features, or alter system behavior.
+
+- **Category:** Defense Evasion, Persistence
+- **Technique:** T1112 - Modify Registry
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [registry_modification_attempts_blocked.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yml)
+- **Reference:** [https://help.eset.com/esmc_admin/70/en-US/events-exported-to-json-format.html](https://help.eset.com/esmc_admin/70/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1112/](https://attack.mitre.org/techniques/T1112/)
+
+### Suspicious Encrypted File Activity
+
+Detects suspicious encrypted file activities that may indicate ransomware encryption attempts or unauthorized file encryption operations. This rule triggers when ESET detects ransomware-related threats or file encryption activities.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_encrypted_file_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+- **Reference:** [https://help.eset.com/protect_admin/10.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/10.1/en-US/events-exported-to-json-format.html)
+
+### Suspicious Process Behavior Detection
+
+Detects suspicious process behaviors including injection attempts, privilege escalation, and abnormal process creation patterns identified by ESET's behavioral monitoring. This alert indicates potential malware activity or exploitation attempts on the affected system.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_process_behavior.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/antivirus/esmc-eset/suspicious_process_behavior.yml)
+- **Reference:** [https://help.eset.com/ees/12/en-US/idh_dialog_epfw_ids_alert.html](https://help.eset.com/ees/12/en-US/idh_dialog_epfw_ids_alert.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)

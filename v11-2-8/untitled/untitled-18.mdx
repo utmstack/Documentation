@@ -1,0 +1,101 @@
+Detection rules for **Syslog / CEF** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **3** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| CEF File Hash Mismatch Detection | Impact | T1565.001 - Data Manipulation: Stored Data Manipulation | C:3 / I:3 / A:2 |
+| CEF Source Impersonation Detection | Defense Evasion | T1036 - Masquerading | C:2 / I:3 / A:1 |
+| CEF User Agent Anomaly Detection | Command and Control | T1071.001 - Application Layer Protocol: Web Protocols | C:2 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **CEF File Hash Mismatch Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/syslog/cef/file_hash_mismatches.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - syslog
+name: CEF File Hash Mismatch Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Impact
+technique: "T1565.001 - Data Manipulation: Stored Data Manipulation"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1565/001/
+  - https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf
+description: |
+  Detects file hash mismatches in CEF logs which may indicate file tampering, malware infection, or unauthorized modifications to critical files. This rule monitors custom string fields (cs1-cs6) for hash values and their labels, as well as dedicated hash fields to identify discrepancies.
+
+  **Next Steps:**
+  1. Verify the affected file integrity by recalculating its hash
+  2. Check if the file modification was authorized and documented
+  3. Investigate the source and timing of the file change
+  4. Review system logs for unauthorized access or malware activity
+  5. Compare with known good file versions or backups
+  6. If malicious activity is confirmed, isolate the affected system and initiate incident response procedures
+where: |
+  equals("log.dataType", "cef") && 
+  (
+    (oneOf("log.cs1Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs1") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs2Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs2") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs3Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs3") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs4Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs4") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs5Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs5") && contains("log.message", "mismatch")) ||
+    (oneOf("log.cs6Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs6") && contains("log.message", "mismatch")) ||
+    (exists("log.fileHash") && contains("log.message", "mismatch")) ||
+    (exists("log.oldFileHash") && exists("log.fileHash") && safe(log.oldFileHash, "") != safe(log.fileHash, "")) ||
+    contains("log.message", "hash mismatch") ||
+    contains("log.message", "checksum failure") ||
+    contains("log.message", "integrity violation")
+  )
+groupBy:
+  - lastEvent.log.fname
+  - adversary.host
+
+```
+
+---
+
+## Rule Details
+
+### CEF File Hash Mismatch Detection
+
+Detects file hash mismatches in CEF logs which may indicate file tampering, malware infection, or unauthorized modifications to critical files. This rule monitors custom string fields (cs1-cs6) for hash values and their labels, as well as dedicated hash fields to identify discrepancies.
+
+**
+
+- **Category:** Impact
+- **Technique:** T1565.001 - Data Manipulation: Stored Data Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [file_hash_mismatches.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/syslog/cef/file_hash_mismatches.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/001/](https://attack.mitre.org/techniques/T1565/001/)
+- **Reference:** [https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.4/pdfdoc/cef-implementation-standard/cef-implementation-standard.pdf)
+
+### CEF Source Impersonation Detection
+
+Detects CEF messages with spoofed device vendor or product fields that could indicate an attacker injecting false security events or masquerading as a trusted security device to inject malicious log data.
+
+- **Category:** Defense Evasion
+- **Technique:** T1036 - Masquerading
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [syslog_source_impersonation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/syslog/cef/syslog_source_impersonation.yml)
+- **Reference:** [https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/](https://www.microfocus.com/documentation/arcsight/arcsight-cef-23/)
+- **Reference:** [https://attack.mitre.org/techniques/T1036/](https://attack.mitre.org/techniques/T1036/)
+
+### CEF User Agent Anomaly Detection
+
+Detects anomalous user agent strings in CEF logs that may indicate malicious scripts, bots, vulnerability scanners, or attempts to bypass security controls through user agent spoofing. This rule identifies known attack tools, template injection attempts, and unusually short or long user agent strings.
+
+- **Category:** Command and Control
+- **Technique:** T1071.001 - Application Layer Protocol: Web Protocols
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [user_agent_anomalies.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/syslog/cef/user_agent_anomalies.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/001/](https://attack.mitre.org/techniques/T1071/001/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/sentinel/cef-name-mapping](https://learn.microsoft.com/en-us/azure/sentinel/cef-name-mapping)

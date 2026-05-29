@@ -1,0 +1,158 @@
+Detection rules for **FortiWeb** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **7** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| FortiWeb Authentication Bypass Attempt Detected | Defense Evasion, Persistence, Privilege Escalation, Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:1 |
+| FortiWeb File Upload Security Violation Detected | Resource Development | T1608 - Stage Capabilities: Upload Malware | C:3 / I:3 / A:2 |
+| FortiWeb OWASP Top 10 Violation Attempts | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| FortiWeb SQL Injection Attack Detection | Web Application Attack | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| FortiWeb SSRF Attack Detection | Web Application Attack | T1190 - Exploit Public-Facing Application | C:3 / I:2 / A:1 |
+| FortiWeb Web Application Attack Detection | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| FortiWeb Web Shell Upload Detection | Persistence | T1505.003 - Server Software Component: Web Shell | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **FortiWeb Authentication Bypass Attempt Detected** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/authentication_bypass_attempts.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - firewall-fortiweb
+name: FortiWeb Authentication Bypass Attempt Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts"
+adversary: origin
+references:
+  - https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event
+  - https://attack.mitre.org/techniques/T1078/
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects authentication bypass attempts including direct access to protected resources, authentication flow manipulation, and credential stuffing attacks on FortiWeb protected applications.
+
+  Next Steps:
+  1. Review the source IP address and check if it's from a known location or VPN service
+  2. Examine the specific authentication bypass technique attempted (check log.attack_type and log.msg fields)
+  3. Verify if any successful authentication occurred from the same IP address
+  4. Check for other attack patterns from the same source IP in the last 24 hours
+  5. Consider blocking the source IP if multiple bypass attempts are confirmed
+  6. Review application logs for any successful unauthorized access
+  7. Validate that authentication mechanisms are properly configured and up to date
+where: |
+  exists("origin.ip") && 
+  equals("log.type", "attack") &&
+  (
+    equals("log.subtype", "account-lockout-detection") ||
+    contains("log.msg", "authentication") ||
+    contains("log.msg", "Authentication") ||
+    contains("log.msg", "bypass") ||
+    contains("log.msg", "unauthorized access") ||
+    equals("log.attack_type", "auth_bypass") ||
+    contains("log.trigger_policy", "auth")
+  ) &&
+  oneOf("action", ["deny", "alert", "block"])
+afterEvents:
+  - indexPattern: v11-log-firewall-fortiweb-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: now-15m
+    count: 3
+groupBy:
+  - adversary.ip
+  - target.ip
+
+```
+
+---
+
+## Rule Details
+
+### FortiWeb Authentication Bypass Attempt Detected
+
+Detects authentication bypass attempts including direct access to protected resources, authentication flow manipulation, and credential stuffing attacks on FortiWeb protected applications.
+
+- **Category:** Defense Evasion, Persistence, Privilege Escalation, Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [authentication_bypass_attempts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/authentication_bypass_attempts.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event](https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### FortiWeb File Upload Security Violation Detected
+
+Detects file upload security violations including malicious file uploads, oversized files, restricted file types, and potential web shell upload attempts on FortiWeb protected applications. These violations could indicate attempts to upload malicious files, web shells, or bypass upload restrictions.
+
+- **Category:** Resource Development
+- **Technique:** T1608 - Stage Capabilities: Upload Malware
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [file_upload_security_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/file_upload_security_violations.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event](https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event)
+- **Reference:** [https://attack.mitre.org/techniques/T1608/](https://attack.mitre.org/techniques/T1608/)
+- **Reference:** [https://attack.mitre.org/techniques/T1505/003/](https://attack.mitre.org/techniques/T1505/003/)
+
+### FortiWeb OWASP Top 10 Violation Attempts
+
+Detects attempts to exploit OWASP Top 10 vulnerabilities including injection flaws, broken authentication, sensitive data exposure, XXE, broken access control, security misconfiguration, and more. This rule triggers when FortiWeb blocks or alerts on attack attempts that match known OWASP Top 10 vulnerability patterns.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [owasp_top10_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/owasp_top10_violations.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb-cloud/23.3.0/user-guide/552829/known-attacks](https://docs.fortinet.com/document/fortiweb-cloud/23.3.0/user-guide/552829/known-attacks)
+- **Reference:** [https://owasp.org/www-project-top-ten/](https://owasp.org/www-project-top-ten/)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### FortiWeb SQL Injection Attack Detection
+
+Detects SQL injection attacks identified by FortiWeb WAF signatures. Multiple SQLi attempts from the same source indicate a targeted attack against database-backed applications.
+
+- **Category:** Web Application Attack
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [fortiweb_sqli_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/fortiweb_sqli_detection.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks](https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### FortiWeb SSRF Attack Detection
+
+Detects Server-Side Request Forgery (SSRF) attacks identified by FortiWeb. SSRF attacks force the server to make requests to internal resources, potentially accessing cloud metadata services, internal APIs, or other restricted endpoints.
+
+- **Category:** Web Application Attack
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [fortiweb_ssrf_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/fortiweb_ssrf_detection.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks](https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### FortiWeb Web Application Attack Detection
+
+Detects SQL injection, XSS, and other web application attacks blocked by FortiWeb WAF based on signature or syntax-based detection. These attacks attempt to exploit vulnerabilities in web applications to gain unauthorized access, steal data, or compromise application integrity.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [web_application_attacks_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/web_application_attacks_detection.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.6.0/administration-guide/981691/syntax-based-sql-xss-injection-detection](https://docs.fortinet.com/document/fortiweb/7.6.0/administration-guide/981691/syntax-based-sql-xss-injection-detection)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### FortiWeb Web Shell Upload Detection
+
+Detects web shell upload attempts blocked or detected by FortiWeb. Web shells provide persistent remote access and command execution on compromised web servers.
+
+- **Category:** Persistence
+- **Technique:** T1505.003 - Server Software Component: Web Shell
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [fortiweb_webshell_upload.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/fortinet/fortiweb/fortiweb_webshell_upload.yml)
+- **Reference:** [https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks](https://docs.fortinet.com/document/fortiweb/7.4.3/administration-guide/210196/blocking-known-attacks)
+- **Reference:** [https://attack.mitre.org/techniques/T1505/003/](https://attack.mitre.org/techniques/T1505/003/)

@@ -1,0 +1,226 @@
+Detection rules for **CrowdStrike** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **17** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Critical Role Modification (Privilege Escalation) | Privilege Escalation | Account Manipulation: Additional Cloud Roles | C:3 / I:3 / A:1 |
+| CrowdStrike Hunting: Windows Event Log Clearing | Defense Evasion | Indicator Removal: Clear Windows Event Logs | C:0 / I:3 / A:2 |
+| Custom Indicator of Compromise (IoC) Detected | Threat Detection | User Execution | C:3 / I:3 / A:1 |
+| Deletion or Deactivation of User Account | Account Manipulation | Account Manipulation | C:0 / I:3 / A:3 |
+| Endpoint Network Containment Action | Impact | Account Access Removal | C:0 / I:2 / A:3 |
+| Endpoint or XDR Detection Alert | Threat Detection | Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| IP Whitelisting Modification | Defense Evasion | Impair Defenses: Disable or Modify Cloud Firewall | C:1 / I:3 / A:2 |
+| Inhibit System Recovery (Shadow Copy Deletion) | Impact | Inhibit System Recovery | C:0 / I:3 / A:3 |
+| Major Incident Generated (CrowdScore) | Lateral Movement | Lateral Tool Transfer | C:3 / I:3 / A:3 |
+| Multiple Authentication Failures (Possible Brute Force Attack) | Credential Access | Brute Force: Password Guessing | C:3 / I:0 / A:0 |
+| OS Credential Dumping Activity | Credential Access | OS Credential Dumping: LSASS Memory | C:3 / I:1 / A:0 |
+| Real-Time Response (RTR) Session Execution | Execution | Remote Services | C:3 / I:3 / A:1 |
+| Security Defenses Impaired or Policy Disabled | Defense Evasion | Impair Defenses: Disable or Modify Tools | C:0 / I:3 / A:3 |
+| Security Policy Disabled or Deleted | Defense Evasion | Impair Defenses: Disable or Modify Tools | C:1 / I:3 / A:3 |
+| Suspicious Downloader Execution (Linux/macOS) | Command and Control | Ingress Tool Transfer | C:2 / I:2 / A:0 |
+| Suspicious Encoded PowerShell Execution | Execution | Command and Scripting Interpreter: PowerShell | C:3 / I:2 / A:1 |
+| Suspicious Native Downloaders (LoLBin) | Command and Control | Ingress Tool Transfer | C:2 / I:2 / A:0 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Critical Role Modification (Privilege Escalation)** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/critical_role_modification.yml)):
+
+```yaml
+name: "Critical Role Modification (Privilege Escalation)"
+description: "New roles have been granted or updated for a user within the CrowdStrike administration console."
+category: "Privilege Escalation"
+technique: "Account Manipulation: Additional Cloud Roles"
+references:
+  - "https://attack.mitre.org/techniques/T1098/003/"
+dataTypes:
+  - crowdstrike
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+where: >
+  exists("log.eventOperationName") && 
+  oneOf("log.eventOperationName", ["grantUserRoles", "updateUserRoles"])
+groupBy:
+  - lastEvent.log.eventUserId
+  - lastEvent.log.eventOperationName
+```
+
+---
+
+## Rule Details
+
+### Critical Role Modification (Privilege Escalation)
+
+New roles have been granted or updated for a user within the CrowdStrike administration console.
+
+- **Category:** Privilege Escalation
+- **Technique:** Account Manipulation: Additional Cloud Roles
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [critical_role_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/critical_role_modification.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/003/](https://attack.mitre.org/techniques/T1098/003/)
+
+### CrowdStrike Hunting: Windows Event Log Clearing
+
+A raw process execution was detected attempting to clear Windows Event Logs. Adversaries use this technique to cover their tracks after compromising a host.
+
+- **Category:** Defense Evasion
+- **Technique:** Indicator Removal: Clear Windows Event Logs
+- **Impact:** C:0 / I:3 / A:2
+- **Rule file:** [windows_event_log_clearing.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/windows_event_log_clearing.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/001/](https://attack.mitre.org/techniques/T1070/001/)
+
+### Custom Indicator of Compromise (IoC) Detected
+
+The sensor has detected activity that matches an IoC (Hash, Domain, IP) supplied and entered by the client.
+
+- **Category:** Threat Detection
+- **Technique:** User Execution
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [custom_indicator_of_compromise_(IoC)_detected.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/custom_indicator_of_compromise_(IoC)_detected.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/](https://attack.mitre.org/techniques/T1204/)
+
+### Deletion or Deactivation of User Account
+
+An administrator has deactivated or deleted a user account in the Falcon console. This indicates account manipulation.
+
+- **Category:** Account Manipulation
+- **Technique:** Account Manipulation
+- **Impact:** C:0 / I:3 / A:3
+- **Rule file:** [deletion_or_deactivation_of_user_account.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/deletion_or_deactivation_of_user_account.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Endpoint Network Containment Action
+
+Containment of a host on the network has been requested, or a previously applied containment has been lifted.
+
+- **Category:** Impact
+- **Technique:** Account Access Removal
+- **Impact:** C:0 / I:2 / A:3
+- **Rule file:** [endpoint_network_containment_action.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/endpoint_network_containment_action.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1531/](https://attack.mitre.org/techniques/T1531/)
+
+### Endpoint or XDR Detection Alert
+
+A critical detection summary has been generated from Falcon EPP or XDR indicating malicious activity or attack patterns.
+
+- **Category:** Threat Detection
+- **Technique:** Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [endpoint_or_XDR_detection_alert.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/endpoint_or_XDR_detection_alert.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### IP Whitelisting Modification
+
+IP addresses have been added to or removed from the CrowdStrike whitelist. An attacker could use this to evade network blocking.
+
+- **Category:** Defense Evasion
+- **Technique:** Impair Defenses: Disable or Modify Cloud Firewall
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [ip_whitelisting_modification.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/ip_whitelisting_modification.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/007/](https://attack.mitre.org/techniques/T1562/007/)
+
+### Inhibit System Recovery (Shadow Copy Deletion)
+
+The Falcon agent detected command line activity attempting to delete Volume Shadow Copies or disable recovery options. This is a highly reliable precursor to Ransomware encryption.
+
+- **Category:** Impact
+- **Technique:** Inhibit System Recovery
+- **Impact:** C:0 / I:3 / A:3
+- **Rule file:** [inhibit_system_recovery.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/inhibit_system_recovery.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1490/](https://attack.mitre.org/techniques/T1490/)
+
+### Major Incident Generated (CrowdScore)
+
+The CrowdScore engine has consolidated multiple detections into a critical incident, a possible indicator of Lateral Movement or widespread intrusion.
+
+- **Category:** Lateral Movement
+- **Technique:** Lateral Tool Transfer
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [major_incident_generated.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/major_incident_generated.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1570/](https://attack.mitre.org/techniques/T1570/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0008/](https://attack.mitre.org/tactics/TA0008/)
+
+### Multiple Authentication Failures (Possible Brute Force Attack)
+
+A user or IP address has failed multiple authentication attempts on the CrowdStrike Falcon console within a short period of time.
+
+- **Category:** Credential Access
+- **Technique:** Brute Force: Password Guessing
+- **Impact:** C:3 / I:0 / A:0
+- **Rule file:** [multiple_authentication_failures_(possible_brute_force_attack).yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/multiple_authentication_failures_(possible_brute_force_attack).yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### OS Credential Dumping Activity
+
+The endpoint agent detected activity commonly associated with OS Credential Dumping. This includes attempts to read or dump LSASS memory using known tools.
+
+- **Category:** Credential Access
+- **Technique:** OS Credential Dumping: LSASS Memory
+- **Impact:** C:3 / I:1 / A:0
+- **Rule file:** [os_credential_dumping_activity.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/os_credential_dumping_activity.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/001/](https://attack.mitre.org/techniques/T1003/001/)
+
+### Real-Time Response (RTR) Session Execution
+
+A user or API has initiated a remote response (RTR) session on an endpoint. This grants deep access to the host.
+
+- **Category:** Execution
+- **Technique:** Remote Services
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [real_time_response_rtr_session_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/real_time_response_rtr_session_execution.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1021/](https://attack.mitre.org/techniques/T1021/)
+
+### Security Defenses Impaired or Policy Disabled
+
+An action was taken on the endpoint that resulted in a critical sensor process or security policy being disabled locally. This strongly indicates defense evasion tampering.
+
+- **Category:** Defense Evasion
+- **Technique:** Impair Defenses: Disable or Modify Tools
+- **Impact:** C:0 / I:3 / A:3
+- **Rule file:** [security_defenses_impaired_or_policy_disabled.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/security_defenses_impaired_or_policy_disabled.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Security Policy Disabled or Deleted
+
+An administrator or actor has disabled or deleted a security prevention policy in Falcon, which may leave endpoints vulnerable.
+
+- **Category:** Defense Evasion
+- **Technique:** Impair Defenses: Disable or Modify Tools
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [security_policy_disabled_or_deleted.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/security_policy_disabled_or_deleted.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Suspicious Downloader Execution (Linux/macOS)
+
+Execution of native downloaders like curl or wget was detected on a Linux or macOS endpoint making HTTP connections, potentially indicating Ingress Tool Transfer by an adversary.
+
+- **Category:** Command and Control
+- **Technique:** Ingress Tool Transfer
+- **Impact:** C:2 / I:2 / A:0
+- **Rule file:** [suspicious_downloader_execution_linux_macos.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/suspicious_downloader_execution_linux_macos.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)
+
+### Suspicious Encoded PowerShell Execution
+
+A PowerShell process was spawned with arguments indicating base64 encoded commands (-enc, -EncodedCommand). Malware and threat actors often use this to evade string-based detection.
+
+- **Category:** Execution
+- **Technique:** Command and Scripting Interpreter: PowerShell
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [suspicious_encoded_powershell_execution.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/suspicious_encoded_powershell_execution.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/001/](https://attack.mitre.org/techniques/T1059/001/)
+
+### Suspicious Native Downloaders (LoLBin)
+
+Execution of native binaries like certutil, bitsadmin, curl, or wget was detected making external connections, potentially indicating Ingress Tool Transfer by an adversary.
+
+- **Category:** Command and Control
+- **Technique:** Ingress Tool Transfer
+- **Impact:** C:2 / I:2 / A:0
+- **Rule file:** [suspicious_native_downloaders.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/crowdstrike/suspicious_native_downloaders.yml)
+- **Reference:** [https://attack.mitre.org/techniques/T1105/](https://attack.mitre.org/techniques/T1105/)

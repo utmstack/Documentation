@@ -1,0 +1,194 @@
+Detection rules for **AIX** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects.
+
+This category contains **10** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| IBM AIX Intrusion Detection Alert | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:2 |
+| IBM AIX NIM Master Exploitation Detection | Lateral Movement | T1210 - Exploitation of Remote Services | C:3 / I:3 / A:3 |
+| IBM AIX Rootkit Indicator Detection | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:3 |
+| IBM AIX SSH Authorized Keys Manipulation Detection | Persistence | T1098.004 - Account Manipulation: SSH Authorized Keys | C:3 / I:3 / A:1 |
+| IBM AIX Security Audit Subsystem Alert | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| IBM AIX System Integrity Violation Detected | Defense Evasion | T1070 - Indicator Removal on Host | C:2 / I:3 / A:2 |
+| IBM AIX Trusted Computing Base Violation | Defense Evasion | T1070 - Indicator Removal | C:3 / I:3 / A:2 |
+| IBM AIX Trusted Execution Violation | Defense Evasion | T1036 - Masquerading | C:3 / I:3 / A:2 |
+| IBM AIX Unauthorized Crontab Modification Detection | Persistence | T1053.003 - Scheduled Task/Job: Cron | C:2 / I:3 / A:2 |
+| IBM AIX Unauthorized HMC Access Detection | Unauthorized Access | T1078 - Valid Accounts | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **IBM AIX Intrusion Detection Alert** ([view in repository](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/intrusion_detection_events.yml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - ibm-aix
+name: IBM AIX Intrusion Detection Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1068 - Exploitation for Privilege Escalation"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/powersc-standard/2.1.0?topic=ids-configuring-intrusion-detection-prevention-idp-aix-endpoints
+  - https://attack.mitre.org/techniques/T1068/
+description: |
+  Detects intrusion attempts and security violations identified by the IBM AIX intrusion detection system, including suspicious activities, privilege escalation attempts, and potential system compromises.
+  
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Review the intrusion detection logs for specific details about the attack vector and affected resources
+  3. Check for any suspicious processes running with elevated privileges using 'ps aux' and 'topas'
+  4. Examine system integrity with 'trustchk' command to verify critical system files
+  5. Review recent user authentication logs and check for unauthorized account creation or privilege changes
+  6. Collect forensic evidence including memory dumps, system logs, and file modifications
+  7. Apply security patches and update AIX security configurations based on the vulnerability exploited
+  8. Monitor related systems for similar intrusion attempts
+  9. Check for any unauthorized file modifications using 'find' command with modification time filters
+  10. Review network connections and active ports using 'netstat' and 'lsof' commands
+  11. Validate system configuration against security baselines and hardening guides
+  12. Document the incident details and update security monitoring rules based on attack patterns
+where: |
+  (
+    equals("log.eventType", "ids") ||
+    equals("log.eventType", "securityd") ||
+    equals("log.eventType", "audit") ||
+    contains("log.msg", "intrusion") ||
+    contains("log.msg", "suspicious") ||
+    contains("log.msg", "anomaly detected")
+  ) && 
+  (
+    contains("log.msg", "buffer overflow") ||
+    contains("log.msg", "privilege escalation") ||
+    contains("log.msg", "unauthorized modification") ||
+    contains("log.msg", "rootkit") ||
+    contains("log.msg", "backdoor") ||
+    contains("log.msg", "suspicious process") ||
+    contains("log.msg", "file integrity") ||
+    contains("action", "ALERT") ||
+    equals("log.returnCode", "1")
+  )
+groupBy:
+  - target.host
+  - target.user
+
+```
+
+---
+
+## Rule Details
+
+### IBM AIX Intrusion Detection Alert
+
+Detects intrusion attempts and security violations identified by the IBM AIX intrusion detection system, including suspicious activities, privilege escalation attempts, and potential system compromises.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [intrusion_detection_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/intrusion_detection_events.yml)
+- **Reference:** [https://www.ibm.com/docs/en/powersc-standard/2.1.0?topic=ids-configuring-intrusion-detection-prevention-idp-aix-endpoints](https://www.ibm.com/docs/en/powersc-standard/2.1.0?topic=ids-configuring-intrusion-detection-prevention-idp-aix-endpoints)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### IBM AIX NIM Master Exploitation Detection
+
+Detects exploitation of IBM AIX Network Installation Management (NIM) master to deploy malicious packages, modify client configurations, or perform lateral movement across AIX infrastructure.
+
+- **Category:** Lateral Movement
+- **Technique:** T1210 - Exploitation of Remote Services
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [aix_nim_abuse.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/aix_nim_abuse.yml)
+- **Reference:** [https://www.ibm.com/docs/en/aix/7.2?topic=management-network-installation-nim](https://www.ibm.com/docs/en/aix/7.2?topic=management-network-installation-nim)
+- **Reference:** [https://attack.mitre.org/techniques/T1210/](https://attack.mitre.org/techniques/T1210/)
+
+### IBM AIX Rootkit Indicator Detection
+
+Detects AIX-specific rootkit indicators including hidden processes, modified system binaries, suspicious kernel extensions, and integrity violations in the Trusted Computing Base.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [aix_rootkit_detection.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/aix_rootkit_detection.yml)
+- **Reference:** [https://www.ibm.com/docs/en/aix/7.2?topic=security-trusted-computing-base](https://www.ibm.com/docs/en/aix/7.2?topic=security-trusted-computing-base)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+
+### IBM AIX SSH Authorized Keys Manipulation Detection
+
+Detects modifications to SSH authorized_keys files on IBM AIX systems. Attackers add their SSH public keys to maintain persistent access to compromised systems.
+
+- **Category:** Persistence
+- **Technique:** T1098.004 - Account Manipulation: SSH Authorized Keys
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [aix_ssh_key_manipulation.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/aix_ssh_key_manipulation.yml)
+- **Reference:** [https://www.ibm.com/docs/en/aix/7.2?topic=security-configuring-openssh](https://www.ibm.com/docs/en/aix/7.2?topic=security-configuring-openssh)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/004/](https://attack.mitre.org/techniques/T1098/004/)
+
+### IBM AIX Security Audit Subsystem Alert
+
+Detects critical security events from the IBM AIX audit subsystem, including audit configuration changes, audit service disruptions, or attempts to tamper with audit logs. This rule identifies when the audit subsystem fails, is disabled, or when audit-related files are modified.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [security_audit_subsystem_alerts.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/security_audit_subsystem_alerts.yml)
+- **Reference:** [https://www.ibm.com/support/pages/aix-audit-audit-subsystem-aix](https://www.ibm.com/support/pages/aix-audit-audit-subsystem-aix)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### IBM AIX System Integrity Violation Detected
+
+Detects attempts to compromise system integrity in IBM AIX, including unauthorized modifications to critical system files, audit tampering, security configuration changes, and privilege escalation attempts. This rule monitors for various indicators of system compromise including audit event tampering, security configuration file modifications, suspicious sudo usage, and privilege escalation attempts.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070 - Indicator Removal on Host
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [system_integrity_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/system_integrity_violations.yml)
+- **Reference:** [https://www.ibm.com/docs/en/ssw_aix_72/security/security_pdf.pdf](https://www.ibm.com/docs/en/ssw_aix_72/security/security_pdf.pdf)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/](https://attack.mitre.org/techniques/T1070/)
+
+### IBM AIX Trusted Computing Base Violation
+
+Detects violations of the Trusted Computing Base (TCB) in IBM AIX, including unauthorized modifications to critical system files, security database tampering, or attempts to modify files protected by TCB. TCB violations indicate potential system compromise or unauthorized privilege escalation attempts.
+
+- **Category:** Defense Evasion
+- **Technique:** T1070 - Indicator Removal
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [trusted_computing_base_events.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/trusted_computing_base_events.yml)
+- **Reference:** [https://www.ibm.com/docs/en/aix/7.2?topic=configuration-trusted-computing-base](https://www.ibm.com/docs/en/aix/7.2?topic=configuration-trusted-computing-base)
+- **Reference:** [https://attack.mitre.org/techniques/T1070/](https://attack.mitre.org/techniques/T1070/)
+
+### IBM AIX Trusted Execution Violation
+
+Detects violations of Trusted Execution (TE) policies in IBM AIX, including execution of untrusted binaries, signature verification failures, or attempts to bypass trusted execution controls. These violations may indicate attempts to execute malicious or unauthorized code on the system.
+
+- **Category:** Defense Evasion
+- **Technique:** T1036 - Masquerading
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [trusted_execution_violations.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/trusted_execution_violations.yml)
+- **Reference:** [https://www.ibm.com/support/pages/trusted-execution-enablement](https://www.ibm.com/support/pages/trusted-execution-enablement)
+- **Reference:** [https://attack.mitre.org/techniques/T1036/](https://attack.mitre.org/techniques/T1036/)
+
+### IBM AIX Unauthorized Crontab Modification Detection
+
+Detects unauthorized crontab modifications on IBM AIX systems that could indicate persistence establishment by an attacker. Monitors for crontab changes, at job submissions, and modifications to /var/spool/cron.
+
+- **Category:** Persistence
+- **Technique:** T1053.003 - Scheduled Task/Job: Cron
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [aix_cron_persistence.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/aix_cron_persistence.yml)
+- **Reference:** [https://www.ibm.com/docs/en/aix/7.2?topic=c-crontab-command](https://www.ibm.com/docs/en/aix/7.2?topic=c-crontab-command)
+- **Reference:** [https://attack.mitre.org/techniques/T1053/003/](https://attack.mitre.org/techniques/T1053/003/)
+
+### IBM AIX Unauthorized HMC Access Detection
+
+Detects unauthorized access to the IBM Hardware Management Console (HMC) that controls Power Systems hardware. HMC access allows management of LPARs, firmware, and hardware resources.
+
+- **Category:** Unauthorized Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [aix_hmc_access.yml](https://github.com/utmstack/UTMStack/blob/v11/rules/ibm/ibm_aix/aix_hmc_access.yml)
+- **Reference:** [https://www.ibm.com/docs/en/power9?topic=console-hardware-management](https://www.ibm.com/docs/en/power9?topic=console-hardware-management)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
