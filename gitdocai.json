@@ -8,6 +8,7 @@
   "status": "generated",
   "config": {
     "theme": {
+      "preset": "pearl",
       "dark": {
         "bg_color": "#050810",
         "text_color": "#e5e5e5",
@@ -27,6 +28,10 @@
       "default": "dark",
       "font_family": "Inter",
       "show_name": false
+    },
+    "assistant": {
+      "enabled": true,
+      "floating": true
     },
     "favicon_url": "/documentation/6dedc7a5-2850-4494-bbc7-92e2f6c85c54/094597d2-26c3-4c7a-ad9c-1328f205a696/asset/aa432f9c-c0e6-59d5-87df-a19b07ac8506/file",
     "seo": {
@@ -67,7 +72,8 @@
           "url": "https://www.youtube.com/@utmstack4489",
           "icon": "youtube"
         }
-      ]
+      ],
+      "powered_by_gitdocai": true
     },
     "kb": {
       "enabled": true,
@@ -4091,7 +4097,7 @@
               "id": "c6e175aa-425d-48b2-9257-723eceb83038",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Overview",
-              "slug": "",
+              "slug": "overview",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4103,13 +4109,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled.mdx"
+              "content_path": "v11-2-8/untitled/overview.mdx"
             },
             {
               "id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Antivirus",
-              "slug": "",
+              "slug": "antivirus",
               "type": "group",
               "order": 1,
               "source_metadata": {},
@@ -4121,14 +4127,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/index.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/index.mdx"
             },
             {
               "id": "a2ba9c57-98c8-4f77-980e-f8e89befa09b",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "ESMC / ESET",
-              "slug": "",
+              "slug": "esmc-eset",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4140,14 +4146,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/esmc-eset.mdx"
             },
             {
               "id": "81ae8c42-7c82-40d6-b439-81cec3c9b655",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "Deceptive Bytes",
-              "slug": "",
+              "slug": "deceptive-bytes",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4159,14 +4165,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/deceptive-bytes.mdx"
             },
             {
               "id": "b987803c-f5fb-4be5-b33c-fbca619d0964",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "SentinelOne",
-              "slug": "",
+              "slug": "sentinelone",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -4178,14 +4184,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/sentinelone.mdx"
             },
             {
               "id": "e2c3982d-d524-4a8b-bc6d-9d92397ac4fa",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "Kaspersky",
-              "slug": "",
+              "slug": "kaspersky",
               "type": "page",
               "order": 3,
               "source_metadata": {},
@@ -4197,14 +4203,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled-4.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/kaspersky.mdx"
             },
             {
               "id": "2e0c1319-7493-4d62-8e0b-607aaa717b21",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "Bitdefender GravityZone",
-              "slug": "",
+              "slug": "bitdefender-gravityzone",
               "type": "page",
               "order": 4,
               "source_metadata": {},
@@ -4216,14 +4222,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled-5.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/bitdefender-gravityzone.mdx"
             },
             {
               "id": "f507e97e-43d0-4015-a1f4-5998e38f4229",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "826a4a51-ca79-4753-b738-f27af23e0f73",
               "title": "CrowdStrike",
-              "slug": "",
+              "slug": "crowdstrike",
               "type": "page",
               "order": 5,
               "source_metadata": {},
@@ -4235,13 +4241,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-2/untitled-6.mdx"
+              "content_path": "v11-2-8/untitled/antivirus/crowdstrike.mdx"
             },
             {
               "id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Cisco",
-              "slug": "",
+              "slug": "cisco",
               "type": "group",
               "order": 2,
               "source_metadata": {},
@@ -4253,14 +4259,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-3/index.mdx"
+              "content_path": "v11-2-8/untitled/cisco/index.mdx"
             },
             {
               "id": "32a97d8f-af81-4773-8eba-2f9463db2d63",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
               "title": "ASA",
-              "slug": "",
+              "slug": "asa",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4272,14 +4278,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-3/untitled.mdx"
+              "content_path": "v11-2-8/untitled/cisco/asa.mdx"
             },
             {
               "id": "8644d29f-540a-4f18-9e54-553085d32ecb",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
               "title": "Switch",
-              "slug": "",
+              "slug": "switch",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4291,14 +4297,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-3/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/cisco/switch.mdx"
             },
             {
               "id": "b900d079-6137-44ea-b0a6-7d7beeb6dbd4",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
               "title": "Firepower",
-              "slug": "",
+              "slug": "firepower",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -4310,14 +4316,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-3/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled/cisco/firepower.mdx"
             },
             {
               "id": "1700ac20-5bd6-480e-b017-84e94724b2ad",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
               "title": "Meraki",
-              "slug": "",
+              "slug": "meraki",
               "type": "page",
               "order": 3,
               "source_metadata": {},
@@ -4329,13 +4335,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-3/untitled-4.mdx"
+              "content_path": "v11-2-8/untitled/cisco/meraki.mdx"
             },
             {
               "id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Cloud",
-              "slug": "",
+              "slug": "cloud",
               "type": "group",
               "order": 3,
               "source_metadata": {},
@@ -4347,14 +4353,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-4/index.mdx"
+              "content_path": "v11-2-8/untitled/cloud/index.mdx"
             },
             {
               "id": "b3e8baba-59f5-4d95-87b7-7ddd5c88e383",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
               "title": "Google Cloud",
-              "slug": "",
+              "slug": "google-cloud",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4366,14 +4372,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-4/untitled.mdx"
+              "content_path": "v11-2-8/untitled/cloud/google-cloud.mdx"
             },
             {
               "id": "7fd954e9-0d4f-440c-8839-dff1c81ba18c",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
               "title": "Azure",
-              "slug": "",
+              "slug": "azure",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4385,14 +4391,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-4/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/cloud/azure.mdx"
             },
             {
               "id": "be1036eb-f074-4068-a1fa-11556ea4871c",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
               "title": "AWS",
-              "slug": "",
+              "slug": "aws",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -4404,13 +4410,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-4/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled/cloud/aws.mdx"
             },
             {
               "id": "1e2fe729-dd17-46e2-8ff1-b7c96b521917",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Fortinet",
-              "slug": "",
+              "slug": "fortinet",
               "type": "group",
               "order": 4,
               "source_metadata": {},
@@ -4422,14 +4428,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-5/index.mdx"
+              "content_path": "v11-2-8/untitled/fortinet/index.mdx"
             },
             {
               "id": "5485511e-215b-4df2-baf6-93dd071d1585",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "1e2fe729-dd17-46e2-8ff1-b7c96b521917",
               "title": "FortiGate",
-              "slug": "",
+              "slug": "fortigate",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4441,14 +4447,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-5/untitled.mdx"
+              "content_path": "v11-2-8/untitled/fortinet/fortigate.mdx"
             },
             {
               "id": "dbeb0185-f402-4ccc-8a21-645d8d5ae1cf",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "1e2fe729-dd17-46e2-8ff1-b7c96b521917",
               "title": "FortiWeb",
-              "slug": "",
+              "slug": "fortiweb",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4460,13 +4466,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-5/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/fortinet/fortiweb.mdx"
             },
             {
               "id": "2d06bf04-69dd-42fe-b0dc-631e6376ddd7",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Generic",
-              "slug": "",
+              "slug": "generic",
               "type": "page",
               "order": 5,
               "source_metadata": {},
@@ -4478,13 +4484,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-6.mdx"
+              "content_path": "v11-2-8/untitled/generic.mdx"
             },
             {
               "id": "881e110a-1dcb-4760-93bd-9ff225be2c55",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "IBM",
-              "slug": "",
+              "slug": "ibm",
               "type": "group",
               "order": 6,
               "source_metadata": {},
@@ -4496,14 +4502,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-7/index.mdx"
+              "content_path": "v11-2-8/untitled/ibm/index.mdx"
             },
             {
               "id": "38160c79-9ce7-46ad-889c-b5286ad19530",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "881e110a-1dcb-4760-93bd-9ff225be2c55",
               "title": "AIX",
-              "slug": "",
+              "slug": "aix",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4515,14 +4521,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-7/untitled.mdx"
+              "content_path": "v11-2-8/untitled/ibm/aix.mdx"
             },
             {
               "id": "79fbbd24-d0db-4578-8c65-7889e5c1c138",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "881e110a-1dcb-4760-93bd-9ff225be2c55",
               "title": "AS/400",
-              "slug": "",
+              "slug": "as-400",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4534,13 +4540,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-7/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/ibm/as-400.mdx"
             },
             {
               "id": "0d4feaf8-48a3-4692-8b1f-283bd6fa9c33",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "JSON Input",
-              "slug": "",
+              "slug": "json-input",
               "type": "page",
               "order": 7,
               "source_metadata": {},
@@ -4552,13 +4558,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-8.mdx"
+              "content_path": "v11-2-8/untitled/json-input.mdx"
             },
             {
               "id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Linux",
-              "slug": "",
+              "slug": "linux",
               "type": "group",
               "order": 8,
               "source_metadata": {},
@@ -4570,14 +4576,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-9/index.mdx"
+              "content_path": "v11-2-8/untitled/linux/index.mdx"
             },
             {
               "id": "4a1c411e-d04c-482a-b498-3ddcb5839a04",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
               "title": "RHEL Family",
-              "slug": "",
+              "slug": "rhel-family",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4589,14 +4595,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-9/untitled.mdx"
+              "content_path": "v11-2-8/untitled/linux/rhel-family.mdx"
             },
             {
               "id": "5d523a49-db3b-441d-8fac-a1c808632084",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
               "title": "Debian Family",
-              "slug": "",
+              "slug": "debian-family",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4608,14 +4614,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-9/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/linux/debian-family.mdx"
             },
             {
               "id": "076a7130-d896-4582-b6c6-3c41ca485bd5",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
               "title": "General",
-              "slug": "",
+              "slug": "general",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -4627,13 +4633,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-9/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled/linux/general.mdx"
             },
             {
               "id": "81b68aac-d0f3-4029-a015-f4510b035f7f",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "macOS",
-              "slug": "",
+              "slug": "macos",
               "type": "page",
               "order": 9,
               "source_metadata": {},
@@ -4645,13 +4651,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-10.mdx"
+              "content_path": "v11-2-8/untitled/macos.mdx"
             },
             {
               "id": "8e58dbc0-1159-4b0c-9ef9-6f25f6715cca",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "MikroTik",
-              "slug": "",
+              "slug": "mikrotik",
               "type": "page",
               "order": 10,
               "source_metadata": {},
@@ -4663,13 +4669,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-11.mdx"
+              "content_path": "v11-2-8/untitled/mikrotik.mdx"
             },
             {
               "id": "d613a928-f2a7-4a4e-b4ad-af70245a8e40",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Netflow",
-              "slug": "",
+              "slug": "netflow",
               "type": "page",
               "order": 11,
               "source_metadata": {},
@@ -4681,13 +4687,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-12.mdx"
+              "content_path": "v11-2-8/untitled/netflow.mdx"
             },
             {
               "id": "cbb76806-2b15-44d2-89c7-c9176062ab32",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "NIDS / Suricata",
-              "slug": "",
+              "slug": "nids-suricata",
               "type": "page",
               "order": 12,
               "source_metadata": {},
@@ -4699,13 +4705,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-13.mdx"
+              "content_path": "v11-2-8/untitled/nids-suricata.mdx"
             },
             {
               "id": "fd75d4c9-447a-4ddb-903f-b1c05768d296",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Palo Alto",
-              "slug": "",
+              "slug": "palo-alto",
               "type": "page",
               "order": 13,
               "source_metadata": {},
@@ -4717,13 +4723,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-14.mdx"
+              "content_path": "v11-2-8/untitled/palo-alto.mdx"
             },
             {
               "id": "e68e86fa-f84a-4fae-bbc0-896f646530e3",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "pfSense",
-              "slug": "",
+              "slug": "pfsense",
               "type": "page",
               "order": 14,
               "source_metadata": {},
@@ -4735,13 +4741,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-15.mdx"
+              "content_path": "v11-2-8/untitled/pfsense.mdx"
             },
             {
               "id": "22855d7c-2a95-4ffc-88ca-dc6231822290",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "SonicWall",
-              "slug": "",
+              "slug": "sonicwall",
               "type": "page",
               "order": 15,
               "source_metadata": {},
@@ -4753,13 +4759,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-16.mdx"
+              "content_path": "v11-2-8/untitled/sonicwall.mdx"
             },
             {
               "id": "028beeac-1a3e-4236-bb59-0aecc5cf93ed",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Sophos",
-              "slug": "",
+              "slug": "sophos",
               "type": "group",
               "order": 16,
               "source_metadata": {},
@@ -4771,14 +4777,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-17/index.mdx"
+              "content_path": "v11-2-8/untitled/sophos/index.mdx"
             },
             {
               "id": "42c58c96-3cba-4790-a215-43810ab06daa",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "028beeac-1a3e-4236-bb59-0aecc5cf93ed",
               "title": "XG Firewall",
-              "slug": "",
+              "slug": "xg-firewall",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4790,14 +4796,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-17/untitled.mdx"
+              "content_path": "v11-2-8/untitled/sophos/xg-firewall.mdx"
             },
             {
               "id": "4264597c-7a49-4349-ba0b-6858e56f9664",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "028beeac-1a3e-4236-bb59-0aecc5cf93ed",
               "title": "Sophos Central",
-              "slug": "",
+              "slug": "sophos-central",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4809,13 +4815,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-17/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/sophos/sophos-central.mdx"
             },
             {
               "id": "c3739b77-b1d1-4919-85bb-3c11526a1175",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "Syslog / CEF",
-              "slug": "",
+              "slug": "syslog-cef",
               "type": "page",
               "order": 18,
               "source_metadata": {},
@@ -4827,13 +4833,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-18.mdx"
+              "content_path": "v11-2-8/untitled/syslog-cef.mdx"
             },
             {
               "id": "2f655aa5-187f-4b50-a531-bd47dfe896d4",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "title": "VMware ESXi",
-              "slug": "",
+              "slug": "vmware-esxi",
               "type": "page",
               "order": 19,
               "source_metadata": {},
@@ -4845,7 +4851,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/untitled-19.mdx"
+              "content_path": "v11-2-8/untitled/vmware-esxi.mdx"
             },
             {
               "id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
@@ -4870,7 +4876,7 @@
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
               "title": "Windows",
-              "slug": "",
+              "slug": "windows",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -4882,14 +4888,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/untitled.mdx"
+              "content_path": "v11-2-8/untitled/microsoft/windows.mdx"
             },
             {
               "id": "da30d355-36d5-44a2-ae6d-dae03ca25e8b",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
               "title": "Office 365",
-              "slug": "",
+              "slug": "office-365",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -4901,14 +4907,14 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled/microsoft/office-365.mdx"
             },
             {
               "id": "2e4dc01c-293e-469b-905b-050e9c6384b1",
               "section_id": "55a627c6-b7f7-4628-8492-64b73cc18249",
               "parent_id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
               "title": "GitHub",
-              "slug": "",
+              "slug": "github",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -4920,7 +4926,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled/microsoft/github.mdx"
             }
           ]
         },
@@ -5253,7 +5259,7 @@
               "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
               "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
               "title": "Reference Tables",
-              "slug": "",
+              "slug": "reference-tables",
               "type": "page",
               "order": 7,
               "source_metadata": {},
@@ -5265,7 +5271,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/api-documentation/api-documentation/untitled.mdx"
+              "content_path": "v11-2-8/api-documentation/api-documentation/reference-tables.mdx"
             }
           ]
         },
@@ -5283,7 +5289,7 @@
               "id": "94019cc7-a2b0-4a7b-b944-68ae7b8068a6",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Introduction",
-              "slug": "",
+              "slug": "introduction",
               "type": "page",
               "order": 0,
               "source_metadata": {},
@@ -5295,13 +5301,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled.mdx"
+              "content_path": "v11-2-8/untitled-2/introduction.mdx"
             },
             {
               "id": "4674b58b-14d6-449c-afb7-d53d4e86a102",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Creating \u0026 Configuring Workflows",
-              "slug": "",
+              "slug": "creating-configuring-workflows",
               "type": "page",
               "order": 1,
               "source_metadata": {},
@@ -5313,13 +5319,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-2.mdx"
+              "content_path": "v11-2-8/untitled-2/creating-configuring-workflows.mdx"
             },
             {
               "id": "1aaebedd-28a9-4984-987b-35d1aa61709e",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Built-in Action Templates",
-              "slug": "",
+              "slug": "built-in-action-templates",
               "type": "page",
               "order": 2,
               "source_metadata": {},
@@ -5331,13 +5337,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-3.mdx"
+              "content_path": "v11-2-8/untitled-2/built-in-action-templates.mdx"
             },
             {
               "id": "21482a2e-6cba-4306-bc7a-9f8294c03ec6",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Built-in Playbooks",
-              "slug": "",
+              "slug": "built-in-playbooks",
               "type": "page",
               "order": 3,
               "source_metadata": {},
@@ -5349,13 +5355,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-4.mdx"
+              "content_path": "v11-2-8/untitled-2/built-in-playbooks.mdx"
             },
             {
               "id": "73f3b9b1-2075-4d91-aaa4-4049c4311ef0",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Interactive Console \u0026 Execution",
-              "slug": "",
+              "slug": "interactive-console-execution",
               "type": "page",
               "order": 4,
               "source_metadata": {},
@@ -5367,13 +5373,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-5.mdx"
+              "content_path": "v11-2-8/untitled-2/interactive-console-execution.mdx"
             },
             {
               "id": "d6177667-6ae3-4243-85e2-58512449d69f",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Custom Actions",
-              "slug": "",
+              "slug": "custom-actions",
               "type": "page",
               "order": 5,
               "source_metadata": {},
@@ -5385,13 +5391,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-6.mdx"
+              "content_path": "v11-2-8/untitled-2/custom-actions.mdx"
             },
             {
               "id": "ef0a6450-e228-4b4a-9031-c85c15c15f6b",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Proxy Agents",
-              "slug": "",
+              "slug": "proxy-agents",
               "type": "page",
               "order": 6,
               "source_metadata": {},
@@ -5403,13 +5409,13 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-7.mdx"
+              "content_path": "v11-2-8/untitled-2/proxy-agents.mdx"
             },
             {
               "id": "920d9efd-6214-4254-bc27-4a218372fa4d",
               "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
               "title": "Use Cases",
-              "slug": "",
+              "slug": "use-cases",
               "type": "page",
               "order": 7,
               "source_metadata": {},
@@ -5421,7 +5427,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/untitled-8.mdx"
+              "content_path": "v11-2-8/untitled-2/use-cases.mdx"
             }
           ]
         }
