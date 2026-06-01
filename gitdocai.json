@@ -8,7 +8,7 @@
   "status": "generated",
   "config": {
     "theme": {
-      "preset": "pearl",
+      "preset": "mist",
       "dark": {
         "bg_color": "#050810",
         "text_color": "#e5e5e5",
@@ -16,7 +16,7 @@
         "logo_url": "/documentation/6dedc7a5-2850-4494-bbc7-92e2f6c85c54/094597d2-26c3-4c7a-ad9c-1328f205a696/asset/8cc8c42f-7e5c-4d5a-bb7a-1dac8ff95229/file"
       },
       "light": {
-        "bg_color": "#ebf0f4",
+        "bg_color": "#fafafa",
         "text_color": "#121111",
         "accent_color": "#3A8DDE",
         "logo_url": "/documentation/6dedc7a5-2850-4494-bbc7-92e2f6c85c54/094597d2-26c3-4c7a-ad9c-1328f205a696/asset/c36bb7b7-b5a5-4c0e-bf76-dd6da6c8c798/file"
@@ -25,7 +25,7 @@
         "light",
         "dark"
       ],
-      "default": "dark",
+      "default": "light",
       "font_family": "Inter",
       "show_name": false
     },
