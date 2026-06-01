@@ -4087,7 +4087,7 @@
           "id": "55a627c6-b7f7-4628-8492-64b73cc18249",
           "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
           "name": "Rules",
-          "slug": "",
+          "slug": "rules",
           "type": "guide",
           "icon": "fa fa-cogs",
           "order": 5,
@@ -4109,7 +4109,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/overview.mdx"
+              "content_path": "v11-2-8/rules/overview.mdx"
             },
             {
               "id": "826a4a51-ca79-4753-b738-f27af23e0f73",
@@ -4127,7 +4127,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/index.mdx"
+              "content_path": "v11-2-8/rules/antivirus/index.mdx"
             },
             {
               "id": "a2ba9c57-98c8-4f77-980e-f8e89befa09b",
@@ -4146,7 +4146,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/esmc-eset.mdx"
+              "content_path": "v11-2-8/rules/antivirus/esmc-eset.mdx"
             },
             {
               "id": "81ae8c42-7c82-40d6-b439-81cec3c9b655",
@@ -4165,7 +4165,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/deceptive-bytes.mdx"
+              "content_path": "v11-2-8/rules/antivirus/deceptive-bytes.mdx"
             },
             {
               "id": "b987803c-f5fb-4be5-b33c-fbca619d0964",
@@ -4184,7 +4184,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/sentinelone.mdx"
+              "content_path": "v11-2-8/rules/antivirus/sentinelone.mdx"
             },
             {
               "id": "e2c3982d-d524-4a8b-bc6d-9d92397ac4fa",
@@ -4203,7 +4203,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/kaspersky.mdx"
+              "content_path": "v11-2-8/rules/antivirus/kaspersky.mdx"
             },
             {
               "id": "2e0c1319-7493-4d62-8e0b-607aaa717b21",
@@ -4222,7 +4222,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/bitdefender-gravityzone.mdx"
+              "content_path": "v11-2-8/rules/antivirus/bitdefender-gravityzone.mdx"
             },
             {
               "id": "f507e97e-43d0-4015-a1f4-5998e38f4229",
@@ -4241,7 +4241,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/antivirus/crowdstrike.mdx"
+              "content_path": "v11-2-8/rules/antivirus/crowdstrike.mdx"
             },
             {
               "id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
@@ -4259,7 +4259,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cisco/index.mdx"
+              "content_path": "v11-2-8/rules/cisco/index.mdx"
             },
             {
               "id": "32a97d8f-af81-4773-8eba-2f9463db2d63",
@@ -4278,7 +4278,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cisco/asa.mdx"
+              "content_path": "v11-2-8/rules/cisco/asa.mdx"
             },
             {
               "id": "8644d29f-540a-4f18-9e54-553085d32ecb",
@@ -4297,7 +4297,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cisco/switch.mdx"
+              "content_path": "v11-2-8/rules/cisco/switch.mdx"
             },
             {
               "id": "b900d079-6137-44ea-b0a6-7d7beeb6dbd4",
@@ -4316,7 +4316,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cisco/firepower.mdx"
+              "content_path": "v11-2-8/rules/cisco/firepower.mdx"
             },
             {
               "id": "1700ac20-5bd6-480e-b017-84e94724b2ad",
@@ -4335,7 +4335,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cisco/meraki.mdx"
+              "content_path": "v11-2-8/rules/cisco/meraki.mdx"
             },
             {
               "id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
@@ -4353,7 +4353,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cloud/index.mdx"
+              "content_path": "v11-2-8/rules/cloud/index.mdx"
             },
             {
               "id": "b3e8baba-59f5-4d95-87b7-7ddd5c88e383",
@@ -4372,7 +4372,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cloud/google-cloud.mdx"
+              "content_path": "v11-2-8/rules/cloud/google-cloud.mdx"
             },
             {
               "id": "7fd954e9-0d4f-440c-8839-dff1c81ba18c",
@@ -4391,7 +4391,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cloud/azure.mdx"
+              "content_path": "v11-2-8/rules/cloud/azure.mdx"
             },
             {
               "id": "be1036eb-f074-4068-a1fa-11556ea4871c",
@@ -4410,7 +4410,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/cloud/aws.mdx"
+              "content_path": "v11-2-8/rules/cloud/aws.mdx"
             },
             {
               "id": "1e2fe729-dd17-46e2-8ff1-b7c96b521917",
@@ -4428,7 +4428,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/fortinet/index.mdx"
+              "content_path": "v11-2-8/rules/fortinet/index.mdx"
             },
             {
               "id": "5485511e-215b-4df2-baf6-93dd071d1585",
@@ -4447,7 +4447,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/fortinet/fortigate.mdx"
+              "content_path": "v11-2-8/rules/fortinet/fortigate.mdx"
             },
             {
               "id": "dbeb0185-f402-4ccc-8a21-645d8d5ae1cf",
@@ -4466,7 +4466,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/fortinet/fortiweb.mdx"
+              "content_path": "v11-2-8/rules/fortinet/fortiweb.mdx"
             },
             {
               "id": "2d06bf04-69dd-42fe-b0dc-631e6376ddd7",
@@ -4484,7 +4484,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/generic.mdx"
+              "content_path": "v11-2-8/rules/generic.mdx"
             },
             {
               "id": "881e110a-1dcb-4760-93bd-9ff225be2c55",
@@ -4502,7 +4502,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/ibm/index.mdx"
+              "content_path": "v11-2-8/rules/ibm/index.mdx"
             },
             {
               "id": "38160c79-9ce7-46ad-889c-b5286ad19530",
@@ -4521,7 +4521,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/ibm/aix.mdx"
+              "content_path": "v11-2-8/rules/ibm/aix.mdx"
             },
             {
               "id": "79fbbd24-d0db-4578-8c65-7889e5c1c138",
@@ -4540,7 +4540,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/ibm/as-400.mdx"
+              "content_path": "v11-2-8/rules/ibm/as-400.mdx"
             },
             {
               "id": "0d4feaf8-48a3-4692-8b1f-283bd6fa9c33",
@@ -4558,7 +4558,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/json-input.mdx"
+              "content_path": "v11-2-8/rules/json-input.mdx"
             },
             {
               "id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
@@ -4576,7 +4576,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/linux/index.mdx"
+              "content_path": "v11-2-8/rules/linux/index.mdx"
             },
             {
               "id": "4a1c411e-d04c-482a-b498-3ddcb5839a04",
@@ -4595,7 +4595,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/linux/rhel-family.mdx"
+              "content_path": "v11-2-8/rules/linux/rhel-family.mdx"
             },
             {
               "id": "5d523a49-db3b-441d-8fac-a1c808632084",
@@ -4614,7 +4614,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/linux/debian-family.mdx"
+              "content_path": "v11-2-8/rules/linux/debian-family.mdx"
             },
             {
               "id": "076a7130-d896-4582-b6c6-3c41ca485bd5",
@@ -4633,7 +4633,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/linux/general.mdx"
+              "content_path": "v11-2-8/rules/linux/general.mdx"
             },
             {
               "id": "81b68aac-d0f3-4029-a015-f4510b035f7f",
@@ -4651,7 +4651,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/macos.mdx"
+              "content_path": "v11-2-8/rules/macos.mdx"
             },
             {
               "id": "8e58dbc0-1159-4b0c-9ef9-6f25f6715cca",
@@ -4669,7 +4669,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/mikrotik.mdx"
+              "content_path": "v11-2-8/rules/mikrotik.mdx"
             },
             {
               "id": "d613a928-f2a7-4a4e-b4ad-af70245a8e40",
@@ -4687,7 +4687,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/netflow.mdx"
+              "content_path": "v11-2-8/rules/netflow.mdx"
             },
             {
               "id": "cbb76806-2b15-44d2-89c7-c9176062ab32",
@@ -4705,7 +4705,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/nids-suricata.mdx"
+              "content_path": "v11-2-8/rules/nids-suricata.mdx"
             },
             {
               "id": "fd75d4c9-447a-4ddb-903f-b1c05768d296",
@@ -4723,7 +4723,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/palo-alto.mdx"
+              "content_path": "v11-2-8/rules/palo-alto.mdx"
             },
             {
               "id": "e68e86fa-f84a-4fae-bbc0-896f646530e3",
@@ -4741,7 +4741,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/pfsense.mdx"
+              "content_path": "v11-2-8/rules/pfsense.mdx"
             },
             {
               "id": "22855d7c-2a95-4ffc-88ca-dc6231822290",
@@ -4759,7 +4759,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/sonicwall.mdx"
+              "content_path": "v11-2-8/rules/sonicwall.mdx"
             },
             {
               "id": "028beeac-1a3e-4236-bb59-0aecc5cf93ed",
@@ -4777,7 +4777,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/sophos/index.mdx"
+              "content_path": "v11-2-8/rules/sophos/index.mdx"
             },
             {
               "id": "42c58c96-3cba-4790-a215-43810ab06daa",
@@ -4796,7 +4796,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/sophos/xg-firewall.mdx"
+              "content_path": "v11-2-8/rules/sophos/xg-firewall.mdx"
             },
             {
               "id": "4264597c-7a49-4349-ba0b-6858e56f9664",
@@ -4815,7 +4815,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/sophos/sophos-central.mdx"
+              "content_path": "v11-2-8/rules/sophos/sophos-central.mdx"
             },
             {
               "id": "c3739b77-b1d1-4919-85bb-3c11526a1175",
@@ -4833,7 +4833,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/syslog-cef.mdx"
+              "content_path": "v11-2-8/rules/syslog-cef.mdx"
             },
             {
               "id": "2f655aa5-187f-4b50-a531-bd47dfe896d4",
@@ -4851,7 +4851,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/vmware-esxi.mdx"
+              "content_path": "v11-2-8/rules/vmware-esxi.mdx"
             },
             {
               "id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
@@ -4869,7 +4869,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/index.mdx"
+              "content_path": "v11-2-8/rules/microsoft/index.mdx"
             },
             {
               "id": "10a9ba46-3064-4f37-aa8c-75115b9935e9",
@@ -4888,7 +4888,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/windows.mdx"
+              "content_path": "v11-2-8/rules/microsoft/windows.mdx"
             },
             {
               "id": "da30d355-36d5-44a2-ae6d-dae03ca25e8b",
@@ -4907,7 +4907,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/office-365.mdx"
+              "content_path": "v11-2-8/rules/microsoft/office-365.mdx"
             },
             {
               "id": "2e4dc01c-293e-469b-905b-050e9c6384b1",
@@ -4926,7 +4926,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled/microsoft/github.mdx"
+              "content_path": "v11-2-8/rules/microsoft/github.mdx"
             }
           ]
         },
@@ -5279,7 +5279,7 @@
           "id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
           "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
           "name": "SOAR",
-          "slug": "",
+          "slug": "soar",
           "type": "guide",
           "icon": "mi-campaign",
           "order": 1,
@@ -5301,7 +5301,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/introduction.mdx"
+              "content_path": "v11-2-8/soar/introduction.mdx"
             },
             {
               "id": "4674b58b-14d6-449c-afb7-d53d4e86a102",
@@ -5319,7 +5319,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/creating-configuring-workflows.mdx"
+              "content_path": "v11-2-8/soar/creating-configuring-workflows.mdx"
             },
             {
               "id": "1aaebedd-28a9-4984-987b-35d1aa61709e",
@@ -5337,7 +5337,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/built-in-action-templates.mdx"
+              "content_path": "v11-2-8/soar/built-in-action-templates.mdx"
             },
             {
               "id": "21482a2e-6cba-4306-bc7a-9f8294c03ec6",
@@ -5355,7 +5355,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/built-in-playbooks.mdx"
+              "content_path": "v11-2-8/soar/built-in-playbooks.mdx"
             },
             {
               "id": "73f3b9b1-2075-4d91-aaa4-4049c4311ef0",
@@ -5373,7 +5373,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/interactive-console-execution.mdx"
+              "content_path": "v11-2-8/soar/interactive-console-execution.mdx"
             },
             {
               "id": "d6177667-6ae3-4243-85e2-58512449d69f",
@@ -5391,7 +5391,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/custom-actions.mdx"
+              "content_path": "v11-2-8/soar/custom-actions.mdx"
             },
             {
               "id": "ef0a6450-e228-4b4a-9031-c85c15c15f6b",
@@ -5409,7 +5409,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/proxy-agents.mdx"
+              "content_path": "v11-2-8/soar/proxy-agents.mdx"
             },
             {
               "id": "920d9efd-6214-4254-bc27-4a218372fa4d",
@@ -5427,7 +5427,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-8/untitled-2/use-cases.mdx"
+              "content_path": "v11-2-8/soar/use-cases.mdx"
             }
           ]
         }
