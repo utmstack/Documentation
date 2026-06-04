@@ -5448,6 +5448,36 @@
               "content_path": "v11-2-8/vulnerability-scanner/vulnerability-scanning/faq.mdx"
             }
           ]
+        },
+        {
+          "id": "29b88a80-82c1-43c3-a081-d920b65811e9",
+          "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
+          "name": "Upgrade",
+          "slug": "upgrade",
+          "type": "product_documentation",
+          "icon": "hi-arrowUpTray-solid",
+          "order": 6,
+          "visible": true,
+          "pages": [
+            {
+              "id": "013b34aa-64aa-4975-860d-8db5453c5219",
+              "section_id": "29b88a80-82c1-43c3-a081-d920b65811e9",
+              "title": "Upgrading to version 11",
+              "slug": "upgrading-to-version-11",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-2-8/upgrade/upgrading-to-version-11.mdx"
+            }
+          ]
         }
       ]
     }
