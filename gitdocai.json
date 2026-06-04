@@ -5300,7 +5300,6 @@
               "title": "Vulnerability Scanning",
               "slug": "vulnerability-scanning",
               "type": "folder",
-              "icon": "shield-check",
               "order": 0,
               "source_metadata": {},
               "metadata": {},
@@ -5428,6 +5427,25 @@
                 "show_tags": true
               },
               "content_path": "v11-2-8/vulnerability-scanner/vulnerability-scanning/detection-use-cases-templates.mdx"
+            },
+            {
+              "id": "483467d6-6a6d-4a35-b68e-a4182a425416",
+              "section_id": "59a9f412-ae0a-4a58-af55-47516515c89a",
+              "parent_id": "e88c7a10-3e9c-43de-bcad-247c49c5aad2",
+              "title": "FAQ",
+              "slug": "faq",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-2-8/vulnerability-scanner/vulnerability-scanning/faq.mdx"
             }
           ]
         }
