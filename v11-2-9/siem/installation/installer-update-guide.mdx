@@ -1,10 +1,16 @@
 # Installer Update Guide
 
-This guide explains the official procedure to **update the UTMStack Installer** using the automated update script provided by UTMStack.
+This guide explains the procedure to recover and reinstall the UTMStack Installer using the automated recovery script provided by UTMStack.
 
-This process **does not involve a manual system upgrade**, as the script automatically downloads and runs the latest available installer.
+<Warning>
+  **Important:** This procedure should only be used if you are experiencing issues receiving automatic updates.
+</Warning>
 
-## 
+## The script described in this guide does **not** perform a manual system upgrade. Instead, it downloads and reinstalls the latest available version of the UTMStack Installer and restores the automatic update service.
+
+This process is intended as a recovery mechanism when the installer or automatic update service is not functioning correctly. Running the script replaces the existing installer and reinstalls the update service, allowing the system to resume receiving automatic updates normally.
+
+If your system is already receiving automatic updates without issues, this procedure is not required.
 
 **Prerequisites**
 
@@ -27,12 +33,17 @@ find /root /home -name 'installer' -type f 2>/dev/null
 
 Once located, navigate to that directory:
 
+```bash
+/usr/local/bin
+```
+
 ```javascript
 cd /path/to/installer/directory
 ```
 
-> [!INFO]
-> Replace `/path/to/installer/directory` with the actual path found in the previous command.
+<Info>
+  Replace `/path/to/installer/directory` with the actual path found in the previous command.
+</Info>
 
 ### **Create the Update Script**
 
@@ -561,8 +572,9 @@ main "$@"
 
 </CodeGroup>
 
-> [!NOTE]
-> Save the file by pressing `Ctrl + X`, then `Y`, and `Enter`.
+<Note>
+  Save the file by pressing `Ctrl + X`, then `Y`, and `Enter`.
+</Note>
 
 ### **Make Script Executable**
 
@@ -572,15 +584,17 @@ Grant execution permissions to the script:
 chmod +x update.sh
 ```
 
-> [!TIP]
-> Verify the script has execute permissions:
+<Tip>
+  Verify the script has execute permissions:
+</Tip>
 
 ```javascript
 ls -lh update.sh
 ```
 
-> [!TIP]
-> You should see `-rwxr-xr-x` at the beginning of the output.
+<Tip>
+  You should see `-rwxr-xr-x` at the beginning of the output.
+</Tip>
 
 ### **Execute the Update Script**
 
@@ -610,5 +624,6 @@ Confirm that all UTMStack services are running:
 sudo systemctl status UTMStackComponentsUpdater
 ```
 
-> [!INFO]
-> The service should show “active (running)” status.
+<Info>
+  The service should show “active (running)” status.
+</Info>
