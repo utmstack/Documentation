@@ -4392,6 +4392,25 @@
               "content_path": "v11-2-9/siem/configuration-implementation/data-retention.mdx"
             },
             {
+              "id": "14eabfd5-7b2e-4af8-a29e-6d5762241a0e",
+              "section_id": "89e12e5b-4fa2-5b23-b1f4-3889a4c4169c",
+              "parent_id": "81d891e0-a920-546b-8b40-000d9a8a0f46",
+              "title": "Multitenancy",
+              "slug": "multitenancy",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-2-9/siem/configuration-implementation/multitenancy.mdx"
+            },
+            {
               "id": "896eb8b9-425f-4f45-bc86-c18e670694f0",
               "section_id": "89e12e5b-4fa2-5b23-b1f4-3889a4c4169c",
               "title": "Developer Resources",
