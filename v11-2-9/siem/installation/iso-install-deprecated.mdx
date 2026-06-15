@@ -6,12 +6,15 @@ Download the official UTMStack v11 Community Edition automated installation ISO
 
 </Card>
 
-> [!NOTE]
-> The ISO is designed for virtual machine environments and requires interactive configuration during the initial setup process.
+<Note>
+  The ISO is designed for virtual machine environments and requires interactive configuration during the initial setup process.
+</Note>
+
 ---
+
 ## Key Features
 
-<Columns columnCount={2}>
+<ColumnGroup cols="2">
   <Column>
     <Card title="Ubuntu 24.04.3 LTS" icon="fa fa-laptop">
     
@@ -46,11 +49,14 @@ Download the official UTMStack v11 Community Edition automated installation ISO
     
     </Card>
   </Column>
-</Columns>
+</ColumnGroup>
 
-> [!INFO]
-> The system includes basic security hardening and comes with essential system utilities preinstalled.
+<Info>
+  The system includes basic security hardening and comes with essential system utilities preinstalled.
+</Info>
+
 ---
+
 ## System Requirements
 
 Before attaching the ISO to your VM, ensure it meets the following requirements:
@@ -62,14 +68,17 @@ Before attaching the ISO to your VM, ensure it meets the following requirements:
 | Disk Space | 120 GB | 150 GB SSD or larger |
 | Network | Active connectivity | 1 Gbps connection |
 
-> [!INFO]
-> See [System Requirements](/v11/guides/installation/system-requirements) for detailed specifications based on your deployment size and expected data volume.
+<Info>
+  See [System Requirements](/v11/guides/installation/system-requirements) for detailed specifications based on your deployment size and expected data volume.
+</Info>
+
 ---
+
 ## Installation Flow
 
 The installation process is designed to be straightforward with minimal user input required:
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="Step 1: Download the ISO" icon="hi-arrowDownTray-outline">
 
     Download the UTMStack v11 Community Edition ISO:  
@@ -89,8 +98,9 @@ The installation process is designed to be straightforward with minimal user inp
     During installation, you will be prompted to:
     - Create a **username** (no default credentials exist)
     - Set a **strong password**
-    > [!WARNING]
-    > Store these credentials securely - they are required for all future system access.
+    <Warning>
+      Store these credentials securely - they are required for all future system access.
+    </Warning>
 
   </AccordionTab>
 
@@ -126,9 +136,12 @@ The installation process is designed to be straightforward with minimal user inp
 
 </Accordion>
 
-> [!INFO]
-> The entire installation process typically takes 15-30 minutes depending on hardware and network speed.
+<Info>
+  The entire installation process typically takes 15-30 minutes depending on hardware and network speed.
+</Info>
+
 ---
+
 ## Post-Installation Steps
 
 ### 1. Log In
@@ -140,9 +153,12 @@ Once installation completes, log in using the credentials you created during the
 ssh username@your-server-ip
 ```
 
-> [!NOTE]
-> SSH is enabled by default and ready for remote access immediately after installation.
+<Note>
+  SSH is enabled by default and ready for remote access immediately after installation.
+</Note>
+
 ---
+
 ### 2. Monitor Installer Progress
 
 The UTMStack installer runs automatically on first boot. Monitor its progress:
@@ -163,9 +179,12 @@ tail -n 50 /var/log/utmstack/installer.log
 tail -f /var/log/utmstack/installer.log
 ```
 
-> [!TIP]
-> Keep the log monitoring terminal open during installation to catch any potential issues in real-time.
+<Tip>
+  Keep the log monitoring terminal open during installation to catch any potential issues in real-time.
+</Tip>
+
 ---
+
 ### 3. Optional Setup Wizard
 
 After the main installation completes, you can run the setup wizard to configure additional settings:
@@ -182,7 +201,7 @@ sudo /opt/utmstack/finish-install-setup.sh
 
 </CodeGroup>
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="What does the setup wizard configure?" icon="hi-questionMarkCircle-outline">
 
     The setup wizard currently handles:
@@ -192,7 +211,9 @@ sudo /opt/utmstack/finish-install-setup.sh
   </AccordionTab>
 
 </Accordion>
+
 ---
+
 ### 4. System Verification
 
 After installation, verify your system is configured correctly:
@@ -230,7 +251,9 @@ Monitor CPU, RAM, and process usage
 ```
 
 </CodeGroup>
+
 ---
+
 ## Installed Scripts and Symlinks
 
 All UTMStack scripts are centrally located for easy management and access.
@@ -239,7 +262,7 @@ All UTMStack scripts are centrally located for easy management and access.
 
 **Primary Directory**: `/opt/utmstack/`
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="start.sh" icon="hi-play-solid">
 
     **Purpose**: Main UTMStack installer launcher  
@@ -270,9 +293,12 @@ utmstack-install  → /opt/utmstack/start.sh
 utmstack-setup    → /opt/utmstack/finish-install-setup.sh
 ```
 
-> [!TIP]
-> You can run these commands from any directory without specifying the full path.
+<Tip>
+  You can run these commands from any directory without specifying the full path.
+</Tip>
+
 ---
+
 ## Log Files
 
 All installation and system logs are centralized for easy troubleshooting.
@@ -301,10 +327,12 @@ ls -lh /var/log/utmstack/
 ```
 
 </CodeGroup>
+
 ---
+
 ## Troubleshooting
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="Installation appears stuck" icon="fa fa-hourglass">
 
     **Solution**:
@@ -312,6 +340,7 @@ ls -lh /var/log/utmstack/
         ```bash
       
       ```
+    ```plaintext
     ```plaintext
     ```plaintext
     ```plaintext
@@ -331,6 +360,7 @@ ls -lh /var/log/utmstack/
         ```bash
       
       ```
+    ```plaintext
     ```plaintext
     ```plaintext
     ```plaintext
@@ -365,6 +395,7 @@ ls -lh /var/log/utmstack/
     ```plaintext
     ```plaintext
     ```plaintext
+    ```plaintext
     sudo ufw status
     ```plaintext
     3. Verify network configuration:
@@ -390,6 +421,7 @@ ls -lh /var/log/utmstack/
     ```plaintext
     ```plaintext
     ```plaintext
+    ```plaintext
     cat /var/log/utmstack/installer.log
     ```plaintext
     2. Check for specific error messages
@@ -404,13 +436,16 @@ ls -lh /var/log/utmstack/
     ```bash
     sudo /opt/utmstack/start.sh
     ```
-    > [!WARNING]
-    > Re-running the installer may reset existing configurations. Backup any custom settings first.
+    <Warning>
+      Re-running the installer may reset existing configurations. Backup any custom settings first.
+    </Warning>
 
   </AccordionTab>
 
 </Accordion>
+
 ---
+
 ## Security Considerations
 
 <Card title="Basic Security Hardening Included" icon="pi pi-shield">
@@ -447,7 +482,9 @@ sudo apt update && sudo apt upgrade -y
 - Disable password authentication (use keys only)
 - Change default SSH port
 - Restrict SSH access by IP
+
 ---
+
 ## Changelog Summary
 
 Recent improvements to the ISO:
@@ -464,10 +501,12 @@ Recent improvements to the ISO:
 | ✅ Auto-execution | Installer runs automatically on first boot |
 | ✅ Simplified Setup | Setup script simplified (timezone configuration only) |
 | ✅ Verification Commands | Enhanced system verification commands included |
+
 ---
+
 ## Support and Resources
 
-<Columns columnCount={2}>
+<ColumnGroup cols="2">
   <Column>
     <Card title="Official Documentation" icon="pi pi-book" href="https://docs.utmstack.com/v11/introduction">
     
@@ -492,7 +531,8 @@ Recent improvements to the ISO:
     
     </Card>
   </Column>
-</Columns>
+</ColumnGroup>
 
-> [!WARNING]
-> **Remember**: UTMStack v11 is not compatible with v10. If you're migrating from v10, do not attempt a direct upgrade. Wait for the official migration tool or contact support for assistance.
+<Warning>
+  **Remember**: UTMStack v11 is not compatible with v10. If you're migrating from v10, do not attempt a direct upgrade. Wait for the official migration tool or contact support for assistance.
+</Warning>

@@ -3966,8 +3966,8 @@
               "id": "6c46ce48-69d3-5947-9c6e-4320ca5863a2",
               "section_id": "89e12e5b-4fa2-5b23-b1f4-3889a4c4169c",
               "parent_id": "8fea8dc9-c573-59c4-b969-02da822fee97",
-              "title": "Installation from ISO",
-              "slug": "installation-from-iso",
+              "title": "ISO Install (Deprecated)",
+              "slug": "iso-install-deprecated",
               "type": "page",
               "order": 3,
               "source_metadata": {
@@ -3981,7 +3981,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-9/siem/installation/installation-from-iso.mdx"
+              "content_path": "v11-2-9/siem/installation/iso-install-deprecated.mdx"
             },
             {
               "id": "cc406edf-ffdb-5957-8ede-477dc1aef701",

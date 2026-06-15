@@ -1,15 +1,19 @@
 This guide provides comprehensive instructions for installing UTMStack v11 on Ubuntu 24.04 LTS using the installer script.
 
-> [!NOTE]
-> **Alternative Installation Method**: You can also install UTMStack using an automated ISO image. See the [Installation from ISO](/v11/guides/installation/installation-from-iso) guide for details.
 ---
+
 ## Prerequisites
 
 ### Operating System
 
-> [!INFO]
-> This installation guide is designed for **Ubuntu 24.04 LTS**. UTMStack v11 also supports Red Hat systems.
+Download the Ubuntu Linux Image from the official website: [https://ubuntu.com/download/server](https://ubuntu.com/download/server)
+
+<Info>
+  This installation guide is designed for **Ubuntu 24.04 LTS**. UTMStack v11 also supports Red Hat systems.
+</Info>
+
 ---
+
 ## System Requirements
 
 The following recommendations are based on the number of data sources and desired hot log storage retention.
@@ -24,10 +28,11 @@ The following recommendations are based on the number of data sources and desire
 
 **Assumption**: 60 data sources generate approximately 100 GB of monthly data.
 
-> [!TIP]
-> Resources needed for **one month of hot log storage**:
+<Tip>
+  Resources needed for **one month of hot log storage**:
+</Tip>
 
-<Columns columnCount={2}>
+<ColumnGroup cols="2">
   <Column>
     <Card title="Small Deployment" icon="pi pi-server">
     
@@ -68,21 +73,25 @@ The following recommendations are based on the number of data sources and desire
     
     </Card>
   </Column>
-</Columns>
+</ColumnGroup>
 
-> [!NOTE]
-> You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention.
+<Note>
+  You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention.
+</Note>
 
-> [!WARNING]
-> **Horizontal Scaling Required**: Going above 500 data sources/devices requires adding secondary nodes (workers) for horizontal scaling. UTMStack v11's new architecture supports this seamlessly.
+<Warning>
+  **Horizontal Scaling Required**: Going above 500 data sources/devices requires adding secondary nodes (workers) for horizontal scaling. UTMStack v11's new architecture supports this seamlessly.
+</Warning>
+
 ---
+
 ## Required Network Ports
 
 The following ports must be accessible for UTMStack to function properly:
 
 ### Administrative Access Ports
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="Port 22/TCP - Secure Shell (SSH)" icon="fa fa-terminal">
 
     **Purpose**: Remote server administration  
@@ -115,9 +124,12 @@ The following ports must be accessible for UTMStack to function properly:
 
 ### Integration Ports
 
-> [!INFO]
-> Additional ports will be required during the configuration of UTMStack's integrations to receive logs. Please follow the security recommendations provided in each integration guide.
+<Info>
+  Additional ports will be required during the configuration of UTMStack's integrations to receive logs. Please follow the security recommendations provided in each integration guide.
+</Info>
+
 ---
+
 ## Installation Steps
 
 ### Step 1: Preparing for Installation
@@ -141,9 +153,12 @@ sudo su
 chmod +x installer
 ```
 
-> [!NOTE]
-> Make sure you have a stable internet connection during the installation process.
+<Note>
+  Make sure you have a stable internet connection during the installation process.
+</Note>
+
 ---
+
 ### Step 2: Running the Installation
 
 Execute the installer without parameters:
@@ -160,9 +175,12 @@ The installer will:
 4. Set up containers and services
 5. Generate initial credentials
 
-> [!INFO]
-> The installation process may take 15-30 minutes depending on your internet connection and system resources.
+<Info>
+  The installation process may take 15-30 minutes depending on your internet connection and system resources.
+</Info>
+
 ---
+
 ### Step 3: Post-Installation Configuration
 
 Once UTMStack is installed, you can access the platform:
@@ -172,9 +190,10 @@ Once UTMStack is installed, you can access the platform:
 - **Username**: `admin`
 - **Password**: Generated during installation
 
-> [!WARNING]
-> The password and other generated configurations can be found in `/root/utmstack.yml`  
-> **Important**: Store these credentials securely and change the default password immediately after first login.
+<Warning>
+  The password and other generated configurations can be found in `/root/utmstack.yml`  
+  **Important**: Store these credentials securely and change the default password immediately after first login.
+</Warning>
 
 #### Accessing the Platform
 
@@ -190,9 +209,12 @@ or
 https://your-domain.com
 ```
 
-> [!NOTE]
-> UTMStack requires HTTPS for secure access. HTTP requests will be automatically redirected to HTTPS.
+<Note>
+  UTMStack requires HTTPS for secure access. HTTP requests will be automatically redirected to HTTPS.
+</Note>
+
 ---
+
 ## Post-Installation Steps
 
 ### Secure Your Credentials
@@ -229,7 +251,9 @@ If you're managing multiple UTMStack instances, configure central server connect
 - Centralized updates
 - Remote log submission
 - Unified management
+
 ---
+
 ## Verification
 
 After installation, verify that UTMStack is running correctly:
@@ -249,7 +273,7 @@ curl -k https://localhost
 
 ## Troubleshooting
 
-<Accordion multiple={true}>
+<Accordion>
   <AccordionTab title="Installation fails due to insufficient resources" icon="hi-wrenchScrewdriver-outline">
 
     Ensure your system meets the minimum requirements for your deployment size. Check available RAM, CPU, and disk space:
@@ -285,7 +309,9 @@ curl -k https://localhost
   </AccordionTab>
 
 </Accordion>
+
 ---
+
 ## Additional Installation Options
 
 ### Red Hat Installation
@@ -301,7 +327,9 @@ sudo dnf install wget
 
 # Continue with standard installation steps
 ```
+
 ---
+
 ## Scaling Your Deployment
 
 UTMStack v11 introduces horizontal scaling capabilities with worker nodes.
@@ -315,12 +343,15 @@ To scale beyond 500 data sources or improve processing capacity:
 3. Connect workers to the manager node
 4. Distribute processing load automatically
 
-> [!INFO]
-> Worker nodes can run plugins and process data in parallel with the manager, eliminating bottlenecks and providing linear scalability.
+<Info>
+  Worker nodes can run plugins and process data in parallel with the manager, eliminating bottlenecks and providing linear scalability.
+</Info>
+
 ---
+
 ## Support and Resources
 
-<Columns columnCount={2}>
+<ColumnGroup cols="2">
   <Column>
     <Card title="Official Documentation" icon="pi pi-book" href="https://docs.utmstack.com/v11/introduction">
     
@@ -345,7 +376,10 @@ To scale beyond 500 data sources or improve processing capacity:
     
     </Card>
   </Column>
-</Columns>
+</ColumnGroup>
+
 ---
-> [!WARNING]
-> **Remember**: UTMStack v11 is not compatible with v10. If you're migrating from v10, do not attempt a direct upgrade. Wait for the official migration tool or contact support for assistance.
+
+<Warning>
+  **Remember**: UTMStack v11 is not compatible with v10. If you're migrating from v10, do not attempt a direct upgrade. Wait for the official migration tool or contact support for assistance.
+</Warning>
