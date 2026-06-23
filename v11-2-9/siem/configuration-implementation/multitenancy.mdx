@@ -1,0 +1,65 @@
+# Multitenancy
+
+# 
+
+### Objective
+
+This article explains how to set up and manage multi-tenancy in UTM Stack using either federation services or data source groups. It also covers how to apply tenant-based filtering for alerts, logs, and SaaS integrations so each client’s data remains organized and easy to manage.
+
+### 1. Choose the Appropriate Multi-Tenancy Method
+
+Determine which multi-tenancy model fits your environment:
+
+- **Federation Service:** For managing multiple dedicated UTM Stack servers from one centralized view.
+- **Single Server with Data Source Groups:** For smaller customers or when dedicated servers are not required.
+
+Confirm whether clients need their own server instance, on-prem hosting, or centralized administration across multiple environments.
+
+### 2. Use Federation Service for Centralized Management of Multiple Servers
+
+If each client has a dedicated UTM Stack server, use the federation service. Connect all client servers into one centralized management layer to provide a single pane of glass for monitoring and managing multiple environments. Verify that each server is properly registered and accessible from the federation console.
+
+### 3. Create a Data Source Group for Each Client
+
+In UTM Stack, create a separate data source group for every client (e.g., "Client A", "Client B"). Use clear, consistent naming so team members can quickly identify the correct client group. Ensure each group is reserved for only one client to avoid data mixing.
+
+### 4. Assign Each Data Source to the Correct Client Group
+
+1. Open the data source or device you want to assign.
+2. Select the appropriate client group for that asset.
+3. Click **Apply Group** to save the assignment.
+4. Confirm the asset now belongs to the correct group.
+
+### 5. Verify Assets Within the Assigned Group
+
+Navigate to the **Assets** area. Open the relevant asset group to confirm the assigned devices appear there. If an asset is missing, recheck the group assignment and apply it again.
+
+### 6. Filter Alerts by Client Using Data Source Groups
+
+Open the **Alerts** view. Use the data source groups listed on the left side to filter alerts. Click the desired client group to review only the alerts associated with that specific client, reducing noise and improving focus.
+
+### 7. Preserve Client Context in Events and Log Explorer
+
+After selecting a client in Alerts, move to **Events** or **Log Explorer**. Confirm the client context remains active. This allows you to investigate incidents without manually switching tenants.
+
+### 8. Configure Multi-Tenancy for SaaS Integrations
+
+When integrating SaaS platforms (e.g., Microsoft 365), set up one tenant connection per client’s SaaS environment. Connect UTM Stack to each client’s SaaS infrastructure separately and verify each link is mapped to the correct customer.
+
+### 9. Filter SaaS Tenants from the Dashboard
+
+Use the dashboard tenant selector to switch between connected SaaS tenants. Confirm the dashboard updates to show only that client’s SaaS data for quick comparisons or troubleshooting.
+
+### Cautionary Notes
+
+- **Avoid Data Mixing:** Do not assign multiple clients to the same data source group unless intentional.
+- **Double-check Names:** Verify tenant and group names before applying changes to prevent misrouting.
+- **Verify Context:** Always confirm the selected context after switching views to ensure you are investigating the correct client.
+- **Isolation:** If clients require strict data isolation, prefer dedicated servers with federation over a shared server model.
+
+### Tips for Efficiency
+
+- **Naming Conventions:** Use standard naming for groups and tenants to make filtering faster.
+- **Onboarding:** Create groups and tenants during the initial onboarding process.
+- **Mapping:** Maintain a simple documentation mapping of client name to data source group and SaaS tenant.
+- **Training:** Train team members to always verify the selected group before reviewing logs or alerts.

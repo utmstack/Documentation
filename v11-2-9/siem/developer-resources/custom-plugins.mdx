@@ -1,30 +1,37 @@
+# EventProcessor Plugin Architecture
+
 The EventProcessor is designed for high extensibility through a micro-plugin architecture. By implementing custom plugins, you can extend the system's capabilities in log ingestion, parsing, analysis, and notifications.
 
-## **Architecture Highlights**
-
+## Architecture Highlights
 - **Communication**: gRPC over Unix Domain Sockets.
 - **Location**: Sockets are automatically managed in `{{WorkDir}}/sockets/`.
-- **Language**: While gRPC supports many languages, we highly recommend **Go** and our official <u>**[go-sdk](https://github.com/threatwinds/go-sdk)**</u>.
+- **Language**: While gRPC supports many languages, we highly recommend **Go** and our official **[go-sdk](https://github.com/threatwinds/go-sdk)**.
 
-## **Plugin Types**
+## Plugin Types
 
-**TypeSDK HelperInteraction PatternParsing**`InitParsingPlugin`Transforms logs within a pipeline (unary RPC).**Analysis**`InitAnalysisPlugin`Evaluates events to emit alerts (server streaming).**Input**`SendLogsFromChannel`Ingests data from external sources and pushes to the engine.**Correlation**`InitCorrelationPlugin`Processes alerts to find high-level patterns.**Notification**`InitNotificationPlugin`Delivers messages to external endpoints (Email, Slack, etc).
+| Type | SDK Helper | Interaction Pattern |
+| :--- | :--- | :--- |
+| **Parsing** | `InitParsingPlugin` | Transforms logs within a pipeline (unary RPC). |
+| **Analysis** | `InitAnalysisPlugin` | Evaluates events to emit alerts (server streaming). |
+| **Input** | `SendLogsFromChannel` | Ingests data from external sources and pushes to the engine. |
+| **Correlation** | `InitCorrelationPlugin` | Processes alerts to find high-level patterns. |
+| **Notification** | `InitNotificationPlugin` | Delivers messages to external endpoints (Email, Slack, etc). |
 
-## :hammer_and_wrench:** Quick Start (Go)**
+---
 
-### **1. Initialize your project**
+## 🛠️ Quick Start (Go)
 
-```javascript
+### 1. Initialize your project
+```bash
 mkdir utmstack-plugin-custom && cd utmstack-plugin-custom
 go mod init github.com/user/utmstack-plugin-custom
 go get github.com/threatwinds/go-sdk
 ```
 
-### **2. Implement a Parsing Plugin**
-
+### 2. Implement a Parsing Plugin
 Parsing plugins are used for specialized logic that cannot be achieved with standard steps (Grok, JSON, etc.).
 
-```javascript
+```go
 package main
 
 import (
@@ -47,11 +54,10 @@ func parseLog(ctx context.Context, tr *plugins.Transform) (*plugins.Draft, error
 }
 ```
 
-### **3. Implement an Input Plugin**
-
+### 3. Implement an Input Plugin
 Input plugins act as producers. They don't wait for the engine to call them; they push data to the engine.
 
-```javascript
+```go
 package main
 
 import (
@@ -81,22 +87,23 @@ func main() {
 }
 ```
 
-## **🚀 Deployment & Configuration**
+---
+
+## 🚀 Deployment & Configuration
 
 1. **Build**: `go build -o plugin-binary`
 2. **Naming**: The plugin name passed to `InitParsingPlugin("name")` must match the configuration in your YAML.
 3. **YAML Integration**:
-    ```javascript
-  pipeline:
-    - dataTypes: [custom_data]
-      steps:
-        - dynamic:
-            plugin: my-enricher
-            params: { key: value }
-  ```
+   ```yaml
+   pipeline:
+     - dataTypes: [custom_data]
+       steps:
+         - dynamic:
+             plugin: my-enricher
+             params: { key: value }
+   ```
 
-## **Best Practices**
-
+## Best Practices
 - **Use the Catcher**: Always use `github.com/threatwinds/go-sdk/catcher` for error reporting to ensure logs are standardized.
 - **Reserved Fields**: Ensure your parsing logic maps data to the common schema (`origin.*`, `target.*`, `action`). Avoid creating top-level fields outside of `log.*` unless they are part of the core schema.
 - **Graceful Shutdown**: The SDK's `Init...` functions handle SIGINT and SIGTERM automatically.
