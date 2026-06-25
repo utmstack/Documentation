@@ -2203,5 +2203,15 @@
     "mime_type": "image/png",
     "size": 234666,
     "filename": "e350b6e2-94e3-4fdb-b7b5-b57e9444e0e0.png"
+  },
+  {
+    "id": "aeabe035-fd62-469d-a041-2503c5092f97",
+    "name": "Hero image for Documentation",
+    "original_name": "hero-documentation.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 1097081,
+    "alt": "Documentation",
+    "filename": "aeabe035-fd62-469d-a041-2503c5092f97.png"
   }
 ]

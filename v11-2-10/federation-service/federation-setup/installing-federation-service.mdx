@@ -1,0 +1,64 @@
+Welcome to the Federation Service installation guide. In this tutorial, you will learn how to install the UTMStack Federation Service on your server using the command line, and how to generate the required API key to authorize connections to your target UTMStack instances.
+
+## Phase 1: Install the Federation Service
+
+The first phase takes place in the command line interface (CLI) of the server that will host your UTMStack Federation Service. The automated installer will download the required container images (backend, frontend, and database) and configure the services for you.
+
+<Steps>
+  <Step title="Log in as superuser">
+    Access your server's terminal and elevate your privileges to ensure you have the necessary permissions to install software:
+    ```bash
+    sudo su
+    ```
+  </Step>
+  <Step title="Download the official installer">
+    Use the `wget` tool to download the installation script directly from the official UTMStack updates repository.
+    <Warning>
+      The Federation Service is exclusively for Enterprise clients, and the specific download link will be sent individually to each user.
+    </Warning>
+  </Step>
+  <Step title="Grant execution privileges">
+    Modify the permissions of the downloaded file so your system allows it to run:
+    ```bash
+    chmod +x installer
+    ```
+  </Step>
+  <Step title="Run the installer">
+    Initiate the automated installation process:
+    ```bash
+    ./installer
+    ```
+  </Step>
+</Steps>
+<Warning>
+  **Save your initial credentials!** The installation process may take a few minutes. Once it finishes, you will see an `Installation finished successfully` message. The terminal will then display your access URL (based on your server's IP address) and a **unique access key**. You must save this initial password to log in. You can change it later from within the Federation User Interface.
+</Warning>
+
+## Phase 2: Generate an API Key on the Target Instance
+
+Before you can connect the Federation Service, you need to generate an API Key on the specific UTMStack instance you want to monitor and manage. This key acts as a secure bridge between the two systems.
+
+<Steps>
+  <Step title="Access the target web interface">
+    Open your preferred web browser and navigate to the web interface of your target UTMStack instance (for example, `https://10.11.11.105`).
+  </Step>
+  <Step title="Navigate to API Keys">
+    Click on your user avatar located in the top-right corner and select the **Settings** icon. In the left-side navigation menu, locate the **Application Management** section and click on **API Keys**.
+  </Step>
+  <Step title="Create a new base API key">
+    Click the **Create base API key** button in the upper-right corner of the screen.
+  </Step>
+  <Step title="Configure the key parameters">
+    Complete the configuration dialog using the following guidelines:
+    | Parameter | Recommended Setting |
+    |---|---|
+    | **Name** | Provide a descriptive and easily identifiable name (e.g., `Federation Demo`). |
+    | **Expires At** | Select a prolonged expiration date from the calendar (e.g., the year 2030). |
+    | **Allowed IP's** | Enter strictly the IP address of the server where you installed the Federation Service. |
+  </Step>
+</Steps>
+<Tip>
+  Setting a prolonged expiration date for your API key ensures that your Federation Service won't experience unexpected disconnections due to an expired token.
+</Tip>
+
+Once your API key is generated and saved, your Federation Service is fully installed and your target instance is ready to be connected!

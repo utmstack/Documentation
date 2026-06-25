@@ -1,0 +1,64 @@
+After setting up your Federation server, the next step is to link your target UTMStack instances to your centralized dashboard. This guide walks you through generating a secure API key, connecting your instance, and configuring optional administrative settings.
+
+## Prerequisites: Generate an API Key
+
+Before connecting an instance to the Federation panel, you need to generate an API key on the **target UTMStack instance**.
+
+When creating this key on the target instance, it is highly recommended to restrict access to the IP address of your Federation server (e.g., `10.11.11.107`). This ensures that only your Federation server can fetch data from the instance.
+
+1. Navigate to the API key generation section on your target UTMStack instance.
+2. Enter the IP address of your Federation server in the allowed IP fields.
+3. Click the **Create API Key** button.
+
+<Warning>
+  Copy the generated key immediately and save it securely. For security reasons, this cryptographic key is only displayed on the screen once and cannot be retrieved later.
+</Warning>
+
+## Connecting the Instance
+
+With your API key ready, you can now link the target instance to your centralized Federation panel.
+
+<Steps>
+  <Step title="Access the Federation Panel">
+    Open your web browser and navigate to the web interface of your newly installed Federation server (e.g., `https://10.11.11.107`). Log in using your administrator credentials.
+  </Step>
+  <Step title="Initiate the Connection">
+    On the initial welcome screen or main dashboard, click the central **Connect Instance** button. A connection form will appear.
+  </Step>
+  <Step title="Configure Instance Details">
+    Fill out the required fields in the popup form using the details from your target instance (see the [Configuration Fields](#configuration-fields) table below for guidance).
+  </Step>
+  <Step title="Save and Verify">
+    Once you have verified the information, click the **Save** button.
+  </Step>
+</Steps>
+<Info>
+  If the connection is successful, the system will immediately load the main dashboard. You will see consolidated data, metrics, alerts, and log entries flowing in from the newly linked instance.
+</Info>
+
+### Configuration Fields
+
+Use this reference to complete the **Connect Instance** form accurately:
+
+| Interface Field | Description | Example |
+|---|---|---|
+| **Name** | A custom name to clearly identify the instance within your Federation console. | `UTMStack Demo` |
+| **Base URL** | The full URL or IP address of the target UTMStack instance. | `https://10.11.11.105` |
+| **API Key** | The cryptographic key you generated and copied during the prerequisite step. | `sk_live_...` |
+| **Skip TLS verification** | Enable this checkbox **only** if you are working in a local testing environment, or if the target instance does not have valid SSL/TLS certificates signed by a trusted authority. | N/A |
+
+## Additional Configurations
+
+Once you are inside the Federation environment and your instances are connected, you can access advanced administrative options. Click the dropdown menu under your user avatar in the top-right corner to access these features:
+
+<Card title="Team Members" icon="hi-users-solid">
+
+Remotely invite new administrators or analysts to the Federation panel. You can easily add team members by completing a straightforward email invitation form.
+
+</Card>
+
+<Card title="Email Configuration" icon="hi-envelope-solid">
+
+Associate and authenticate a corporate SMTP server. This facilitates the automated delivery of scheduled reports and critical alerts directly to designated inboxes.
+
+</Card>
