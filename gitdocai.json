@@ -1183,370 +1183,6 @@
           ]
         },
         {
-          "id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-          "version_id": "acc68aea-d493-5bef-89a5-38c0d563b9f8",
-          "name": "API Documentation",
-          "slug": "api-documentation",
-          "type": "product_documentation",
-          "icon": "code",
-          "order": 2,
-          "visible": true,
-          "pages": [
-            {
-              "id": "8804981b-f164-512a-b0f1-d0334082ce9b",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "title": "Getting Started",
-              "slug": "getting-started",
-              "type": "folder",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/getting-started/index.mdx"
-            },
-            {
-              "id": "0f8441ba-a84e-5da2-be46-f0c3ea654609",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
-              "title": "Overview",
-              "slug": "overview",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/getting-started/overview.mdx"
-            },
-            {
-              "id": "fa8d8055-3ca2-5433-9e62-b37b96478d14",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
-              "title": "Postman Collection",
-              "slug": "postman-collection",
-              "type": "page",
-              "order": 1,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/getting-started/postman-collection.mdx"
-            },
-            {
-              "id": "330df95c-5b49-51b9-84f8-2002bd0ee865",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
-              "title": "API",
-              "slug": "api",
-              "type": "page",
-              "order": 2,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/getting-started/api.mdx"
-            },
-            {
-              "id": "d53226ac-bb09-5e59-b81d-6e25741b215f",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "title": "Authentication",
-              "slug": "authentication",
-              "type": "folder",
-              "order": 1,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/authentication/index.mdx"
-            },
-            {
-              "id": "099222fd-3958-5de2-a5c8-2ee1f2ac295a",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "d53226ac-bb09-5e59-b81d-6e25741b215f",
-              "title": "Authentication",
-              "slug": "authentication",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/authentication/authentication.mdx"
-            },
-            {
-              "id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "title": "Alert Management",
-              "slug": "alert-management",
-              "type": "folder",
-              "order": 2,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/alert-management/index.mdx"
-            },
-            {
-              "id": "37acb8ac-9172-523f-a682-27b7df40371d",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
-              "title": "Alerts List",
-              "slug": "alerts-list",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/alert-management/alerts-list.mdx"
-            },
-            {
-              "id": "33583881-6706-5f18-93a0-5f98ff28bce7",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
-              "title": "Update Status",
-              "slug": "update-status",
-              "type": "page",
-              "order": 1,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/alert-management/update-status.mdx"
-            },
-            {
-              "id": "97374377-aa9b-5ad9-b512-217f83897d15",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
-              "title": "Update Tags",
-              "slug": "update-tags",
-              "type": "page",
-              "order": 2,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/alert-management/update-tags.mdx"
-            },
-            {
-              "id": "9374d376-963e-5efc-8522-6b6830f2c38b",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
-              "title": "Update Notes",
-              "slug": "update-notes",
-              "type": "page",
-              "order": 3,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/alert-management/update-notes.mdx"
-            },
-            {
-              "id": "42993f14-5634-569e-b7a8-0575103862f6",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "title": "Incident Management",
-              "slug": "incident-management",
-              "type": "folder",
-              "order": 3,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/incident-management/index.mdx"
-            },
-            {
-              "id": "a0427ec5-3577-5435-bc0c-15bb1353eded",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "42993f14-5634-569e-b7a8-0575103862f6",
-              "title": "Convert Incident",
-              "slug": "convert-incident",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/incident-management/convert-incident.mdx"
-            },
-            {
-              "id": "226c01db-451d-5eea-8c16-3d792e381405",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "title": "Analytics \u0026 Utilities",
-              "slug": "analytics-utilities",
-              "type": "folder",
-              "order": 4,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/analytics-utilities/index.mdx"
-            },
-            {
-              "id": "12c7d645-16cd-5e04-bc4b-c34c0923a61e",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
-              "title": "Count Alerts",
-              "slug": "count-alerts",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/analytics-utilities/count-alerts.mdx"
-            },
-            {
-              "id": "ee665d87-9bab-5f90-b9e5-50c1613240c4",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
-              "title": "Property Values",
-              "slug": "property-values",
-              "type": "page",
-              "order": 1,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/analytics-utilities/property-values.mdx"
-            },
-            {
-              "id": "3ff659c4-601f-538c-81d1-c1f4ddf11145",
-              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
-              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
-              "title": "CSV Export",
-              "slug": "csv-export",
-              "type": "page",
-              "order": 2,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v10-9-4/api-documentation/analytics-utilities/csv-export.mdx"
-            }
-          ]
-        },
-        {
           "id": "afde9a99-4139-5b3d-b6bb-1d3afd2be175",
           "version_id": "acc68aea-d493-5bef-89a5-38c0d563b9f8",
           "name": "Integrations",
@@ -2597,13 +2233,377 @@
               "content_path": "v10-9-4/integrations/configurations/config-curl.mdx"
             }
           ]
+        },
+        {
+          "id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+          "version_id": "acc68aea-d493-5bef-89a5-38c0d563b9f8",
+          "name": "API Documentation",
+          "slug": "api-documentation",
+          "type": "product_documentation",
+          "icon": "code",
+          "order": 2,
+          "visible": true,
+          "pages": [
+            {
+              "id": "8804981b-f164-512a-b0f1-d0334082ce9b",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "title": "Getting Started",
+              "slug": "getting-started",
+              "type": "folder",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/getting-started/index.mdx"
+            },
+            {
+              "id": "0f8441ba-a84e-5da2-be46-f0c3ea654609",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
+              "title": "Overview",
+              "slug": "overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/getting-started/overview.mdx"
+            },
+            {
+              "id": "fa8d8055-3ca2-5433-9e62-b37b96478d14",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
+              "title": "Postman Collection",
+              "slug": "postman-collection",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/getting-started/postman-collection.mdx"
+            },
+            {
+              "id": "330df95c-5b49-51b9-84f8-2002bd0ee865",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "8804981b-f164-512a-b0f1-d0334082ce9b",
+              "title": "API",
+              "slug": "api",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/getting-started/api.mdx"
+            },
+            {
+              "id": "d53226ac-bb09-5e59-b81d-6e25741b215f",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "title": "Authentication",
+              "slug": "authentication",
+              "type": "folder",
+              "order": 1,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/authentication/index.mdx"
+            },
+            {
+              "id": "099222fd-3958-5de2-a5c8-2ee1f2ac295a",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "d53226ac-bb09-5e59-b81d-6e25741b215f",
+              "title": "Authentication",
+              "slug": "authentication",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/authentication/authentication.mdx"
+            },
+            {
+              "id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "title": "Alert Management",
+              "slug": "alert-management",
+              "type": "folder",
+              "order": 2,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/alert-management/index.mdx"
+            },
+            {
+              "id": "37acb8ac-9172-523f-a682-27b7df40371d",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
+              "title": "Alerts List",
+              "slug": "alerts-list",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/alert-management/alerts-list.mdx"
+            },
+            {
+              "id": "33583881-6706-5f18-93a0-5f98ff28bce7",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
+              "title": "Update Status",
+              "slug": "update-status",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/alert-management/update-status.mdx"
+            },
+            {
+              "id": "97374377-aa9b-5ad9-b512-217f83897d15",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
+              "title": "Update Tags",
+              "slug": "update-tags",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/alert-management/update-tags.mdx"
+            },
+            {
+              "id": "9374d376-963e-5efc-8522-6b6830f2c38b",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "5ac68be2-d200-5baa-914f-3a65197cf4c7",
+              "title": "Update Notes",
+              "slug": "update-notes",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/alert-management/update-notes.mdx"
+            },
+            {
+              "id": "42993f14-5634-569e-b7a8-0575103862f6",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "title": "Incident Management",
+              "slug": "incident-management",
+              "type": "folder",
+              "order": 3,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/incident-management/index.mdx"
+            },
+            {
+              "id": "a0427ec5-3577-5435-bc0c-15bb1353eded",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "42993f14-5634-569e-b7a8-0575103862f6",
+              "title": "Convert Incident",
+              "slug": "convert-incident",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/incident-management/convert-incident.mdx"
+            },
+            {
+              "id": "226c01db-451d-5eea-8c16-3d792e381405",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "title": "Analytics \u0026 Utilities",
+              "slug": "analytics-utilities",
+              "type": "folder",
+              "order": 4,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/analytics-utilities/index.mdx"
+            },
+            {
+              "id": "12c7d645-16cd-5e04-bc4b-c34c0923a61e",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
+              "title": "Count Alerts",
+              "slug": "count-alerts",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/analytics-utilities/count-alerts.mdx"
+            },
+            {
+              "id": "ee665d87-9bab-5f90-b9e5-50c1613240c4",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
+              "title": "Property Values",
+              "slug": "property-values",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/analytics-utilities/property-values.mdx"
+            },
+            {
+              "id": "3ff659c4-601f-538c-81d1-c1f4ddf11145",
+              "section_id": "b10371c6-0c4f-543c-8121-f2a1274d4a55",
+              "parent_id": "226c01db-451d-5eea-8c16-3d792e381405",
+              "title": "CSV Export",
+              "slug": "csv-export",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v10-9-4/api-documentation/analytics-utilities/csv-export.mdx"
+            }
+          ]
         }
       ]
     },
     {
       "id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
-      "name": "v11.2.10",
-      "slug": "v11-2-10",
+      "name": "v11.3.0",
+      "slug": "v11-3-0",
       "is_latest": true,
       "is_default": true,
       "is_deprecated": false,
@@ -2634,7 +2634,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/overview.mdx"
+              "content_path": "v11-3-0/rules/overview.mdx"
             },
             {
               "id": "826a4a51-ca79-4753-b738-f27af23e0f73",
@@ -2652,7 +2652,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/index.mdx"
+              "content_path": "v11-3-0/rules/antivirus/index.mdx"
             },
             {
               "id": "a2ba9c57-98c8-4f77-980e-f8e89befa09b",
@@ -2671,7 +2671,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/esmc-eset.mdx"
+              "content_path": "v11-3-0/rules/antivirus/esmc-eset.mdx"
             },
             {
               "id": "81ae8c42-7c82-40d6-b439-81cec3c9b655",
@@ -2690,7 +2690,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/deceptive-bytes.mdx"
+              "content_path": "v11-3-0/rules/antivirus/deceptive-bytes.mdx"
             },
             {
               "id": "b987803c-f5fb-4be5-b33c-fbca619d0964",
@@ -2709,7 +2709,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/sentinelone.mdx"
+              "content_path": "v11-3-0/rules/antivirus/sentinelone.mdx"
             },
             {
               "id": "e2c3982d-d524-4a8b-bc6d-9d92397ac4fa",
@@ -2728,7 +2728,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/kaspersky.mdx"
+              "content_path": "v11-3-0/rules/antivirus/kaspersky.mdx"
             },
             {
               "id": "2e0c1319-7493-4d62-8e0b-607aaa717b21",
@@ -2747,7 +2747,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/bitdefender-gravityzone.mdx"
+              "content_path": "v11-3-0/rules/antivirus/bitdefender-gravityzone.mdx"
             },
             {
               "id": "f507e97e-43d0-4015-a1f4-5998e38f4229",
@@ -2766,7 +2766,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/antivirus/crowdstrike.mdx"
+              "content_path": "v11-3-0/rules/antivirus/crowdstrike.mdx"
             },
             {
               "id": "3abd7590-64e2-4371-a754-1ceafcded4c0",
@@ -2784,7 +2784,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cisco/index.mdx"
+              "content_path": "v11-3-0/rules/cisco/index.mdx"
             },
             {
               "id": "32a97d8f-af81-4773-8eba-2f9463db2d63",
@@ -2803,7 +2803,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cisco/asa.mdx"
+              "content_path": "v11-3-0/rules/cisco/asa.mdx"
             },
             {
               "id": "8644d29f-540a-4f18-9e54-553085d32ecb",
@@ -2822,7 +2822,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cisco/switch.mdx"
+              "content_path": "v11-3-0/rules/cisco/switch.mdx"
             },
             {
               "id": "b900d079-6137-44ea-b0a6-7d7beeb6dbd4",
@@ -2841,7 +2841,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cisco/firepower.mdx"
+              "content_path": "v11-3-0/rules/cisco/firepower.mdx"
             },
             {
               "id": "1700ac20-5bd6-480e-b017-84e94724b2ad",
@@ -2860,7 +2860,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cisco/meraki.mdx"
+              "content_path": "v11-3-0/rules/cisco/meraki.mdx"
             },
             {
               "id": "cad9dcb8-3af8-46d2-a3f4-83ee5ab13d5f",
@@ -2878,7 +2878,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cloud/index.mdx"
+              "content_path": "v11-3-0/rules/cloud/index.mdx"
             },
             {
               "id": "b3e8baba-59f5-4d95-87b7-7ddd5c88e383",
@@ -2897,7 +2897,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cloud/google-cloud.mdx"
+              "content_path": "v11-3-0/rules/cloud/google-cloud.mdx"
             },
             {
               "id": "7fd954e9-0d4f-440c-8839-dff1c81ba18c",
@@ -2916,7 +2916,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cloud/azure.mdx"
+              "content_path": "v11-3-0/rules/cloud/azure.mdx"
             },
             {
               "id": "be1036eb-f074-4068-a1fa-11556ea4871c",
@@ -2935,7 +2935,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/cloud/aws.mdx"
+              "content_path": "v11-3-0/rules/cloud/aws.mdx"
             },
             {
               "id": "1e2fe729-dd17-46e2-8ff1-b7c96b521917",
@@ -2953,7 +2953,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/fortinet/index.mdx"
+              "content_path": "v11-3-0/rules/fortinet/index.mdx"
             },
             {
               "id": "5485511e-215b-4df2-baf6-93dd071d1585",
@@ -2972,7 +2972,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/fortinet/fortigate.mdx"
+              "content_path": "v11-3-0/rules/fortinet/fortigate.mdx"
             },
             {
               "id": "dbeb0185-f402-4ccc-8a21-645d8d5ae1cf",
@@ -2991,7 +2991,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/fortinet/fortiweb.mdx"
+              "content_path": "v11-3-0/rules/fortinet/fortiweb.mdx"
             },
             {
               "id": "2d06bf04-69dd-42fe-b0dc-631e6376ddd7",
@@ -3009,7 +3009,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/generic.mdx"
+              "content_path": "v11-3-0/rules/generic.mdx"
             },
             {
               "id": "881e110a-1dcb-4760-93bd-9ff225be2c55",
@@ -3027,7 +3027,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/ibm/index.mdx"
+              "content_path": "v11-3-0/rules/ibm/index.mdx"
             },
             {
               "id": "38160c79-9ce7-46ad-889c-b5286ad19530",
@@ -3046,7 +3046,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/ibm/aix.mdx"
+              "content_path": "v11-3-0/rules/ibm/aix.mdx"
             },
             {
               "id": "79fbbd24-d0db-4578-8c65-7889e5c1c138",
@@ -3065,7 +3065,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/ibm/as-400.mdx"
+              "content_path": "v11-3-0/rules/ibm/as-400.mdx"
             },
             {
               "id": "0d4feaf8-48a3-4692-8b1f-283bd6fa9c33",
@@ -3083,7 +3083,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/json-input.mdx"
+              "content_path": "v11-3-0/rules/json-input.mdx"
             },
             {
               "id": "c484fc43-1fdf-46e1-8734-5edf5e40e852",
@@ -3101,7 +3101,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/linux/index.mdx"
+              "content_path": "v11-3-0/rules/linux/index.mdx"
             },
             {
               "id": "4a1c411e-d04c-482a-b498-3ddcb5839a04",
@@ -3120,7 +3120,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/linux/rhel-family.mdx"
+              "content_path": "v11-3-0/rules/linux/rhel-family.mdx"
             },
             {
               "id": "5d523a49-db3b-441d-8fac-a1c808632084",
@@ -3139,7 +3139,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/linux/debian-family.mdx"
+              "content_path": "v11-3-0/rules/linux/debian-family.mdx"
             },
             {
               "id": "076a7130-d896-4582-b6c6-3c41ca485bd5",
@@ -3158,7 +3158,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/linux/general.mdx"
+              "content_path": "v11-3-0/rules/linux/general.mdx"
             },
             {
               "id": "81b68aac-d0f3-4029-a015-f4510b035f7f",
@@ -3176,7 +3176,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/macos.mdx"
+              "content_path": "v11-3-0/rules/macos.mdx"
             },
             {
               "id": "8e58dbc0-1159-4b0c-9ef9-6f25f6715cca",
@@ -3194,7 +3194,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/mikrotik.mdx"
+              "content_path": "v11-3-0/rules/mikrotik.mdx"
             },
             {
               "id": "d613a928-f2a7-4a4e-b4ad-af70245a8e40",
@@ -3212,7 +3212,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/netflow.mdx"
+              "content_path": "v11-3-0/rules/netflow.mdx"
             },
             {
               "id": "cbb76806-2b15-44d2-89c7-c9176062ab32",
@@ -3230,7 +3230,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/nids-suricata.mdx"
+              "content_path": "v11-3-0/rules/nids-suricata.mdx"
             },
             {
               "id": "fd75d4c9-447a-4ddb-903f-b1c05768d296",
@@ -3248,7 +3248,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/palo-alto.mdx"
+              "content_path": "v11-3-0/rules/palo-alto.mdx"
             },
             {
               "id": "e68e86fa-f84a-4fae-bbc0-896f646530e3",
@@ -3266,7 +3266,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/pfsense.mdx"
+              "content_path": "v11-3-0/rules/pfsense.mdx"
             },
             {
               "id": "22855d7c-2a95-4ffc-88ca-dc6231822290",
@@ -3284,7 +3284,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/sonicwall.mdx"
+              "content_path": "v11-3-0/rules/sonicwall.mdx"
             },
             {
               "id": "028beeac-1a3e-4236-bb59-0aecc5cf93ed",
@@ -3302,7 +3302,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/sophos/index.mdx"
+              "content_path": "v11-3-0/rules/sophos/index.mdx"
             },
             {
               "id": "42c58c96-3cba-4790-a215-43810ab06daa",
@@ -3321,7 +3321,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/sophos/xg-firewall.mdx"
+              "content_path": "v11-3-0/rules/sophos/xg-firewall.mdx"
             },
             {
               "id": "4264597c-7a49-4349-ba0b-6858e56f9664",
@@ -3340,7 +3340,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/sophos/sophos-central.mdx"
+              "content_path": "v11-3-0/rules/sophos/sophos-central.mdx"
             },
             {
               "id": "c3739b77-b1d1-4919-85bb-3c11526a1175",
@@ -3358,7 +3358,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/syslog-cef.mdx"
+              "content_path": "v11-3-0/rules/syslog-cef.mdx"
             },
             {
               "id": "2f655aa5-187f-4b50-a531-bd47dfe896d4",
@@ -3376,7 +3376,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/vmware-esxi.mdx"
+              "content_path": "v11-3-0/rules/vmware-esxi.mdx"
             },
             {
               "id": "22037b5b-9d1f-48f1-8198-77412b12d06e",
@@ -3394,7 +3394,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/microsoft/index.mdx"
+              "content_path": "v11-3-0/rules/microsoft/index.mdx"
             },
             {
               "id": "10a9ba46-3064-4f37-aa8c-75115b9935e9",
@@ -3413,7 +3413,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/microsoft/windows.mdx"
+              "content_path": "v11-3-0/rules/microsoft/windows.mdx"
             },
             {
               "id": "da30d355-36d5-44a2-ae6d-dae03ca25e8b",
@@ -3432,7 +3432,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/microsoft/office-365.mdx"
+              "content_path": "v11-3-0/rules/microsoft/office-365.mdx"
             },
             {
               "id": "2e4dc01c-293e-469b-905b-050e9c6384b1",
@@ -3451,361 +3451,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/rules/microsoft/github.mdx"
-            }
-          ]
-        },
-        {
-          "id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-          "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
-          "name": "API Documentation",
-          "slug": "api-documentation",
-          "type": "product_documentation",
-          "icon": "code",
-          "order": 4,
-          "visible": true,
-          "pages": [
-            {
-              "id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "title": "API Documentation",
-              "slug": "api-documentation",
-              "type": "folder",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/index.mdx"
-            },
-            {
-              "id": "6f10e899-f877-5d21-a149-10915ca1507d",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Introduction",
-              "slug": "introduction",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/introduction.mdx"
-            },
-            {
-              "id": "09e97df9-f637-557b-9ba5-5dfdb73dedc5",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Authentication",
-              "slug": "authentication",
-              "type": "page",
-              "order": 1,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/authentication.mdx"
-            },
-            {
-              "id": "72416c9d-5d2d-532e-bfae-1d3df6d4b1db",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Alert Retrieval",
-              "slug": "alert-retrieval",
-              "type": "page",
-              "order": 2,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/alert-retrieval.mdx"
-            },
-            {
-              "id": "8c79a9d2-be89-5bc4-a8f6-77999f317cfe",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Alert Management",
-              "slug": "alert-management",
-              "type": "page",
-              "order": 3,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/alert-management.mdx"
-            },
-            {
-              "id": "a3c94ccf-ef4d-5cfb-a199-2cd45e1b9bed",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Log Explorer (Search \u0026 Query)",
-              "slug": "log-explorer-search-query",
-              "type": "page",
-              "order": 4,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/log-explorer-search-query.mdx"
-            },
-            {
-              "id": "b3d265ad-6652-59d9-8501-df6a93a5305e",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Incident Management",
-              "slug": "incident-management",
-              "type": "page",
-              "order": 5,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/incident-management.mdx"
-            },
-            {
-              "id": "17de4e1a-24d9-5d09-b371-b511d9826bc0",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Data Sources \u0026 Agents",
-              "slug": "data-sources-agents",
-              "type": "page",
-              "order": 6,
-              "source_metadata": {
-                "generated_at": "2025-11-11T22:43:08.509388Z"
-              },
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/data-sources-agents.mdx"
-            },
-            {
-              "id": "964b560f-5b56-4349-939f-33615f9fc6fb",
-              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
-              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
-              "title": "Reference Tables",
-              "slug": "reference-tables",
-              "type": "page",
-              "order": 7,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/api-documentation/api-documentation/reference-tables.mdx"
-            }
-          ]
-        },
-        {
-          "id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-          "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
-          "name": "SOAR",
-          "slug": "soar",
-          "type": "product_documentation",
-          "icon": "mi-campaign",
-          "order": 1,
-          "visible": true,
-          "pages": [
-            {
-              "id": "94019cc7-a2b0-4a7b-b944-68ae7b8068a6",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Introduction",
-              "slug": "introduction",
-              "type": "page",
-              "order": 0,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/introduction.mdx"
-            },
-            {
-              "id": "4674b58b-14d6-449c-afb7-d53d4e86a102",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Creating \u0026 Configuring Workflows",
-              "slug": "creating-configuring-workflows",
-              "type": "page",
-              "order": 1,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/creating-configuring-workflows.mdx"
-            },
-            {
-              "id": "1aaebedd-28a9-4984-987b-35d1aa61709e",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Built-in Action Templates",
-              "slug": "built-in-action-templates",
-              "type": "page",
-              "order": 2,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/built-in-action-templates.mdx"
-            },
-            {
-              "id": "21482a2e-6cba-4306-bc7a-9f8294c03ec6",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Built-in Playbooks",
-              "slug": "built-in-playbooks",
-              "type": "page",
-              "order": 3,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/built-in-playbooks.mdx"
-            },
-            {
-              "id": "73f3b9b1-2075-4d91-aaa4-4049c4311ef0",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Interactive Console \u0026 Execution",
-              "slug": "interactive-console-execution",
-              "type": "page",
-              "order": 4,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/interactive-console-execution.mdx"
-            },
-            {
-              "id": "d6177667-6ae3-4243-85e2-58512449d69f",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Custom Actions",
-              "slug": "custom-actions",
-              "type": "page",
-              "order": 5,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/custom-actions.mdx"
-            },
-            {
-              "id": "ef0a6450-e228-4b4a-9031-c85c15c15f6b",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Proxy Agents",
-              "slug": "proxy-agents",
-              "type": "page",
-              "order": 6,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/proxy-agents.mdx"
-            },
-            {
-              "id": "920d9efd-6214-4254-bc27-4a218372fa4d",
-              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
-              "title": "Use Cases",
-              "slug": "use-cases",
-              "type": "page",
-              "order": 7,
-              "source_metadata": {},
-              "metadata": {},
-              "metadata_visibility": {
-                "show_author": true,
-                "show_reading_time": true,
-                "show_publish_date": true,
-                "show_update_date": true,
-                "show_tags": true
-              },
-              "content_path": "v11-2-10/soar/use-cases.mdx"
+              "content_path": "v11-3-0/rules/microsoft/github.mdx"
             }
           ]
         },
@@ -3837,7 +3483,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started/index.mdx"
+              "content_path": "v11-3-0/siem/getting-started/index.mdx"
             },
             {
               "id": "7a8638b4-3762-5fa2-893b-d5782ac6eebd",
@@ -3858,7 +3504,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started/introduction.mdx"
+              "content_path": "v11-3-0/siem/getting-started/introduction.mdx"
             },
             {
               "id": "c78fcc31-94d7-4ccd-b47d-1ed3af9f1c38",
@@ -3877,7 +3523,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started/community-resources.mdx"
+              "content_path": "v11-3-0/siem/getting-started/community-resources.mdx"
             },
             {
               "id": "8fea8dc9-c573-59c4-b969-02da822fee97",
@@ -3897,7 +3543,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/index.mdx"
+              "content_path": "v11-3-0/siem/installation/index.mdx"
             },
             {
               "id": "9b6192cb-a93b-50ab-b793-4d31778759a5",
@@ -3918,7 +3564,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/architecture.mdx"
+              "content_path": "v11-3-0/siem/installation/architecture.mdx"
             },
             {
               "id": "62c95edf-7fa3-5e70-96cd-891ae02228cf",
@@ -3939,7 +3585,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/system-requirements.mdx"
+              "content_path": "v11-3-0/siem/installation/system-requirements.mdx"
             },
             {
               "id": "85c0f4f5-82b8-54ab-95c9-c0b2d6ca1902",
@@ -3960,7 +3606,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/installation.mdx"
+              "content_path": "v11-3-0/siem/installation/installation.mdx"
             },
             {
               "id": "6c46ce48-69d3-5947-9c6e-4320ca5863a2",
@@ -3981,7 +3627,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/iso-install-deprecated.mdx"
+              "content_path": "v11-3-0/siem/installation/iso-install-deprecated.mdx"
             },
             {
               "id": "cc406edf-ffdb-5957-8ede-477dc1aef701",
@@ -4002,7 +3648,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/firewall-rules.mdx"
+              "content_path": "v11-3-0/siem/installation/firewall-rules.mdx"
             },
             {
               "id": "e4058e91-8a1c-5c0c-89b0-15240d42a756",
@@ -4023,7 +3669,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/ssl-certificate.mdx"
+              "content_path": "v11-3-0/siem/installation/ssl-certificate.mdx"
             },
             {
               "id": "ffb89ceb-3867-56a1-b07c-06daf85cbb3f",
@@ -4044,7 +3690,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/installation/installer-update-guide.mdx"
+              "content_path": "v11-3-0/siem/installation/installer-update-guide.mdx"
             },
             {
               "id": "61babf78-7ec4-5b22-8120-36886441d278",
@@ -4064,7 +3710,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started-rules-and-filters/index.mdx"
+              "content_path": "v11-3-0/siem/getting-started-rules-and-filters/index.mdx"
             },
             {
               "id": "888e747d-0125-508e-9a52-c51b9dd40cde",
@@ -4085,7 +3731,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started-rules-and-filters/architecture-overview.mdx"
+              "content_path": "v11-3-0/siem/getting-started-rules-and-filters/architecture-overview.mdx"
             },
             {
               "id": "48bb0a3b-ed67-5e9a-beaf-dde2a78b2af3",
@@ -4106,7 +3752,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started-rules-and-filters/components.mdx"
+              "content_path": "v11-3-0/siem/getting-started-rules-and-filters/components.mdx"
             },
             {
               "id": "65258780-4d1e-5fc5-ac66-9a48210fac9b",
@@ -4127,7 +3773,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started-rules-and-filters/standard-event-schema.mdx"
+              "content_path": "v11-3-0/siem/getting-started-rules-and-filters/standard-event-schema.mdx"
             },
             {
               "id": "641fd595-1f36-59f4-90a9-d3084d9594b9",
@@ -4148,7 +3794,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/getting-started-rules-and-filters/development-workflow.mdx"
+              "content_path": "v11-3-0/siem/getting-started-rules-and-filters/development-workflow.mdx"
             },
             {
               "id": "81d891e0-a920-546b-8b40-000d9a8a0f46",
@@ -4168,7 +3814,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/index.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/index.mdx"
             },
             {
               "id": "baa8e76b-4369-4fe9-b0d8-3eb59681f6d1",
@@ -4187,7 +3833,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/settings.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/settings.mdx"
             },
             {
               "id": "1b96514b-8d8f-5dbb-aedb-676af254761b",
@@ -4208,7 +3854,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/implementing-rules.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/implementing-rules.mdx"
             },
             {
               "id": "e6309871-a8b7-59d1-b206-55294bb92cd2",
@@ -4229,7 +3875,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/implementing-filters.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/implementing-filters.mdx"
             },
             {
               "id": "bccd8922-f8cb-474f-a7ed-b47ddefdef33",
@@ -4248,7 +3894,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/best-practices.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/best-practices.mdx"
             },
             {
               "id": "d810f123-51e5-58ba-83e9-ee613dac26a1",
@@ -4269,7 +3915,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/filter-steps-reference.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/filter-steps-reference.mdx"
             },
             {
               "id": "91919e20-0d8f-5769-84a1-647bb7ac9a78",
@@ -4290,7 +3936,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/cel-overloads.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/cel-overloads.mdx"
             },
             {
               "id": "2f206e5d-d85b-513e-8560-c6b963eaf4bd",
@@ -4311,7 +3957,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/advanced-features.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/advanced-features.mdx"
             },
             {
               "id": "17c7ee47-c89d-596e-9760-8fd9a2daa5bf",
@@ -4332,7 +3978,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/real-world-examples.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/real-world-examples.mdx"
             },
             {
               "id": "2f4c4c17-48f0-4e2e-9526-6c32cd410d05",
@@ -4351,7 +3997,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/threat-intelligence.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/threat-intelligence.mdx"
             },
             {
               "id": "47272431-cafd-4cab-a48f-79c019c1f87b",
@@ -4370,7 +4016,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/trubleshooting.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/trubleshooting.mdx"
             },
             {
               "id": "c3931f03-4e25-4391-a429-3b9fc8b4109e",
@@ -4389,7 +4035,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/data-retention.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/data-retention.mdx"
             },
             {
               "id": "14eabfd5-7b2e-4af8-a29e-6d5762241a0e",
@@ -4408,7 +4054,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/configuration-implementation/multitenancy.mdx"
+              "content_path": "v11-3-0/siem/configuration-implementation/multitenancy.mdx"
             },
             {
               "id": "896eb8b9-425f-4f45-bc86-c18e670694f0",
@@ -4426,7 +4072,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/developer-resources/index.mdx"
+              "content_path": "v11-3-0/siem/developer-resources/index.mdx"
             },
             {
               "id": "486c4965-7715-4d2f-958d-fef721e67cc7",
@@ -4445,7 +4091,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/developer-resources/playground.mdx"
+              "content_path": "v11-3-0/siem/developer-resources/playground.mdx"
             },
             {
               "id": "88d38a2c-2dd4-44b8-81ce-a07c11c33538",
@@ -4464,7 +4110,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/developer-resources/tools.mdx"
+              "content_path": "v11-3-0/siem/developer-resources/tools.mdx"
             },
             {
               "id": "8ff2f3e3-eec7-4d0c-aa4f-df021c56aca3",
@@ -4483,7 +4129,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/developer-resources/custom-plugins.mdx"
+              "content_path": "v11-3-0/siem/developer-resources/custom-plugins.mdx"
             },
             {
               "id": "637ef311-1264-47c5-b034-7c5c0b1925c8",
@@ -4501,7 +4147,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/threat-management/index.mdx"
+              "content_path": "v11-3-0/siem/threat-management/index.mdx"
             },
             {
               "id": "3a6b958d-0c36-4586-8412-ffa09281c924",
@@ -4520,7 +4166,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/threat-management/alert-management.mdx"
+              "content_path": "v11-3-0/siem/threat-management/alert-management.mdx"
             },
             {
               "id": "2dd72c91-8ba2-42c6-8c31-86812240a67c",
@@ -4539,7 +4185,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/siem/threat-management/false-positive-handling.mdx"
+              "content_path": "v11-3-0/siem/threat-management/false-positive-handling.mdx"
             }
           ]
         },
@@ -4571,7 +4217,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/agents-and-syslog/index.mdx"
+              "content_path": "v11-3-0/integrations/agents-and-syslog/index.mdx"
             },
             {
               "id": "760b4eaa-ddb5-5936-b42e-48ffbd4afba8",
@@ -4592,7 +4238,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/agents-and-syslog/macos.mdx"
+              "content_path": "v11-3-0/integrations/agents-and-syslog/macos.mdx"
             },
             {
               "id": "6f44947f-d287-5104-be94-ae0381215ce5",
@@ -4613,7 +4259,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/agents-and-syslog/windows-agent.mdx"
+              "content_path": "v11-3-0/integrations/agents-and-syslog/windows-agent.mdx"
             },
             {
               "id": "d5801645-1480-50f2-87f2-f48c380847f9",
@@ -4634,7 +4280,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/agents-and-syslog/linux-agent.mdx"
+              "content_path": "v11-3-0/integrations/agents-and-syslog/linux-agent.mdx"
             },
             {
               "id": "b7ed6010-59ec-5caf-9695-27ce61fb26e9",
@@ -4655,7 +4301,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/agents-and-syslog/syslog.mdx"
+              "content_path": "v11-3-0/integrations/agents-and-syslog/syslog.mdx"
             },
             {
               "id": "f6d7272a-c851-5a77-9d35-0e1ed4d399cb",
@@ -4675,7 +4321,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/index.mdx"
+              "content_path": "v11-3-0/integrations/devices/index.mdx"
             },
             {
               "id": "6689ebe1-df59-5141-9eed-570374eac94b",
@@ -4696,7 +4342,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/cisco-asa.mdx"
+              "content_path": "v11-3-0/integrations/devices/cisco-asa.mdx"
             },
             {
               "id": "8845cc94-a42b-5b99-a397-ff3ad150ebca",
@@ -4717,7 +4363,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/fortigate.mdx"
+              "content_path": "v11-3-0/integrations/devices/fortigate.mdx"
             },
             {
               "id": "11edde42-02f6-5a95-ab2b-cbfc16535129",
@@ -4738,7 +4384,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/sophos-xg.mdx"
+              "content_path": "v11-3-0/integrations/devices/sophos-xg.mdx"
             },
             {
               "id": "d15a4e66-bcdf-5d23-9131-f1d84f579513",
@@ -4759,7 +4405,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/sonicwall.mdx"
+              "content_path": "v11-3-0/integrations/devices/sonicwall.mdx"
             },
             {
               "id": "1f205e9d-d6cb-51c8-b354-250b1e6d4cd8",
@@ -4780,7 +4426,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/ibm-aix.mdx"
+              "content_path": "v11-3-0/integrations/devices/ibm-aix.mdx"
             },
             {
               "id": "03a1e222-f27a-5dd5-b15b-a3c0f2e7614a",
@@ -4801,7 +4447,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/ibm-as400.mdx"
+              "content_path": "v11-3-0/integrations/devices/ibm-as400.mdx"
             },
             {
               "id": "1a10f3d1-7b3a-5547-9bac-2278334094fa",
@@ -4822,7 +4468,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/fortiweb.mdx"
+              "content_path": "v11-3-0/integrations/devices/fortiweb.mdx"
             },
             {
               "id": "2f97b67e-a63c-5d24-8442-5fbf83c6506f",
@@ -4843,7 +4489,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/pfsense.mdx"
+              "content_path": "v11-3-0/integrations/devices/pfsense.mdx"
             },
             {
               "id": "e37fe914-19cd-5477-8e8a-ef6f011f4dd2",
@@ -4864,7 +4510,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/palo-alto.mdx"
+              "content_path": "v11-3-0/integrations/devices/palo-alto.mdx"
             },
             {
               "id": "1d876fd7-b5c9-52ce-8f33-95cb3e31ea10",
@@ -4885,7 +4531,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/mikrotik.mdx"
+              "content_path": "v11-3-0/integrations/devices/mikrotik.mdx"
             },
             {
               "id": "fb8cfbfd-923f-5506-a5e3-02a0f63958b3",
@@ -4906,7 +4552,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/cisco-switch.mdx"
+              "content_path": "v11-3-0/integrations/devices/cisco-switch.mdx"
             },
             {
               "id": "1d0829b9-b3de-5eaf-b7e2-206386c22b18",
@@ -4927,7 +4573,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/firepower.mdx"
+              "content_path": "v11-3-0/integrations/devices/firepower.mdx"
             },
             {
               "id": "f6d17496-5f09-5189-ad3f-09a3b65c1eb2",
@@ -4948,7 +4594,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/devices/cisco-meraki.mdx"
+              "content_path": "v11-3-0/integrations/devices/cisco-meraki.mdx"
             },
             {
               "id": "b22dddf1-9d71-5ff3-a57e-8ae66c0e5bb3",
@@ -4968,7 +4614,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/databases/index.mdx"
+              "content_path": "v11-3-0/integrations/databases/index.mdx"
             },
             {
               "id": "a26df5ab-13fc-5c73-b7d4-7667957a3964",
@@ -4989,7 +4635,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/databases/oracle.mdx"
+              "content_path": "v11-3-0/integrations/databases/oracle.mdx"
             },
             {
               "id": "c426bd88-c9f3-5f75-9577-3dba72688df3",
@@ -5009,7 +4655,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/xdr/index.mdx"
+              "content_path": "v11-3-0/integrations/xdr/index.mdx"
             },
             {
               "id": "61c9d830-8b61-51d1-850f-f4dc33bfa6e3",
@@ -5030,7 +4676,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/xdr/sophos-central.mdx"
+              "content_path": "v11-3-0/integrations/xdr/sophos-central.mdx"
             },
             {
               "id": "f845e8ab-5c76-5f81-a82a-5aeb138961af",
@@ -5051,7 +4697,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/xdr/sentinelone.mdx"
+              "content_path": "v11-3-0/integrations/xdr/sentinelone.mdx"
             },
             {
               "id": "8305f81d-bf91-5cde-a3e3-109989dee818",
@@ -5072,7 +4718,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/xdr/crowdstrike.mdx"
+              "content_path": "v11-3-0/integrations/xdr/crowdstrike.mdx"
             },
             {
               "id": "0cdf6217-9f65-5327-be68-92694ce50d03",
@@ -5092,7 +4738,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/cloud/index.mdx"
+              "content_path": "v11-3-0/integrations/cloud/index.mdx"
             },
             {
               "id": "67f1d9fc-bd55-5689-bf20-271559623cdc",
@@ -5113,7 +4759,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/cloud/azure.mdx"
+              "content_path": "v11-3-0/integrations/cloud/azure.mdx"
             },
             {
               "id": "bb7065e7-c821-5bbb-970c-26e755000a22",
@@ -5134,7 +4780,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/cloud/google-cloud.mdx"
+              "content_path": "v11-3-0/integrations/cloud/google-cloud.mdx"
             },
             {
               "id": "90d3fb39-a5e9-5815-8f97-6e31a8b74166",
@@ -5155,7 +4801,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/cloud/office365.mdx"
+              "content_path": "v11-3-0/integrations/cloud/office365.mdx"
             },
             {
               "id": "9019d01e-6065-52b4-b864-882e74a9200a",
@@ -5176,7 +4822,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/cloud/aws.mdx"
+              "content_path": "v11-3-0/integrations/cloud/aws.mdx"
             },
             {
               "id": "27dc5ac1-7078-522f-9587-5aed3c27e235",
@@ -5196,7 +4842,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/network/index.mdx"
+              "content_path": "v11-3-0/integrations/network/index.mdx"
             },
             {
               "id": "9e273888-e5af-557f-8c85-d54956b6f19b",
@@ -5217,7 +4863,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/network/netflow.mdx"
+              "content_path": "v11-3-0/integrations/network/netflow.mdx"
             },
             {
               "id": "b1d88dfe-94e3-558b-92e4-cba37122402b",
@@ -5237,7 +4883,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/hypervisors/index.mdx"
+              "content_path": "v11-3-0/integrations/hypervisors/index.mdx"
             },
             {
               "id": "0959c933-722d-573f-b201-3b7b8ace8a7b",
@@ -5258,7 +4904,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/hypervisors/vmware-esxi.mdx"
+              "content_path": "v11-3-0/integrations/hypervisors/vmware-esxi.mdx"
             },
             {
               "id": "a1bbd97c-c61e-5937-a5c0-562faff36ec0",
@@ -5278,7 +4924,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/configurations/index.mdx"
+              "content_path": "v11-3-0/integrations/configurations/index.mdx"
             },
             {
               "id": "4c674489-f716-5ed0-a99b-b204ee5da164",
@@ -5299,7 +4945,205 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/integrations/configurations/config-curl.mdx"
+              "content_path": "v11-3-0/integrations/configurations/config-curl.mdx"
+            }
+          ]
+        },
+        {
+          "id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+          "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
+          "name": "API Documentation",
+          "slug": "api-documentation",
+          "type": "product_documentation",
+          "icon": "code",
+          "order": 4,
+          "visible": true,
+          "pages": [
+            {
+              "id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "title": "API Documentation",
+              "slug": "api-documentation",
+              "type": "folder",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/index.mdx"
+            },
+            {
+              "id": "6f10e899-f877-5d21-a149-10915ca1507d",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Introduction",
+              "slug": "introduction",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/introduction.mdx"
+            },
+            {
+              "id": "09e97df9-f637-557b-9ba5-5dfdb73dedc5",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Authentication",
+              "slug": "authentication",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/authentication.mdx"
+            },
+            {
+              "id": "72416c9d-5d2d-532e-bfae-1d3df6d4b1db",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Alert Retrieval",
+              "slug": "alert-retrieval",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/alert-retrieval.mdx"
+            },
+            {
+              "id": "8c79a9d2-be89-5bc4-a8f6-77999f317cfe",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Alert Management",
+              "slug": "alert-management",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/alert-management.mdx"
+            },
+            {
+              "id": "a3c94ccf-ef4d-5cfb-a199-2cd45e1b9bed",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Log Explorer (Search \u0026 Query)",
+              "slug": "log-explorer-search-query",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/log-explorer-search-query.mdx"
+            },
+            {
+              "id": "b3d265ad-6652-59d9-8501-df6a93a5305e",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Incident Management",
+              "slug": "incident-management",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/incident-management.mdx"
+            },
+            {
+              "id": "17de4e1a-24d9-5d09-b371-b511d9826bc0",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Data Sources \u0026 Agents",
+              "slug": "data-sources-agents",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {
+                "generated_at": "2025-11-11T22:43:08.509388Z"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/data-sources-agents.mdx"
+            },
+            {
+              "id": "964b560f-5b56-4349-939f-33615f9fc6fb",
+              "section_id": "ce4b9b89-1131-515f-806c-2cfa51adf466",
+              "parent_id": "caa8b287-68a4-5f5f-9f93-2b52c916c3e0",
+              "title": "Reference Tables",
+              "slug": "reference-tables",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/api-documentation/api-documentation/reference-tables.mdx"
             }
           ]
         },
@@ -5329,7 +5173,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/index.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/index.mdx"
             },
             {
               "id": "8fddce2d-058b-420c-8232-fc7c7917b354",
@@ -5358,7 +5202,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/understanding-vulnerability-detection.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/understanding-vulnerability-detection.mdx"
             },
             {
               "id": "93a8c0dc-ac47-46c2-a53b-0e99dfc7df22",
@@ -5387,7 +5231,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/performing-network-scans.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/performing-network-scans.mdx"
             },
             {
               "id": "acf60ac0-ad5c-4963-8abe-ec5154b0548f",
@@ -5416,7 +5260,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/configuring-advanced-scans.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/configuring-advanced-scans.mdx"
             },
             {
               "id": "aa5ac933-f761-477e-8bae-f70b7fed57cd",
@@ -5445,7 +5289,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/detection-use-cases-templates.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/detection-use-cases-templates.mdx"
             },
             {
               "id": "483467d6-6a6d-4a35-b68e-a4182a425416",
@@ -5464,7 +5308,163 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/vulnerability-scanner/vulnerability-scanning/faq.mdx"
+              "content_path": "v11-3-0/vulnerability-scanner/vulnerability-scanning/faq.mdx"
+            }
+          ]
+        },
+        {
+          "id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+          "version_id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
+          "name": "SOAR",
+          "slug": "soar",
+          "type": "product_documentation",
+          "icon": "mi-campaign",
+          "order": 1,
+          "visible": true,
+          "pages": [
+            {
+              "id": "94019cc7-a2b0-4a7b-b944-68ae7b8068a6",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Introduction",
+              "slug": "introduction",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/introduction.mdx"
+            },
+            {
+              "id": "4674b58b-14d6-449c-afb7-d53d4e86a102",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Creating \u0026 Configuring Workflows",
+              "slug": "creating-configuring-workflows",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/creating-configuring-workflows.mdx"
+            },
+            {
+              "id": "1aaebedd-28a9-4984-987b-35d1aa61709e",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Built-in Action Templates",
+              "slug": "built-in-action-templates",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/built-in-action-templates.mdx"
+            },
+            {
+              "id": "21482a2e-6cba-4306-bc7a-9f8294c03ec6",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Built-in Playbooks",
+              "slug": "built-in-playbooks",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/built-in-playbooks.mdx"
+            },
+            {
+              "id": "73f3b9b1-2075-4d91-aaa4-4049c4311ef0",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Interactive Console \u0026 Execution",
+              "slug": "interactive-console-execution",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/interactive-console-execution.mdx"
+            },
+            {
+              "id": "d6177667-6ae3-4243-85e2-58512449d69f",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Custom Actions",
+              "slug": "custom-actions",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/custom-actions.mdx"
+            },
+            {
+              "id": "ef0a6450-e228-4b4a-9031-c85c15c15f6b",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Proxy Agents",
+              "slug": "proxy-agents",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/proxy-agents.mdx"
+            },
+            {
+              "id": "920d9efd-6214-4254-bc27-4a218372fa4d",
+              "section_id": "1ec2e79e-58d0-4886-be51-171e60f68e71",
+              "title": "Use Cases",
+              "slug": "use-cases",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v11-3-0/soar/use-cases.mdx"
             }
           ]
         },
@@ -5494,7 +5494,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/upgrade/upgrading-to-version-11.mdx"
+              "content_path": "v11-3-0/upgrade/upgrading-to-version-11.mdx"
             }
           ]
         },
@@ -5525,7 +5525,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/federation-service/federation-setup/index.mdx"
+              "content_path": "v11-3-0/federation-service/federation-setup/index.mdx"
             },
             {
               "id": "e0b3d463-822a-46f4-86fc-ea6d2f6c77c8",
@@ -5554,7 +5554,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/federation-service/federation-setup/installing-federation-service.mdx"
+              "content_path": "v11-3-0/federation-service/federation-setup/installing-federation-service.mdx"
             },
             {
               "id": "de88d9d6-f676-49ee-8168-4ca82a7f3b7c",
@@ -5583,7 +5583,7 @@
                 "show_update_date": true,
                 "show_tags": true
               },
-              "content_path": "v11-2-10/federation-service/federation-setup/connecting-instances-to-federation.mdx"
+              "content_path": "v11-3-0/federation-service/federation-setup/connecting-instances-to-federation.mdx"
             }
           ]
         }
