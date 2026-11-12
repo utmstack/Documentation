@@ -1,0 +1,298 @@
+An alerting rule is a YAML file that describes one threat: which events to look at, the condition they must meet, optionally how many similar events must have happened before, and how repeated alerts are handled. This page describes every key of the file and how the engine evaluates a rule.
+
+You write rules on **Configure > Alerting Rules**, either in the editor or as files you import. See **Alerting Rules**.
+
+## A simple rule
+
+This shipped rule raises an alert every time Windows reports that the Security event log was cleared:
+
+```yaml
+dataTypes:
+  - wineventlog
+name: "Windows audit log was cleared"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1070.001 - Indicator Removal: Clear Windows Event Logs"
+adversary: origin
+description: "Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion."
+references:
+  - "https://attack.mitre.org/techniques/T1070/001/"
+where: equals("log.eventCode", 1102)
+groupBy:
+  - adversary.ip
+  - target.user
+```
+
+## A rule that counts earlier events
+
+This shipped rule (its description and references shortened here) raises an alert when a user signs in to Microsoft Entra ID after at least 20 wrong-password failures for the same account in the hour before:
+
+```yaml
+dataTypes:
+  - o365-graph
+name: Graph Sign-In Succeeded After Repeated Password Failures
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1110.001 - Brute Force: Password Guessing"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/signin
+  - https://attack.mitre.org/techniques/T1110/001/
+description: |
+  A user signed in to Entra ID successfully after at least 20 sign-ins for the same account failed with a wrong password (error 50126) in the hour before.
+
+  Next Steps:
+  1. Compare the address of the success (origin ip) with the addresses of the failures.
+  2. Ask the user whether the sign-in was theirs.
+  3. If not, reset the password, revoke the user's sessions and review what the account did after the sign-in.
+where: |
+  equals("log.graphSource", "sign-ins") &&
+  equals("actionResult", "success") &&
+  exists("origin.user")
+correlation:
+  - within: 1h
+    count: 20
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.graphSource
+        operator: filter_term
+        value: sign-ins
+      - field: log.status.errorCode
+        operator: filter_term
+        value: '50126'
+deduplicateBy:
+  - adversary.user
+  - adversary.ip
+```
+
+## File rules
+
+- One rule per file, written as a plain YAML mapping (no leading `-`). Import also accepts the older UTMStack v11 form, a list with one rule.
+- Rules have no `id`. A rule is identified by its file name without the extension; switching a rule on or off for a tenant uses this name. If two files have the same name, the engine skips the second.
+- When you save or import a rule, UTMStack names the file after the rule's `name` and your tenant id.
+
+## Keys
+
+| Key | Required | Type | Description |
+|---|---|---|---|
+| `name` | Yes | Text | The alert name. De-duplication, grouping, tagging rules and the rule flood guard all work by this name, so keep it unique. |
+| `dataTypes` | Yes | List of text | The data types of the events the rule examines. The rule runs only on events of these types. |
+| `where` | Yes | Text | The condition. See **Condition Functions Reference**. |
+| `impact` | No | Map | `confidentiality`, `integrity` and `availability`, each from 0 to 3. Sets the severity. |
+| `category` | No | Text | Shipped rules use the MITRE ATT&CK tactic, for example `Credential Access`. |
+| `technique` | No | Text | Shipped rules use the form `T1110 - Brute Force`. |
+| `adversary` | No | Text | `origin` or `target`: which side of the event is the attacker. Any value other than `target` counts as `origin`. |
+| `description` | No | Text | What the rule detects. Shipped rules end it with "Next Steps" for the analyst. |
+| `references` | No | List of text | Web addresses with more information. |
+| `correlation` | No | List | History steps. See **Correlation steps**. |
+| `deduplicateBy` | No | List of text | Alert fields that identify a repeat to drop. |
+| `groupBy` | No | List of text | Alert fields that identify a repeat to attach to an earlier alert. |
+| `tenantId` | No | Text | Written by UTMStack into custom rules. A rule with a tenant id runs only on that tenant's events. |
+
+## Correlation steps
+
+A rule without `correlation` raises an alert for every event that meets `where`. A rule with `correlation` raises an alert only when, in addition, every step finds enough matching events among the events already stored.
+
+| Key | Description |
+|---|---|
+| `with` | The conditions a stored event must meet. Each has `field`, `operator` and `value`. |
+| `within` | The time window before now, as a duration: a number and a unit, for example `30s`, `15m`, `1h` or `24h`. Units are `h`, `m`, `s`, `ms`, `us` and `ns`; days are not accepted, so write `24h` or `168h`, not `1d`. Always set it. |
+| `count` | How many matching stored events are needed. The step matches when at least this many are found. |
+| `or` | Optional. A list of alternative steps, each with its own `with`, `within` and `count`. If the step's own count is not reached, the alternatives are tried; the step matches if any of them does. |
+
+### Operators
+
+| Operator | Editor label | Matches a stored event when |
+|---|---|---|
+| `filter_term` | equals (term) | The field's value, read as text, is exactly the value. Letter case counts. |
+| `must_not_term` | not equals (term) | The field's value is not exactly the value. |
+| `filter_match` | matches (text) | The value appears anywhere in the field's text. Letter case is ignored. |
+| `must_not_match` | not matches (text) | The value does not appear in the field's text. |
+
+Write field names as plain paths, for example `origin.ip`, `log.eventCode` or `dataSource`. Do not add `.keyword`: that names a field that does not exist, so the step never matches.
+
+### Copying values from the event
+
+A `value` written as `{{.field.path}}` is replaced by that field's value in the event being checked. For example, `value: '{{.origin.ip}}'` counts only stored events from the same address.
+
+- The placeholder must be the whole value; it is not replaced inside longer text.
+- If the event does not have the field, the search fails and counts as a rule error (see **Errors and the circuit breaker**). Check in `where` that the field exists, as the example above does with `exists("origin.user")`.
+
+### What is counted
+
+- Only stored events of the same tenant and the same data type as the event being checked.
+- Only events stored in the `within` window before now. Events are written in batches every 5 seconds or every 1,000 events, so the event being checked, and other events from the last few seconds, may not be counted yet.
+- Each search may take up to 30 seconds.
+
+### Several steps
+
+When a rule has several steps, every step must match. Each step counts on its own, so you can require, for example, many failures in the last hour and at least one success in the last five minutes:
+
+```yaml
+correlation:
+  - within: 1h
+    count: 5
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: failed
+  - within: 5m
+    count: 1
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: success
+```
+
+### Alternatives with `or`
+
+This shipped NetFlow step counts SMB connections (port 445) from one address and, if there are not enough, tries RDP connections (port 3389):
+
+```yaml
+correlation:
+  - with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.port
+        operator: filter_term
+        value: '445'
+    within: 10m
+    count: 10
+    or:
+      - with:
+          - field: origin.ip
+            operator: filter_term
+            value: '{{.origin.ip}}'
+          - field: target.port
+            operator: filter_term
+            value: '3389'
+        within: 10m
+        count: 10
+```
+
+<Note>
+
+Rules with `or` alternatives keep their own `within` and `count` only when you import them as files. See **Alerting Rules**.
+
+</Note>
+
+### The older key `afterEvents`
+
+`afterEvents` is the older name for `correlation`. The engine still reads it, and 167 shipped rules use it. The Alerting Rules page does not: it shows no correlation steps for these rules, and an imported file loses its `afterEvents` steps. Use `correlation` in every rule you write.
+
+## Severity
+
+The engine sets the alert severity from the highest of the three impact values:
+
+| Highest impact value | Alert severity |
+|---|---|
+| 3 | High |
+| 2 | Medium |
+| 1 | Low |
+| 0 | Low |
+
+If the alert's target host or address belongs to an asset with sensitivity values, each non-zero impact value is averaged with the asset's value and capped at it. The same rule can then give a lower severity for a less important host. See **Data Sources Page**.
+
+Use impact values from 0 to 3 only. Saving does not check the range, and a negative value stops the rule from raising alerts.
+
+## Adversary and target
+
+The side of the event named in `adversary` becomes the alert's adversary, and the other side becomes its target. With `adversary: origin`, the alert's `adversary.ip` is the event's `origin.ip` and the alert's `target.ip` is the event's `target.ip`.
+
+## De-duplication and grouping
+
+After the engine raises an alert, the alerts plugin decides whether to keep it.
+
+- **`deduplicateBy`**: if an alert of the same rule name with the same values for these fields was raised in the last 7 days, the new one is dropped completely, even if the earlier alert was closed.
+- **`groupBy`**: if a top-level alert of the same rule name with the same values exists, the new one is stored as its child (an echo). There is no time limit.
+
+The field names are read from the alert, not from the event. Use:
+
+| Fields | Meaning |
+|---|---|
+| `adversary.*` | The attacker side, for example `adversary.ip`, `adversary.user`, `adversary.host`. |
+| `target.*` | The other side, for example `target.ip`, `target.user`, `target.host`. |
+| `dataSource` | The source of the event. |
+| `lastEvent.*` | Any field of the event that raised the alert, for example `lastEvent.log.authenticationSource`. |
+
+`origin.*` does not exist on an alert. A field that has no value on the alert is skipped, and if none of the fields has a value, the alert is never de-duplicated or grouped. See **How Alerts Are Created**.
+
+## How the engine evaluates a rule
+
+1. For each event, the engine checks every rule that lists the event's data type, is switched on for the event's tenant and, for custom rules, belongs to that tenant.
+2. If `where` is false, nothing happens.
+3. If `where` is true and the rule has no correlation steps, the engine raises an alert.
+4. Otherwise it runs each correlation step. If every step matches, it raises an alert.
+5. The alert carries the event that triggered it and up to 10 matching stored events from each step.
+
+<Note>
+
+In UTMStack v12.0.2, most stored events cannot be attached to the alert, so an alert from a counting rule usually shows only the event that triggered it. To see the counted events, search Log Explorer for the step's conditions in its time window.
+
+</Note>
+
+## Errors and the circuit breaker
+
+These are rule errors:
+
+- a condition that cannot be compiled;
+- a history search that fails;
+- a `{{.field}}` placeholder whose field is missing from the event;
+- an invalid `within` value.
+
+After 5 errors, the engine stops running the rule and raises a high-severity alert named `Circuit Breaker: <rule name>`. The rule runs again after the engine next reloads the rule files, which it does within a minute of a rule file changing, for example when you save the fixed rule.
+
+## Converting a UTMStack v11 rule
+
+| v11 | UTMStack v12 |
+|---|---|
+| `- id: 1001` at the start of a list | No `id`; one plain mapping per file. Remove the leading `-` and the `id` line. |
+| `indexPattern: v11-log-*` | Not used. Correlation steps always count stored events of the same tenant and data type. Searching alerts from a rule is no longer possible. |
+| `within: now-12h` | `within: 12h` |
+| `origin.ip.keyword`, `actionResult.keyword` | `origin.ip`, `actionResult` |
+| `actionResult` value `failure` | `failed` |
+| `deduplicateBy: [origin.ip]` | `deduplicateBy: [adversary.ip]` (or `target.ip`, depending on `adversary`) |
+| `afterEvents` | `correlation` |
+| `isBetweenTime("@timestamp", ...)` | Unchanged, but `@timestamp` is in UTC, so give the hours in UTC. |
+
+For example, the UTMStack v11 brute-force example becomes:
+
+```yaml
+dataTypes: [linux]
+name: "Brute Force Success"
+description: "A successful login was preceded by multiple failures from the same source address."
+adversary: origin
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 0
+where: 'equals("actionResult", "success") && exists("origin.ip")'
+correlation:
+  - within: 12h
+    count: 5
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: failed
+deduplicateBy: [adversary.ip, adversary.user]
+```
+
+Before you use such a rule, check in Log Explorer that your source's events really carry `actionResult` and `origin.ip`, and add conditions that limit `where` to login events of that source.

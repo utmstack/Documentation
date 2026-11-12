@@ -1,0 +1,74 @@
+The SOC-AI assistant can build a dashboard for you from a plain-language description, and change an existing dashboard when you ask. It uses the same dashboard and widget functions you use on the screen, so the result is an ordinary dashboard you can open, edit and delete.
+
+## Before you start
+
+- SOC-AI must be configured with an AI provider. See **AI Providers**. On a registered instance, the ThreatWinds provider is set up automatically and needs no key.
+- In UTMStack v12.0.2, the AI buttons are shown only to users who can open the SOC-AI settings, that is the **Administrator** role. For other users, **Using AI** is greyed out with the hint "Enable SOC-AI and configure it to use this.", and **Edit with AI** is not shown.
+- Each request uses your SOC-AI allowance. See **AI Usage and Limits**.
+
+## Create a dashboard with AI
+
+<Steps>
+
+<Step title="Start a new dashboard">
+
+Open **Dashboards**, click **New**, then **From scratch**.
+
+</Step>
+
+<Step title="Choose Using AI">
+
+In the **New dashboard** form, click **Using AI**.
+
+</Step>
+
+<Step title="Describe the dashboard">
+
+Enter a **Name**, and in **What should this dashboard show?** describe what you want to see, for example "Failed logins by country, last 7 days". Both fields are required.
+
+</Step>
+
+<Step title="Create">
+
+Click **Create with AI**. The assistant opens in a **Dashboard builder** panel and works on the task: it creates the dashboard, then adds the widgets. When it has finished, the panel shows its answer.
+
+</Step>
+
+<Step title="Open the result">
+
+When the assistant has finished, go back to the **Dashboards** list (reload the page if the new dashboard is not listed yet) and open it. Check each widget.
+
+</Step>
+
+</Steps>
+
+To change the new dashboard afterwards, open it and use **Edit with AI** (below), or edit it by hand.
+
+## Change a dashboard with AI
+
+1. Open a dashboard you created or copied. **Edit with AI** is not offered on shipped dashboards.
+2. Click **Edit with AI**. The assistant opens in a **Dashboard editor** panel, showing "Editing:" followed by the dashboard name.
+3. Ask for the change, for example "replace the pie chart with a bar chart" or "add a widget with alerts by severity".
+
+The assistant is told which dashboard you are editing, and adds, changes or removes its widgets. When it finishes, the dashboard reloads to show the changes.
+
+**Edit with AI** is not offered while the dashboard is in edit mode. Click **Save** or **Discard** first.
+
+<Warning>
+
+The assistant saves its changes as it goes. **Discard** does not undo them, and there is no history to roll back to. If you want to experiment, copy the dashboard first (**New** > **From an existing one**) and ask the assistant to change the copy.
+
+</Warning>
+
+## Check what the assistant built
+
+The assistant can only build what the widget editor can build: counts of records from `logs` or `alerts`, broken down over time or by a field. It cannot add sums, averages or SQL.
+
+Look at each widget:
+
+- Click a chart element to open the records behind it in Log Explorer or Alerts, and check they are the records you meant.
+- A widget built by the assistant can be limited to one data type, a setting the widget editor does not show. If you open such a widget in the widget editor and save it, the data type and any conditions the editor does not show are removed. See **Dashboard Widgets**.
+
+## What the assistant can do with dashboards
+
+The assistant's dashboard tools can list, read, create, change and delete dashboards and widgets, and run a widget's query to check its result. See **SOC-AI Assistant** for what else it can do and how it is controlled.

@@ -1,0 +1,321 @@
+UTMStack v12 includes an MCP server. MCP (Model Context Protocol) is an open standard that lets AI tools, such as AI chat apps and coding assistants, call another system's functions. Through it, an AI client you trust can search your logs and alerts, work on alerts and incidents, build dashboards, manage response flows and more, with the same sign-in and permissions as the web console. The built-in SOC-AI assistant uses the same server.
+
+## At a glance
+
+| Item | Value |
+|---|---|
+| Address | `https://<your UTMStack address>/api/v1/mcp` |
+| Transport | MCP "Streamable HTTP" (POST, GET and DELETE on the same address), stateless |
+| Sign-in | `Authorization: Bearer <access token>` or `Utm-Api-Key: <key>` |
+| Health check | `GET https://<your UTMStack address>/api/v1/mcp/health` |
+| On by default | Yes |
+| Licence | Signing in with an API key needs the Enterprise licence. |
+
+The health check answers, for example:
+
+```json
+{"enabled": true, "tools_registered": 141, "server_version": "v1", "server_name": "<your server name>"}
+```
+
+`tools_registered` is the number of tools your server offers (141 in UTMStack v12.0.2). `server_name` is the server name chosen at installation. The **Overview** page shows the same number in the **System health** card, as **SOC-AI engine**.
+
+## Sign in
+
+Every request needs one of these headers. Requests without a valid one are refused.
+
+| Method | Header | Notes |
+|---|---|---|
+| Access token | `Authorization: Bearer <token>` | Get it from `POST /api/v1/auth/login`. It expires after one hour, so it suits short tests. |
+| API key | `Utm-Api-Key: <key>` | Create it in **Configure > Settings > API Keys** (see **API Keys**). Needs the Enterprise licence. The practical choice for an AI client that stays connected. |
+
+The AI client acts as the user who owns the token or the key, with that user's permissions. Create a dedicated user with only the permissions the AI client needs, and give it its own key.
+
+On a multi-tenant installation:
+
+- Use the tenant's own address (its domain) in the MCP address. An API key works only on its owner's tenant domain.
+- The instance operator, signed in with an access token, can add `X-Tenant-Id: <tenant id>` to act inside a tenant that has granted support access. An API key cannot switch tenant.
+
+## Connect an AI client
+
+UTMStack does not ship a guide for any particular AI client. Any client that supports remote MCP servers over Streamable HTTP with a custom header can connect:
+
+<Steps>
+  <Step title="Create an API key">
+
+    In **Configure > Settings > API Keys**, create a key for the user the AI client will act as. See **Authentication and API Keys**.
+
+  </Step>
+  <Step title="Check that the server answers">
+
+    ```bash
+    curl -H "Utm-Api-Key: <key>" https://<your UTMStack address>/api/v1/mcp/health
+    ```
+
+  </Step>
+  <Step title="Add the server to your AI client">
+
+    Add a remote MCP server of type Streamable HTTP with the address `https://<your UTMStack address>/api/v1/mcp` and the header `Utm-Api-Key: <key>`. There is no local (stdio) bridge.
+
+  </Step>
+  <Step title="Ask a read-only question first">
+
+    For example, ask how many alerts are open. Check the call in **Configure > Settings > App Audit Logs**.
+
+  </Step>
+</Steps>
+
+<Warning>
+
+An AI client with write permissions changes UTMStack for real: it can close alerts, change correlation rules, or create and switch on response flows. Give its user only the permissions it needs, and review what it does.
+
+</Warning>
+
+## Permissions and audit
+
+- Every tool checks the same permission as the matching page or API call (for example `alerts.write` to change an alert). Some tools also need the instance operator role or a licence. A refused call answers "permission denied: …".
+- Every tool call, allowed or refused, is written to the audit log with the event type `MCP_TOOL_CALL` (**Configure > Settings > App Audit Logs**).
+- Tools that return lists give 50 items by default and at most 500.
+
+## Tools
+
+These are the tools registered in UTMStack v12.0.2. "Needs" is the permission the signed-in user must have.
+
+### Alerts (17)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `alerts.update_status` | Update alert status | `alerts.write` |
+| `alerts.update_notes` | Replace alert notes | `alerts.write` |
+| `alerts.update_tags` | Set tags on alerts | `alerts.write` |
+| `alerts.convert_to_incident` | Attach alerts to an incident | `alerts.write` |
+| `alerts.count_open` | Count open alerts | `alerts.read` |
+| `alert_tags.create` | Create alert tag | `alerts.write` |
+| `alert_tags.update` | Update alert tag | `alerts.write` |
+| `alert_tags.list` | List alert tags | `alerts.read` |
+| `alert_tags.get` | Get alert tag by ID | `alerts.read` |
+| `alert_tags.delete` | Delete alert tag | `alerts.write` |
+| `alert_tag_rules.create` | Create alert tag rule | `alerts.write` |
+| `alert_tag_rules.update` | Update alert tag rule | `alerts.write` |
+| `alert_tag_rules.list` | List alert tag rules | `alerts.read` |
+| `alert_tag_rules.get` | Get alert tag rule by ID | `alerts.read` |
+| `alert_tag_rules.delete` | Delete alert tag rule | `alerts.write` |
+| `alerts.search_adversary` | Search alerts grouped by adversary | `alerts.read` |
+| `alerts.score` | Score an alert (deterministic 4-phase triage) | `alerts.read` |
+
+### Incidents (16)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `incidents.create` | Create incident | `incidents.write` |
+| `incidents.add_alerts` | Attach alerts to an existing incident | `incidents.write` |
+| `incidents.change_status` | Change incident status / metadata | `incidents.write` |
+| `incidents.list` | List incidents | `incidents.read` |
+| `incidents.get` | Get incident | `incidents.read` |
+| `incidents.assignees` | List the assignees incidents are currently handed to | `incidents.read` |
+| `incident_alerts.create` | Add alert row to incident | `incidents.write` |
+| `incident_alerts.update_status` | Update incident-alert status | `incidents.write` |
+| `incident_alerts.update` | Update incident-alert row | `incidents.write` |
+| `incident_alerts.list` | List incident-alert links | `incidents.read` |
+| `incident_alerts.delete` | Remove alert from incident | `incidents.write` |
+| `incident_notes.create` | Add note to incident | `incidents.write` |
+| `incident_notes.list` | List incident notes | `incidents.read` |
+| `incident_history.list` | List incident history | `incidents.read` |
+| `incident_history.count` | Count history rows | `incidents.read` |
+| `incident_history.get` | Get incident history row | `incidents.read` |
+
+### Log and alert data (7)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `store.search` | Search a dataset | `loganalyzer.read` |
+| `store.count` | Count matching docs | `loganalyzer.read` |
+| `store.property_values` | Top values for a field | `loganalyzer.read` |
+| `store.search_sql` | SQL query | `loganalyzer.read` |
+| `store.search_csv` | Search, project to columns | `loganalyzer.read` |
+| `store.datasets` | List datasets | `loganalyzer.read` |
+| `store.dataset.fields` | Dataset fields | `loganalyzer.read` |
+
+### Log Explorer (7)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `loganalyzer.top_values` | Top-N values for a field | `loganalyzer.read` |
+| `loganalyzer.chart_view` | Chart view aggregation | `loganalyzer.read` |
+| `loganalyzer.query.create` | Save analyzer query | `loganalyzer.write` |
+| `loganalyzer.query.update` | Update analyzer query | `loganalyzer.write` |
+| `loganalyzer.query.list` | List saved queries | `loganalyzer.read` |
+| `loganalyzer.query.get` | Get saved query | `loganalyzer.read` |
+| `loganalyzer.query.delete` | Delete saved query | `loganalyzer.write` |
+
+### Automated response (SOAR) (14)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `soar.rule.create` | Create SOAR rule | `soar.write` |
+| `soar.rule.update` | Update SOAR rule | `soar.write` |
+| `soar.rule.get` | Get SOAR rule | `soar.read` |
+| `soar.rule.delete` | Delete SOAR rule | `soar.write` |
+| `soar.rule.set_enabled` | Enable/disable SOAR rule | `soar.write` |
+| `soar.rule.list` | List SOAR rules | `soar.read` |
+| `soar.node_types` | List SOAR flow node types | `soar.read` |
+| `soar.execution.list` | List rule executions | `soar.read` |
+| `soar.variable.create` | Create SOAR variable | `soar.write` |
+| `soar.variable.update` | Update SOAR variable | `soar.write` |
+| `soar.variable.get` | Get SOAR variable | `soar.read` |
+| `soar.variable.list` | List SOAR variables | `soar.read` |
+| `soar.variable.delete` | Delete SOAR variable | `soar.write` |
+| `soar.agent.list_by_platform` | List agents on a platform | `soar.read` |
+
+### Dashboards (11)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `dashboards.create` | Create dashboard | `dashboards.write` |
+| `dashboards.update` | Update dashboard | `dashboards.write` |
+| `dashboards.list` | List dashboards | `dashboards.read` |
+| `dashboards.get` | Get dashboard | `dashboards.read` |
+| `dashboards.delete` | Delete dashboard | `dashboards.write` |
+| `visualizations.create` | Create visualization | `dashboards.write` |
+| `visualizations.update` | Update visualization | `dashboards.write` |
+| `visualizations.list` | List visualizations | `dashboards.read` |
+| `visualizations.get` | Get visualization | `dashboards.read` |
+| `visualizations.query` | Answer a visualization spec | `dashboards.read` |
+| `visualizations.delete` | Delete visualization | `dashboards.write` |
+
+### Compliance (18)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `compliance.framework.list` | List compliance frameworks | `compliance.read` |
+| `compliance.framework.get` | Get framework | `compliance.read` |
+| `compliance.framework.create` | Create custom framework | `compliance.write` |
+| `compliance.framework.update` | Update framework (user overlay) | `compliance.write` |
+| `compliance.framework.delete` | Delete framework | `compliance.write` |
+| `compliance.control.list` | List controls | `compliance.read` |
+| `compliance.control.get` | Get control | `compliance.read` |
+| `compliance.control.create` | Create control | `compliance.write` |
+| `compliance.control.update` | Update control | `compliance.write` |
+| `compliance.control.delete` | Delete control | `compliance.write` |
+| `compliance.report.get` | Get a framework's standing report | `compliance.read` |
+| `compliance.report.list` | List the tenant's standing reports | `compliance.read` |
+| `compliance.report.evaluate` | Run a framework evaluation | `compliance.write` |
+| `compliance.schedule.create` | Schedule recurring report | `compliance.write` |
+| `compliance.schedule.update` | Update report schedule | `compliance.write` |
+| `compliance.schedule.list_by_user` | List my report schedules | `compliance.read` |
+| `compliance.schedule.get` | Get schedule | `compliance.read` |
+| `compliance.schedule.delete` | Delete schedule | `compliance.write` |
+
+### Detection rules and pipelines (17)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `regex_pattern.list` | List regex patterns | `eventprocessing.read` |
+| `regex_pattern.get` | Get regex pattern | `eventprocessing.read` |
+| `correlation_rule.create` | Create correlation rule | `eventprocessing.write` |
+| `correlation_rule.update` | Update correlation rule | `eventprocessing.write` |
+| `correlation_rule.list` | List correlation rules | `eventprocessing.read` |
+| `correlation_rule.get` | Get correlation rule | `eventprocessing.read` |
+| `correlation_rule.delete` | Delete correlation rule | `eventprocessing.write` |
+| `correlation_rule.set_active` | Activate or deactivate correlation rule | `eventprocessing.write` |
+| `correlation_rule.search_property_values` | Search distinct property values | `eventprocessing.read` |
+| `pipeline.create` | Create pipeline | `eventprocessing.write` |
+| `pipeline.update` | Update pipeline | `eventprocessing.write` |
+| `pipeline.list` | List pipelines | `eventprocessing.read` |
+| `pipeline.get` | Get pipeline | `eventprocessing.read` |
+| `pipeline.delete` | Delete pipeline | `eventprocessing.write` |
+| `pipeline.set_active` | Activate or deactivate pipeline | `eventprocessing.write` |
+| `ingestion_stats.totals` | Ingestion totals | `eventprocessing.read` |
+| `ingestion_stats.timeline` | Ingestion timeline | `eventprocessing.read` |
+
+### Data sources (5)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `datasources.list` | List datasources | `datasources.read` |
+| `datasources.get` | Get datasource | `datasources.read` |
+| `datasources.update_labels` | Set datasource labels | `datasources.write` |
+| `datasources.delete` | Delete datasource | `datasources.write` |
+| `datasources.count` | Number of configured datasources | `datasources.read` |
+
+### Settings, audit and system (13)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `audit.list` | List audit log entries | `audit.read` |
+| `audit.get` | Get audit entry | `audit.read` |
+| `adaudit.users.list` | List Active Directory users | `adaudit.read` |
+| `config.list` | List configs | `config.read` |
+| `config.get` | Get config by key | `config.read` |
+| `config.update` | Update config value | `config.write` |
+| `config.check_mail` | Test SMTP configuration | `config.write` |
+| `branding.get` | Get branding (admin view) | `config.read` |
+| `branding.update` | Update branding (MSSP) | `config.write`, multi-tenant licence |
+| `branding.get_public` | Get public branding (login-page view) | Any signed-in user |
+| `billing.version` | Server version info | Any signed-in user |
+| `billing.license` | Active license | Any signed-in user |
+| `socai.analyze_alert` | Forward alert to SOC AI for analysis | To be confirmed |
+
+### Changes across tenants (instance operator only) (16)
+
+| Tool | What it does | Needs |
+|---|---|---|
+| `platform.pipeline.bulk_create` | Bulk create pipeline across tenants | `eventprocessing.write`, instance operator |
+| `platform.pipeline.bulk_update` | Bulk update pipeline across tenants | `eventprocessing.write`, instance operator |
+| `platform.pipeline.bulk_delete` | Bulk delete pipeline across tenants | `eventprocessing.write`, instance operator |
+| `platform.pipeline.bulk_set_active` | Bulk activate/deactivate pipeline across tenants | `eventprocessing.write`, instance operator |
+| `platform.correlation_rule.bulk_create` | Bulk create correlation rule across tenants | `eventprocessing.write`, instance operator |
+| `platform.correlation_rule.bulk_update` | Bulk update correlation rule across tenants | `eventprocessing.write`, instance operator |
+| `platform.correlation_rule.bulk_delete` | Bulk delete correlation rule across tenants | `eventprocessing.write`, instance operator |
+| `platform.correlation_rule.bulk_set_active` | Bulk activate/deactivate correlation rule across tenants | `eventprocessing.write`, instance operator |
+| `platform.compliance.framework.bulk_create` | Bulk create compliance framework across tenants | `compliance.write`, instance operator |
+| `platform.compliance.framework.bulk_update` | Bulk update compliance framework across tenants | `compliance.write`, instance operator |
+| `platform.compliance.framework.bulk_delete` | Bulk delete compliance framework across tenants | `compliance.write`, instance operator |
+| `platform.compliance.control.bulk_create` | Bulk create compliance control across tenants | `compliance.write`, instance operator |
+| `platform.compliance.control.bulk_update` | Bulk update compliance control across tenants | `compliance.write`, instance operator |
+| `platform.compliance.control.bulk_delete` | Bulk delete compliance control across tenants | `compliance.write`, instance operator |
+| `platform.config.smtp.bulk_update` | Bulk update SMTP config across tenants | `config.write`, instance operator |
+| `platform.branding.bulk_update` | Bulk update branding across tenants | `config.write`, instance operator |
+
+
+In the tools that change many tenants at once, list the target tenants by their ids. The option to target all tenants does not work in UTMStack v12.0.2.
+
+### What the MCP server does not do
+
+- Start a response flow by hand. Use **Trigger flow** in the web console or the **SOAR API**.
+- Manage integrations, users, roles, API keys, identity providers, notifications or tenants. These tools are not offered in UTMStack v12.0.2.
+
+## Resources
+
+Resources are read-only documents an AI client can read for background.
+
+| Resource | Name |
+|---|---|
+| `mcp://utmstack/catalog/integrations` | Integrations catalog |
+| `mcp://utmstack/catalog/frameworks` | Compliance frameworks catalog |
+| `mcp://utmstack/catalog/alert-tags` | Alert tag catalog |
+| `mcp://utmstack/docs/filter-operators` | Filter operator reference |
+| `mcp://utmstack/docs/event-types` | Audit event types |
+| `mcp://utmstack/docs/soar-flow-guide` | Response flow building guide |
+| `mcp://utmstack/docs/catalog` | Full MCP tool catalog |
+
+<Note>
+
+The "Full MCP tool catalog" resource also lists tools and prompts that UTMStack v12.0.2 does not offer. The tool list on this page and the `tools_registered` count are what your server actually has.
+
+</Note>
+
+## Prompts
+
+| Prompt | Argument | What it does |
+|---|---|---|
+| `soc.draft-soar-rule` ("Draft SOAR rule") | `goal`: the goal in plain language, for example "isolate hosts on Mimikatz detections" | Guides the model through building a response flow: list existing flows to start from, list variables, propose trigger conditions, then create the flow when you confirm. |
+
+## Turning it off
+
+The MCP server is on by default, and the web console has no switch for it. The built-in SOC-AI assistant works through it, so AI features need it.
+
+## Related pages
+
+- **SOC-AI Assistant**
+- **Authentication and API Keys**
+- **Building a Flow**

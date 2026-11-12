@@ -1,0 +1,115 @@
+UTMStack v12 checks your events against threat intelligence lists from ThreatWinds and raises an alert when an event involves a known malicious IP address, domain or host name. This page explains what is checked, when a match becomes an alert, how to switch matching and sharing on or off, and exactly what your server sends to ThreatWinds.
+
+ThreatWinds is the threat intelligence service that UTMStack uses for its feeds, its **Threat Intelligence** screens and its default AI provider.
+
+## How matching works
+
+The event processor (the part of UTMStack that parses events and runs rules) downloads three lists from ThreatWinds: malicious **IP addresses**, **domains** and **host names**. Each list comes in three levels, Level 1 to Level 3; the higher the level, the more serious the indicator. If a value is on several levels, the highest level counts.
+
+The lists are kept on your server and checked there. Your events are not sent anywhere for this check.
+
+- The event processor downloads the lists when it starts, and again when they are 12 hours old or empty. It checks this every minute.
+- Before downloading, it tests the connection for 10 seconds. If ThreatWinds cannot be reached, it skips that update and tries again later.
+
+### What is checked
+
+Every event, from every data source and every tenant, is checked after it has been parsed. UTMStack looks at six fields of the standard event:
+
+| Side | Fields |
+|---|---|
+| Origin (where the activity came from) | `origin.ip`, `origin.domain`, `origin.host` |
+| Target (what it was aimed at) | `target.ip`, `target.domain`, `target.host` |
+
+A data source only takes part if its pipeline fills in these fields.
+
+These values are never checked:
+
+- Loopback, private and unspecified IP addresses (for example `127.0.0.1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` and IPv6 unique-local addresses).
+- The name `localhost` and names ending in `.local`.
+
+A value matches only when it is exactly the same text as the list entry. Letter case counts, and a sub-domain does not match a listed parent domain: if `example.org` is listed, `www.example.org` does not match.
+
+### When a match is ignored
+
+UTMStack skips an event whose outcome field `actionResult` is `denied`, `blocked` or `failed`, for example a firewall that refused the connection. Every other event is checked, including events that have no outcome.
+
+## The alerts it raises
+
+Each matching value raises its own alert, so one event can raise up to six alerts.
+
+| Field | Value |
+|---|---|
+| Alert name | `Known Malicious IP Detected`, `Known Malicious Domain Detected` or `Known Malicious Host Detected` |
+| Category | `Threat Intelligence` |
+| Technique | `Indeterminate` |
+| Description | `The <IP, Domain or Host> '<value>' was found in ThreatWinds intelligence feeds (Level <n>).` |
+| Severity | Level 1: Low. Level 2: Medium. Level 3: High. |
+| Adversary | The side of the event that matched. |
+| Target | The other side of the event. |
+| Reference | https://threatwinds.com |
+
+Repeats are dropped for 7 days: a new alert is not stored when an alert with the same name, the same adversary and target addresses, host names and domains, and the same data source was raised in the last 7 days. These alerts are not grouped into echoes.
+
+Indicator alerts appear on **Threat Management > Alerts** like any other alert. Tagging rules apply to them, so you can close a known false positive with a tagging rule on, for example, **Alert name** and **Adversary IP**. See **Tagging rules and false positives**.
+
+Good to know:
+
+- Indicator matching is not a correlation rule. It does not appear on **Configure > Alerting Rules**, and the rule flood guard does not switch it off.
+- The **Test** function for rules does not run threat intelligence, so it never shows indicator alerts.
+
+## Turn matching and sharing on or off
+
+Go to **Configure > Settings > ThreatWinds Integration**. The page is shown only to the instance operator (an administrator of the default tenant). It has two switches:
+
+| Switch | What it does | New installations |
+|---|---|---|
+| **Enable feeds** | "When on, events are checked against ThreatWinds intelligence feeds." When you switch it off, the event processor empties its lists within about a minute and checks nothing. | On |
+| **Contribute incidents** | "When on, incidents from this instance are sent to ThreatWinds." See **What is sent to ThreatWinds** below. | On |
+
+- Both switches apply to the whole server, for every tenant.
+- To change them you need the Administrator role in the default tenant.
+- Upgrades keep the values you set.
+
+## What is sent to ThreatWinds
+
+| Feature | What leaves your server | How to stop it |
+|---|---|---|
+| Downloading the lists (matching) | A download request for each list. No event data and no credentials are sent. | Switch off **Enable feeds**. |
+| **Contribute incidents** | Indicators taken from your incidents (see below). | Switch off **Contribute incidents**. |
+| **Threat Intelligence > Indicators** | When someone opens the page: up to 1,000 of the most frequent IP addresses, host names, domains, file hashes, URLs and email addresses found in the tenant's alerts (both sides, internal values included), sent as a search so that ThreatWinds can say which it knows. Also any search or lookup you type. | Do not open the page. |
+| **Threat Intelligence > Triage** | The indicators you paste. | Do not use it. |
+| **Threat Intelligence > AI Analyst** | Your questions and the searches the agent runs. | Do not use it. |
+| **Threat Intelligence > Report** | The indicator and everything you enter with it. It is published to the shared ThreatWinds database and also queues a scan of the target. | Do not use it. |
+| SOC-AI with the ThreatWinds provider | The alerts and questions you send to SOC-AI. | Choose another provider on **Configure > Settings > SOC-AI**. See **AI providers**. |
+
+Everything except the list download goes through the UTMStack update server (`cm.utmstack.com`), which forwards it to ThreatWinds with your server's registration.
+
+### What Contribute incidents sends
+
+While **Contribute incidents** is on, every 5 minutes UTMStack:
+
+1. Reads every incident with the status **Open** or **In review**, in every tenant on the server.
+2. Reads the alerts linked to each incident, and the events stored on those alerts.
+3. From the origin and target side of each event, takes the values that ThreatWinds can store as indicators, such as IP addresses, ports, host names, domains, URLs, file names and paths, file hashes, email addresses and subjects, user names, MAC addresses, processes and certificate or SSH fingerprints.
+4. Sends them to ThreatWinds together with the links between them.
+
+<Warning>
+
+UTMStack does not remove private (internal) IP addresses, internal host names or user names before sending. If your policies do not allow sharing these values, switch off **Contribute incidents** before you create incidents.
+
+</Warning>
+
+## Network access and registration
+
+- To download the lists, the server needs outbound HTTPS (port 443) to `apis.threatwinds.com`.
+- The **Threat Intelligence** screens and **Contribute incidents** need outbound HTTPS to `cm.utmstack.com`, and a server that registered itself there during installation. Without the registration, the screens show **Threat Intelligence isn't configured**.
+- On a server without internet access no lists are downloaded, so no indicator alerts are raised.
+
+See **Network ports and firewall**.
+
+## Who can use threat intelligence
+
+| What you want to do | Permission or role | Built-in roles |
+|---|---|---|
+| Use the **Threat Intelligence** screens | `threatintel.read` | Administrator, Analyst, Viewer |
+| See and change the **ThreatWinds Integration** switches | Administrator in the default tenant | Administrator (instance operator) |

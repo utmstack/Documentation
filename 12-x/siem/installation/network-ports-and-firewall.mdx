@@ -1,0 +1,223 @@
+This page lists the ports the UTMStack v12 server uses, the ports you must block, and the connections the server makes to the internet. It also gives firewall examples. Ports that devices need on the UTMStack Forwarder are listed in **Ports and network requirements**.
+
+<Warning>
+
+**Security first.** Open only the ports you need, and allow each one only from the networks that use it.
+
+</Warning>
+
+## Inbound ports on the UTMStack server
+
+| Port | Used by | Allow from |
+|---|---|---|
+| 22/TCP | SSH, for server administration. The installer does not open or change it. | Administrator workstations only |
+| 80/TCP | Redirects web browsers to HTTPS (443). | Analyst and administrator workstations |
+| 443/TCP | The web interface, the API, agents, the UTMStack Forwarder, collectors and agent downloads. | Analyst and administrator workstations, API clients, and every network where agents, the Forwarder or collectors run |
+| 9090/TCP | Cockpit, the web console for server management that the installer adds. | Administrator workstations only |
+| 10001/TCP | Internal: lets nginx on the server reach the web container. | **Nobody.** Block it from outside the server. |
+
+<Warning>
+
+**Block port 10001 from outside the server.** Docker publishes this port on every network address of the server. It serves the web container over plain HTTP, without encryption, and is meant only for nginx on the same server. Port 443 is the only way users, agents and collectors should reach UTMStack.
+
+</Warning>
+
+### Port 443 carries everything
+
+In UTMStack v12, agents and collectors connect to the server on **443/TCP only**: registration, log streams, heartbeats, commands and downloads all use it. The web interface and the API use the same port.
+
+### Ports that UTMStack v12 no longer uses
+
+If you are coming from UTMStack v11, you can remove firewall rules for these ports on the v12 server:
+
+| Port | Used in v11 for |
+|---|---|
+| 9000/TCP, 9001/TCP, 50051/TCP | Agent communication. v12 agents use 443. |
+| 514/UDP, 514/TCP, 6514/TCP | Syslog. In v12 devices send syslog to the UTMStack Forwarder. |
+| 2055/UDP, 4739/UDP | NetFlow and IPFIX. In v12 flows go to the UTMStack Forwarder. |
+| 9200/TCP, 9300/TCP | Elasticsearch and OpenSearch. v12 stores data in ClickHouse, which is not reachable from outside. |
+| 2377/TCP, 7946/TCP and UDP, 4789/UDP | v11 multi-node deployments. v12 runs on one server. |
+| 50052/TCP | Federation communication in v11. |
+
+### Docker Swarm
+
+The installer starts Docker Swarm on the server. Docker Swarm listens on its own cluster ports (2377/TCP, 7946/TCP and UDP, 4789/UDP). UTMStack v12 uses a single server, so no other machine needs to reach these ports. Do not allow them from outside.
+
+## Ports for data sources
+
+- **Agents (Windows, Linux, macOS), the UTMStack Forwarder and collectors** connect to the UTMStack server on 443/TCP.
+- **Network devices** (firewalls, switches, hypervisors and others) send syslog or NetFlow to the UTMStack Forwarder, not to the UTMStack server. Open the Forwarder's ports on the machine where it runs. See **Ports and network requirements** and **UTMStack Forwarder**.
+- **Cloud integrations** (for example AWS, Microsoft Azure, Google Cloud, Microsoft 365, CrowdStrike and Sophos Central) need no inbound port. The UTMStack server connects out to them over HTTPS.
+
+## Outbound connections from the UTMStack server
+
+| Destination | Port | Why |
+|---|---|---|
+| `cm.utmstack.com` | 443/TCP | Registration, updates, licence, heartbeat and usage reports. Also needed during installation. |
+| `github.com` | 443/TCP | Download of the installer for each update. |
+| `ghcr.io` and Docker Hub | 443/TCP | Download of the UTMStack container images and of the ClickHouse, NATS and Valkey images. |
+| `download.docker.com` and your distribution's package mirrors | 443/TCP or 80/TCP, depending on your mirrors | Installation of Docker, nginx, Cockpit and other packages. |
+| `8.8.8.8`, `1.1.1.1`, `google.com` | 443/TCP | The installer's internet check. If none answers, it switches to air-gapped mode. |
+| Your mail server | The SMTP port you configure | Alert, incident and account emails. |
+| Cloud services you connect | 443/TCP | Cloud integrations. See **Ports and network requirements**. |
+| ThreatWinds and AI services | 443/TCP | Threat intelligence feeds and SOC-AI, if you use them. |
+
+## Firewall examples
+
+### Ubuntu and Debian with ufw
+
+nginx and Cockpit run directly on the server, so a host firewall such as ufw controls ports 22, 80, 443 and 9090. Replace the example addresses with your own networks.
+
+```bash
+# Default policies
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# SSH from the administrator workstation only
+sudo ufw allow from 192.168.1.100 to any port 22 proto tcp
+
+# Web interface from the SOC network
+sudo ufw allow from 192.168.1.0/24 to any port 80 proto tcp
+sudo ufw allow from 192.168.1.0/24 to any port 443 proto tcp
+
+# Agents, the UTMStack Forwarder and collectors
+sudo ufw allow from 10.0.0.0/8 to any port 443 proto tcp
+
+# Cockpit from the administrator workstation only
+sudo ufw allow from 192.168.1.100 to any port 9090 proto tcp
+
+# Turn the firewall on and check the rules
+sudo ufw enable
+sudo ufw status verbose
+```
+
+<Warning>
+
+Add the SSH rule before you run `ufw enable`, or you may lose your SSH connection.
+
+</Warning>
+
+<Note>
+
+Port 10001 is published by Docker, and Docker writes its own firewall rules for published ports. A host firewall such as ufw does not reliably block it. Block port 10001 on the network firewall or cloud security group in front of the server, and test it from another machine (see **Test the ports** below).
+
+</Note>
+
+On Red Hat Enterprise Linux, the installer stops and disables firewalld. Filter traffic on the network firewall or cloud security group in front of the server.
+
+### AWS security group
+
+```json
+{
+  "SecurityGroupIngress": [
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 443,
+      "ToPort": 443,
+      "CidrIp": "10.0.0.0/8",
+      "Description": "Web interface, API, agents and collectors"
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 80,
+      "ToPort": 80,
+      "CidrIp": "10.0.0.0/8",
+      "Description": "Redirect to HTTPS"
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 22,
+      "ToPort": 22,
+      "CidrIp": "ADMIN_IP/32",
+      "Description": "SSH from the administrator"
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 9090,
+      "ToPort": 9090,
+      "CidrIp": "ADMIN_IP/32",
+      "Description": "Cockpit from the administrator"
+    }
+  ]
+}
+```
+
+A security group denies everything that no rule allows, so port 10001 stays closed as long as you do not add a rule for it.
+
+### Azure network security group
+
+```bash
+az network nsg rule create \
+  --resource-group UTMStack-RG \
+  --nsg-name UTMStack-NSG \
+  --name Allow-HTTPS \
+  --priority 100 \
+  --source-address-prefixes "ANALYST_AND_AGENT_NETWORKS" \
+  --destination-port-ranges 443 \
+  --protocol Tcp \
+  --access Allow
+```
+
+Create similar rules for 80, 22 and 9090 with the sources from the table above. Do not create a rule for 10001.
+
+## Test the ports
+
+From another machine:
+
+```bash
+# Port 443 should be open
+nc -zv UTMSTACK_IP 443
+
+# The health check should answer {"status":"ok"}
+curl -k https://UTMSTACK_IP/api/ping
+
+# Port 10001 should NOT be reachable from outside
+nc -zv -w 5 UTMSTACK_IP 10001
+```
+
+On the server, list the ports that are listening:
+
+```bash
+sudo ss -tlnp
+```
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+  <AccordionTab title="The web interface does not open" icon="hi-window-solid">
+
+    ```bash
+    # Is nginx listening on 443?
+    sudo ss -tlnp | grep ':443'
+
+    # Is nginx running?
+    systemctl status nginx
+
+    # Check the firewall rules
+    sudo ufw status numbered
+
+    # Test from the server itself
+    curl -k https://localhost/api/ping
+    ```
+
+  </AccordionTab>
+
+  <AccordionTab title="Agents cannot connect" icon="fa fa-plug">
+
+    Agents need only port 443 to the server. From the machine where the agent runs, check that the server answers:
+
+    ```bash
+    curl -k https://UTMSTACK_IP/api/ping
+    ```
+
+    If this fails, open 443/TCP between that machine and the server. If you still allow 9000, 9001 or 50051 for agents, those rules are left over from v11 and are not used.
+
+  </AccordionTab>
+
+  <AccordionTab title="No logs from network devices" icon="hi-documentDuplicate-solid">
+
+    In UTMStack v12 network devices send syslog and NetFlow to the UTMStack Forwarder, not to the UTMStack server. Check that the device sends to the Forwarder's address and port, and that the Forwarder can reach the server on 443. See **UTMStack Forwarder**.
+
+  </AccordionTab>
+
+</Accordion>

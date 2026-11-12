@@ -1,0 +1,58 @@
+The connection key is the secret that agents present when they register with your UTMStack v12 server. The install commands shown in **Integrations** include it automatically. This page explains how to view, copy and regenerate it.
+
+## Who can use this page
+
+You need the **Administrator** role. On a multi-tenant licence each tenant has its own connection key, and agents installed with it register in that tenant.
+
+## Where the key is used
+
+The key is part of the install commands that UTMStack shows in **Configure > Integrations** for:
+
+- The Windows, Linux and macOS agents.
+- The UTMStack Forwarder.
+- The IBM AS/400 collector.
+- The UTMStack self-monitoring collector.
+
+You do not usually need to copy the key by hand: the install command on the integration page already contains it.
+
+The key is not used to sign in to the web interface or the API. For the API, use an API key (see **API Keys**).
+
+## View or copy the key
+
+1. Go to **Configure > Settings > Connection Key**.
+2. Check **Status**. **Active** means agents can register with the key. **Agent-manager unavailable** means UTMStack could not reach the service that manages agents; click **Retry** after a moment.
+3. Click **Show key** to see it, or **Copy** to copy it.
+
+<Warning>
+
+Treat the key as a password. Anyone who has it can register a machine with your server. Do not store it in source control; keep it in a secret manager and pass it to your installation scripts from there.
+
+</Warning>
+
+## Regenerate the key
+
+Regenerate the key if it may have leaked, or as part of a regular rotation (for example every 90 days).
+
+<Steps>
+
+<Step title="Open the page">
+
+Go to **Configure > Settings > Connection Key**.
+
+</Step>
+
+<Step title="Regenerate">
+
+Click **Regenerate connection key**, then **Yes, regenerate**.
+
+</Step>
+
+<Step title="Update your install scripts">
+
+New installations need the new key. The install commands in **Integrations** show the new key at once. Update any scripts or software-deployment packages that contain the old key.
+
+</Step>
+
+</Steps>
+
+Agents that are already registered keep working after you regenerate the key. There is no undo: the old key cannot be restored.

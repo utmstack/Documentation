@@ -1,0 +1,558 @@
+Use these endpoints to find alerts, change their status, add notes and tags, assign them, read their echoes and related logs, and mark them as part of an incident. In UTMStack v12, alerts are stored in the `alerts` dataset and are read through the Log Explorer search endpoint; status and severity are words, not numbers.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| Search alerts (`POST /log-analyzer/search`, `/top-x-values`, `/chart-view`) | `loganalyzer.read` |
+| Count, echoes, related logs, adversary view, tag catalog and tag rules (read) | `alerts.read` |
+| Status, notes, assignee, tags, convert to incident, tag catalog and tag rules (change) | `alerts.write` |
+
+All three built-in roles can read alerts. Administrator and Analyst can change them.
+
+## Search Alerts
+
+**Endpoint:** `POST /api/v1/log-analyzer/search`
+
+This replaces the UTMStack v11 call `POST /api/elasticsearch/search?indexPattern=v11-alert-*`. Paging, sorting and the dataset now go in the JSON body, and filters go in a `filters` list inside the body.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| dataset | string | Yes | `alerts` |
+| filters | FilterType[] | No | Conditions, combined with AND. See **Reference Tables** for operators. |
+| from | string (RFC 3339) | No | Start of the time window |
+| to | string (RFC 3339) | No | End of the time window |
+| page | integer | No | Page number, starting at `0` |
+| size | integer | No | Results per page. Default 50, maximum 500. |
+| sortBy | string | No | Field to sort by. Default `@timestamp`. |
+| order | string | No | `asc` or `desc`. Default `desc`. |
+| dataType | string | No | Only alerts raised from one data type, for example `wineventlog` |
+
+**Response (HTTP 200):**
+
+```json
+{
+  "data": [
+    {
+      "@timestamp": "2026-11-10T14:30:00.000Z",
+      "id": "<alert-id>",
+      "parentId": "",
+      "name": "<rule-name>",
+      "severity": "high",
+      "status": "Open",
+      "category": "<category>",
+      "technique": "<technique>",
+      "dataType": "wineventlog",
+      "dataSource": "win-server-01",
+      "adversary": {"ip": "198.51.100.23"},
+      "target": {"host": "win-server-01", "user": "<user>"},
+      "tags": [],
+      "notes": "",
+      "assignee": "",
+      "isIncident": false,
+      "echoes": 4
+    }
+  ],
+  "total": 59
+}
+```
+
+The answer is shortened here. See **Reference Tables** for every alert field.
+
+> [!NOTE]
+> On page `0`, when you give a time window, the answer also includes older alerts that have new **echoes** (repeat occurrences) inside the window, and each alert carries an `echoes` count. Echoes are alerts whose `parentId` is the id of the first alert.
+
+### Retrieve All Alerts (No Filters)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "filters": [], "page": 0, "size": 25, "sortBy": "@timestamp", "order": "desc"}'
+```
+
+### Retrieve Alerts by Date Range
+
+Give the window with `from` and `to`:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "from": "2026-11-01T00:00:00Z", "to": "2026-11-30T23:59:59Z", "page": 0, "size": 25}'
+```
+
+Or with an `@timestamp` filter, as in UTMStack v11:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-30T23:59:59Z"]}]}'
+```
+
+> [!WARNING]
+> Relative dates such as `now-24h` or `now-7d` are not understood by UTMStack v12 search. Such a value is ignored without an error, so the search runs over all stored alerts. Work out the absolute start and end times in your script and send them in RFC 3339 format. Accepted formats are listed in **Reference Tables**.
+
+For example, the last 24 hours with GNU `date` on Linux:
+
+```bash
+FROM=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+TO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d "{\"dataset\": \"alerts\", \"from\": \"$FROM\", \"to\": \"$TO\", \"page\": 0, \"size\": 25}"
+```
+
+### Filter Alerts by Severity
+
+Severity is `low`, `medium` or `high`:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "severity", "operator": "IS", "value": "high"}]}'
+```
+
+### Filter Alerts by Status
+
+**Open alerts only:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "status", "operator": "IS", "value": "Open"}]}'
+```
+
+**Exclude completed alerts:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "status", "operator": "IS_NOT", "value": "Completed"}]}'
+```
+
+**Open or In review alerts:**
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "status", "operator": "IS_ONE_OF", "value": ["Open", "In review"]}]}'
+```
+
+### Filter Alerts by Name
+
+`CONTAIN` matches part of the text and ignores upper and lower case:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "name", "operator": "CONTAIN", "value": "Windows"}]}'
+```
+
+### Retrieve a Specific Alert by ID
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 1,
+       "filters": [{"field": "id", "operator": "IS", "value": "<alert-id>"}]}'
+```
+
+### Filter by Tags
+
+`tags` is a list. Use `CONTAIN` to find alerts that carry a tag:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "tags", "operator": "CONTAIN", "value": "False positive"}]}'
+```
+
+### Exclude False Positives
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [
+         {"field": "tags", "operator": "DOES_NOT_CONTAIN", "value": "False positive"},
+         {"field": "status", "operator": "IS_NOT", "value": "Completed"}
+       ]}'
+```
+
+### Hide Echoes
+
+The web console lists only first occurrences. Do the same by asking for alerts with an empty `parentId`:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 25,
+       "filters": [{"field": "parentId", "operator": "IS", "value": ""}]}'
+```
+
+### Combined Filters (Multiple Conditions)
+
+Filters are combined with AND. This example returns open, high-severity alerts from November 2026:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "from": "2026-11-01T00:00:00Z", "to": "2026-11-30T23:59:59Z", "page": 0, "size": 25,
+       "filters": [
+         {"field": "status", "operator": "IS", "value": "Open"},
+         {"field": "severity", "operator": "IS", "value": "high"}
+       ]}'
+```
+
+### Pagination
+
+```bash
+# Page 0 (first 10 results)
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 10}'
+
+# Page 1 (next 10 results)
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 1, "size": 10}'
+```
+
+The total number of matches is in the `total` field of the answer. There is no `X-Total-Count` or `Link` header on this endpoint.
+
+### Counts by Status or Severity
+
+To count alerts per value of a field, use the top values endpoint described in **Log Search API**:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/alerts/status/10" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "parentId", "operator": "IS", "value": ""}]'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"total": 50, "top": [{"value": "Open", "count": 40, "percent": 80}, {"value": "Completed", "count": 10, "percent": 20}]}
+```
+
+## Count Open Alerts
+
+**Endpoint:** `GET /api/v1/utm-alerts/count-open-alerts`
+
+Counts alerts with status `Open` that are not echoes and do not carry the `False positive` tag.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/utm-alerts/count-open-alerts" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** a plain number (for example `10`).
+
+## List the Echoes of an Alert
+
+**Endpoint:** `GET /api/v1/utm-alerts/{id}/echoes`
+
+Returns the repeat occurrences (child alerts) of a first alert.
+
+| Parameter | Location | Type | Description |
+|---|---|---|---|
+| id | Path | string | Id of the first alert |
+| page | Query | integer | Page number, starting at `1` |
+| size | Query | integer | Default 20, maximum 100 |
+| sortBy | Query | string | Default `@timestamp` |
+| sortOrder | Query | string | `asc` or `desc` (default) |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/utm-alerts/<alert-id>/echoes?page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** a JSON list of alert objects. The total is in the `X-Total-Count` header.
+
+## Get the Logs Behind an Alert
+
+**Endpoint:** `GET /api/v1/utm-alerts/related-logs?alertId=<alert-id>`
+
+Repeats the rule's search to find every log that belongs to the alert, and returns their ids so you can read them with **Log Search API**.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/utm-alerts/related-logs?alertId=<alert-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "ruleMatched": true,
+  "dataType": "wineventlog",
+  "ids": ["<log-id-1>", "<log-id-2>"],
+  "total": 2,
+  "truncated": false,
+  "timeFrom": "2026-11-10T14:00:00Z",
+  "timeTo": "2026-11-10T14:30:00Z"
+}
+```
+
+To read the logs, search the `logs` dataset with `{"field": "id", "operator": "IS_ONE_OF", "value": [<the ids>]}`.
+
+## Change Alert Status
+
+**Endpoint:** `POST /api/v1/utm-alerts/status`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertIds | string[] | Yes | Ids of the alerts to update |
+| status | string | Yes | `Open`, `In review`, `Completed`, `Merged` or `Automatic review` (exact spelling) |
+| statusObservation | string | No | Reason for the change |
+| addFalsePositiveTag | boolean | No | With status `Completed`, adds the `False positive` tag |
+
+**Response:** HTTP 200 with body `{}`. An unknown status returns 400 `invalid alert status`.
+
+How the change is applied:
+
+- The new status is also applied to the echoes of each alert you list.
+- Setting a `Completed` alert back to `Open` removes its `False positive` tag.
+- One request can change at most 10,000 alerts. A larger selection is refused as a whole with 400.
+- Ids that do not exist are skipped without an error.
+- Each change is written to the alert's `history`.
+
+### Set Alert to "In review"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "status": "In review", "statusObservation": "Escalated to the security team for analysis"}'
+```
+
+### Set Alert to "Completed"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "status": "Completed", "statusObservation": "Investigation completed. Legitimate activity."}'
+```
+
+### Set Alert Back to "Open"
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "status": "Open", "statusObservation": "Reopened for further analysis"}'
+```
+
+### Bulk Status Update (Multiple Alerts)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id-1>", "<alert-id-2>", "<alert-id-3>"], "status": "In review", "statusObservation": "Batch review"}'
+```
+
+### Mark Alert as False Positive
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "status": "Completed", "statusObservation": "Confirmed false positive", "addFalsePositiveTag": true}'
+```
+
+This sets the status to `Completed` and adds `False positive` to the alert's `tags`.
+
+## Add Notes to an Alert
+
+**Endpoint:** `POST /api/v1/utm-alerts/notes?alertId=<alert-id>`
+
+| Parameter | Location | Type | Description |
+|---|---|---|---|
+| alertId | Query parameter | string | The alert to update |
+| Body | Request body | plain text | The full note text |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/notes?alertId=<alert-id>" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: text/plain" \
+  --data-binary 'Initial analysis: configuration change on the host during a maintenance window.'
+```
+
+**Response:** HTTP 200 with body `{}`.
+
+> [!WARNING]
+> Changed from UTMStack v11: the body is the note itself as plain text, not a quoted JSON string. If you send `"my note"` with quotes, the quotes are stored as part of the note.
+
+The text you send **replaces** the alert's notes; it is not added to them. To keep earlier notes, read the alert first and send the old text plus the new text. To clear the notes, send an empty body. Use `--data-binary` so curl keeps line breaks.
+
+## Assign an Alert
+
+**Endpoint:** `POST /api/v1/utm-alerts/assignee`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertId | string | Yes | The alert to assign |
+| assignee | string | No | The user to assign it to. An empty value removes the assignment. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/assignee" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertId": "<alert-id>", "assignee": "analyst@example.com"}'
+```
+
+**Response:** HTTP 200 with body `{}`.
+
+## Add Tags to an Alert
+
+**Endpoint:** `POST /api/v1/utm-alerts/tags`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertIds | string[] | Yes | Ids of the alerts to tag |
+| tags | string[] | No | The complete list of tags the alerts should have |
+| createRule | boolean | No | Accepted, but has no effect in UTMStack v12.0.2. To tag future alerts automatically, create a tag rule (see below). |
+
+The list you send **replaces** the alerts' current tags. To add a tag, send the existing tags plus the new one.
+
+### Set Investigation Tags
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/tags" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "tags": ["Under Investigation", "Escalated"]}'
+```
+
+### Bulk Tag Assignment
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/tags" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id-1>", "<alert-id-2>"], "tags": ["Weekly Review"]}'
+```
+
+### Remove All Tags
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/tags" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alertIds": ["<alert-id>"], "tags": []}'
+```
+
+**Response:** HTTP 200 with body `{}`.
+
+## Mark Alerts as Part of an Incident
+
+**Endpoint:** `POST /api/v1/utm-alerts/convert-to-incident`
+
+This sets `isIncident` and `incidentDetail` on the alerts. It does **not** create the incident. Create the incident first with `POST /api/v1/incidents` (see **Incidents API**), then use its id here.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| eventIds | string[] | Yes | Ids of the alerts |
+| incidentName | string | Yes | Name of the incident |
+| incidentId | string (UUID) | Yes | Id of an existing incident |
+| incidentSource | string | No | Free text. The web console sends `incidents`. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/utm-alerts/convert-to-incident" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"eventIds": ["<alert-id>"], "incidentName": "Suspicious logons on win-server-01", "incidentId": "<incident-id>", "incidentSource": "incidents"}'
+```
+
+**Response:** HTTP 200 with body `{}`. Alerts that are already marked as part of an incident are left unchanged.
+
+> [!NOTE]
+> `POST /api/v1/incidents` already marks the alerts it is created with. You need this endpoint after `POST /api/v1/incidents/add-alerts`, which links alerts to an existing incident but does not mark them.
+
+## Alerts Grouped by Adversary
+
+**Endpoint:** `POST /api/v1/adversary/alerts` (permission `alerts.read`)
+
+The body is an optional filter list, in the same format as search filters. The answer is a list of adversaries, each with its alerts and their echoes:
+
+```json
+[
+  {
+    "adversary": {"ip": "198.51.100.23"},
+    "alerts": [{"alert": {"id": "<alert-id>", "name": "<rule-name>"}, "children": []}]
+  }
+]
+```
+
+When there is nothing to show, the answer is HTTP 204 with no body.
+
+## Tag Catalog and Tag Rules
+
+The tag catalog holds the tags offered in the web console. Tag rules add tags automatically to new alerts that match conditions.
+
+| Method | Endpoint | Permission | Description |
+|---|---|---|---|
+| GET | `/api/v1/utm-alert-tags` | `alerts.read` | List tags. Query: `tagName`, `systemOwner`, `page` (from 1), `size`. Total in `X-Total-Count`. |
+| GET | `/api/v1/utm-alert-tags/{id}` | `alerts.read` | Get a tag |
+| POST | `/api/v1/utm-alert-tags` | `alerts.write` | Create a tag. Body: `{"tagName": "...", "tagColor": "..."}`. Answer 201. |
+| PUT | `/api/v1/utm-alert-tags` | `alerts.write` | Update a tag. Body: `{"id": "<tag-id>", "tagName": "...", "tagColor": "..."}` |
+| DELETE | `/api/v1/utm-alert-tags/{id}` | `alerts.write` | Delete a tag |
+| GET | `/api/v1/alert-tag-rules` | `alerts.read` | List tag rules. Query: `name`, `conditionField`, `conditionValue`, `ruleActive`, `ruleDeleted`, `tagIds`, `page` (from 1), `size`. |
+| GET | `/api/v1/alert-tag-rules/{id}` | `alerts.read` | Get a tag rule |
+| POST | `/api/v1/alert-tag-rules` | `alerts.write` | Create a tag rule |
+| PUT | `/api/v1/alert-tag-rules` | `alerts.write` | Update a tag rule (body includes `id`) |
+| DELETE | `/api/v1/alert-tag-rules/{id}` | `alerts.write` | Delete a tag rule |
+
+The `False positive` tag belongs to the system. Changing or deleting it returns 403. A tag name already in use returns 409.
+
+**Tag rule body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Rule name (unique) |
+| description | string | Yes | What the rule is for |
+| conditions | FilterType[] | Yes | Conditions on alert fields, in the search filter format |
+| tags | object[] | Yes | Tags to apply, each `{"id": "<tag-id>", "tagName": "...", "tagColor": "..."}` from the catalog |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/alert-tag-rules" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Tag scanner noise", "description": "Alerts caused by the internal vulnerability scanner",
+       "conditions": [{"field": "adversary.ip", "operator": "IS", "value": "192.0.2.50"}],
+       "tags": [{"id": "<tag-id>", "tagName": "Known Issue", "tagColor": "<color>"}]}'
+```

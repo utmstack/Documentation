@@ -1,0 +1,438 @@
+Incidents group related alerts so a team can investigate and respond to them together. In UTMStack v12 the incident endpoints moved from `/api/utm-incidents` to `/api/v1/incidents`, incident ids are UUIDs, and statuses and severities are words.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| List and read incidents, linked alerts, notes and history | `incidents.read` (all built-in roles) |
+| Create, change, assign, link alerts, add notes | `incidents.write` (Administrator and Analyst) |
+
+## Incident Object
+
+| Field | Type | Description |
+|---|---|---|
+| id | string (UUID) | Incident id |
+| incidentName | string | Name. Unique within a tenant. |
+| incidentDescription | string | Description (left out when empty) |
+| incidentStatus | string | `Open`, `In review`, `Completed` or `Merged` |
+| incidentSeverity | string | `low`, `medium` or `high`: the highest severity of its alerts |
+| incidentAssignedTo | string | Assigned user (left out when nobody is assigned) |
+| incidentSolution | string | Resolution text (left out when empty) |
+| incidentCreatedDate | string (RFC 3339) | When the incident was created |
+| alertCount | integer | Number of linked alerts. Filled in on list answers; a single incident read returns `0`. |
+
+## Create an Incident from Alerts
+
+**Endpoint:** `POST /api/v1/incidents`
+
+Creates an incident, links the alerts to it and marks the alerts as part of the incident.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentName | string | Yes | Name of the incident. Must be unique in the tenant. |
+| incidentDescription | string | No | Description |
+| incidentAssignedTo | string | No | User to assign the incident to |
+| alertList | array | Yes | 1 to 1,000 alerts to link |
+
+Each item in `alertList`:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alertId | string | Yes | Alert id |
+| alertName | string | Yes | Alert name |
+| alertSeverity | string | Yes | `low`, `medium` or `high` |
+| alertStatus | string | No | Status to record for the alert inside the incident. Defaults to the incident's status (`Open`). |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/incidents" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "incidentName": "Suspicious logons on win-server-01",
+    "incidentDescription": "Repeated failed logons followed by a success outside working hours",
+    "incidentAssignedTo": "analyst@example.com",
+    "alertList": [
+      {"alertId": "<alert-id>", "alertName": "<rule-name>", "alertSeverity": "high", "alertStatus": "Open"}
+    ]
+  }'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "id": "<incident-id>",
+  "incidentName": "Suspicious logons on win-server-01",
+  "incidentDescription": "Repeated failed logons followed by a success outside working hours",
+  "incidentStatus": "Open",
+  "incidentSeverity": "high",
+  "incidentAssignedTo": "analyst@example.com",
+  "incidentCreatedDate": "2026-11-10T14:30:00Z",
+  "alertCount": 0
+}
+```
+
+- `incidentSeverity` is set to the highest severity among the alerts. `incidentStatus` starts as `Open`.
+- The alerts get `isIncident: true` and an `incidentDetail` with the incident's name and id.
+- A name that is already used returns 409 `an incident with this name already exists`.
+- An alert can belong to only one incident. If any alert in the list is already linked, nothing is created and the answer is 409 `one or more alerts are already linked to an incident`.
+
+> [!WARNING]
+> Use exactly `low`, `medium` or `high` for `alertSeverity`. In UTMStack v12.0.2 any other value is refused with HTTP 500 `operation failed` rather than a 400 that names the field.
+
+## Convert Alerts to Incident (Alternative Method)
+
+In UTMStack v11, `POST /api/utm-alerts/convert-to-incident` with `"incidentId": 0` created a new incident. In UTMStack v12 that endpoint only marks alerts as part of an incident that already exists. Use `POST /api/v1/incidents` to create the incident. See **Alerts API** for the convert endpoint.
+
+## Add Alerts to an Existing Incident
+
+**Endpoint:** `POST /api/v1/incidents/add-alerts`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | string (UUID) | Yes | Id of the existing incident |
+| alertList | array | Yes | 1 to 1,000 alerts, same structure as for creation |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/incidents/add-alerts" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "incidentId": "<incident-id>",
+    "alertList": [
+      {"alertId": "<alert-id-2>", "alertName": "<rule-name>", "alertSeverity": "medium"}
+    ]
+  }'
+```
+
+**Response (HTTP 201):** the updated incident. The incident's severity rises if a new alert is more severe; it never goes down here.
+
+This call links the alerts but does not mark the alerts themselves. To do what the web console does, follow it with `POST /api/v1/utm-alerts/convert-to-incident` for the same alert ids (see **Alerts API**). An unknown incident id returns 404; an alert that is already linked returns 409.
+
+## List Incidents
+
+**Endpoint:** `GET /api/v1/incidents`
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| incidentName | string | Name contains this text (upper and lower case ignored) |
+| incidentStatus | string | Exact status: `Open`, `In review`, `Completed` or `Merged` |
+| incidentSeverity | string | Exact severity: `low`, `medium` or `high` |
+| incidentAssignedTo | string | Assigned user contains this text |
+| createdDateStart | string (RFC 3339) | Created on or after |
+| createdDateEnd | string (RFC 3339) | Created on or before |
+| page | integer | Page number, starting at `1` |
+| size | integer | 1 to 200. Default 20. A value above 200 falls back to 20. |
+| sort | string | `field,asc` or `field,desc`. Fields: `incidentName`, `incidentStatus`, `incidentSeverity`, `incidentAssignedTo`, `incidentCreatedDate`. Default newest first. |
+
+UTMStack v11 used names such as `incidentStatus.equals` and `incidentName.contains`. UTMStack v12 uses the plain names above; the old names are ignored.
+
+**Response Headers:**
+
+- `X-Total-Count`: total number of matching incidents
+- `Link`: `next` and `prev` page addresses when they exist
+
+### List All Incidents
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents?page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<incident-id>",
+    "incidentName": "Suspicious logons on win-server-01",
+    "incidentStatus": "Open",
+    "incidentSeverity": "high",
+    "incidentAssignedTo": "analyst@example.com",
+    "incidentCreatedDate": "2026-11-10T14:30:00Z",
+    "alertCount": 2
+  }
+]
+```
+
+### Filter by Status
+
+Encode the space in `In review` as `%20`:
+
+```bash
+# Open incidents only
+curl -sk "{{baseUrl}}/api/v1/incidents?incidentStatus=Open&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+
+# Completed incidents only
+curl -sk "{{baseUrl}}/api/v1/incidents?incidentStatus=Completed&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+
+# In review incidents
+curl -sk "{{baseUrl}}/api/v1/incidents?incidentStatus=In%20review&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Name
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents?incidentName=logon&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Severity
+
+There is no "greater than" filter for severity. Ask for one value at a time:
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents?incidentSeverity=high&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+### Filter by Date Range
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents?createdDateStart=2026-11-01T00:00:00Z&createdDateEnd=2026-11-30T23:59:59Z&page=1&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+A date that is not in RFC 3339 format is ignored.
+
+### Sort Results
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents?page=1&size=20&sort=incidentCreatedDate,desc" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+## Get a Specific Incident
+
+**Endpoint:** `GET /api/v1/incidents/{id}`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incidents/<incident-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** the incident object. An unknown id returns 404 `incident not found`; an id that is not a UUID returns 400.
+
+## Change Incident Status
+
+**Endpoint:** `PUT /api/v1/incidents/change-status`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| id | string (UUID) | Yes | Incident id |
+| incidentName | string | Yes | The incident's name. Required by the server; it does not rename the incident. |
+| incidentStatus | string | Yes | `Open`, `In review`, `Completed` or `Merged` |
+| incidentSolution | string | No | Resolution text. Leave it out to keep the current text. |
+| incidentDescription | string | No | Accepted for compatibility; not changed by this call |
+| incidentCreatedDate | string | No | Accepted for compatibility; not changed by this call |
+
+UTMStack v11 needed the whole incident in the body or fields were reset. UTMStack v12 changes only the status and, when you send it, the solution.
+
+### Set to In review
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/incidents/change-status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<incident-id>", "incidentName": "Suspicious logons on win-server-01", "incidentStatus": "In review"}'
+```
+
+### Complete an Incident
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/incidents/change-status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<incident-id>", "incidentName": "Suspicious logons on win-server-01", "incidentStatus": "Completed",
+       "incidentSolution": "Password reset and source address blocked."}'
+```
+
+**Response (HTTP 200):** the updated incident.
+
+**Note:** Every alert linked to the incident gets the same status, both inside the incident and on the alert itself. When you send `incidentSolution`, it is written as the alerts' `statusObservation`.
+
+**Status values:** `Open`, `In review`, `Completed`, `Merged`. In UTMStack v12.0.2 any other value is refused with HTTP 500 `operation failed`.
+
+## Assign an Incident
+
+**Endpoint:** `PUT /api/v1/incidents/assign`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | string (UUID) | Yes | Incident id |
+| assignedTo | string | No | User to assign. Empty removes the assignment. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/incidents/assign" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"incidentId": "<incident-id>", "assignedTo": "analyst@example.com"}'
+```
+
+**Response (HTTP 200):** the updated incident.
+
+`GET /api/v1/incidents/assignees` returns the list of users that are currently assigned to at least one incident, for example `["analyst@example.com"]`.
+
+## List Alerts in an Incident
+
+**Endpoint:** `GET /api/v1/incident-alerts`
+
+| Parameter | Type | Description |
+|---|---|---|
+| incidentId | string (UUID) | The incident (an invalid UUID returns 400) |
+| alertId | string | Only this alert |
+| alertStatus | string | Only links with this status |
+| page | integer | Starting at `1` |
+| size | integer | 1 to 200. Default 20. |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incident-alerts?incidentId=<incident-id>&page=1&size=50" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** total in `X-Total-Count`.
+
+```json
+[
+  {
+    "id": "<link-id>",
+    "incidentId": "<incident-id>",
+    "alertId": "<alert-id>",
+    "alertName": "<rule-name>",
+    "alertSeverity": "high",
+    "alertStatus": "Open"
+  }
+]
+```
+
+## Remove an Alert from an Incident
+
+**Endpoint:** `DELETE /api/v1/incident-alerts/{id}`
+
+The `{id}` is the link id (the `id` field in the answer above), not the alert id.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/incident-alerts/<link-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 200, empty body. The incident's severity is recalculated from the alerts that remain. The alert itself keeps its `isIncident` flag.
+
+## Update Alert Status Within an Incident
+
+**Endpoint:** `POST /api/v1/incident-alerts/update-status`
+
+Changes the status recorded for alerts inside the incident. It does not change the alerts themselves; use `POST /api/v1/utm-alerts/status` for that (see **Alerts API**).
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | string (UUID) | Yes | Incident id (used for the history entry) |
+| alertIds | string[] | Yes | Alert ids |
+| status | string | Yes | New status, for example `In review` |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/incident-alerts/update-status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"incidentId": "<incident-id>", "alertIds": ["<alert-id>"], "status": "In review"}'
+```
+
+**Response:** HTTP 200, empty body.
+
+`POST /api/v1/incident-alerts` (one link, answer 201) and `PUT /api/v1/incident-alerts` (change a link, body includes `id`) also exist. Prefer `add-alerts`, which checks that alerts are not already linked.
+
+## Add Notes to an Incident
+
+**Endpoint:** `POST /api/v1/incident-notes`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| incidentId | string (UUID) | Yes | Incident id |
+| noteText | string | Yes | Note text, up to 1,000 characters |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/incident-notes" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"incidentId": "<incident-id>", "noteText": "The logons came from an address outside the company network. Password reset requested."}'
+```
+
+**Response (HTTP 201):**
+
+```json
+{
+  "id": "<note-id>",
+  "incidentId": "<incident-id>",
+  "noteText": "The logons came from an address outside the company network. Password reset requested.",
+  "noteSendDate": "2026-11-10T14:45:00Z",
+  "noteSendBy": "analyst@example.com"
+}
+```
+
+The field is `noteText`, as in UTMStack v11. Notes are added one by one; earlier notes are kept.
+
+## List Incident Notes
+
+**Endpoint:** `GET /api/v1/incident-notes`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incident-notes?incidentId=<incident-id>&page=1&size=50" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** a list of notes, newest first. Total in `X-Total-Count`. UTMStack v11 used `incidentId.equals=`; UTMStack v12 uses `incidentId=`.
+
+## Incident History
+
+Creating the incident, adding alerts, changing statuses, assigning and adding notes are recorded.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/incident-histories?incidentId=<incident-id>` | List entries. Query: `incidentId`, `action`, `page` (from 1), `size` (up to 200), `sort` (`action`, `actionCreatedDate` or `actionCreatedBy`, with `,asc` or `,desc`). Default newest first. Total in `X-Total-Count`. |
+| GET | `/api/v1/incident-histories/count?incidentId=<incident-id>` | Number of entries, as a plain number |
+| GET | `/api/v1/incident-histories/{id}` | One entry |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/incident-histories?incidentId=<incident-id>&page=1&size=50" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<history-id>",
+    "incidentId": "<incident-id>",
+    "action": "INCIDENT_STATUS_CHANGE",
+    "actionCreatedDate": "2026-11-10T15:10:00Z",
+    "actionCreatedBy": "analyst@example.com"
+  }
+]
+```
+
+**Action values:**
+
+| Action | Recorded when |
+|---|---|
+| `INCIDENT_CREATED` | The incident was created |
+| `INCIDENT_ALERT_ADD` | Alerts were added |
+| `INCIDENT_ALERT_STATUS_CHANGED` | Alert statuses inside the incident were changed |
+| `INCIDENT_STATUS_CHANGE` | The incident status changed |
+| `INCIDENT_NOTE_ADD` | A note was added |
+| `INCIDENT_ASSIGNED` | The incident was assigned or unassigned |

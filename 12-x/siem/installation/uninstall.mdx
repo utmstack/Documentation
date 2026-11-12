@@ -1,0 +1,78 @@
+This page explains how to remove UTMStack v12 from a server, what the uninstaller deletes and what it leaves behind, and how to clean up completely before you install again.
+
+<Warning>
+
+**The uninstaller cleans Docker on the whole server, without asking.** After removing UTMStack it runs `docker system prune -a -f --volumes`. This deletes every Docker image that no running container uses, stopped containers, unused networks and unused volumes, including those of other applications on the same server. Do not run it on a server that runs other Docker workloads you want to keep.
+
+</Warning>
+
+## Before you uninstall
+
+- **Save what you need.** UTMStack has no built-in backup. Once the data is deleted, logs, alerts, incidents and settings are gone.
+- **Remove the agents and collectors first**, if you are not moving them to another UTMStack server. Each agent and collector page shows its uninstall command. See **Windows agent**, **Linux agent**, **macOS agent** and **UTMStack Forwarder**.
+- **Licence.** The uninstaller deletes `/utmstack/updates`, which holds the licence file and this server's registration with UTMStack. A new installation registers as a new instance with a new instance ID. If you have an Enterprise licence, contact UTMStack about using it on the new instance.
+
+## Run the uninstaller
+
+On the server, as root:
+
+```bash
+sudo /usr/local/bin/utmstack_installer --uninstall
+```
+
+You can also run the downloaded installer with `./installer --uninstall` (or `-u`).
+
+## What the uninstaller does
+
+1. Stops and removes the `UTMStackComponentsUpdater` service.
+2. Removes the `utmstack` Docker stack with `docker stack rm utmstack`.
+3. Waits 30 seconds for the services to stop.
+4. Runs `docker system prune -a -f --volumes` (see the warning above).
+5. Deletes the `/utmstack/updates` folder.
+
+If the update service is not installed, the uninstaller still removes the `utmstack` stack if it exists and deletes `/utmstack/updates`, but it skips the Docker clean-up.
+
+## What the uninstaller leaves behind
+
+When it finishes, the uninstaller reminds you that it did not remove Docker, system packages such as nginx and vlan, or the `/utmstack` data folder. In detail, these remain on the server:
+
+| Item | Where |
+|---|---|
+| UTMStack data | `/utmstack` (logs, alerts, certificates, rules and the other folders) |
+| Generated settings and secrets | `/root/utmstack.yml` |
+| The PostgreSQL database volume | Docker volume `postgres_data` of the stack, unless the Docker clean-up removed it. Whether it is removed depends on your Docker version, so do not count on it being kept. |
+| The installer copy | `/usr/local/bin/utmstack_installer` and `/usr/local/bin/utmstack` |
+| Docker and Docker Swarm | Docker stays installed and the server stays a Swarm manager. |
+| nginx and its configuration | `/etc/nginx/sites-available/default` (Ubuntu, Debian) or `/etc/nginx/nginx.conf` (Red Hat), and `/etc/nginx/html/custom_502.html` |
+| Cockpit | Installed package |
+| System changes | Lines added to `/etc/sysctl.conf` (IPv6 off and others), `8021q` in `/etc/modules`, the `vlan10` interface files, and on Red Hat the SELinux and firewalld changes. See **System requirements**. |
+| Logs | `/var/log/utmstack-installer.log` |
+
+## Remove everything
+
+To remove all UTMStack data and files after running the uninstaller:
+
+```bash
+# Delete the data folder and the generated settings
+sudo rm -rf /utmstack
+sudo rm -f /root/utmstack.yml
+
+# Delete the installer copy
+sudo rm -f /usr/local/bin/utmstack_installer /usr/local/bin/utmstack
+
+# Find the PostgreSQL volume, if it is still there, and delete it
+docker volume ls | grep postgres_data
+docker volume rm <volume name from the previous command>
+```
+
+<Warning>
+
+These commands delete all UTMStack logs, alerts and configuration for good.
+
+</Warning>
+
+To undo the system changes (IPv6, the VLAN interface, nginx, Cockpit, Docker Swarm, SELinux and firewalld), revert them by hand, or reinstall the operating system. Reinstalling the operating system is the cleanest way to return the server to its original state.
+
+## Install again on the same server
+
+Remove everything as described above before you run the installer again. The installer skips every step it finds recorded in `/utmstack/locks` and reuses `/root/utmstack.yml`, so leftovers from the previous installation can make the new installation skip steps it needs, such as creating the databases.

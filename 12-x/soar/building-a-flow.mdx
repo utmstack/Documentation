@@ -1,0 +1,204 @@
+You build a flow in the flow editor: you set the trigger conditions, drag steps onto a canvas, and draw wires that decide what runs after a step succeeds or fails. This page explains each part of the editor and how UTMStack v12 runs what you draw.
+
+## Open the editor
+
+- To create a flow, click **New flow** on **SOAR > Flows** (see **Flows Page**).
+- To edit a flow, click **View** in its row. Shipped flows open read-only; copy them to change them.
+
+## Editor layout
+
+| Part | What it does |
+|---|---|
+| **Visual** tab | The canvas. You drag steps from the palette and wire them together. |
+| **Code** tab | The same flow as YAML text. Changes in one tab show in the other. If the YAML cannot be read, the editor shows "Can't apply the YAML: …". |
+| **Palette** (left) | Ready-made shell steps for Windows, Linux and macOS, plus one entry per step type. Drag an entry onto the canvas. |
+| **Trigger** (the "When" node) | The conditions an alert must match. |
+| **Inspector** (right) | The settings of the selected step or of the trigger. |
+| Flow name (top) | Click it to open **Flow details**: name, description and max depth. |
+| **Edit with AI** | Opens the SOC-AI assistant on this flow (panel "SOAR flow editor"). Shown only when an AI provider is set up. |
+
+You can hide the side panels with **Hide palette** and **Hide inspector**.
+
+## Set the trigger conditions
+
+Select the trigger node ("When — An alert matches all of these conditions") and add conditions. Each condition has a field, an operator and a value. The flow runs only when **all** conditions match.
+
+The field picker offers these alert fields. They are read from the alert at the moment it is raised, so there is no alert status to match on.
+
+| Label | Field |
+|---|---|
+| Alert name | `name` |
+| Severity | `severity` (`low`, `medium` or `high`) |
+| Category | `category` |
+| Technique | `technique` |
+| Data type | `dataType` |
+| Data source | `dataSource` |
+| Risk | `impactScore` |
+| Adversary IP, user, host | `adversary.ip`, `adversary.user`, `adversary.host` |
+| Target IP, user, host, port | `target.ip`, `target.user`, `target.host`, `target.port` |
+| Protocol | `lastEvent.protocol` |
+| Action | `lastEvent.action` |
+| Origin IP, user, host, port | `lastEvent.origin.ip`, `lastEvent.origin.user`, `lastEvent.origin.host`, `lastEvent.origin.port` |
+
+You can also type another field path. A `.keyword` ending is ignored.
+
+Operators:
+
+| Operator | Screen label | Notes |
+|---|---|---|
+| `IS` | is | Exact match. |
+| `IS_NOT` | is not | |
+| `CONTAINS` | contains | |
+| `NOT_CONTAINS` | does not contain | |
+| `START_WITH` | starts with | |
+| `NOT_START_WITH` | does not start with | |
+| `ENDS_WITH` | ends with | |
+| `NOT_ENDS_WITH` | does not end with | |
+| `EXISTS` | exists | No value needed. |
+| `NOT_EXISTS` | does not exist | No value needed. |
+| `IS_ONE_OF` | is one of | Takes a list of values. |
+| `IS_NOT_ONE_OF` | is not one of | Takes a list of values. |
+
+Comparisons are case-sensitive: `Brute Force` does not match `brute force`.
+
+<Tip>
+
+Match on the alert name of one correlation rule (field `name`, operator **is**). The rule decides what is suspicious; the flow decides what to do about it. Broad conditions such as "severity is high" can start a flow on many unrelated alerts.
+
+</Tip>
+
+Changed from UTMStack v11: the operators `CONTAIN`, `DOES_NOT_CONTAIN`, `EXIST`, `DOES_NOT_EXIST`, `IS_BETWEEN`, `IS_GREATER_THAN` and `IS_LESS_THAN_OR_EQUALS` are not trigger operators any more. A condition with an unknown operator never matches.
+
+## Add steps
+
+Drag a step type from the palette onto the canvas, then fill in its settings in the inspector. See **Step Types** for every type and field.
+
+The palette sections **Windows**, **Linux** and **MacOS** hold ready-made shell steps you can drop in and adjust:
+
+- Isolate host (block all traffic)
+- Shutdown host
+- Kill process by PID
+- Log user out
+- Disable target user
+- Block adversary IP
+- Restart host
+- Uninstall a package
+- Remove file
+
+Each is written for the platform's default shell (cmd on Windows, bash elsewhere). Some contain markers you must replace before you save: `<PID>` in "Kill process by PID", `<SESSION_ID>` in the Windows "Log user out", `<PACKAGE>` in "Uninstall a package" and `<PATH>` in "Remove file". "Isolate host (block all traffic)" also cuts the machine's connection to UTMStack, so you cannot undo it from UTMStack.
+
+## Wire the steps
+
+Every step has two handles at the bottom:
+
+- The **green** handle (bottom left) is the success wire. Steps on it run when this step succeeds.
+- The **red** handle (bottom right) is the error wire. Steps on it run when this step fails.
+
+Wire the trigger to the steps that should run first. These start steps all run at the same time. Several wires leaving one step also run in parallel.
+
+The wire that is not taken is recorded as **Unreachable** for the steps on it, so you can see in **Execution history** which branch ran.
+
+To run the next step whatever happens, wire it to both the green and the red handle. The step then runs once, and **Execution history** also lists it once as **Unreachable** for the wire that was not taken. That extra row is expected.
+
+<Warning>
+
+**A step with several incoming wires runs once for each wire that fires.** The editor hint calls this an "AND-join", but in UTMStack v12.0.2 the step does not wait for all its parents: if two parent steps succeed, the step runs twice. If you need a step to run once, give it a single incoming wire.
+
+</Warning>
+
+### Max depth
+
+Max depth is the number of steps one path may chain. The default is 50; you can set 1 to 1000 in **Flow details**. Steps deeper than the limit are skipped.
+
+## Save the flow
+
+Click **Save**. The editor checks:
+
+- The flow has a name ("Name is required").
+- At least one condition has a field ("At least one condition with a field is required").
+- At least one step is connected to the trigger ("Add at least one node and connect it to the trigger.").
+- HTTP steps have a valid http or https address and, if set, a valid JSON body.
+- Open incident steps have a name.
+- Send email steps have at least one valid recipient and a subject.
+
+The server checks again: every wire must point to an existing step and not to itself, the step type must be known, and each type's required fields must be filled in. A flow with no conditions is refused, because it would match every alert.
+
+If the server refuses a flow for a content problem, it may answer only "operation failed" without the reason. Check the points above, or open the **Code** tab to look for the problem.
+
+<Warning>
+
+A flow created from scratch is switched on as soon as it is saved. See **Flows Page**.
+
+</Warning>
+
+## Test before you switch on
+
+Use **Trigger flow** on the Flows page to run the flow once against a stored alert and on a test machine (Administrators only). Check each step in **SOAR > Execution history**, then switch the flow on.
+
+## The Code tab (YAML)
+
+The **Code** tab shows the flow as a YAML list with one item. You can paste or edit a whole flow here.
+
+```yaml
+- name: Block brute force source on Linux
+  description: Block the attacking address on the host that raised the alert, then notify.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'System Linux: Possible Brute Force Attack'
+  maxDepth: 50
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: shell
+      platform: ubuntu
+      shell: bash
+      command: iptables -I INPUT -s $(alert.adversary.ip) -j DROP
+      onSuccess:
+        - step_1
+    step_1:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: Blocked $(alert.adversary.ip) on $(alert.dataSource)
+```
+
+Flow keys:
+
+| Key | Meaning |
+|---|---|
+| `name` | Flow name, up to 150 characters. Required. |
+| `description` | Up to 512 characters. |
+| `conditions` | List of `field`, `operator`, `value`. At least one. |
+| `maxDepth` | 1 to 1000, default 50. |
+| `roots` | The start steps (step identifiers). At least one, no duplicates. |
+| `nodes` | The steps, keyed by step identifier (for example `step_0`). |
+
+Step keys:
+
+| Key | Meaning |
+|---|---|
+| `kind` | `executor` (does something) or `enrichment` (fetches data for later steps). |
+| `executor` | The step type: `shell`, `http`, `llm_enrich`, `notify`, `incident`, `mail` or `conditional`. |
+| `command` | Shell steps: the command. |
+| `shell` | Shell steps: `cmd` or `powershell` on Windows, `bash` or `sh` elsewhere. |
+| `platform` | Shell steps: the platform the command is written for. |
+| `agent` | Shell steps: the host to run on, when you pin the step to one host. |
+| `excludedAgents` | Shell steps: hosts to skip. |
+| `params` | Settings of non-shell steps. See **Step Types**. |
+| `onSuccess` | Steps to run when this step succeeds. |
+| `onError` | Steps to run when this step fails. |
+
+## Create or edit with AI
+
+If an AI provider is set up, **Using AI** in the **New flow** dialog and **Edit with AI** in the editor hand the work to the SOC-AI assistant. Describe what the flow should do; the assistant drafts the flow. Review every step before you save, because the result is a normal flow that acts for real. See **SOC-AI Assistant**.
+
+## Related pages
+
+- **Step Types**
+- **Placeholders**
+- **Step Outputs and Variables**
+- **Running Steps on Another Host**

@@ -1,0 +1,223 @@
+UTMStack v12 starts with a self-signed certificate. This page explains how to replace it with a certificate your browsers trust, either one you already have or a free Let's Encrypt certificate, and how to renew it. SSL (more precisely TLS) is the encryption that protects HTTPS connections.
+
+## How UTMStack uses certificates
+
+- At installation the installer creates its own certificate authority and a server certificate in `/utmstack/cert`: `ca.crt`, `ca.key`, `utm.crt` and `utm.key`. They are RSA 4096-bit and valid for 10 years. Browsers do not trust them, so they show a warning.
+- **nginx on the host** serves `/utmstack/cert/utm.crt` and `/utmstack/cert/utm.key` on port 443 for every host name. This is the certificate browsers, API clients, agents and collectors see.
+- The same files are mounted into the UTMStack containers, which use them for connections inside the server.
+- The installer rewrites the nginx configuration on every update, and the new configuration always points to these two files. **Replace the files, not the paths.** Changes you make to the nginx configuration itself, including changes made by `certbot --nginx`, are lost at the next update.
+- There is no page in the web interface for certificates. You replace the files on the server.
+
+Agents install by default with the option **Skip TLS certificate validation (self-signed server)**, so they work with the self-signed certificate. After you install a trusted certificate, you can install new agents without that option.
+
+## Certificate requirements
+
+You need two files in PEM format (text files that start with `-----BEGIN`):
+
+| File | Contents | Name in UTMStack |
+|---|---|---|
+| Certificate | Your server certificate followed by the intermediate certificates (the full chain) | `utm.crt` |
+| Private key | The private key of the certificate, without a passphrase | `utm.key` |
+
+The certificate must cover every name users and agents use to reach the server. On a multi-tenant licence, every tenant has its own domain on the same server, so the certificate must also cover every tenant domain, for example with a wildcard certificate.
+
+<Warning>
+
+Never share your private key. Keep it secure and backed up.
+
+</Warning>
+
+## Method 1: Install a certificate you already have
+
+<Steps>
+  <Step title="Back up the current files">
+
+    ```bash
+    sudo cp /utmstack/cert/utm.crt /utmstack/cert/utm.crt.bak
+    sudo cp /utmstack/cert/utm.key /utmstack/cert/utm.key.bak
+    ```
+
+  </Step>
+  <Step title="Copy your certificate and key">
+
+    Replace `fullchain.pem` and `private.key` with the names of your files:
+
+    ```bash
+    sudo cp fullchain.pem /utmstack/cert/utm.crt
+    sudo cp private.key /utmstack/cert/utm.key
+
+    sudo chmod 644 /utmstack/cert/utm.crt
+    sudo chmod 600 /utmstack/cert/utm.key
+    ```
+
+    Use `cp`, not `mv`. On Red Hat Enterprise Linux, files copied into `/utmstack/cert` keep the security label the installer set on that folder.
+
+  </Step>
+  <Step title="Check the files and reload nginx">
+
+    ```bash
+    # Show the names and dates of the certificate
+    openssl x509 -in /utmstack/cert/utm.crt -noout -subject -dates
+
+    # Test the nginx configuration, then reload it
+    sudo nginx -t
+    sudo systemctl reload nginx
+    ```
+
+    If `nginx -t` reports an error, restore the `.bak` files and reload nginx again.
+
+  </Step>
+  <Step title="Check in the browser">
+
+    Open `https://your-domain` and confirm that the browser shows no warning. Then set **Base URL** in **Configure > Settings > Email Configuration** to the same address, so that links in emails use it.
+
+  </Step>
+</Steps>
+
+## Method 2: Get a free certificate from Let's Encrypt
+
+Let's Encrypt issues free certificates that are valid for 90 days. The examples use certbot, the Let's Encrypt client.
+
+### Prerequisites
+
+- A DNS name, for example `siem.example.com`, that points to the server's public IP address.
+- Port 80 on the server reachable from the internet while the certificate is issued or renewed. If you cannot open port 80, use the DNS challenge below.
+
+### Install certbot
+
+On Ubuntu and Debian:
+
+```bash
+sudo apt update
+sudo apt install certbot
+```
+
+On Red Hat Enterprise Linux, install the `certbot` package from the EPEL repository.
+
+### Get the certificate
+
+nginx on the server owns port 80 and redirects every request to HTTPS. certbot's standalone mode needs port 80 for a moment, so nginx is stopped while the certificate is issued. The web interface and agent connections are unavailable during that time, usually less than a minute.
+
+Replace `siem.example.com` with your DNS name:
+
+```bash
+sudo certbot certonly --standalone -d siem.example.com \
+  --pre-hook "systemctl stop nginx" \
+  --post-hook "systemctl start nginx"
+```
+
+certbot asks for an email address and for your agreement to the Let's Encrypt terms of service. It saves the two hooks, so renewals stop and start nginx in the same way.
+
+Then copy the certificate into UTMStack and reload nginx:
+
+```bash
+sudo cp /etc/letsencrypt/live/siem.example.com/fullchain.pem /utmstack/cert/utm.crt
+sudo cp /etc/letsencrypt/live/siem.example.com/privkey.pem /utmstack/cert/utm.key
+sudo chmod 644 /utmstack/cert/utm.crt
+sudo chmod 600 /utmstack/cert/utm.key
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Renew automatically
+
+certbot installs a timer that renews certificates before they expire. Add a deploy hook so that every renewed certificate is copied into UTMStack:
+
+```bash
+sudo tee /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh > /dev/null <<'EOF'
+#!/bin/bash
+# Copy the renewed certificate into UTMStack and reload nginx
+cp "$RENEWED_LINEAGE/fullchain.pem" /utmstack/cert/utm.crt
+cp "$RENEWED_LINEAGE/privkey.pem" /utmstack/cert/utm.key
+chmod 644 /utmstack/cert/utm.crt
+chmod 600 /utmstack/cert/utm.key
+systemctl reload-or-restart nginx
+EOF
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
+```
+
+Check that a certbot renewal timer is listed and active (depending on how certbot was installed, you may have to enable it first), then test a renewal without changing anything:
+
+```bash
+systemctl list-timers | grep certbot
+sudo certbot renew --dry-run
+```
+
+With the standalone method, the test also stops nginx for a moment.
+
+### Alternative: DNS challenge
+
+If port 80 cannot be reached from the internet, prove that you own the domain with a DNS record instead. certbot has plugins for many DNS providers. For example, with Cloudflare:
+
+```bash
+# Install the Cloudflare plugin
+sudo apt install python3-certbot-dns-cloudflare
+
+# Store the API token in a protected file
+sudo mkdir -p /root/.secrets
+echo "dns_cloudflare_api_token = YOUR_API_TOKEN" | sudo tee /root/.secrets/cloudflare.ini > /dev/null
+sudo chmod 600 /root/.secrets/cloudflare.ini
+
+# Get the certificate
+sudo certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
+  -d siem.example.com
+```
+
+Then copy the files and add the deploy hook as described above. With the DNS challenge, nginx does not need to stop.
+
+For a wildcard certificate, for example for tenant domains, use the DNS challenge with `-d "*.example.com" -d "example.com"`.
+
+## Monitor the certificate
+
+```bash
+# Expiry date of the installed certificate
+openssl x509 -enddate -noout -in /utmstack/cert/utm.crt
+
+# Expiry date as clients see it
+echo | openssl s_client -servername siem.example.com -connect siem.example.com:443 2>/dev/null | openssl x509 -noout -dates
+```
+
+Keep a copy of your certificate and key outside `/utmstack/cert`, so that you can put them back if the files are ever replaced. Do not delete files in `/utmstack/locks`: removing the certificate step's lock makes the installer generate a new self-signed certificate over yours.
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+  <AccordionTab title="The browser does not trust the certificate" icon="hi-window-solid">
+
+    - Make sure `utm.crt` holds the full chain (use `fullchain.pem` from Let's Encrypt, not `cert.pem`).
+    - Make sure the certificate covers the name in the browser's address bar.
+    - Check that nginx was reloaded after you copied the files.
+
+  </AccordionTab>
+
+  <AccordionTab title="certbot reports that port 80 is in use" icon="fa fa-plug">
+
+    nginx is still running. Use the `--pre-hook "systemctl stop nginx"` and `--post-hook "systemctl start nginx"` options shown above, or use the DNS challenge.
+
+  </AccordionTab>
+
+  <AccordionTab title="nginx does not start after the change" icon="mi-sync">
+
+    ```bash
+    sudo nginx -t
+    journalctl -u nginx --no-pager | tail -n 50
+
+    # Check that the certificate and the key belong together:
+    # the two lines must be identical
+    openssl x509 -noout -pubkey -in /utmstack/cert/utm.crt | openssl sha256
+    openssl pkey -pubout -in /utmstack/cert/utm.key | openssl sha256
+    ```
+
+    If the key has a passphrase, remove it or use the original key. To go back, restore the `.bak` files and run `sudo systemctl reload nginx`.
+
+  </AccordionTab>
+
+  <AccordionTab title="The certificate shows as expired" icon="hi-exclamationTriangle-solid">
+
+    - Run `sudo certbot renew` and check that the deploy hook copied the new files.
+    - Check that the server's date and time are correct.
+
+  </AccordionTab>
+
+</Accordion>

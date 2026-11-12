@@ -1,0 +1,57 @@
+UTMStack v12 can limit how many AI requests each tenant makes per day. This page explains what counts as a request, where the limit comes from, and where you see the day's usage.
+
+## What counts as one request
+
+Each of these counts as one AI request for the tenant:
+
+- A message you send in the SOC-AI assistant.
+- A click on **Generate AI summary** in an alert.
+- One alert analysed by automatic triage (**Auto-analyze alerts**).
+
+Requests are counted per tenant and per day. The day resets at midnight UTC.
+
+When there is no limit, requests are not counted.
+
+## Where the limit comes from
+
+Two values decide a tenant's daily allowance:
+
+| Value | Where it is set | Default |
+|---|---|---|
+| **Instance limit** | A setting of the UTMStack server. | No limit. |
+| **AI request cap** of the tenant | **Tenants** page, edit the tenant, switch on **Cap this tenant** ("An operational cap, per day. Uncapped, they spend against the instance licence."). Only on a multi-tenant installation, by the instance operator. | No cap. |
+
+A tenant never gets more than the instance limit. If the tenant has no cap of its own, the instance limit applies.
+
+What the number means:
+
+| Value | Meaning |
+|---|---|
+| No value | No limit of its own; the instance limit applies. |
+| `0` | The AI is not available to this tenant. |
+| A number, for example `200` | That many requests per day. |
+
+On a single-tenant installation there is no **Tenants** page, so in practice there is no daily limit.
+
+## When the allowance is used up
+
+Further requests that day are refused with the message "this tenant has used the AI requests its plan allows for today". The assistant cannot answer and **Generate AI summary** fails until midnight UTC.
+
+## Where you see usage
+
+| Place | What it shows |
+|---|---|
+| **Configure > Settings > SOC-AI**, **AI allowance today** | Requests used today "of N requests", or "requests — the AI is not available to this tenant". Hidden when there is no limit. The hint reads "Set by whoever runs the instance. It resets at midnight UTC." |
+| **Tenants** page, **AI today** | Each tenant's usage today, or "no cap". |
+| **Configure > Settings > SOC-AI**, **Usage** (instance operator using ThreatWinds) | **Chat completions (today)** at ThreatWinds and "Resets in …". |
+
+Programs can read the same numbers with `GET /api/v1/soc-ai/usage`, which answers with `limit`, `used`, `remaining` (only when a limit is set) and `resetsAt` (UTC time). See **SOC-AI API**.
+
+## ThreatWinds billing
+
+With the ThreatWinds provider, AI use is "Billed through your ThreatWinds subscription." With any other provider, your provider bills you directly under its own terms.
+
+## Related pages
+
+- **AI Providers**
+- **SOC-AI Assistant**

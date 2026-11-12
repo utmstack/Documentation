@@ -1,0 +1,286 @@
+Detection rules for **Sophos Central** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `sophos-central`, which the **Sophos Central** integration sends.
+
+This category contains **20** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Application Hijacking prevented in Sophos Central | Persistence | T1574 - Hijack Execution Flow | C:3 / I:3 / A:3 |
+| Credential Theft Attemp detected in Sophos Central | Credential Access | T1003 - OS Credential Dumping | C:3 / I:3 / A:3 |
+| Man in the Middle Attack detected in Sophos Central | Credential Access | T1557 - Adversary-in-the-Middle | C:3 / I:3 / A:3 |
+| Managed Threat Response Critical Alert | Threat Detection | T1562 - Impair Defenses | C:3 / I:3 / A:3 |
+| Probable attempt to exploit vulnerabilities detected in Sophos Central | Credential Access | T1212 | C:3 / I:3 / A:3 |
+| Rapid Sophos Central ZTNA Authentication Failures | Credential Access | T1110 - Brute Force | C:1 / I:2 / A:2 |
+| Repeated Sophos Central Behavioral Detections | Threat Detection | Vendor threat detection | C:3 / I:3 / A:2 |
+| Repeated Sophos Central ZTNA Authentication Failures | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:3 |
+| Server Protection Alerts | Server Security | T1505 - Server Software Component | C:3 / I:3 / A:2 |
+| Sophos Central CryptoGuard Detection | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:2 |
+| Sophos Central Endpoint Protection Unavailable | Device Health | Endpoint protection health | C:1 / I:2 / A:2 |
+| Sophos Central Endpoint Threat or PUA Detection | Threat Detection | Vendor threat detection | C:3 / I:3 / A:2 |
+| Sophos Central Exploit Prevention Triggered | Exploit Attempt | T1203 - Exploitation for Client Execution | C:3 / I:3 / A:2 |
+| Sophos Central Firewall ATP Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:3 |
+| Sophos Central Malware Detection or Cleanup Failure | Threat Detection | Vendor threat detection | C:3 / I:3 / A:3 |
+| Sophos Central Potentially Compromised Device | Threat Detection | Vendor threat detection | C:3 / I:3 / A:3 |
+| Sophos Central Ransomware Detection | Ransomware Activity | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Sophos Central Real-Time Protection Disabled | Defense Evasion | T1562 - Impair Defenses | C:2 / I:2 / A:1 |
+| Sophos Central Tamper Protection Warning | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:2 |
+| Sophos Central Threat or Cleanup Failure | Threat Detection | Vendor threat detection | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Application Hijacking prevented in Sophos Central** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yaml)):
+
+```yaml
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
+dataTypes:
+- sophos-central
+name: Application Hijacking prevented in Sophos Central
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Persistence
+technique: T1574 - Hijack Execution Flow
+adversary: origin
+references:
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
+- https://attack.mitre.org/tactics/TA0003/
+- https://attack.mitre.org/techniques/T1574/
+description: Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs.
+  Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over
+  time. Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control
+  or other restrictions on execution.
+where: (equals("log.type", "Event::Endpoint::HmpaApplicationHijacking")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip
+
+```
+
+---
+
+## Rule Details
+
+### Application Hijacking prevented in Sophos Central
+
+Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs. Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over time. Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control or other restrictions on execution.
+
+- **Category:** Persistence
+- **Technique:** T1574 - Hijack Execution Flow
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_app_hijacking_prevented.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0003/](https://attack.mitre.org/tactics/TA0003/)
+- **Reference:** [https://attack.mitre.org/techniques/T1574/](https://attack.mitre.org/techniques/T1574/)
+
+### Credential Theft Attemp detected in Sophos Central
+
+The theft of access credentials to different pages or apps occurs due to the use of insecure passwords, which are used in different accounts. This data is often exposed as a result of leaks that arise from the exploitation of vulnerabilities in different platforms.
+
+- **Category:** Credential Access
+- **Technique:** T1003 - OS Credential Dumping
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_credential_theft_attack_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_credential_theft_attack_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/](https://attack.mitre.org/techniques/T1003/)
+
+### Man in the Middle Attack detected in Sophos Central
+
+Adversaries may attempt to position themselves between two or more networked devices using an adversary-in-the-middle technique to support follow-on behaviors such as Network Sniffing or Transmitted Data Manipulation. By abusing features of common networking protocols that can determine the flow of network traffic (e.g. ARP, DNS, LLMNR, etc.), adversaries may force a device to communicate through an adversary controlled system so they can collect information or perform additional actions.
+
+- **Category:** Credential Access
+- **Technique:** T1557 - Adversary-in-the-Middle
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_man_in_the_middle_attack_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_man_in_the_middle_attack_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1557/](https://attack.mitre.org/techniques/T1557/)
+
+### Managed Threat Response Critical Alert
+
+Detects critical alerts from Sophos Managed Threat Response (MTR) service indicating active threats that require immediate investigation and response, including advanced persistent threats and sophisticated attack techniques.
+
+- **Category:** Threat Detection
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [managed_threat_response_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/managed_threat_response_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+
+### Probable attempt to exploit vulnerabilities detected in Sophos Central
+
+An exploit is a small program designed to exploit a particular bug in an operating system or program for various purposes. Depending on the type of vulnerability, the exploit can have different purposes, such as gaining administrator permissions on the system or bypassing security measures in order to carry out a deeper infection.
+
+- **Category:** Credential Access
+- **Technique:** T1212
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_exploit_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_exploit_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1212/](https://attack.mitre.org/techniques/T1212/)
+
+### Rapid Sophos Central ZTNA Authentication Failures
+
+Ten ZTNA authentication failures for the same vendor-reported IP and Sophos account in one minute. This counts failures, not distinct users, and does not establish password spraying.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:1 / I:2 / A:2
+- **Rule file:** [sophos_central_potential_password_spraying_attack.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_potential_password_spraying_attack.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Repeated Sophos Central Behavioral Detections
+
+Repeated behavioral detections on the same managed endpoint and Sophos account. Inspect the vendor threat name for its specific behavior or MITRE technique; these events do not all indicate process injection.
+
+- **Category:** Threat Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [behavioral_analysis_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/behavioral_analysis_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/MaliciousBehaviorTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/MaliciousBehaviorTypes/)
+
+### Repeated Sophos Central ZTNA Authentication Failures
+
+Ten ZTNA authentication failures for the same vendor-reported IP and Sophos account in five minutes. Investigate failed sign-ins; the events do not establish successful access.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_possible_brute_force_attack.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_possible_brute_force_attack.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Server Protection Alerts
+
+Detects critical security alerts on servers protected by Sophos Central, including unauthorized access attempts, service tampering, and malware targeting server infrastructure. This rule monitors for high-severity threats specifically targeting server endpoints.
+
+- **Category:** Server Security
+- **Technique:** T1505 - Server Software Component
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [server_protection_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/server_protection_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/)
+- **Reference:** [https://attack.mitre.org/techniques/T1505/](https://attack.mitre.org/techniques/T1505/)
+
+### Sophos Central CryptoGuard Detection
+
+Sophos reports local or remote ransomware activity. The managed endpoint is the affected target, except SMBOrigin, which explicitly identifies the endpoint attempting remote encryption. Remote peer addresses are not inferred from the message.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_central_ransomware_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_ransomware_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Sophos Central Endpoint Protection Unavailable
+
+Sophos reports an unprotected computer/server or a protection service that is not running, at high or critical vendor severity. Verify installation, service health and approved maintenance. This warning does not establish an attack.
+
+- **Category:** Device Health
+- **Technique:** Endpoint protection health
+- **Impact:** C:1 / I:2 / A:2
+- **Rule file:** [sophos_central_endpoint_protection_unavailable.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_endpoint_protection_unavailable.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/)
+
+### Sophos Central Endpoint Threat or PUA Detection
+
+Sophos reports an endpoint threat, potentially unwanted application, or failed PUA cleanup. A PUA can be legitimate software restricted by policy. Completed cleanup and dismissed events are excluded.
+
+- **Category:** Threat Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [endpoint_threat_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/endpoint_threat_detection.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+
+### Sophos Central Exploit Prevention Triggered
+
+Detects when Sophos exploit prevention is triggered, indicating attempted exploitation of vulnerable applications. This includes shellcode protection, CTF protocol exploitation attempts, and process hijacking attempts.
+
+- **Category:** Exploit Attempt
+- **Technique:** T1203 - Exploitation for Client Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_prevention_triggers.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/exploit_prevention_triggers.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/techniques/T1203/](https://attack.mitre.org/techniques/T1203/)
+
+### Sophos Central Firewall ATP Detection
+
+Sophos Firewall ATP logged an attempt to communicate with a known botnet or command-and-control server. The notification alone does not prove that the connection succeeded or that the endpoint is compromised.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_possible_botnet_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_possible_botnet_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/Alerts/FirewallAlerts/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/Alerts/FirewallAlerts/)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### Sophos Central Malware Detection or Cleanup Failure
+
+Sophos reports malware detection or unsuccessful cleanup. Review the vendor event and remediation status. Successful cleanup and dismissed detections do not create a fresh malware alert.
+
+- **Category:** Threat Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_malware_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_malware_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+
+### Sophos Central Potentially Compromised Device
+
+Sophos reports a potentially compromised device. Investigate device health and network activity. Blocking a peripheral is a separate policy event and does not establish device compromise.
+
+- **Category:** Threat Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_central_device_compromised.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_device_compromised.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/NetworkAccessEventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/NetworkAccessEventTypes/)
+
+### Sophos Central Ransomware Detection
+
+Sophos reports ransomware behavior or blocked encryption. Review vendor details and affected files; detection or prevention does not prove successful encryption.
+
+- **Category:** Ransomware Activity
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransomware_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/ransomware_detection.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Sophos Central Real-Time Protection Disabled
+
+Sophos reports disabled real-time protection. Review approved maintenance and device health before concluding that an adversary impaired defenses.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [sophos_central_real_time_protection_disabled.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_real_time_protection_disabled.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/)
+
+### Sophos Central Tamper Protection Warning
+
+Sophos reports a tamper-protection trigger or an account health warning that endpoint/server tamper protection is off. Account health warnings can cover multiple devices; they do not identify an attacker. Resolution events are excluded.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [tamper_protection_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/tamper_protection_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/AccountHealthCheck/FixEndpointTamperProtect/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/AccountHealthCheck/FixEndpointTamperProtect/)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Sophos Central Threat or Cleanup Failure
+
+Sophos reports a runtime, network, AMSI or outbreak detection, or failed cleanup. Review the exact vendor type and remediation status; successful cleanup and resolved events are excluded.
+
+- **Category:** Threat Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_central_unknown_threat_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_central/sophos_central_unknown_threat_detected.yaml)
+- **Reference:** [https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/](https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/)

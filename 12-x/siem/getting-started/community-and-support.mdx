@@ -1,0 +1,72 @@
+Join the UTMStack community to get help, share detection rules and filters, and contribute to the project. This page lists where to ask questions, how to report problems and security issues, and how to contribute.
+
+## Documentation
+
+- [Official documentation](https://docs.utmstack.com): user guides, installation and integration guides.
+- [GitHub Wiki](https://github.com/utmstack/UTMStack/wiki): technical articles for developers.
+
+Inside UTMStack, the instance operator finds the same links in **Configure > Settings > About**, under **Support**: **Documentation**, **GitHub repository**, **Report an issue** and **utmstack.com**.
+
+## Ask the community
+
+- [GitHub Discussions](https://github.com/utmstack/UTMStack/discussions): questions, ideas and longer conversations, including sharing rules and filters.
+- [Discord](https://discord.gg/ZznvZ8xcHh): chat with other users and the UTMStack team.
+- [YouTube channel](https://www.youtube.com/@utmstack): video tutorials and walkthroughs.
+
+## Report a problem
+
+Open an issue on [GitHub Issues](https://github.com/utmstack/UTMStack/issues). This is also where **Report an issue** in **Configure > Settings > About** leads.
+
+A good report includes:
+
+1. The UTMStack version. Run this on the server:
+
+   ```bash
+   sudo /usr/local/bin/utmstack_installer --version
+   ```
+
+2. The operating system and its version.
+3. What you did, what you expected and what happened instead, with screenshots if the problem is in the web interface.
+4. The relevant logs, with passwords, keys and personal data removed:
+
+   | Problem area | Where to look |
+   |---|---|
+   | Installation | `/var/log/utmstack-installer.log` |
+   | Automatic updates | `/utmstack/updates/logs/utmstack-updater.log` |
+   | A UTMStack service | `docker service logs utmstack_<service>`, for example `docker service logs utmstack_backend` |
+
+<Warning>
+
+Never post `/root/utmstack.yml`, your connection key, API keys or licence files in a public issue. They contain secrets that give access to your server.
+
+</Warning>
+
+## Report a security vulnerability
+
+Do not report security vulnerabilities in public issues or discussions. Send them privately to **support@utmstack.com**, as described in the project's security policy. The **Security disclosure** link in **Configure > Settings > About** opens the repository's security page.
+
+## Contribute
+
+We welcome contributions from the community. UTMStack is open-source software licensed under the GNU Affero General Public License version 3 (AGPL-3.0).
+
+To contribute code or documentation:
+
+1. Fork the [UTMStack repository](https://github.com/utmstack/UTMStack).
+2. Clone your fork to your machine.
+3. Create a branch for your changes.
+4. Commit your changes to that branch and push it to your fork.
+5. Open a pull request against the UTMStack repository.
+6. Answer the maintainers' feedback and update your pull request as needed.
+
+Read the full [Contributing Guide](https://github.com/utmstack/UTMStack/blob/v12/CONTRIBUTING.md) before you start. The UTMStack v12 source code is on the `v12` branch.
+
+Ways to help:
+
+- **Bug reports**: open an issue with logs and the steps to reproduce the problem.
+- **Feature requests**: start a conversation in GitHub Discussions.
+- **Pull requests**: fix bugs, add integrations or improve the documentation.
+- **Detection content**: the correlation rules, filters, response flows, dashboards and compliance frameworks that ship with UTMStack v12 are in the `definitions` folder of the repository. Improvements and new rules are welcome as pull requests.
+
+## Commercial support
+
+For guaranteed response times, implementation help, SOC architecture consulting and team training, contact UTMStack through [utmstack.com](https://utmstack.com).

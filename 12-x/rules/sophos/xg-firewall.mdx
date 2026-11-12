@@ -1,0 +1,155 @@
+Detection rules for **Sophos Firewall (XG)** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `firewall-sophos-xg`, which the **Sophos Firewall (XG)** integration sends.
+
+This category contains **9** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Probable Sophos denial of service (DoS) attack | Impact | T1499 - Endpoint Denial of Service | C:3 / I:3 / A:3 |
+| Probable Sophos ip spoofing attack | Impact | T1499 - Endpoint Denial of Service | C:3 / I:3 / A:3 |
+| Probable malware detected by sophos firewall | Execution | T1204 - User Execution | C:3 / I:3 / A:3 |
+| Repeated Sophos Administrator Authentication Failures | Credential Access | T1110.001 - Brute Force | C:3 / I:3 / A:2 |
+| Repeated Sophos Advanced Threat Protection Detections | Malware | T1204 - User Execution | C:3 / I:3 / A:2 |
+| Repeated Sophos IPS Priority 1 or 2 Detections | Intrusion Detection | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| Repeated Sophos VPN Authentication Failures | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| Sophos Appliance Event 17925 | System Administration | Vendor appliance event | C:2 / I:2 / A:1 |
+| Sophos Critical Priority Event | Device Health | Vendor critical event | C:3 / I:3 / A:3 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Probable Sophos denial of service (DoS) attack** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_denial_of_service.yaml)):
+
+```yaml
+# Sophos source-contract review; thresholds and impact ratings preserved.
+dataTypes:
+- firewall-sophos-xg
+name: Probable Sophos denial of service (DoS) attack
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: T1499 - Endpoint Denial of Service
+adversary: origin
+references:
+- https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html
+- https://attack.mitre.org/tactics/TA0040
+- https://attack.mitre.org/techniques/T1499/
+description: A Denial of Service (DoS) attack is an attempt to make a machine or network resource unavailable to
+  the intended users. One common method of attack involves saturating the target machine with external communications
+  requests so that it cannot respond to legitimate traffic or the machine responds so slowly that it is essentially
+  useless.
+where: equals("log.type","Firewall") && equalsIgnoreCase("log.component","DoS attacks") && equalsIgnoreCase("log.subType","DoS")
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.sophosScope
+- adversary.ip
+- target.ip
+
+```
+
+---
+
+## Rule Details
+
+### Probable Sophos denial of service (DoS) attack
+
+A Denial of Service (DoS) attack is an attempt to make a machine or network resource unavailable to the intended users. One common method of attack involves saturating the target machine with external communications requests so that it cannot respond to legitimate traffic or the machine responds so slowly that it is essentially useless.
+
+- **Category:** Impact
+- **Technique:** T1499 - Endpoint Denial of Service
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_denial_of_service.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_denial_of_service.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040](https://attack.mitre.org/tactics/TA0040)
+- **Reference:** [https://attack.mitre.org/techniques/T1499/](https://attack.mitre.org/techniques/T1499/)
+
+### Probable Sophos ip spoofing attack
+
+IP spoofing is the creation of Internet Protocol (IP) packets which have a modified source address in order to either hide the identity of the sender, to impersonate another computer system, or both. It is a technique often used by bad actors to invoke DDoS attacks against a target device or the surrounding infrastructure.
+
+- **Category:** Impact
+- **Technique:** T1499 - Endpoint Denial of Service
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_ip_spoofing_attack.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_ip_spoofing_attack.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0040](https://attack.mitre.org/tactics/TA0040)
+- **Reference:** [https://attack.mitre.org/techniques/T1499/](https://attack.mitre.org/techniques/T1499/)
+
+### Probable malware detected by sophos firewall
+
+The Sophos firewall has detected a suspicious event and made some actions according to his configuration
+
+- **Category:** Execution
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_firewall_probable_malware_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_firewall_probable_malware_detected.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+
+### Repeated Sophos Administrator Authentication Failures
+
+Repeated administrator sign-in failures from the same source address and firewall within 15 minutes. Successful administration and unrelated configuration failures are excluded.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_password_guessing_on_administrator_account.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_password_guessing_on_administrator_account.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006](https://attack.mitre.org/tactics/TA0006)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### Repeated Sophos Advanced Threat Protection Detections
+
+Repeated ATP Alert or Drop records from the same source address and firewall. ATP signature detection does not establish a successful connection or endpoint compromise.
+
+- **Category:** Malware
+- **Technique:** T1204 - User Execution
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [advanced_threat_protection_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/advanced_threat_protection_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/](https://attack.mitre.org/techniques/T1204/)
+
+### Repeated Sophos IPS Priority 1 or 2 Detections
+
+Repeated IDP signature/anomaly detections carrying rule priority 1 or 2 (or explicit High/Critical severity), from the same source to the same destination on the same firewall. A Drop remains denied; a Detect does not prove exploitation succeeded.
+
+- **Category:** Intrusion Detection
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [sophos_xg_ips_signatures.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_xg_ips_signatures.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### Repeated Sophos VPN Authentication Failures
+
+Repeated failed SSL VPN, VPN or VPN portal authentication from the same source address and firewall. Successful authentication, tunnel termination and IKE parsing errors are excluded.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [sophos_xg_vpn_auth_failures.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_xg_vpn_auth_failures.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Sophos Appliance Event 17925
+
+Sophos reports appliance message ID 17925. Inspect the original vendor message and approved administration. The available field guide lists this legacy identifier without a message body; this event alone does not establish a vulnerability, account abuse or unauthorized access.
+
+- **Category:** System Administration
+- **Technique:** Vendor appliance event
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [sophos_initial_access_by_guest_account.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_initial_access_by_guest_account.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/001/](https://attack.mitre.org/techniques/T1078/001/)
+
+### Sophos Critical Priority Event
+
+Sophos reports Emergency, Alert or Critical priority/severity. Review the vendor event details; this broad device signal alone does not establish exploitation.
+
+- **Category:** Device Health
+- **Technique:** Vendor critical event
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [sophos_high_severity_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/sophos/sophos_xg_firewall/sophos_high_severity_alerts.yaml)
+- **Reference:** [https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html](https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html)

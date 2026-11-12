@@ -1,0 +1,158 @@
+The **O365** integration brings Microsoft 365 audit activity into UTMStack through the Office 365 Management Activity API. You register an app in Microsoft Entra ID, and UTMStack uses it to read audit and security events from Exchange, SharePoint, OneDrive, Teams and Microsoft Entra ID. Nothing is installed in your Microsoft 365 tenant.
+
+<Tip>
+
+To also collect Microsoft Defender alerts and incidents, sign-ins and risk detections, use the separate **Microsoft 365 through Microsoft Graph** integration. You can use both integrations at the same time.
+
+</Tip>
+
+## How it works
+
+- UTMStack signs in with the app's client ID and secret and reads the Office 365 Management Activity API every 5 minutes.
+- It reads these content types: `Audit.AzureActiveDirectory`, `Audit.Exchange`, `Audit.General`, `Audit.SharePoint` and `DLP.All`.
+- Events are stored with the data type `o365`. UTMStack v12 ships 73 detection rules for this data type; see **Office 365** in the **Rules** tab.
+
+## Before you start
+
+- In Microsoft Entra ID, you need a role that can register applications and grant admin consent.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach Microsoft over HTTPS (outbound port 443).
+
+## Step 1: Register an app in Microsoft Entra ID
+
+<Steps>
+<Step title="Open Microsoft Entra ID">
+
+Open the [Azure portal](https://portal.azure.com/) and click **Microsoft Entra ID**.
+
+![Office365](/assets/5e9ef482-93ad-54da-9e48-6b600757b449)
+
+</Step>
+<Step title="Go to App registrations">
+
+In the left menu, click **App registrations**.
+
+![Office365](/assets/ef4ffad3-61ef-5da2-a646-950bcfd8a01a)
+
+</Step>
+<Step title="Register a new app">
+
+Click **New registration**. Name it **UTMStack O365 Agent**, select **Accounts in this organizational directory only (Single tenant)** and click **Register**.
+
+![Office365](/assets/64905007-d80f-52d0-8480-0c1b56e2f316)
+
+</Step>
+<Step title="Create a client secret">
+
+In the new app, go to **Certificates & secrets > New client secret**. Add a description, set it to expire in **730 days (24 months)** and click **Add**.
+
+![Office365](/assets/54aafcfe-0f6c-5532-af54-30948f0a5fee)
+
+<Warning>
+
+Copy the secret **Value** now. Microsoft shows it only once and you cannot read it again later.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 2: Add the API permissions
+
+<Steps>
+<Step title="Add Office 365 Management API permissions">
+
+In the same app, go to **API permissions > Add a permission** and search for **Office 365 Management APIs**.
+
+![Office365](/assets/8abeaccc-3c21-5de9-8892-1af77be31d3f)
+
+</Step>
+<Step title="Grant the ActivityFeed permissions">
+
+Select **Application permissions** and add **ActivityFeed.Read** and **ActivityFeed.ReadDlp**. Click **Grant admin consent for** your organization and confirm.
+
+![Office365](/assets/b1c973fe-9cf6-5653-8dfb-aa3e47db3c79)
+
+</Step>
+<Step title="Add Microsoft Graph permissions">
+
+Back in **Add a permission**, click **Microsoft Graph**.
+
+![Office365](/assets/6684ed33-be4a-56c0-bc19-6c49340a1fa7)
+
+</Step>
+<Step title="Add the delegated SecurityAlert permissions">
+
+Select **Delegated permissions** and add **SecurityAlert.Read.All** and **SecurityAlert.ReadWrite.All**. Click **Grant admin consent for** your organization and confirm.
+
+![Office365](/assets/0cc173fd-9650-5e2d-9e70-19d2a6173b37)
+
+</Step>
+<Step title="Add the application SecurityAlert permissions">
+
+Select **Application permissions** and add **SecurityAlert.Read.All** and **SecurityAlert.ReadWrite.All**. Click **Grant admin consent for** your organization and confirm.
+
+![Office365](/assets/940d324c-a42b-5d3b-9e0b-abe8d2095098)
+
+</Step>
+</Steps>
+
+## Step 3: Make sure audit logging is on
+
+The Office 365 Management Activity API returns events only when audit logging is turned on for your organization.
+
+1. Sign in to the Microsoft Purview compliance portal and select **Audit** in the left navigation.
+2. If auditing is not turned on, a banner asks you to start recording user and admin activity. Select it.
+3. The change can take up to 60 minutes to take effect.
+
+## Step 4: Copy the app IDs
+
+Go to the app's **Overview** page and copy the **Application (client) ID** and the **Directory (tenant) ID**. You also need the secret value you copied in Step 1.
+
+![Office365](/assets/4bb4a56d-a03a-5aff-b250-d4d3ee052d41)
+
+## Step 5: Connect Microsoft 365 in UTMStack
+
+Each Microsoft 365 tenant connection is a **config group**. You can add more than one.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `O365` and open the **O365** card. The form is at the end of the setup guide, under **Connect your Microsoft 365 tenant**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **Tenant ID (Directory ID)** | The Directory (tenant) ID from Step 4. |
+| **Client ID (Application ID)** | The Application (client) ID from Step 4. |
+| **Client Secret** | The secret value from Step 1. |
+| **Cloud Environment (optional)** | Leave empty for the commercial Microsoft cloud. For a government cloud, type exactly `GCC`, `GCCHigh` or `DoD`. Any other value is treated as the commercial cloud. |
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. UTMStack checks the credentials by signing in to Microsoft before it saves them. When the check passes, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+| Cloud Environment value | Sign-in address | Management API address |
+|---|---|---|
+| (empty) or `Commercial` | `login.microsoftonline.com` | `manage.office.com` |
+| `GCC` | `login.microsoftonline.com` | `manage-gcc.office.com` |
+| `GCCHigh` | `login.microsoftonline.us` | `manage.office365.us` |
+| `DoD` | `login.microsoftonline.us` | `manage.protection.apps.mil` |
+
+## Check that events arrive
+
+Open the **O365** card again and click **View logs**. Log Explorer opens filtered to the `o365` data type for the last 24 hours. UTMStack reads new content every 5 minutes, so allow a few minutes after you save.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per Microsoft 365 tenant.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. The client secret shows a masked value; leave it as it is to keep the stored secret. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.
+- **Renew the secret**: the client secret expires after the period you chose in Step 1. Before it expires, create a new secret in Microsoft Entra ID, then edit the config group and paste the new value.

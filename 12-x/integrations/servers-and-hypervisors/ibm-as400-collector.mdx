@@ -1,0 +1,106 @@
+The UTMStack AS/400 Collector is a Linux service that connects to your IBM AS/400 (IBM i) systems, pulls their security journal entries and sends them to UTMStack v12 for correlation and alerting. Nothing is installed on the AS/400 itself. One Collector can watch several AS/400 systems.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **As 400** (category Operating System) |
+| Data type | `ibm-as400` |
+| Service on the Collector host | `UTMStackAS400Collector` |
+| Install folder | `/opt/utmstack-as400-collector` |
+| Included in UTMStack | A parsing filter and 8 detection rules |
+
+## Before you begin
+
+- A Linux host with an **x86-64 (AMD64)** processor. UTMStack v12 publishes the AS/400 Collector for AMD64 only.
+- The install command in the product uses `apt`, so it is written for **Debian or Ubuntu**.
+- The host must reach your UTMStack server on **443/TCP** and must have network access to each AS/400 system you want to monitor.
+- Root rights (`sudo`) on the host. Java is installed automatically during the install.
+- The **QAUDJRN** security audit journal must be active on each AS/400 system (step 3).
+
+<Note>
+
+The AS/400 Collector is a separate program from the UTMStack Forwarder. You do not need a Forwarder for AS/400.
+
+</Note>
+
+## Step 1: Install the AS/400 Collector
+
+<Steps>
+  <Step title="Open the As 400 card">
+    In UTMStack, go to **Configure > Integrations** and open the **As 400** card.
+  </Step>
+  <Step title="Copy the command">
+    Under **Install the AS/400 Collector**, copy the command. It contains your server address and connection key; only administrators see the key, other users see `*******`.
+  </Step>
+  <Step title="Run it on the Linux host">
+    Run the command on a Linux host that can reach both UTMStack and your AS/400 systems.
+  </Step>
+</Steps>
+
+The command looks like this:
+
+```bash
+sudo bash -c "
+  apt update -y && apt install wget -y && \
+  mkdir -p /opt/utmstack-as400-collector && \
+  wget --no-check-certificate -P /opt/utmstack-as400-collector \
+    https://<server>/private/dependencies/collector/as400/utmstack_as400_collector_service && \
+  chmod 755 /opt/utmstack-as400-collector/utmstack_as400_collector_service && \
+  /opt/utmstack-as400-collector/utmstack_as400_collector_service install <server> <connection-key> yes
+"
+```
+
+The last argument is "skip TLS certificate validation": `yes` accepts the server's self-signed certificate, `no` requires a certificate the host trusts.
+
+The install checks the connection to UTMStack, downloads the collector's Java component, installs Java if needed, registers the collector, creates the configuration file and starts the `UTMStackAS400Collector` service.
+
+## Step 2: Add your AS/400 systems
+
+The systems to monitor are set in a local file, not in the web interface. Edit `/opt/utmstack-as400-collector/as400-config.yaml` and add one entry per AS/400 system:
+
+```yaml
+servers:
+  - tenant:   default
+    hostname: 10.0.0.5
+    userId:   QSECOFR
+    password: changeme
+```
+
+| Field | What to enter |
+|---|---|
+| `tenant` | A name that identifies this entry. The template uses `default`. |
+| `hostname` | The IP address or host name of the AS/400 system. |
+| `userId` | The user the collector signs in with. |
+| `password` | That user's password. |
+
+- All four fields are required for every entry. You can list as many systems as you need.
+- The collector watches this file and reloads it when you save. You do not need to restart the service.
+- The collector encrypts the password before it uses it, but the file holds what you type. Limit who can read this file on the host.
+
+## Step 3: Turn on audit journaling on the AS/400
+
+On each AS/400 system, make sure the **QAUDJRN** security audit journal is active. The procedure differs between IBM i versions; see IBM's documentation.
+
+## Step 4: Check that logs arrive
+
+- In the **As 400** drawer, click **View logs**. Log Explorer opens with the `ibm-as400` data type for the last 24 hours.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+- On the Collector host, check the service with `sudo systemctl status UTMStackAS400Collector` and read the log file `/opt/utmstack-as400-collector/logs/utmstack_as400_collector.log`.
+
+## Update the collector
+
+The AS/400 Collector does not update itself. To update it, uninstall it and install it again with the command from the **As 400** card. Keep a copy of `as400-config.yaml` first, because the uninstall command deletes the install folder.
+
+## Uninstall the collector
+
+Expand **Optional — Uninstall the Collector** in the **As 400** card, or run:
+
+```bash
+sudo bash -c "
+  /opt/utmstack-as400-collector/utmstack_as400_collector_service uninstall && \
+  rm -rf /opt/utmstack-as400-collector
+"
+```
+
+This stops the service and deletes all its files, including `as400-config.yaml`.

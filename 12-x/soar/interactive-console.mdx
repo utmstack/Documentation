@@ -1,0 +1,81 @@
+The Interactive Console runs commands on one machine through its UTMStack agent, without opening SSH or Remote Desktop. Use it to investigate a machine, contain a threat by hand, or test a command before you put it in a flow.
+
+## Open the console
+
+You can open it in two places:
+
+- **SOAR > Interactive Console**. The left list shows your agents with a search box (**Search agents…**). Select an agent to open its console. Until you do, the page reads "Select an agent — Choose an agent from the list to open its interactive console."
+- From a host in **Configure > Data Sources**: the **Console** section ("Run commands on this host through its agent (live response).") has an **Open console** button.
+
+Who can use it: users with the `soar.write` permission (Administrator and Analyst roles). Viewers are refused.
+
+## Run commands
+
+<Steps>
+  <Step title="Select the agent">
+
+    Agents installed with remote control disabled show a lock and "Remote control disabled". They refuse every command, and this can only be changed by reinstalling the agent on that machine.
+
+  </Step>
+  <Step title="Confirm your password">
+
+    Before the first command, the console asks you to authenticate again ("Authenticate to run commands on this agent."). Type your UTMStack password. The characters are shown as `*`.
+
+  </Step>
+  <Step title="Choose the shell">
+
+    Use **Shell type** to pick the shell: `cmd` or `powershell` on Windows, `bash` or `sh` on Linux and macOS.
+
+  </Step>
+  <Step title="Type a command and press Enter">
+
+    "Type a command and press Enter to run it on the agent." The output appears below the command when it finishes.
+
+  </Step>
+</Steps>
+
+If the agent is offline, the console shows "Agent offline — commands are disabled".
+
+If a command is refused after the console has been open for a while, close the console and open it again to authenticate again.
+
+## Use variables
+
+The **Variables** button opens **Command variables**, where you create, edit and delete stored variables and insert them at the cursor. A variable is written `$[variables.NAME]` and is filled in when the command runs. Secret values are replaced by `****` in the output. See **Step Outputs and Variables**.
+
+## How commands run
+
+- Each command runs once and returns its full output when it finishes. Output is not streamed line by line.
+- Commands for one agent run one at a time. A long console command delays flow steps on the same machine, and the other way round.
+- Output longer than 65,536 characters is not shown; it ends with the error "string exceeds 65536 characters".
+- On Windows, text in other alphabets may appear garbled in the output.
+- A failing command may show only "exit status N" instead of the error text (seen in testing of UTMStack v12.0.1).
+
+## Where commands are recorded
+
+Every console command is stored in **SOAR > Execution history** with the origin **Manual** and the agent it ran on. The **Flow** column shows "Interactive console". See **Execution History and Run Statuses**.
+
+<Note>
+
+Use **Execution history** as the record of console commands. In testing of UTMStack v12.0.1, console commands and variable changes did not appear in **Configure > Settings > App Audit Logs**.
+
+</Note>
+
+## Use cases
+
+- **Investigation**: list processes, connections or users on a machine that raised an alert.
+- **Manual containment**: block an address or disable an account right away when no flow covers the alert.
+- **Testing**: run a command by hand, with the same shell, before you put it in a flow.
+- **Troubleshooting**: check that an agent is online and accepts commands.
+
+## Changed from UTMStack v11
+
+- The console now asks for your password before you run commands.
+- **Automation Variables** is no longer a separate page; use the **Variables** button.
+- **SOAR > Audit** is gone; the old address opens **Configure > Settings > App Audit Logs**. Console commands are listed in **Execution history**.
+- v11 refused commands that printed a secret. UTMStack v12 runs them and masks the secret in the output.
+
+## Related pages
+
+- **Step Outputs and Variables**
+- **Execution History and Run Statuses**
+- **Running Steps on Another Host**

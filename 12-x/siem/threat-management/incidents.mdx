@@ -1,0 +1,127 @@
+An incident groups related alerts so your team can investigate and resolve them as one case. This page explains how to create incidents, add alerts to them, assign and work them, and close them, and what UTMStack sends when an incident is created.
+
+## Open the Incidents page
+
+Go to **Threat Management > Incidents**.
+
+| What you want to do | Permission | Built-in roles |
+|---|---|---|
+| See incidents | `incidents.read` | Administrator, Analyst, Viewer |
+| Create incidents, change status, assign, link or unlink alerts, add notes | `incidents.write` | Administrator, Analyst |
+| Add alerts to an incident from the **Alerts** page | `alerts.write` | Administrator, Analyst |
+
+Incidents belong to one tenant.
+
+## The incident list
+
+| Control | What it does |
+|---|---|
+| **Table** / **Board** | Show incidents as a table, or as a board with one column per status. |
+| Status tabs | **All**, **Open**, **In review**, **Completed** and **Merged**. |
+| **Search incidents…** | Find incidents by name. |
+| Severity menu | **All severities**, **High**, **Medium** or **Low**. |
+| **Add filter** | Filter on **Assignee** (**is**). |
+| **Export CSV** | Download up to about 10,000 incidents of the current view, with Created, Name, Description, Status, Severity, Assignee and Alerts. |
+| **Create incident** | Start the creation wizard. |
+
+The table shows **Incident**, **Status**, **Severity**, **Assignee**, **Alerts** (how many alerts are linked) and **Created**. Click the status of an incident to change it.
+
+## Create an incident
+
+### From the Incidents page
+
+<Steps>
+
+<Step title="Start the wizard">
+
+Click **Create incident**.
+
+</Step>
+
+<Step title="Describe the incident (step 1 of 2)">
+
+Enter a **Name** (required) and a **Description**.
+
+</Step>
+
+<Step title="Pick the alerts (step 2 of 2)">
+
+Select one or more alerts from the list of top-level alerts. The same **Add filter** bar as on the **Alerts** page helps you find them.
+
+</Step>
+
+<Step title="Create">
+
+Click **Create**. You need a name and at least one alert.
+
+</Step>
+
+</Steps>
+
+### From the Alerts page
+
+On **Threat Management > Alerts**, use **Add to incident** in the alert panel or in the bulk bar, or click the incident icon on a row (**Create incident from this alert**). Choose:
+
+- **New incident**: enter an **Incident name** and an optional **Description**, then click **Create incident**.
+- **Existing incident**: **Pick an incident**, then click **Add to incident**.
+
+### Rules
+
+- Incident names are unique in your tenant and at most 255 characters.
+- An alert can belong to only one incident. Linking it again is refused with `one or more alerts are already linked to an incident`.
+- One request can link at most 1,000 alerts.
+- Linked alerts show **Part of an incident** with the incident name, ID, who created it and when.
+- Incidents cannot be deleted.
+
+## Severity
+
+An incident's severity is the worst severity of its alerts (High, Medium or Low). Adding alerts can raise it but never lowers it. An incident without a severity shows **Unrated**.
+
+## Statuses
+
+| Status | Meaning |
+|---|---|
+| Open | A new incident. Every incident starts as Open. |
+| In review | Someone is investigating. |
+| Completed | The incident is resolved. |
+| Merged | A status you can use to mark an incident as merged into another one. Choosing it does not move alerts or combine incidents. |
+
+Change the status with the status buttons at the top of the incident panel, or by clicking the status in the table.
+
+<Warning>
+
+Changing an incident's status sets **every linked alert** to the same status. When you move an incident to **Completed**, the text of its **Solution** box becomes the status note of each linked alert. When you move it to **Merged**, the alerts get the status Merged, which the **Alerts** page shows only under **All**.
+
+</Warning>
+
+## Work an incident
+
+Click an incident to open its panel. The header shows the status, severity, ID, assignee, creation date and number of alerts.
+
+- **Assign**: pick a user (the list shows up to 500), type any login with **Assign custom**, or **Unassign**.
+- Status buttons: **Open**, **In review**, **Completed**, **Merged**.
+
+| Tab | What it shows |
+|---|---|
+| Overview | **Description**, **Solution** and **Details** (ID, Status, Severity, Assignee, Created, Linked alerts). The **Solution** box is saved when you move the incident to Completed. |
+| Alerts | The linked alerts. **Open in Alerts** opens an alert; **Unlink alert** removes it from the incident. If an alert has been removed by data retention, the tab says `This alert is no longer in the store — retention may have dropped it.` |
+| Notes | Notes from your team. Type in **Write a note…** and click **Add note**. A note is required and can be up to 1,000 characters. |
+| History | Every change with the user who made it: Incident created, Alerts added, Alert status changed, Status changed, Note added, Note edited and Assignee changed. |
+
+## Email when an incident is created
+
+When an incident is created, UTMStack sends the email `New incident: <name>`, with the incident's severity, status and description, to the **Incident recipients** set on **Configure > Settings > Email Configuration** (To and CC). If **To** is empty, no email is sent.
+
+Adding alerts, assigning or changing the status does not send email. See **Alert and incident notifications**.
+
+## Sharing incident indicators with ThreatWinds
+
+UTMStack can share indicators from your incidents with ThreatWinds, the threat intelligence service behind UTMStack's feeds. This is controlled by the switch **Contribute incidents** on **Configure > Settings > ThreatWinds Integration**, which is **on** for new installations.
+
+While it is on, every 5 minutes UTMStack reads all incidents with the status **Open** or **In review**, in every tenant on the server. From the events of their alerts it takes values such as IP addresses, host names, domains, URLs, file hashes, email addresses, user names and file names, and sends them to ThreatWinds. UTMStack does not remove private (internal) addresses or user names before sending.
+
+Read **Threat intelligence: how indicator alerts work** for the full list of what is sent, and turn the switch off if your policies do not allow this.
+
+## Managed service providers
+
+On a multi-tenant licence, the instance operator can open a customer tenant's incidents only when that tenant's administrator allows it on **Configure > Settings > Support access** (**No access**, **Read only** or **Full access**). See **Support access**.

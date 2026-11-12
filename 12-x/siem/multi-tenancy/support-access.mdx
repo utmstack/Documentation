@@ -1,0 +1,69 @@
+On a server with a multi-tenant licence, the instance operator cannot look inside a customer's tenant unless the customer allows it. The tenant's administrator grants this **support access**, and the operator then uses a **support session** to work inside the tenant. This page explains both sides.
+
+## For tenant administrators: grant or take back support access
+
+You need the **Administrator** role in your own tenant. The page exists only on a multi-tenant licence and is not shown to the instance operator.
+
+<Steps>
+
+<Step title="Open Support access">
+
+Go to **Configure > Settings > Support access**.
+
+</Step>
+
+<Step title="Choose a level">
+
+| Level | What the operator can do |
+|---|---|
+| **No access** (default) | The operator sees only that your tenant exists. Requests into your data are refused. |
+| **Read only** | The operator can look at your alerts, logs and configuration to help you, but cannot change anything. Every change is refused, whatever the operator's own role. |
+| **Full access** | The operator can act inside your tenant as an administrator: change configuration, users and response flows. |
+
+</Step>
+
+<Step title="Save">
+
+Click **Save**. The level marked **current** is the one in force.
+
+</Step>
+
+</Steps>
+
+You can change the level or set it back to **No access** at any time; the change applies at once.
+
+<Tip>
+
+Grant **Full access** only while you need hands-on help, and go back to **Read only** or **No access** afterwards.
+
+</Tip>
+
+Everything the operator does inside your tenant is recorded in your tenant's audit log (see **App Audit Logs**).
+
+## For the instance operator: work inside a tenant
+
+You must be the instance operator (see **Settings Overview**), and the tenant must have granted you **Read only** or **Full access**. The tenant card on the Tenants page shows the level each tenant has granted.
+
+### Enter a tenant
+
+Use either of these:
+
+- On the **Tenants** page, click **Enter** on the tenant's card.
+- In the top bar, open the tenant switcher (**Switch tenant**) and choose the tenant. The switcher lists only tenants that have granted you access.
+
+A banner at the top of every page then says **You are working inside**, followed by the tenant name and either:
+
+- **read only — writes are refused**, or
+- **full access — changes here are real**.
+
+While you are inside a tenant, you see that tenant's data and settings, and the operator-only pages (License, Data Retention, ThreatWinds Integration, About, Tenants) are hidden.
+
+### Leave the tenant
+
+Click **Leave** in the banner, or choose **Default tenant** in the tenant switcher. You are back in your own tenant.
+
+### What to expect
+
+- With **Read only**, you can open pages and searches, but saving, deleting or running anything is refused.
+- With **Full access**, your changes are real changes in the customer's tenant. They appear in the customer's audit log under your name.
+- If the tenant takes access back while you are inside, your next request is refused.

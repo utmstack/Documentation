@@ -1,0 +1,155 @@
+The **AWS Cloudwatch** integration brings your AWS account activity into UTMStack. AWS CloudTrail records API calls and management events, sends them to a CloudWatch log group, and UTMStack reads that log group with read-only credentials. Nothing is installed in AWS.
+
+<Info>
+
+Since UTMStack v12.0.2, this integration refers to CloudWatch instead of IAM User. This page describes the v12.0.2 setup.
+
+</Info>
+
+## How it works
+
+- CloudTrail captures API calls and management events across your AWS account and forwards them to a CloudWatch log group.
+- UTMStack connects with the access key of an IAM user that has read-only access to CloudWatch Logs, and reads every log stream in the log group you name.
+- Events are stored with the data type `aws`. UTMStack v12 ships 81 detection rules for this data type; see **AWS** in the **Rules** tab.
+
+## Before you start
+
+- In AWS, you need permission to create IAM users and access keys, CloudWatch log groups and CloudTrail trails.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach AWS over HTTPS (outbound port 443).
+
+## Step 1: Create an IAM user for UTMStack
+
+<Steps>
+<Step title="Open the IAM dashboard">
+
+Open the AWS console, go to the **IAM** dashboard and select **Users**.
+
+</Step>
+<Step title="Add a user">
+
+Click **Add user**, enter a descriptive user name, and continue to the next step.
+
+</Step>
+<Step title="Attach the read-only policy">
+
+Under **Permissions**, attach the policy **CloudWatchLogsReadOnlyAccess**. It gives read-only access to CloudWatch Logs.
+
+</Step>
+<Step title="Create the user">
+
+Review the settings and click **Create user**.
+
+</Step>
+<Step title="Create an access key">
+
+Open the new user, select the **Security credentials** tab and click **Create access key**. Choose the option for an application running outside AWS, then confirm. AWS generates an **Access Key ID** and a **Secret Access Key**.
+
+</Step>
+<Step title="Save the credentials">
+
+Download the credentials file or copy both values to a safe place.
+
+<Warning>
+
+AWS shows the Secret Access Key only once.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 2: Send CloudTrail events to a CloudWatch log group
+
+<Steps>
+<Step title="Create a CloudWatch log group">
+
+Open the **CloudWatch** console, choose **Log management** and click **Create log group**.
+
+</Step>
+<Step title="Name the log group and set retention">
+
+Enter the log group name `utmstack`, set the retention to **1 day** and click **Create log group**.
+
+</Step>
+<Step title="Create a CloudTrail trail">
+
+Open the **CloudTrail** console and click **Create trail**.
+
+</Step>
+<Step title="Configure the trail">
+
+On the trail form, set these options:
+
+- **Trail name and scope**: enter a descriptive name. Turn on **Apply trail to all accounts in my organization** if you want to collect from your whole AWS organization.
+- **S3 destination**: choose **Create new S3 bucket**, or select an existing bucket, for raw log delivery.
+- **Encryption**: turn on **Log file SSE-KMS** and select the KMS key to use.
+- **Log file validation**: turn it on (recommended) so the delivered logs can be checked for changes.
+- **CloudWatch Logs**: turn on delivery to CloudWatch, select **Use existing log group** and enter the exact name `utmstack`.
+- **IAM role**: provide or create the role that CloudTrail uses to write to S3 and to CloudWatch.
+
+</Step>
+<Step title="Select the event types">
+
+- **Management events**: turn them on and select **All** to record all API activity that creates, changes or deletes AWS resources.
+- **Data events**: add a data event, choose **S3** and select **Log all events** to record object-level operations such as GetObject and PutObject.
+- **Network activity events**: add at least one service, for example `ec2.amazonaws.com`, and select **Log all events**.
+
+</Step>
+<Step title="Review and create the trail">
+
+On the **Configure event aggregation** screen, keep the defaults or adjust them if needed. Review all settings and click **Create trail**.
+
+</Step>
+</Steps>
+
+## Step 3: Connect AWS in UTMStack
+
+Each AWS connection is a **config group**. Create the log group (Step 2) before you save the config group, because UTMStack checks that the log group exists.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `AWS` and open the **AWS Cloudwatch** card. The credentials form is in the setup guide, after the IAM user steps.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **AWS access key ID** | The Access Key ID from Step 1 (it starts with `AKIA`). |
+| **AWS secret access key** | The Secret Access Key from Step 1. |
+| **AWS default region** | The AWS region where the log group is, for example `us-east-1`. |
+| **Log group name** | The CloudWatch log group that receives the CloudTrail events, for example `utmstack`. |
+
+All fields are required.
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. UTMStack checks the credentials against AWS before it saves them. When the check passes, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+### If the save fails
+
+| Message | What to check |
+|---|---|
+| Invalid Access Key ID | The Access Key ID is wrong or was deleted. |
+| Invalid Secret Access Key | The secret does not belong to that Access Key ID. |
+| AWS credentials have expired | Create a new access key for the IAM user. |
+| Invalid Default Region | The region code is wrong, for example `us-east1` instead of `us-east-1`. |
+| AWS credentials do not have permission to access CloudWatch in region ... | The IAM user is missing the **CloudWatchLogsReadOnlyAccess** policy. |
+| The CloudWatch Log Group ... was not found in region ... | The log group name is wrong, or the log group is in another region. |
+
+## Check that events arrive
+
+Open the **AWS Cloudwatch** card again and click **View logs**. Log Explorer opens filtered to the `aws` data type for the last 24 hours. UTMStack looks for new log streams in the log group every 5 minutes, so allow a few minutes after you save.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per AWS account, region or log group you want to read.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. Secret fields show a masked value; leave it as it is to keep the stored secret. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it. Events already stored stay searchable.

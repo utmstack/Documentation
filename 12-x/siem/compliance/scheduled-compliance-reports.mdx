@@ -1,0 +1,121 @@
+A schedule runs a framework's report automatically and emails the PDF to the people you choose, for example every Monday morning. Each run also updates the report you see in **Compliance** and adds a point to its score history.
+
+## Before you start
+
+- You need the `compliance.write` permission (Administrator role).
+- UTMStack must be able to send email. See **Email Configuration**.
+- Without an Enterprise licence, only CMMC 2.0, GDPR and your own frameworks can be scheduled.
+
+## Create a schedule
+
+<Steps>
+
+<Step title="Open the Schedule tab">
+
+Click **Compliance** in the main menu, then the **Schedule** tab. Click **New schedule**.
+
+</Step>
+
+<Step title="Choose the framework">
+
+Pick it in **Framework**. Only frameworks your licence allows are listed.
+
+</Step>
+
+<Step title="Choose when it runs">
+
+Pick a **Cadence**. The box under it shows the schedule in cron format (see below), and you can type your own there.
+
+| Cadence | Cron | Runs |
+|---|---|---|
+| **Daily** | `0 6 * * *` | Every day at 06:00 UTC |
+| **Weekly** | `0 6 * * 1` | Every Monday at 06:00 UTC |
+| **Monthly** | `0 6 1 * *` | The first day of every month at 06:00 UTC |
+| **Custom** | Your own | Shown when the text in the box matches none of the above |
+
+</Step>
+
+<Step title="Set the reporting window">
+
+In **Reporting window (days)**, enter how many days back the report counts, from 1 to 3,650. The default is 30. "How far back the report counts. Independent of how often it runs." A daily schedule over the last 30 days is the usual choice.
+
+</Step>
+
+<Step title="Add the recipients">
+
+In **To**, enter one or more email addresses separated by commas, for example `soc@example.com, ciso@example.com`. **To** is required. Add more addresses in **Cc** if needed.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save**.
+
+</Step>
+
+</Steps>
+
+## Cron format
+
+The schedule is a cron expression: five fields separated by spaces, read in UTC.
+
+```text
+minute  hour  day-of-month  month  day-of-week
+  0      6         *          *        1
+```
+
+| Field | Values |
+|---|---|
+| minute | 0 to 59 |
+| hour | 0 to 23 (UTC) |
+| day of month | 1 to 31 |
+| month | 1 to 12 |
+| day of week | 0 to 6, where 0 is Sunday |
+
+In each field you can write:
+
+- `*` for every value;
+- one number, such as `6`;
+- a list, such as `1,15`;
+- a range, such as `1-5` (Monday to Friday in the day-of-week field);
+- `*/n` for every value that divides by n, such as `*/2` for even hours.
+
+Names such as `MON` or `JAN`, `7` for Sunday, and steps inside a range (`1-10/2`) are not supported.
+
+<Note>
+
+A run happens only when all five fields match. This differs from classic cron: `0 6 1 * 1` runs only when the first day of the month is a Monday, not on every first day and every Monday.
+
+</Note>
+
+UTMStack checks for due schedules once a minute.
+
+## What happens at each run
+
+1. UTMStack evaluates the framework over the reporting window. This replaces the standing report, exactly as **Run evaluation** does, and keeps the notes and verdicts people recorded. See **Compliance Reports**.
+2. It builds the PDF. The cover of a scheduled PDF has no **PREPARED BY** line.
+3. It emails the PDF to the **To** and **Cc** addresses:
+   - subject `UTMStack Compliance Report - <framework key> - <date>`, for example `UTMStack Compliance Report - gdpr - 2026-11-16`;
+   - attachment `Compliance_Report_<date>_<time>.pdf`.
+
+The reporting window of a schedule is also used when someone clicks **Run evaluation** on that framework, so the report on screen and the emailed report describe the same period.
+
+## Manage schedules
+
+The **Schedule** tab lists the schedules **you** created. For each one it shows the framework, the cadence and cron, the window ("over 30d") and the recipients. Schedules created by other users are not shown to you, but they still run.
+
+- To change a schedule, use its edit button (pencil), change the fields and click **Save**.
+- To delete a schedule, use its delete button (bin). It is deleted at once, without a confirmation.
+
+## Things to check
+
+- **The email arrives.** If an email cannot be sent, the schedule still counts the run as done and the screen shows no error. After you create a schedule, check that the first email reaches every recipient.
+- **The addresses are right.** UTMStack does not check that **To** and **Cc** contain valid email addresses.
+- **Delete schedules before their framework.** Deleting a framework of your own does not delete its schedules or its last report. Delete the schedules first.
+- **Licence changes.** If the Enterprise licence ends, schedules of frameworks that need it stop producing reports, without a message on screen.
+
+<Note>
+
+The hint under **To** says you can leave it empty to only store the snapshot. In UTMStack v12.0.2 that is not possible: **To** is required. To keep the score history up to date without email, run the evaluation by hand.
+
+</Note>

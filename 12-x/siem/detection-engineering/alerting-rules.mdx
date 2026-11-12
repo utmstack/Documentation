@@ -1,0 +1,194 @@
+Alerting rules describe the threats UTMStack looks for. When an event matches a rule, the engine raises an alert. On **Configure > Alerting Rules** you browse the 721 shipped rules, switch rules on or off for your tenant, write and import your own, export rules and test them.
+
+## Before you start
+
+- The **Configure** section of the menu is shown to administrators only.
+- Viewing and exporting rules needs the permission `eventprocessing.read`.
+- Creating, importing, editing, deleting, switching on or off and testing need `eventprocessing.write`. Of the built-in roles, only **Administrator** has it. See **Roles and Permissions**.
+
+## The rule list
+
+The page is titled **Alerting Rules**: "Correlation rules that turn events into alerts. Toggle, tune or author your own." It loads 50 rules at a time as you scroll.
+
+| Control | What it does |
+|---|---|
+| **Search rules…** | Searches the list. |
+| Category, adversary, state, owner and data type filters | Narrow the list. State is **Active** or **Inactive**; owner is **System** (shipped) or **Custom** (yours). |
+| **Test** | Tests a sample log against every deployed rule. See **Testing Pipelines and Rules**. |
+| **Import** | Adds rules from YAML files. |
+| **Export All** | Downloads the rules as a zip file. When you tick rows, it becomes **Export (N)**. |
+| **New rule** | Opens the editor for a new custom rule. |
+
+Columns:
+
+| Column | Meaning |
+|---|---|
+| **Rule** | The rule name. A lock marks shipped rules. |
+| **Data types** | The kinds of events the rule examines. |
+| **Category** | Usually the MITRE ATT&CK tactic (MITRE ATT&CK is a public catalogue of attacker behaviour), for example Credential Access. |
+| **Technique** | Usually the MITRE ATT&CK technique, for example `T1110 - Brute Force`. |
+| **Adversary** | Which side of the event is treated as the attacker: **Origin** or **Target**. |
+| **Impact** | The highest of the rule's three impact values (0 to 3). |
+| **Active** | Switch that turns the rule on or off for your tenant. |
+
+## Switch a rule on or off
+
+Use the **Active** switch in the rule's row. The change applies to your tenant only and reaches the engine within about a minute. It works for shipped and custom rules.
+
+This is also how you turn a rule back on after the rule flood guard switched it off. Fix the cause first, or the guard switches it off again. See **Rule Flood Guard**.
+
+## Read a rule
+
+Click a rule to open its panel. It shows:
+
+- **Description**
+- **Details**: **Impact (C·I·A)**, **Data types**, **Updated** and **Path** (the rule file)
+- **Condition (CEL)**, drawn as a tree
+- **Correlation steps**: the history searches, if any
+- **Group by**, **Deduplicate by** and **References**
+
+**Visual** and **Code** tabs switch between the form and the rule's YAML.
+
+<Note>
+
+167 of the shipped rules are written with the older key `afterEvents` for their correlation steps. The engine runs these steps, but the panel and the **Code** tab do not show them. To read such a rule exactly as it is stored, tick it in the list and click **Export (1)**.
+
+</Note>
+
+Shipped rules cannot be edited or deleted. Custom rules have **Edit** and **Delete** buttons.
+
+## Create a rule
+
+<Steps>
+  <Step title="Open the editor">
+
+  Click **New rule**. The editor has a **Visual** tab and a **Code** tab. They stay in step: a change in one shows in the other.
+
+  </Step>
+  <Step title="Fill in the details">
+
+  | Field | Description |
+  |---|---|
+  | **Name** | The alert name. Required. Use a name no other rule has: de-duplication, grouping, tagging rules and the flood guard all work by rule name. |
+  | **Category**, **Technique** | Free text. Shipped rules use MITRE ATT&CK names. |
+  | **Adversary** | **Origin** or **Target**: the side of the event that is the attacker. |
+  | **Data types** | The data types the rule examines. Required. |
+  | **Confidentiality**, **Integrity**, **Availability** | Impact values from 0 to 3. The highest one sets the alert severity. |
+  | **Description** | What the rule detects and what the analyst should do next. |
+  | **Active** | Whether the rule is switched on when you save. |
+
+  </Step>
+  <Step title="Write the condition">
+
+  The condition decides which events match. Required.
+
+  In **Visual**, choose **Match all** or **Match any** "of these conditions:", then add conditions. Each condition has a field, a function and an optional **Negate**. The functions are:
+
+  | Label | Function |
+  |---|---|
+  | exists | `exists` |
+  | equals | `equals` |
+  | equals (no case) | `equalsIgnoreCase` |
+  | contains | `contains` |
+  | is one of | `oneOf` |
+  | contains all | `containsAll` |
+  | starts with, ends with | `startsWith`, `endsWith` |
+  | matches regex | `regexMatch` |
+  | `<`, `≤`, `>`, `≥` | `lessThan`, `lessOrEqual`, `greaterThan`, `greaterOrEqual` |
+  | in CIDR | `inCIDR` |
+  | hour is, minute is, day of week is | `isHour`, `isMinute`, `isDayOfWeek` |
+  | is weekend, is workday | `isWeekend`, `isWorkDay` |
+  | time between | `isBetweenTime` |
+
+  For anything the builder cannot draw, such as nested brackets or a mix of "and" and "or", write the condition in **Code**. The builder then shows: "This condition uses advanced CEL — edit it in Code, or rebuild it visually." See **Condition Functions Reference**.
+
+  </Step>
+  <Step title="Add correlation steps (optional)">
+
+  A correlation step makes the rule count earlier stored events before it raises an alert, for example "10 failed logins from the same address in the last 15 minutes". Click **Add correlation step** and fill in:
+
+  - **Within**: the time window, written like `15m`, `1h` or `24h`.
+  - **Count**: how many matching stored events are needed.
+  - **Conditions**: which stored events count. Each has a field, an operator (**equals (term)**, **not equals (term)**, **matches (text)** or **not matches (text)**) and a value. A value such as `{{.origin.ip}}` copies the field from the event being checked.
+
+  See **Rule File Format** for how the count works.
+
+  </Step>
+  <Step title="Add de-duplication or grouping">
+
+  Fill in **Deduplicate by** or **Group by** with alert fields such as `adversary.ip`, `adversary.user`, `target.host` or `dataSource`. Without them, every matching event raises a new alert. See **How Alerts Are Created**.
+
+  </Step>
+  <Step title="Test and save">
+
+  Click **Test** to try the rule on a sample log, then **Save**. The page confirms "Rule created".
+
+  </Step>
+</Steps>
+
+### The Index pattern box
+
+Each correlation step in the editor also has an **Index pattern** box, filled in with `v11-log-*`. It is left over from UTMStack v11, and the v12 engine ignores its value. However, the editor keeps a correlation step only while this box has text:
+
+- Leave the value in place.
+- If you clear the box, the step is removed when you save, test or export the rule, and the rule then raises an alert for every event that matches its condition.
+
+### Or groups
+
+**Add Or group** adds alternative conditions to a correlation step. When you save, each Or group takes the **Within** and **Count** of its step; it cannot have its own. If you need alternatives with their own window or count, write the rule as a file and import it.
+
+### What saving checks
+
+Saving checks that the rule has a name, at least one data type and a condition, that each **Within** is a valid duration, and that each operator is one of the four above. It does **not** check that the condition is valid, that impact values are between 0 and 3, or the adversary value. A rule with a broken condition is saved as active and never matches. Test every rule before you save it.
+
+Your rule is saved as `rules/user/<tenant id>/<name in lower case with dashes>-<tenant id>.yaml`, with your tenant id inside, so it runs only on your tenant's events.
+
+## Import rules
+
+Use **Import** to add rules written as files. Import keeps the file's correlation steps exactly as written, so it is the best way to add counting rules and rules with Or groups.
+
+<Steps>
+  <Step title="Prepare the files">
+
+  One rule per `.yaml` or `.yml` file, in the format described in **Rule File Format**. Write correlation steps under `correlation`. Files that use the older key `afterEvents` are accepted, but their correlation steps are lost: rename the key to `correlation` before you import.
+
+  </Step>
+  <Step title="Import">
+
+  Click **Import** and choose one or more files.
+
+  </Step>
+  <Step title="Check the results">
+
+  **Import results** lists each file as **Approved** or **Rejected**, with the reason. Approved rules become active custom rules of your tenant. A file is rejected when it has no name, no data types or no condition, when a duration or operator is invalid, or when you already have a custom rule with the same name.
+
+  </Step>
+</Steps>
+
+<Warning>
+
+Do not edit an imported counting rule in the editor. Its correlation steps have no index pattern, so the editor removes them when you save. To change such a rule, delete it and import the corrected file. If the rule was switched off when you deleted it, check that the new one is **Active** after the import.
+
+</Warning>
+
+## Customize a shipped rule
+
+Shipped rules are read-only. To change one:
+
+1. Tick the rule in the list and click **Export (1)**. You get a zip file with the rule file.
+2. Edit the file. Give the rule a new `name`. If it uses `afterEvents`, rename that key to `correlation`.
+3. Import the file.
+4. Switch the shipped rule off with its **Active** switch.
+
+## Export rules
+
+- **Export All** downloads every rule you can see as a zip file of the stored rule files. Tick rows to export only those (**Export (N)**).
+- The **Export** button in a rule's panel downloads one YAML file built from the editor's view of the rule. It leaves out correlation steps that have no index pattern, which includes the steps of every shipped rule. Use **Export (1)** from the list when you need the exact file.
+
+## Apply a rule to all tenants
+
+On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the rule panel. It repeats the create, update, delete or on/off change on every selected tenant. See **Apply to All Tenants**.
+
+## Audit
+
+Creating, importing, updating, deleting and switching rules on or off are recorded in the audit log. See **App Audit Logs**.

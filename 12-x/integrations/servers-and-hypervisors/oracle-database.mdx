@@ -1,0 +1,108 @@
+UTMStack v12 collects Oracle Database audit, listener and alert logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. rsyslog on the database server reads the Oracle log files and forwards them to the Collector on port 7021.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Oracle** (category Database) |
+| Data type | `oracle` |
+| Default ports on the Collector | 7021/UDP; 7021/TCP (also used for TLS) |
+| Included in UTMStack | No parsing filter and no detection rules (see the warning below) |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The Oracle server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+- rsyslog must be installed on the same server as your Oracle Database, with the `imfile` module enabled.
+- Oracle must write its audit, listener and alert logs to files.
+
+<Warning>
+
+UTMStack v12.0.2 ships no parsing filter and no detection rules for the `oracle` data type. Oracle logs arrive and can be searched as text in Log Explorer, but they are not split into fields and no alert is raised from them. To use them in rules, add a parsing filter for `oracle` under **Pipelines**.
+
+</Warning>
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Oracle** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7021`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration oracle 7021 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Configure rsyslog on the Oracle server
+
+<Steps>
+  <Step title="Create the configuration file">
+    ```bash
+    sudo touch /etc/rsyslog.d/oracle-utmstack.conf
+    ```
+  </Step>
+  <Step title="Add the Oracle log files">
+    Open `/etc/rsyslog.d/oracle-utmstack.conf` with your preferred editor and add the configuration below. Replace `BASEDIR` with your Oracle base path (for example `/u01/app/oracle`) and `<collector-ip>` with the address or host name of the Collector host.
+
+    ```text
+    input(type="imfile"
+        File="BASEDIR/admin/*/adump/*.aud"
+        Tag="oracle-audit"
+        Severity="info"
+        Facility="local5")
+
+    input(type="imfile"
+        File="BASEDIR/diag/tnslsnr/*/listener/trace/listener.log"
+        Tag="oracle-listener"
+        Severity="info"
+        Facility="local5")
+
+    input(type="imfile"
+        File="BASEDIR/diag/rdbms/*/*/trace/alert_*.log"
+        Tag="oracle-alerts"
+        Severity="info"
+        Facility="local5")
+
+    local5.* @<collector-ip>:7021
+    ```
+
+    rsyslog sends over UDP by default. To send over TCP, write `@@<collector-ip>:7021` instead, and enable the integration with TCP in step 1.
+  </Step>
+  <Step title="Restart rsyslog">
+    ```bash
+    sudo systemctl restart rsyslog
+    ```
+  </Step>
+</Steps>
+
+## Step 3: Check that logs arrive
+
+Send three test messages from the Oracle server:
+
+```bash
+logger -p local5.info "Test Oracle Audit log message"
+logger -p local5.info "Test Oracle Listener log message"
+logger -p local5.info "Test Oracle Alert log message"
+```
+
+Then, in the **Oracle** drawer, click **View logs** and search for the test messages. Within about 10 minutes, the Oracle server also appears on the **Data Sources** page under **Direct**.
+
+## Stop collecting
+
+In the **Oracle** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration oracle udp
+```

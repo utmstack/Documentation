@@ -1,0 +1,184 @@
+Detection rules for **JSON Input** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `json-input`.
+
+This category contains **10** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| GraphQL Abuse Detection | API Abuse | T1190 - Exploit Public-Facing Application | C:2 / I:1 / A:1 |
+| JSON Hijacking Attempt Detected | Execution | JSON Hijacking | C:3 / I:2 / A:1 |
+| JSON Injection Attack Attempt | Defense Evasion | JSON Injection | C:3 / I:3 / A:2 |
+| JSONP Vulnerability Exploitation Detected | Execution | JSONP Exploitation | C:3 / I:3 / A:1 |
+| JWT Algorithm Confusion Attack Detection | Authentication Bypass | T1550 - Use Alternate Authentication Material | C:3 / I:3 / A:1 |
+| JWT Token Security Issue Detected | Defense Evasion, Lateral Movement | T1550.001 - Use Alternate Authentication Material: Application Access Token | C:3 / I:3 / A:2 |
+| Mass Assignment Attack Detection | Data Manipulation | T1565 - Data Manipulation | C:2 / I:3 / A:1 |
+| NoSQL Injection via JSON Detection | Injection Attack | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| Prototype Pollution Attempt Detected | Defense Evasion, Privilege Escalation | Prototype Pollution | C:2 / I:3 / A:2 |
+| Unsafe Deserialization Attack Detected | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **GraphQL Abuse Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/graphql_abuse.yaml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - json-input
+name: GraphQL Abuse Detection
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: API Abuse
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects GraphQL abuse patterns including introspection queries, query batching, deeply nested queries for DoS, and unauthorized schema discovery. These techniques are used to enumerate APIs and exploit GraphQL endpoints.
+
+  Next Steps:
+  1. Review the GraphQL queries for malicious patterns
+  2. Check if introspection queries exposed the schema
+  3. Verify if query batching was used for brute force
+  4. Implement query depth limiting and complexity analysis
+  5. Disable introspection in production environments
+  6. Deploy rate limiting for GraphQL endpoints
+where: |
+  exists("origin.ip") &&
+  (
+    regexMatch("raw", "(?i)\\{\\s*__schema\\s*\\{") ||
+    contains("raw", "IntrospectionQuery") ||
+    contains("raw", "introspectionQuery") ||
+    regexMatch("raw", "(?i)(query|mutation)\\s*\\{.*\\{.*\\{.*\\{.*\\{.*\\{.*\\{")
+  )
+afterEvents:
+  - with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 15m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.host
+
+```
+
+---
+
+## Rule Details
+
+### GraphQL Abuse Detection
+
+Detects GraphQL abuse patterns including introspection queries, query batching, deeply nested queries for DoS, and unauthorized schema discovery. These techniques are used to enumerate APIs and exploit GraphQL endpoints.
+
+- **Category:** API Abuse
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:2 / I:1 / A:1
+- **Rule file:** [graphql_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/graphql_abuse.yaml)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### JSON Hijacking Attempt Detected
+
+Detects attempts to hijack JSON data through malicious script tags, Array constructor overrides, or cross-domain data theft patterns. JSON hijacking attacks attempt to steal sensitive data by exploiting vulnerabilities in JSON responses through script tag inclusion or prototype manipulation.
+
+- **Category:** Execution
+- **Technique:** JSON Hijacking
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [json_hijacking_attempts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/json_hijacking_attempts.yaml)
+- **Reference:** [https://owasp.org/www-community/attacks/JSON_Hijacking](https://owasp.org/www-community/attacks/JSON_Hijacking)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/007/](https://attack.mitre.org/techniques/T1059/007/)
+
+### JSON Injection Attack Attempt
+
+Detects potential JSON injection attempts including malicious payloads, script injections, and attempts to manipulate JSON structure. These attacks can lead to XSS, authentication bypass, or remote code execution.
+
+- **Category:** Defense Evasion
+- **Technique:** JSON Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [json_injection_attempts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/json_injection_attempts.yaml)
+- **Reference:** [https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/](https://www.acunetix.com/blog/web-security-zone/what-are-json-injections/)
+- **Reference:** [https://attack.mitre.org/techniques/T1027/](https://attack.mitre.org/techniques/T1027/)
+
+### JSONP Vulnerability Exploitation Detected
+
+Detects attempts to exploit JSONP endpoints through callback manipulation, XSS injection via callbacks, or unauthorized cross-domain data access. This rule identifies malicious callback parameters containing script tags, JavaScript execution functions, or non-standard callback names that could indicate exploitation attempts.
+
+- **Category:** Execution
+- **Technique:** JSONP Exploitation
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [jsonp_vulnerabilities.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/jsonp_vulnerabilities.yaml)
+- **Reference:** [https://owasp.org/www-community/attacks/Server_Side_Request_Forgery](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/007/](https://attack.mitre.org/techniques/T1059/007/)
+
+### JWT Algorithm Confusion Attack Detection
+
+Detects JWT algorithm confusion attacks including alg:none bypass, RS256 to HS256 key confusion, and forged JWT tokens. These attacks exploit JWT libraries that don't properly validate the algorithm header.
+
+- **Category:** Authentication Bypass
+- **Technique:** T1550 - Use Alternate Authentication Material
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [jwt_algorithm_confusion.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/jwt_algorithm_confusion.yaml)
+- **Reference:** [https://portswigger.net/web-security/jwt/algorithm-confusion](https://portswigger.net/web-security/jwt/algorithm-confusion)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/](https://attack.mitre.org/techniques/T1550/)
+
+### JWT Token Security Issue Detected
+
+Detects JWT token security issues including algorithm confusion, none algorithm usage, expired tokens, invalid signatures, or token manipulation attempts. These vulnerabilities can lead to authentication bypass and unauthorized access to protected resources.
+
+- **Category:** Defense Evasion, Lateral Movement
+- **Technique:** T1550.001 - Use Alternate Authentication Material: Application Access Token
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [jwt_token_security_issues.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/jwt_token_security_issues.yaml)
+- **Reference:** [https://research.securitum.com/jwt-json-web-token-security/](https://research.securitum.com/jwt-json-web-token-security/)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1550/001/](https://attack.mitre.org/techniques/T1550/001/)
+
+### Mass Assignment Attack Detection
+
+Detects mass assignment attacks where unexpected fields like isAdmin, role, permissions, or password are injected in JSON request bodies. Attackers exploit API endpoints that blindly bind user input to object properties.
+
+- **Category:** Data Manipulation
+- **Technique:** T1565 - Data Manipulation
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [mass_assignment_attack.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/mass_assignment_attack.yaml)
+- **Reference:** [https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1565/](https://attack.mitre.org/techniques/T1565/)
+
+### NoSQL Injection via JSON Detection
+
+Detects MongoDB-style NoSQL injection patterns in JSON payloads including $gt, $ne, $regex, $where, and other operator-based injection techniques. These attacks bypass authentication or extract data from NoSQL databases.
+
+- **Category:** Injection Attack
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [nosql_injection_json.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/nosql_injection_json.yaml)
+- **Reference:** [https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### Prototype Pollution Attempt Detected
+
+Detects attempts to pollute JavaScript object prototypes through malicious JSON input containing __proto__, constructor, or prototype properties. This attack can lead to application compromise by modifying the behavior of all objects in the application.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** Prototype Pollution
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [prototype_pollution_attempts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/prototype_pollution_attempts.yaml)
+- **Reference:** [https://www.netspi.com/blog/technical-blog/web-application-pentesting/ultimate-guide-to-prototype-pollution/](https://www.netspi.com/blog/technical-blog/web-application-pentesting/ultimate-guide-to-prototype-pollution/)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### Unsafe Deserialization Attack Detected
+
+Detects attempts to exploit unsafe deserialization vulnerabilities through malicious JSON payloads containing serialized objects or code execution patterns. These attacks can lead to remote code execution, privilege escalation, or data compromise.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [deserialization_attacks.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/json/json-input/deserialization_attacks.yaml)
+- **Reference:** [https://knowledge-base.secureflag.com/vulnerabilities/unsafe_deserialization/unsafe_deserialization_java.html](https://knowledge-base.secureflag.com/vulnerabilities/unsafe_deserialization/unsafe_deserialization_java.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)

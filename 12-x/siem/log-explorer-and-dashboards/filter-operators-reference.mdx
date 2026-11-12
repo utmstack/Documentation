@@ -1,0 +1,93 @@
+UTMStack v12 uses one set of filter operators wherever you narrow down logs or alerts: Log Explorer, dashboard widgets, compliance checks and alert tagging rules. This page lists every operator, which screens offer it, and exactly how it compares values.
+
+## Where filters are used
+
+Each screen offers only part of the list. The names on screen are the labels in the second column of the operator table below; compliance checks written in YAML (the Code tab) use the operator names in the first column.
+
+| Screen | Operators offered |
+|---|---|
+| **Log Explorer**, **Add filter** | is, is not, contains, exists. Links from other screens can also add **is one of** and **is not one of** filters. |
+| **Dashboards**, widget conditions ("Include only events where…") | is, is not, is one of, is greater than, is less than or equals, is between, contains, does not contain, starts with, ends with, exists, does not exist |
+| **Dashboards**, dashboard filter chips | is, or is one of when the chip allows several values |
+| **Compliance**, control editor, **Visual** tab | `IS`, `IS_NOT`, `IS_ONE_OF_TERMS`, `IS_NOT_ONE_OF`, `EXIST`, `DOES_NOT_EXIST`, `CONTAIN`, `DOES_NOT_CONTAIN`, `START_WITH`, `NOT_START_WITH`, `ENDS_WITH`, `NOT_ENDS_WITH` |
+| **Compliance**, control editor, **Code** tab | Every operator in the table below |
+| **Threat Management > Tagging Rules** | is, is not, contains, does not contain, starts with, does not start with, ends with, does not end with, is one of, is not one of, contains one of, does not contain one of, is between, is not between, exists, does not exist |
+| **Threat Management > Alerts**, **Add filter** | contains, is, is not, exists, does not exist |
+
+All the filters on one screen must match together (they are combined with AND). There is no OR between filters; use a list operator such as **is one of** instead.
+
+## Operator reference
+
+| Operator name | Label on screen | Value | Matches when |
+|---|---|---|---|
+| `IS` | is | One value | The field equals the value exactly. Letter case must match. |
+| `IS_NOT` | is not | One value | The field has a value, and it is not this one. |
+| `IS_ONE_OF_TERMS` | is one of | A list | The field equals one of the values exactly. |
+| `IS_ONE_OF` | is one of | A list | Same as `IS_ONE_OF_TERMS`. |
+| `IS_ONE_OF_TERMS_OR` | — | A list | Same as `IS_ONE_OF_TERMS`. Kept for older definitions. |
+| `IS_NOT_ONE_OF` | is not one of | A list | The field has a value, and it is none of these. |
+| `CONTAIN` | contains | One value | The field contains the text anywhere. Letter case is ignored. |
+| `DOES_NOT_CONTAIN` | does not contain | One value | The field has a value that does not contain the text. |
+| `NOT_CONTAINS` | — | One value | Same as `DOES_NOT_CONTAIN`. Kept for older definitions. |
+| `CONTAIN_ONE_OF` | contains one of | A list | The field contains at least one of the texts. Letter case is ignored. |
+| `DOES_NOT_CONTAIN_ONE_OF` | does not contain one of | A list | The field has a value that contains none of the texts. |
+| `START_WITH` | starts with | One value | The field starts with the text. Letter case is ignored. |
+| `NOT_START_WITH` | does not start with | One value | The field has a value that does not start with the text. |
+| `ENDS_WITH` | ends with | One value | The field ends with the text. Letter case is ignored. |
+| `NOT_ENDS_WITH` | does not end with | One value | The field has a value that does not end with the text. |
+| `EXIST` | exists | None | The field has a value. |
+| `DOES_NOT_EXIST` | does not exist | None | The field is missing. |
+| `IS_GREATER_THAN` | is greater than | One value | The field is greater than the value. See **Range operators** below. |
+| `IS_LESS_THAN_OR_EQUALS` | is less than or equals | One value | The field is less than or equal to the value. See **Range operators**. |
+| `IS_BETWEEN` | is between | Two values (from, to) | The field is between the two values, both included. See **Range operators**. |
+| `IS_NOT_BETWEEN` | is not between | Two values | The field is outside the two values. See **Range operators**. |
+| `IS_IN_FIELDS` | — | Text | Free-text search: the original log line (`raw`) contains the text, ignoring case. This is what the Log Explorer search box uses. Only the `logs` dataset has an original log line. |
+| `IS_NOT_IN_FIELDS` | — | Text | The original log line does not contain the text. |
+
+There is no "greater than or equal" or "less than" operator in UTMStack v12. An operator name that is not in this table is refused with "the event store does not support this operator".
+
+## How values are compared
+
+These rules apply to Log Explorer, dashboards and compliance checks, which all ask the event store.
+
+- **Exact operators** (`IS`, `IS_NOT`, the "is one of" family) compare the value as text, letter for letter. `Failed` and `failed` are different values.
+- **Text operators** (`CONTAIN`, `START_WITH`, `ENDS_WITH` and their negative and "one of" forms) ignore letter case.
+- **Fields inside objects** (`origin.*`, `target.*`, `log.*` and, on alerts, `adversary.*`, `lastEvent.*`) can be stored as text in one record and as a number in another. The exact and text operators convert them to text first, so `log.eventCode is 4625` finds the event whether the code was stored as a number or as text.
+- **Missing fields:** a negative operator (`IS_NOT`, `IS_NOT_ONE_OF`, `DOES_NOT_CONTAIN`, `NOT_START_WITH`, `NOT_ENDS_WITH` and the others) only matches records that have the field. A record without the field is left out. To include records without the field, you need a separate search with **does not exist**.
+- **exists on a standard field:** the top-level fields of a log (`action`, `actionResult`, `severity`, `protocol`, `statusCode`, `connectionStatus`) always exist, with an empty value when the pipeline did not set them. **exists** is therefore true for every record on these fields, and **does not exist** never matches. To find records where one of them is empty, use SQL mode, for example `WHERE action = ''` (see **Log Explorer SQL Mode**).
+
+## Range operators
+
+`IS_GREATER_THAN`, `IS_LESS_THAN_OR_EQUALS`, `IS_BETWEEN` and `IS_NOT_BETWEEN` compare numbers or dates.
+
+<Warning>
+
+In UTMStack v12.0.2, range operators do not work on fields inside objects (`origin.*`, `target.*`, `log.*`, `adversary.*` and so on) in dashboards, Log Explorer and compliance checks. A number stored in such a field never matches, so the filter usually returns nothing, without an error. For example, "`log.eventCode` is greater than 4700" counts 0 Windows events.
+
+</Warning>
+
+What works:
+
+- Range operators on a top-level number column, such as `impactScore` on alerts.
+- For dates, the time range picker of the screen. Prefer it to a condition on `@timestamp`.
+
+On a top-level text column such as `statusCode`, a range operator compares text alphabetically (`"500"` comes after `"404"`, but so does `"45"`), so the result is rarely what you want.
+
+Tagging rules check ranges differently; see the last section of this page.
+
+## Field names
+
+- Use the stored field name, for example `log.eventCode` or `origin.ip`. There is no `.keyword` suffix in UTMStack v12.
+- A dot reaches a field inside an object: `origin.geolocation.country`.
+- A field name can be up to 256 characters. It cannot contain backticks (`` ` ``), backslashes (`\`) or control characters, and it cannot start or end with a dot or contain two dots in a row. Such names are refused with "invalid field name".
+
+See **Standard Event Schema** for the standard fields.
+
+## Tagging rules are matched differently
+
+Alert tagging rules use the same operator names, but they are checked by UTMStack when a new alert is stored, not by the event store. Two differences matter:
+
+- A negative operator (**is not**, **does not contain**, **is not one of** and the others) **does** match when the alert has no such field.
+- **is between** and **is not between** need numbers. Among the fields a tagging rule offers, only the ASN fields are numbers.
+
+See **Tagging Rules and False Positives**.

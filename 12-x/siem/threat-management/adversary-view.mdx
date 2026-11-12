@@ -1,0 +1,36 @@
+The **Adversary View** draws your alerts as a relationship chart: who attacked (the adversaries), which alerts they set off, and which of your systems were hit (the victims). Use it to see at a glance which attackers are most active and which systems they reach.
+
+## Open the Adversary View
+
+Go to **Threat Management > Adversary View**. You need the `alerts.read` permission, which the Administrator, Analyst and Viewer roles all have.
+
+## Read the chart
+
+The chart has three columns:
+
+| Column | Each box is |
+|---|---|
+| Adversary | One attacker, labelled by its IP address, or by its host, user or domain when there is no IP address. |
+| Alerts | One alert name. Alerts with the same name from different adversaries share one box. |
+| Victims | One affected system (the alert's target), labelled by its IP address, or by its host, user or domain when there is no IP address. |
+
+A band joins an adversary to an alert name, and an alert name to a victim. The wider the band, the more alerts it stands for; echoes (repeats grouped under a first alert) count too. Adversary boxes are colored by the highest severity of their alerts.
+
+Hover over an adversary or victim box to see what UTMStack knows about it: IP, Host, User, Port, Domain, MAC, Country, City, ASN (the network number) and ASO (the network owner).
+
+## Filter the chart
+
+Above the chart you find:
+
+- The number of adversaries shown.
+- A time range picker. The view starts with the last 7 days; **All time** is also offered.
+- A refresh button.
+- **Add filter**, with the same fields and operators as on the **Alerts** page. For example, add **Severity** **is** `high` to see only high-severity alerts, or **Adversary country** **is** a country to focus on one region.
+
+## What is left out
+
+- Adversaries are grouped by adversary host name, or by IP address when there is no host name.
+- The chart shows at most 100 adversaries, and at most 100 alerts (top-level alerts and echoes together) for each adversary.
+- Only alerts that have a target are drawn. Alerts that name an adversary but no target (for example some Linux alerts) do not appear. When no alert in the range has both, the page says **No adversaries match.**
+
+To see every alert, including those without a target, use **Threat Management > Alerts**.

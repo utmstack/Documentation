@@ -1,0 +1,69 @@
+On a server with a multi-tenant licence, the instance operator can install or change the same item in many tenants at once with **Apply to all tenants**. For example, you can roll out a new pipeline or response flow to every customer, or switch one off everywhere, without entering each tenant.
+
+## Requirements
+
+- A multi-tenant licence (see **License and Editions**).
+- You must be the instance operator, working in your own tenant, not inside a customer's tenant (see **Settings Overview** and **Support Access**).
+- The permission for the item you are changing: `eventprocessing.write` for pipelines and correlation rules, `soar.write` for response flows. The **Administrator** role has both.
+
+The button is not shown to anyone else.
+
+## Where you find it
+
+**Apply to all tenants** is a small icon button next to **Save** or **Delete**. Hover over it to see its name.
+
+| Page | What you can apply to tenants |
+|---|---|
+| **Configure > Pipelines** | Create a pipeline, save changes to it, delete it, or switch it on or off |
+| **Configure > Alerting Rules** | Switch a correlation rule on or off, or delete it |
+| **SOAR > Flows** | Create a response flow, save changes to it, delete it, or switch it on or off |
+
+When you create an item this way, each selected tenant gets its own copy. When you change or delete an item, the same item is changed or deleted in each selected tenant.
+
+Switching on or off works differently depending on where you click the button:
+
+- In the **Pipelines** list, the button next to a pipeline's switch gives the selected tenants the same state the pipeline has in your own tenant.
+- In the **Flows** list and in a correlation rule's details, the button gives the selected tenants the opposite of the state the item has in your own tenant. For example, if a flow is on in your tenant, it is switched off in the selected tenants.
+
+## Apply a change to tenants
+
+<Steps>
+
+<Step title="Prepare the item">
+
+Open the pipeline, rule or flow (or start a new pipeline or flow) and make your change. The dialog sends what the editor holds at that moment.
+
+</Step>
+
+<Step title="Open the dialog">
+
+Click the **Apply to all tenants** button. The dialog warns: "This action will run on every selected tenant. Per-tenant failures are reported after the run and are not rolled back."
+
+</Step>
+
+<Step title="Choose the tenants">
+
+Either tick **Apply to all tenants**, or search for and select the tenants you want. The default tenant is marked **platform** in the list. The dialog shows how many tenants will be changed ("Will target N tenant(s)").
+
+</Step>
+
+<Step title="Run">
+
+Click **Apply to N tenant(s)**.
+
+</Step>
+
+<Step title="Check the result">
+
+The dialog lists the tenants where the change **Succeeded** and those where it **Failed**, with the reason. Fix the cause and apply again to the failed tenants only.
+
+</Step>
+
+</Steps>
+
+<Warning>
+
+- **Apply to all tenants** includes your own default tenant. Select tenants one by one if you want to leave it out.
+- Changes are not undone when some tenants fail. Tenants that succeeded keep the change.
+
+</Warning>

@@ -1,0 +1,305 @@
+This page brings the pieces together: a step-by-step way to build a pipeline or rule, good practice that keeps rules useful and quiet, worked examples in UTMStack v12 syntax, and what to check when something does not work.
+
+## Workflow for a new pipeline
+
+<Steps>
+  <Step title="Find the data type">
+
+  Every pipeline works on one or more data types. For a source with a built-in integration, the data type is fixed (for example `firewall-fortigate-traffic`). For a new source, create a custom integration: its data type is derived from the name, for example `acme-firewall`. See **Custom Integrations**.
+
+  </Step>
+  <Step title="Collect real samples">
+
+  In **Log Explorer**, choose the dataset `logs` and your data type, open a few events and copy the `raw` value of each. Pick samples that cover the different kinds of message the source sends.
+
+  </Step>
+  <Step title="Map the fields">
+
+  For each value you need, decide its standard field: addresses to `origin.ip` and `target.ip`, accounts to `origin.user` or `target.user`, the outcome to `actionResult`, and so on. Leave the rest under `log.`. See **Standard Event Schema**.
+
+  </Step>
+  <Step title="Build the pipeline">
+
+  On **Configure > Pipelines**, click **New pipeline**:
+
+  1. Extract: `json` for JSON, `kv` for `key=value` text, `csv` for separated values, `grok` for anything else.
+  2. Normalize: `rename` to the standard fields, `add` for fixed values such as `actionResult`.
+  3. Convert and enrich: `cast` numbers, `reformat` times, `dynamic` for geolocation.
+  4. Clean up: `delete` helper fields.
+
+  See **Pipeline File Format and Step Reference**.
+
+  </Step>
+  <Step title="Test">
+
+  Click **Test**, paste each sample and click **Run**. Run each test twice and read the second result (see **Testing Pipelines and Rules**). Check every field and the `errors` field.
+
+  </Step>
+  <Step title="Save and verify">
+
+  Save the pipeline. After about a minute, check new events in Log Explorer: the fields are there, they have the right values, and `errors` is empty. Check **Configure > Data Processing** for dropped events.
+
+  </Step>
+</Steps>
+
+## Workflow for a new rule
+
+<Steps>
+  <Step title="Define the threat">
+
+  Decide what you want to catch and why it matters. The MITRE ATT&CK catalogue (attack.mitre.org) helps you name the tactic and technique.
+
+  </Step>
+  <Step title="Study the events">
+
+  In Log Explorer, find events that show the activity. Note the data type, the exact field names and the exact values. Check how often similar but harmless events occur: that decides how noisy the rule will be.
+
+  </Step>
+  <Step title="Write the rule">
+
+  On **Configure > Alerting Rules**, click **New rule**, or write a file to import. Set the name, data types, impact and description, write the condition, add correlation steps if the rule must count events, and set **Deduplicate by** or **Group by**. See **Rule File Format**.
+
+  </Step>
+  <Step title="Test">
+
+  Click **Test** and paste a raw log that should match. Expect an alert. Then paste one that should not match, and expect none.
+
+  </Step>
+  <Step title="Save and verify">
+
+  Save the rule. Reproduce the activity, or wait for it, and check **Threat Management > Alerts**. Watch the rule's alert volume for the first days.
+
+  </Step>
+</Steps>
+
+## Good practice for rules
+
+1. **Start narrow.** Write rules for specific, high-confidence patterns. A broad rule creates noise and can be switched off by the flood guard.
+2. **Limit the data types.** List only the data types the rule is written for. The engine only evaluates a rule for its data types.
+3. **Always de-duplicate or group.** The rule flood guard switches a rule off for your tenant when it has more than 50 open top-level alerts from one data source in 24 hours. Prefer `deduplicateBy`: a repeat is dropped for 7 days. `groupBy` stores each repeat as an echo under the first alert; echoes do not count toward the guard. See **Rule Flood Guard**.
+4. **Use alert field names.** `deduplicateBy` and `groupBy` read the alert: use `adversary.*`, `target.*`, `dataSource` or `lastEvent.*`. `origin.*` does not exist on an alert, and a rule whose fields all miss is never de-duplicated or grouped.
+5. **Guard placeholders.** Every `{{.field}}` in a correlation step must exist on the event. Add `exists("field")` to `where`. A missing field is an error, and 5 errors stop the rule.
+6. **Check regular expressions.** An invalid `regexMatch` expression never matches and gives no error. Test with a log that should match.
+7. **Use exact values.** `actionResult` is `success`, `failed` or `denied`. Field names have no `.keyword`.
+8. **Keep windows short.** Use the smallest `within` that catches the attack, and filter the correlation step with enough `with` conditions, so each history search stays fast.
+9. **Give a unique name.** De-duplication, grouping, tagging rules and the flood guard work by rule name.
+10. **Document the rule.** Fill in `description` with what the rule detects and "Next Steps" for the analyst, and add `references`.
+
+## Good practice for pipelines
+
+1. **Map to standard fields.** Rules, dashboards and threat intelligence read the standard fields. Keep only vendor-specific data under `log.`.
+2. **Check every name.** A misspelled standard field name (for example `origin.hostname`) is dropped without warning.
+3. **Convert types.** A text value in a number field, such as `origin.port`, drops the whole event. Use `cast`.
+4. **Convert times.** Use `reformat` before you write `deviceTime`; an unreadable date loses the event.
+5. **Prefer `json` to `grok`.** If the log is JSON, parse it with `json`.
+6. **Guard steps.** Use `where` so steps only run when their source exists, for example `where: 'exists("origin.ip")'`.
+7. **Use named patterns.** In `grok`, `{{.ipv4}}` and the other named patterns are easier to read than your own expressions.
+8. **Clean up.** `delete` helper fields once they are mapped. `raw` is always kept.
+9. **Group the steps.** Put extraction first, then renames, then conversions and enrichment, then cleanup. Other people can then follow the file.
+
+## Examples
+
+All examples use UTMStack v12 syntax. Import them as files, or paste them into the **Code** tab of the rule editor. Rules with correlation steps keep their steps exactly as written only when imported; see **Alerting Rules**.
+
+### 1. Brute force against Windows logons
+
+Ten failed logons on one computer from one source in five minutes. This is the shipped rule `windows/windows_bruteforce_attack.yaml` (description shortened), with its correlation steps under the current key `correlation`. UTMStack already runs the shipped rule, so use this copy as a model for your own counting rules; if you import it as it is, switch the shipped rule off.
+
+```yaml
+dataTypes:
+  - wineventlog
+name: "Windows: Possible Brute Force Attack (custom)"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: "Ten or more failed logons (4625) on one computer from one source within five minutes. One alert per computer and source; repeats are suppressed for seven days."
+references:
+  - "https://attack.mitre.org/techniques/T1110/"
+where: |
+  equals("log.eventCode", 4625) &&
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource")
+correlation:
+  - with:
+      - field: log.eventCode
+        operator: filter_term
+        value: 4625
+      - field: dataSource
+        operator: filter_term
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+    within: 5m
+    count: 10
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.authenticationSource
+```
+
+What to notice:
+
+- `where` checks that `dataSource` and `log.authenticationSource` exist, because the correlation step copies them with placeholders.
+- The step counts stored events with the same values in the last five minutes.
+- `deduplicateBy` uses `dataSource` and `lastEvent.log.authenticationSource`, both available on the alert.
+
+### 2. Large upload to an external address
+
+A host in a private range sends more than 100 MB in one session to an address outside the private ranges, as seen by a FortiGate firewall. No counting is needed: one event is enough.
+
+```yaml
+dataTypes:
+  - firewall-fortigate-traffic
+name: "FortiGate: Large Upload to an External Address"
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 0
+category: "Exfiltration"
+technique: "T1041 - Exfiltration Over C2 Channel"
+adversary: origin
+description: |
+  A host in a private address range sent more than 100 MB in one session to an address outside the private ranges.
+
+  Next Steps:
+  1. Check whether the destination is a known business service, such as a backup or cloud storage provider.
+  2. Find the user and program behind the session on the source host.
+  3. If the transfer is not explained, isolate the host and investigate.
+where: |
+  greaterThan("origin.bytesSent", 100000000) &&
+  (inCIDR("origin.ip", "10.0.0.0/8") || inCIDR("origin.ip", "172.16.0.0/12") || inCIDR("origin.ip", "192.168.0.0/16")) &&
+  exists("target.ip") &&
+  !inCIDR("target.ip", "10.0.0.0/8") &&
+  !inCIDR("target.ip", "172.16.0.0/12") &&
+  !inCIDR("target.ip", "192.168.0.0/16")
+deduplicateBy:
+  - adversary.ip
+  - target.ip
+```
+
+What to notice:
+
+- The shipped FortiGate pipeline casts `origin.bytesSent` to a number, so `greaterThan` compares numbers.
+- `deduplicateBy` raises one alert per source and destination pair per week.
+
+### 3. Interactive logon outside office hours
+
+A person signs in at the keyboard (logon type 2) or over Remote Desktop (logon type 10) on a weekend or outside 07:00 to 19:00 UTC.
+
+```yaml
+dataTypes:
+  - wineventlog
+name: "Windows: Interactive Logon Outside Office Hours"
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 0
+category: "Initial Access"
+technique: "T1078 - Valid Accounts"
+adversary: origin
+description: |
+  A person signed in interactively or over Remote Desktop on a weekend or outside 07:00 to 19:00 UTC.
+
+  Next Steps:
+  1. Confirm with the user that the sign-in was theirs.
+  2. If not, disable the account and review what it did after the sign-in.
+where: |
+  equals("log.eventCode", 4624) &&
+  oneOf("log.eventDataLogonType", [2, 10]) &&
+  exists("target.user") && !endsWith("target.user", "$") &&
+  (isWeekend("@timestamp") || !isBetweenTime("@timestamp", "07:00", "19:00"))
+groupBy:
+  - target.user
+  - dataSource
+```
+
+What to notice:
+
+- `@timestamp` is in UTC. If your office works 08:00 to 18:00 at UTC−5, write `"13:00", "23:00"`.
+- Computer accounts end in `$` and are skipped.
+- `groupBy` keeps one top-level alert per user and computer and stores every later sign-in as an echo, so you see each occurrence without new top-level alerts.
+
+### 4. A new source from end to end
+
+The annotated example in **Pipeline File Format and Step Reference** parses a firewall that reaches UTMStack through a custom integration named "Acme Firewall", and sets `actionResult` to `denied` for blocked connections. This rule then raises an alert when one address has at least 50 blocked connections in 10 minutes, which often means a port scan:
+
+```yaml
+dataTypes:
+  - acme-firewall
+name: "Acme Firewall: Many Blocked Connections From One Address"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 2
+category: "Discovery"
+technique: "T1046 - Network Service Discovery"
+adversary: origin
+description: |
+  One address had at least 50 connections blocked by the firewall within 10 minutes.
+
+  Next Steps:
+  1. Check who owns the source address.
+  2. If it is inside your network, find the program that opens the connections.
+where: |
+  equals("actionResult", "denied") &&
+  exists("origin.ip")
+correlation:
+  - within: 10m
+    count: 50
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: denied
+deduplicateBy:
+  - adversary.ip
+```
+
+To test it, the earlier blocked events must already be stored: send real traffic from a test machine, or wait for it, and check **Threat Management > Alerts**. A single test log in the test dialog cannot reach the count.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| A rule never fires | Is it **Active** for your tenant? Did the flood guard switch it off (look for a notice in the notification bell)? Is there a `Circuit Breaker: <rule name>` alert? Do the events have the data type, field names and values the rule reads (check in Log Explorer)? Does the rule use `afterEvents` in an imported file (its steps were lost)? |
+| A counting rule never fires | Do the stored events match every `with` condition exactly, including letter case for `equals (term)`? Does every `{{.field}}` placeholder exist on the triggering event? Is `count` reachable within `within`? |
+| A rule fires for every matching event | Its correlation steps were lost. In the editor, a step without an **Index pattern** is removed on save; in an import, `afterEvents` steps are dropped. Re-import the file with `correlation`. |
+| A rule fires too often | Add or fix `deduplicateBy` or `groupBy`, narrow `where`, or close known false positives with a tagging rule. See **Tagging Rules and False Positives**. |
+| A pipeline does not parse | Run **Test pipeline** with a real sample (twice). Look at the `errors` field of stored events. Check that `source` fields exist and that conditions and patterns compile. |
+| Fields are missing after parsing | A misspelled standard field name is dropped silently. A `grok` step writes nothing if any of its patterns fails. |
+| Events disappear | A value of the wrong type in a standard field drops the whole event ("failed to convert log to event"). An unreadable `deviceTime` makes the database refuse it. Check **Configure > Data Processing** for drops. |
+| A rule's data type gets no events | The engine logs "rule references dataTypes no pipeline produces" when no pipeline lists the rule's data type. Check the spelling of the data type. |
+
+### Reading the engine's messages
+
+The engine writes its messages to the container log of the event processor worker, not to a file. On the UTMStack server, read them with:
+
+```bash
+docker service logs --since 30m utmstack_event-processor-worker
+```
+
+Useful messages:
+
+| Message | Meaning |
+|---|---|
+| "failed to parse log during pipeline execution" | A pipeline step failed. |
+| "failed to convert log to event" | The event was dropped because a field had the wrong type. |
+| "failed to evaluate where clause using CEL" | A condition in a pipeline step failed. |
+| "failed to evaluate rule" | A rule condition or history search failed. |
+| "rule references dataTypes no pipeline produces" | A rule names a data type that no pipeline lists. |
+| "duplicate pipeline order" | Two pipelines share an `order` value. Both still run, one after the other. Give each pipeline its own `order`. |
+
+## Performance checklist
+
+- Does every rule list only the data types it needs?
+- Is every `within` as short as the detection allows?
+- Does every correlation step have enough `with` conditions to keep the search small?
+- Are JSON logs parsed with `json` rather than `grok`?
+- Do pipeline steps use `where` to skip work that does not apply?
+- Are logs you never need discarded early with `drop`?

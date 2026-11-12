@@ -1,0 +1,133 @@
+The **Flows** page lists every automated response flow your tenant can use. From here you create flows, open them in the editor, switch them on and off, and start them by hand.
+
+Open it from **SOAR > Flows**.
+
+## Page layout
+
+At the top you find a search box (**Search flows…**), a **Refresh** button and the **New flow** button.
+
+Four number tiles summarise your flows:
+
+| Tile | What it counts |
+|---|---|
+| **Total flows** | All flows you can see, shipped and your own. |
+| **Active** | Flows that are switched on for your tenant. |
+| **Executions (24h)** | Rows in **Execution history** from the last 24 hours: flow steps and Interactive Console commands. |
+| **Failed (24h)** | Those rows whose status is **Failed**. |
+
+Tabs filter the list: **All**, **Active**, **Inactive**, **System** (flows that ship with the product) and **Custom** (flows your tenant created).
+
+## Columns
+
+| Column | What it shows |
+|---|---|
+| **Flow** | The flow name. Shipped flows carry a **System** badge. |
+| **Platform** | The platform set on the flow's shell steps. |
+| **Conditions** | The trigger conditions. |
+| **Commands** | How many steps the flow has. |
+| **Active** | The switch that turns the flow on or off for your tenant. |
+| **Last run** | When a step of the flow last ran, or "never". If some steps failed, it shows how many ("N failed runs"). Both are counted over the 500 most recent rows of **Execution history**. |
+| **Actions** | **View** opens the editor; **Trigger flow** starts the flow by hand. |
+
+On a multi-tenant installation the instance operator also sees **Apply to all tenants** (see below).
+
+## Switch a flow on or off
+
+Use the **Active** switch in the flow's row. The switch applies to your tenant only.
+
+<Warning>
+
+A flow you create **from scratch** is saved switched on, and it starts reacting to alerts as soon as you save it. The editor has no on/off switch. If you want to build a flow without it running, start from a copy of an existing flow (copies are saved switched off), or switch the flow off in this list right after the first save.
+
+</Warning>
+
+Every alert that matches a switched-on flow starts a new run. UTMStack does not group or limit runs.
+
+## Shipped flows are read-only
+
+Flows marked **System** ship with UTMStack and cannot be edited or deleted. If you try, the server answers "a flow the product ships is read-only". To change one, copy it (see below) and edit the copy. See **Shipped Flows** for the full list.
+
+## Create a flow
+
+<Steps>
+  <Step title="Click New flow">
+
+    A chooser opens with two options:
+
+    - **From scratch**: "An empty definition you fill in yourself."
+    - **From an existing one**: "Everything is copied except the identifier and the name."
+
+  </Step>
+  <Step title="Start from scratch">
+
+    The **New flow** dialog offers two modes:
+
+    - **Create manually**: enter **Flow name**, **Description** and **Max depth** (default 50), then click **Continue**. The editor opens with an empty canvas.
+    - **Using AI**: describe the flow in **What should this flow do?** and click **Create with AI**. The SOC-AI assistant drafts the flow for you. This mode is locked, with the hint "Enable SOC-AI and configure it to use this.", until an AI provider is set up. See **SOC-AI Assistant**.
+
+  </Step>
+  <Step title="Or start from an existing flow">
+
+    Pick the flow to copy. Its conditions, steps, shells and platforms are copied. Give the copy a new name. The copy is saved switched off.
+
+  </Step>
+  <Step title="Build and save">
+
+    Set the trigger conditions, add steps and wire them, then click **Save**. See **Building a Flow**.
+
+  </Step>
+</Steps>
+
+### Flow names and file names
+
+Each flow is stored as a file whose name is made from the flow name: lower case, with every character that is not a letter or a digit turned into `-`, plus `.yaml`. For example, "Block IP on repeated failures" becomes `block-ip-on-repeated-failures.yaml`.
+
+- Two names that make the same file name collide. The server answers "rule name already in use".
+- Renaming a flow later keeps its original file name.
+- A name can be up to 150 characters, a description up to 512.
+
+## Start a flow by hand
+
+**Trigger flow** runs a flow once against an alert you choose. Use it to test a flow before you switch it on.
+
+<Steps>
+  <Step title="Click Trigger flow in the flow's row">
+
+    The dialog **Trigger &lt;flow name&gt;** opens.
+
+  </Step>
+  <Step title="Choose the alert">
+
+    - **Stored alert**: search your alerts and pick one.
+    - **Raw alert JSON**: paste an alert as JSON.
+
+  </Step>
+  <Step title="Choose the agent">
+
+    **Agent** defaults to **Same agent as the alert**. Pick another agent to run the shell steps somewhere else, for example on a test machine.
+
+  </Step>
+  <Step title="Click Trigger flow">
+
+    The run appears in **SOAR > Execution history**.
+
+  </Step>
+</Steps>
+
+- The flow's own trigger conditions are ignored for a manual run.
+- A manual run works even when the flow is switched off.
+- Starting a flow by hand needs the `soar.execute` permission, which only the Administrator role has.
+- A shell step that names its own host always runs there, even if you pick another agent in this dialog. See **Running Steps on Another Host**.
+
+## Apply to all tenants
+
+On a multi-tenant installation the instance operator can create, update, delete, or switch on and off a flow in many tenants at once with **Apply to all tenants**. See **Apply to All Tenants**.
+
+- You choose the target tenants before the action runs. The platform tenant itself is excluded.
+- Each tenant is handled on its own. Failures are listed after the run ("Per-tenant failures are reported after the run and are not rolled back.").
+
+## Related pages
+
+- **Building a Flow**
+- **Shipped Flows**
+- **Execution History and Run Statuses**

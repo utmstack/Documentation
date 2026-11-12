@@ -1,0 +1,180 @@
+The **Azure** integration brings activity from your Azure subscription into UTMStack. You stream subscription events into an Azure Event Hub; UTMStack reads the hub and saves its read position in an Azure Storage Account. Nothing is installed in your Azure tenant.
+
+## How it works
+
+- Your Azure subscription sends events through an Event Subscription (Event Grid) to an Event Hub.
+- UTMStack reads the Event Hub with a connection string that has **Listen** rights, using its own consumer group.
+- UTMStack stores its checkpoints (how far it has read) in a container of a Storage Account.
+- Events are stored with the data type `azure`. UTMStack v12 ships 40 detection rules for this data type; see **Azure** in the **Rules** tab.
+- UTMStack supports Event Hubs in the Azure public cloud, Azure US Government and Azure China.
+
+## Before you start
+
+- In Azure, you need permission to create an Event Hubs namespace, a Storage Account and Event Subscriptions, and to register resource providers on the subscription.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach Azure over HTTPS (outbound port 443).
+
+## Step 1: Create the Event Hub and its access policy
+
+<Steps>
+<Step title="Create an Event Hub">
+
+In the Azure portal, create an Event Hubs namespace and an Event Hub inside it. UTMStack reads events from this hub.
+
+<Note>
+
+Follow the official Azure guide: [Quickstart: Create an event hub using Azure portal](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-create).
+
+</Note>
+
+</Step>
+<Step title="Add a shared access policy">
+
+Open the Event Hub, go to **Shared access policies** and create a new policy. Make sure you select the **Listen** permission.
+
+![Azure](/assets/e94e8d35-ce03-5589-b15e-a8a38129a5fd)
+
+</Step>
+<Step title="Copy the primary connection string">
+
+Open the policy you just created and copy **Connection string–primary key**. You will paste it into UTMStack in Step 4.
+
+![Azure](/assets/2b06ddba-9c27-53b4-b073-f57172a0041d)
+
+The value looks like this (example values):
+
+```text
+Endpoint=sb://<namespace>.servicebus.windows.net/;SharedAccessKeyName=<policy name>;SharedAccessKey=<key>;EntityPath=<event hub name>
+```
+
+UTMStack needs the `EntityPath` part, which names the Event Hub. If the string you copied has no `EntityPath`, add `;EntityPath=<event hub name>` at the end.
+
+</Step>
+<Step title="Create a dedicated consumer group">
+
+Go to **All services > Event Hubs >** your namespace **> Event Hubs >** your Event Hub **> Consumer groups**, create a consumer group for UTMStack and note its name.
+
+![Azure](/assets/d91a21c2-3514-53d0-b4b9-0726b87e438e)
+
+<Warning>
+
+Create a consumer group only for UTMStack. Do not use `$Default` or any other group that is already in use: sharing a consumer group with unrelated readers can cause unexpected behavior and lost events. All UTMStack instances that read this hub should use the same consumer group so they can process events together.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 2: Create the Storage Account
+
+<Steps>
+<Step title="Create a Storage Account">
+
+UTMStack needs a Storage Account to save its read position. Create one in the same region as the Event Hub.
+
+<Note>
+
+Follow the official Azure guide: [Quickstart: Create a storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal).
+
+</Note>
+
+</Step>
+<Step title="Get the storage container name">
+
+Go to **All services > Storage accounts >** your account **> Containers** and note the name of the container UTMStack should use.
+
+![Azure](/assets/3317c149-686a-5121-b380-f3deda5bd66f)
+
+</Step>
+<Step title="Copy the Storage Account connection string">
+
+Go to **All services > Storage accounts >** your account **> Access keys** and copy the connection string with key.
+
+![Azure](/assets/c8597b7e-b86f-5635-af40-2c92375e0b1f)
+
+The value looks like this (example values):
+
+```text
+DefaultEndpointsProtocol=https;AccountName=<storage account>;AccountKey=<key>;EndpointSuffix=core.windows.net
+```
+
+</Step>
+</Steps>
+
+## Step 3: Send subscription events to the Event Hub
+
+<Steps>
+<Step title="Register the Event Grid resource provider">
+
+Go to **Subscriptions >** your subscription **> Resource providers**, search for **Event Grid** (`Microsoft.EventGrid`) and make sure it is registered.
+
+![Azure](/assets/0e4236fe-9db4-51e7-b288-3a74532b82f5)
+
+</Step>
+<Step title="Create an Event Subscription">
+
+In the subscription's **Events** panel, click **Event Subscription** to create a new one.
+
+![Azure](/assets/7235548d-e883-5b1a-8472-b7c00114a1f3)
+
+</Step>
+<Step title="Point the Event Subscription at your Event Hub">
+
+Configure the Event Subscription to send events to the Event Hub you created in Step 1.
+
+![Azure](/assets/1eccfabf-3564-5c93-a086-e4cab4f45f48)
+
+</Step>
+</Steps>
+
+## Step 4: Connect Azure in UTMStack
+
+Each Event Hub connection is a **config group**. You can add more than one.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `Azure` and open the **Azure** card. The form is at the end of the setup guide, under **Event Hub configuration**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **Event Hub connection string** | The connection string from Step 1. It must include `EntityPath`. |
+| **Consumer group** | The consumer group you created for UTMStack in Step 1. |
+| **Storage container name** | The container name from Step 2. |
+| **Storage account connection string** | The Storage Account connection string from Step 2. |
+
+All fields are required.
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. Before saving, UTMStack checks that it can reach the Event Hub, that the consumer group exists and that the storage container exists. When the check passes, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+### If the save fails
+
+| Message | What to check |
+|---|---|
+| Invalid Event Hub Connection String format. It must include an EntityPath | Add `;EntityPath=<event hub name>` to the connection string. |
+| Event Hub Connection String is unauthorized | The shared access policy is missing the **Listen** permission, or the key is wrong. |
+| Event Hub ... was not found | The `EntityPath` does not match the Event Hub name. |
+| Consumer Group ... was not found on Event Hub ... | The consumer group name is wrong, or it was created on another Event Hub. |
+| Storage Container ... was not found | The container does not exist in that Storage Account. |
+| Cannot connect to Azure Storage / Access denied to Storage Container | The Storage Account connection string is wrong or has no access. |
+| Connection ... timed out | The UTMStack server cannot reach Azure on port 443. |
+
+## Check that events arrive
+
+Open the **Azure** card again and click **View logs**. Log Explorer opens filtered to the `azure` data type for the last 24 hours.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per Event Hub.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. Secret fields (both connection strings) show a masked value; leave it as it is to keep the stored value. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.

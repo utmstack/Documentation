@@ -1,0 +1,115 @@
+Rule conditions (`where`), conditions on pipeline steps and `drop` steps are written in CEL, the Common Expression Language: a small language for true-or-false conditions. UTMStack adds 21 functions that read event fields safely. This page lists them and shows how to combine them.
+
+## How a condition is written
+
+- Each function takes the **field path as quoted text** as its first argument: `equals("origin.ip", "10.0.0.1")`, not `equals(origin.ip, "10.0.0.1")`. An unquoted path either fails to compile or silently never matches.
+- Combine functions with `&&` (and), `||` (or), `!` (not) and brackets.
+- A function whose field is missing returns false; it does not raise an error. `safe` returns its default instead.
+- Standard CEL method calls such as `"text".contains()` are not used; use the functions below.
+
+```yaml
+where: |
+  exists("origin.ip") &&
+  !inCIDR("origin.ip", "10.0.0.0/8") &&
+  (startsWith("origin.user", "admin_") || equals("origin.user", "root"))
+```
+
+### Writing conditions in YAML
+
+- Start a long condition on its own lines after `where: |`, as above.
+- Or put it on one line in single quotes, with double quotes inside: `where: 'contains("raw", "HealthCheck")'`.
+- Always quote or use `|` when the condition starts with `!` or contains `: `. Otherwise YAML misreads it.
+
+## Functions
+
+| Function | True when | Visual editor label |
+|---|---|---|
+| `exists("f")` | The field is present. | exists |
+| `safe("f", default)` | Not a test: returns the field's value, or `default` when the field is missing or of another kind. `default` can be text, a number or `true`/`false`. | not offered |
+| `equals("f", v)` | The field equals `v`. Numbers match whether stored as a number or as text, and `"true"` matches a true value. | equals |
+| `oneOf("f", [v1, v2, …])` | The field equals any value in the list, matched like `equals`. | is one of |
+| `equalsIgnoreCase("f", "v")` | The text field equals `v`, ignoring upper and lower case. | equals (no case) |
+| `contains("f", "v")` or `contains("f", ["v1", "v2"])` | The field contains the text, or any text in the list. | contains |
+| `containsAll("f", ["v1", "v2"])` | The field contains every text in the list. | contains all |
+| `startsWith("f", "v")` or with a list | The field starts with the text, or any text in the list. | starts with |
+| `endsWith("f", "v")` or with a list | The field ends with the text, or any text in the list. | ends with |
+| `regexMatch("f", "re")` | The text field matches the regular expression. | matches regex |
+| `inCIDR("f", "10.0.0.0/8")` | The field is an IP address inside the range (IPv4 or IPv6). | in CIDR |
+| `greaterThan("f", v)` | The field is greater than `v`. | `>` |
+| `greaterOrEqual("f", v)` | The field is greater than or equal to `v`. | `≥` |
+| `lessThan("f", v)` | The field is less than `v`. | `<` |
+| `lessOrEqual("f", v)` | The field is less than or equal to `v`. | `≤` |
+| `isHour("f", h)` | The time in the field has hour `h` (0 to 23). | hour is |
+| `isMinute("f", m)` | The time has minute `m` (0 to 59). | minute is |
+| `isDayOfWeek("f", d)` | The time falls on day `d`, where 0 is Sunday and 6 is Saturday. | day of week is |
+| `isWeekend("f")` | The time falls on a Saturday or Sunday. | is weekend |
+| `isWorkDay("f")` | The time falls on Monday to Friday. | is workday |
+| `isBetweenTime("f", "HH:MM", "HH:MM")` | The time of day is between the two times, both included. | time between |
+
+## Details that matter
+
+### Text functions
+
+- `contains`, `containsAll`, `startsWith` and `endsWith` search text fields, and also the JSON text of object and list fields. They never match number or true/false values: `contains("statusCode", "40")` is false for the number 404.
+- Items in a list given to `contains`, `startsWith` and `endsWith` are trimmed of surrounding spaces.
+- Matching is case-sensitive, except for `equalsIgnoreCase`. For other case-insensitive checks, use `regexMatch` with `(?i)` at the start of the expression.
+
+### `regexMatch`
+
+- It works on text fields only.
+- An invalid regular expression makes it return false, with no error. Check every expression before you rely on it, for example with **Test** on the Alerting Rules page and a log that should match.
+- Inside the double quotes of a condition, write each backslash twice: `regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")` matches a date such as `2026-11-11`.
+
+### Number comparisons
+
+`greaterThan`, `greaterOrEqual`, `lessThan` and `lessOrEqual` compare numbers. Text that looks like a number, such as `"443"`, is converted first.
+
+### Time functions
+
+- They read the field as an RFC 3339 time (for example `2026-11-11T09:30:00Z`) and use the time zone written in the value.
+- `@timestamp` is always in UTC, so `isHour("@timestamp", 9)` means 09:00 to 09:59 UTC. Convert your office hours to UTC.
+- `isBetweenTime` also works across midnight: `isBetweenTime("@timestamp", "22:00", "06:00")` is true from 22:00 to 06:00.
+- A value that is not an RFC 3339 time makes these functions return false.
+
+### `safe`
+
+Use `safe` when you want to compare two fields, or a field with an operator, and the field may be missing:
+
+```yaml
+where: exists("origin.ip") && exists("target.ip") && greaterThan("origin.bytesSent", 10000000) && safe("origin.geolocation.country", "") != safe("target.geolocation.country", "") && greaterThan("origin.port", 1024)
+```
+
+## Examples from shipped rules
+
+Failed Windows logons (event 4625) with a known source:
+
+```yaml
+where: |
+  equals("log.eventCode", 4625) &&
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource")
+```
+
+A Linux user added to an administrators group:
+
+```yaml
+where: |
+  regexMatch("origin.command", "(usermod.*-aG.*sudo|usermod.*-aG.*admin|gpasswd -a .* sudo|adduser .* sudo)")
+```
+
+A successful Entra ID sign-in:
+
+```yaml
+where: |
+  equals("log.graphSource", "sign-ins") &&
+  equals("actionResult", "success") &&
+  exists("origin.user")
+```
+
+A pipeline step that only runs on JSON text:
+
+```yaml
+- json:
+    source: raw
+    where: 'startsWith("raw", "{")'
+```

@@ -1,0 +1,128 @@
+Single sign-on (SSO) lets your users sign in to UTMStack v12 with the account they already have in your identity provider, such as Microsoft Entra ID, Okta or Google Workspace. UTMStack supports three kinds of provider: **SAML 2.0**, **OpenID Connect** and **LDAP / Active Directory**. Single sign-on needs an **Enterprise** licence.
+
+## Before you start
+
+- You need the **Administrator** role: `idp.read` to view providers and `idp.write` to create, change or delete them.
+- The server needs an Enterprise licence. On Community, the page shows "SSO is an Enterprise feature". See **License and Editions**.
+- Decide which UTMStack roles your users should get, and which groups in your directory map to them. See **Roles and Permissions**.
+- Know the address your users open UTMStack with, for example `https://siem.example.com`. Below, `<your-server>` stands for its host name (here `siem.example.com`) and `<name>` for the provider name you choose in UTMStack.
+
+## How users sign in
+
+Each active provider adds a **Continue with** button, followed by the provider name, to the UTMStack sign-in page.
+
+- **SAML 2.0 and OpenID Connect**: the button sends the user to the identity provider. After they sign in there, they come back to UTMStack signed in. These sessions last one hour; after that the user signs in again through the provider.
+- **LDAP / Active Directory**: the button selects the directory. The user then types their directory email and password into the normal sign-in form, and UTMStack checks them against the directory.
+
+You can also give users the direct sign-in address of a SAML 2.0 or OpenID Connect provider:
+
+```text
+https://<your-server>/api/v1/sso/<name>/login
+```
+
+Accounts created through an identity provider cannot sign in with a local UTMStack password.
+
+## Add an identity provider
+
+<Steps>
+
+<Step title="Open Identity Providers">
+
+Go to **Configure > Settings > Identity Providers** and click **Add provider**.
+
+</Step>
+
+<Step title="Name the provider and choose its type">
+
+- **Name**: unique, up to 64 characters, using letters, digits, dots, dashes or underscores, without spaces. It becomes part of the sign-in addresses and cannot be changed later.
+- **Provider type**: **SAML 2.0**, **OpenID Connect** or **LDAP / Active Directory**. It cannot be changed later either.
+
+</Step>
+
+<Step title="Fill in the connection fields">
+
+Use the table for your provider type in the sections below.
+
+</Step>
+
+<Step title="Decide how accounts and roles are handled">
+
+Fill in **Accounts and roles** (see below).
+
+</Step>
+
+<Step title="Activate and save">
+
+Switch on **Active (show on the login page)** when you are ready for users to see the provider, and click **Create provider**.
+
+</Step>
+
+<Step title="Test">
+
+Sign out, or open a private browser window, and sign in with a test account through the new provider.
+
+</Step>
+
+</Steps>
+
+### SAML 2.0 fields
+
+| Field | What to enter |
+|---|---|
+| IdP metadata URL | The metadata address published by your identity provider |
+| SP Entity ID | The identifier of UTMStack in your identity provider. It must be a URI, for example `https://<your-server>/sp`. Use the same value in your identity provider. |
+| SP ACS URL | Where the identity provider sends users back: `https://<your-server>/api/v1/sso/<name>/acs` |
+| SP certificate (PEM) | The certificate UTMStack uses for SAML, in PEM format |
+| SP private key (PEM) | The private key of that certificate. It is stored encrypted and never shown again; when you edit the provider, leave it empty to keep the stored key. |
+
+In your identity provider, set the user's email address as the NameID, or send it in an `email` or `mail` attribute.
+
+### OpenID Connect fields
+
+| Field | What to enter |
+|---|---|
+| Issuer URL | The issuer address of your provider, for example `https://login.microsoftonline.com/<tenant>/v2.0`. It must serve `/.well-known/openid-configuration`. |
+| Client ID | The client (application) ID you registered in the provider |
+| Client secret | The secret of that client. It is stored encrypted and never shown again. |
+| Redirect URL | `https://<your-server>/api/v1/sso/<name>/callback`. Register this exact address in your provider. |
+
+UTMStack asks the provider for the `openid`, `profile` and `email` scopes.
+
+### LDAP / Active Directory fields
+
+| Field | What to enter | Default |
+|---|---|---|
+| Host | The directory server's host name or IP address, without `ldap://`, for example `ldap.example.com` | — |
+| Port | The directory port | `389` |
+| TLS | **Use StartTLS** encrypts the connection | On |
+| Bind DN | A service account that is allowed to search the directory | — |
+| Bind password | The password of that account. It is stored encrypted and never shown again. | — |
+| Base DN | Where in the directory to search for users | — |
+| User filter | The search filter. It must contain `%s`, which is replaced by the email the user types. | `(mail=%s)` |
+| Email attribute, Name attribute, Group attribute | The directory attributes that hold the user's email, name and groups | — |
+
+### Accounts and roles
+
+| Field | What it does |
+|---|---|
+| Create the account on first sign-in | Creates the UTMStack user the first time someone signs in through the provider. |
+| Default role | The role given when none of the user's groups matches a mapping. If you choose **None**, a sign-in that matches no group is refused. |
+| Groups attribute | Where the provider puts the user's group membership, for example `groups`, or `memberOf` in a directory. |
+| Re-apply roles on every sign-in | Updates the user's roles from the group mapping at every sign-in. Roles not in the mapping are removed, so a change in the directory reaches UTMStack. Without this option, removing someone from a group never lowers their rights in UTMStack. |
+| Group to role | Pairs of a directory group (for example `SOC Analysts`) and the UTMStack role it grants. Click **Add** for each pair. |
+
+## Manage providers
+
+Each provider is shown as a card with its main settings.
+
+- **Disable** hides the provider from the sign-in page and stops sign-ins through it. **Enable** turns it back on.
+- **Edit** changes the settings. Secrets stay as they are unless you type new ones.
+- **Delete** removes the provider. Users can no longer sign in through it. This cannot be undone.
+
+## Two-step sign-in and single sign-on
+
+UTMStack's own two-step sign-in is not asked of users who sign in through SAML 2.0 or OpenID Connect. Turn on multi-factor sign-in in your identity provider. Users who sign in through LDAP get the UTMStack code step if they have turned it on. See **Profile and Two-Step Sign-In**.
+
+## Identity providers and tenants
+
+On a multi-tenant licence, each tenant has its own identity providers. A tenant's providers appear on that tenant's sign-in page, at the tenant's address.

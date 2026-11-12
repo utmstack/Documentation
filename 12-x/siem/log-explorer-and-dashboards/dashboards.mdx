@@ -1,0 +1,171 @@
+Dashboards show your logs and alerts as charts, numbers and tables on one screen. UTMStack v12 ships a few ready-made dashboards, and you can build your own, copy an existing one, or let the SOC-AI assistant build one for you.
+
+## Who can use dashboards
+
+**Dashboards** is in the main menu, so every user sees it.
+
+| Action | Permission | Built-in roles that have it |
+|---|---|---|
+| Open dashboards | `dashboards.read` | Administrator, Analyst, Viewer |
+| Create, change, copy and delete dashboards, widgets and dashboard filters | `dashboards.write` | Administrator, Analyst |
+
+Building widgets also reads the field list of the data, which needs `loganalyzer.read` (all built-in roles have it).
+
+Dashboards belong to a tenant: every user of the tenant sees the same dashboards. The shipped dashboards are shared, read-only, by every tenant.
+
+## Open a dashboard
+
+1. In the main menu, click **Dashboards**.
+2. The **Dashboards** page shows one card per dashboard, with a small preview of its layout and its number of widgets. Dashboards with the most widgets come first. A lock icon marks a shipped dashboard.
+3. Type in **Search dashboards…** to find a dashboard by name.
+4. Click a card to open the dashboard.
+
+Click **Dashboards** at the top left of an open dashboard to go back to the list.
+
+<Note>
+
+The list loads the first 20 dashboards in alphabetical order. If your tenant has more, use **Search dashboards…** to find the others.
+
+</Note>
+
+## Shipped dashboards
+
+UTMStack loads these dashboards every time the backend starts:
+
+| Dashboard | What it shows | Data |
+|---|---|---|
+| **Agents** | Fleet-wide agent activity across Linux, Windows and macOS: event counts, alerts by severity and category, top techniques, events over time, latest alerts | Agent logs and alerts |
+| **GCP Activity** | Google Cloud activity by severity and operation | Data type `google` |
+| **Network Traffic (NetFlow)** | Who talks to whom, over which protocols and ports | Data type `netflow` |
+| **pfSense Firewall** | What the pfSense firewall allows and blocks | Data type `firewall-pfsense` |
+
+Shipped dashboards cannot be edited. To change one, make a copy (see **Create a dashboard**) and edit the copy.
+
+## Choose the time range and auto refresh
+
+At the top right of an open dashboard:
+
+- **Time range**: every widget shows data for this window. The default is **Last 24 hours**. The options are the same as in Log Explorer: **Quick ranges** (15 minutes to 30 days), **Relative** (last N minutes, hours, days, weeks or months) and **Absolute** (From and To).
+- **Auto refresh**: reloads every widget at the chosen interval: **Off**, **10s**, **30s**, **1m**, **5m** or **15m**. The default is **Off**.
+
+Neither choice is saved with the dashboard. They reset when you open another dashboard or reload the page.
+
+## Filter a dashboard
+
+A dashboard can have filter chips above its widgets. Each chip is a drop-down list of values. When you pick a value, every widget on the dashboard is narrowed to records where that field has that value. Click **Clear** in a chip to remove its value.
+
+The values you pick are not saved: they clear when you switch dashboards. The chips themselves are part of the dashboard.
+
+### Add or change filter chips
+
+You need `dashboards.write`.
+
+1. Open the dashboard and click **Edit** (the pencil).
+2. In the filter bar, click **Add filter**. To change an existing chip, use its edit button; to delete it, use its remove button.
+3. Fill in the **Add filter** form:
+
+| Field | What to enter |
+|---|---|
+| **Data set** | `logs` or `alerts`: where the chip reads its list of values from |
+| **Field** | The field to filter on, for example `origin.ip` or `dataSource` |
+| **Label** | The name shown on the chip, for example "Host" |
+| **Placeholder** | The text shown when no value is picked, for example "Pick a host" |
+| **Multiple** | Tick it to let users pick several values. Without it, users pick one value. |
+
+4. Click **Save**. Chip changes are saved at once, separately from the layout.
+
+The drop-down offers the 50 most frequent values of the field in the chosen data set.
+
+<Note>
+
+A chip filters every widget on the dashboard, whatever its data set. A widget whose records do not have that field shows no data while the chip has a value. Keep chips on fields that all the widgets share.
+
+</Note>
+
+## Open the data behind a chart
+
+Click a bar, a slice, a point, a number or a table row in a widget. UTMStack opens the records behind it, with the widget's own conditions, the dashboard filters and the value you clicked:
+
+- for a widget on the `logs` data set, in **Log Explorer**;
+- for a widget on the `alerts` data set, in **Threat Management > Alerts**.
+
+When you click a point on a chart over time, the time range is narrowed to that time bucket.
+
+## Create a dashboard
+
+<Steps>
+
+<Step title="Start a new dashboard">
+
+On the **Dashboards** page, click **New**. Choose how to start:
+
+- **From scratch**: an empty dashboard.
+- **From an existing one**: a copy of another dashboard. "Everything is copied except the identifier and the name." Pick the dashboard to copy.
+
+</Step>
+
+<Step title="From scratch: name it">
+
+The **New dashboard** form opens with two modes. Keep **Create manually**:
+
+- **Name**: up to 100 characters. It must be unique in your tenant.
+- **Description**: optional, up to 255 characters.
+
+Click **Create**.
+
+To let the SOC-AI assistant build the dashboard instead, choose **Using AI**. See **Dashboards with SOC-AI**.
+
+</Step>
+
+<Step title="From an existing one: check the copy">
+
+The copy is created at once, named after the original with " (copy)" added, with all the widgets of the original. The copy does not include the original's filter chips; add them again if you need them.
+
+</Step>
+
+<Step title="Add widgets">
+
+The new dashboard opens in edit mode. Click **Add widget**. See **Dashboard Widgets**.
+
+</Step>
+
+</Steps>
+
+## Edit a dashboard
+
+You need `dashboards.write`. Shipped dashboards cannot be edited.
+
+1. Open the dashboard and click **Edit** (the pencil). The edit bar shows **Editing**, **Add widget**, **Discard** and **Save**.
+2. Change the layout:
+   - Drag a widget to move it. The dashboard has a 12-column grid.
+   - Drag a widget's corner to resize it.
+   - Use a widget's edit button to change what it shows (see **Dashboard Widgets**).
+   - Use a widget's remove button to take it off the dashboard.
+3. Click **Save**. If you removed widgets, UTMStack asks "Delete N widgets? This cannot be undone." Removed widgets are deleted for good.
+
+Click **Discard** to drop your layout changes.
+
+A widget belongs to one dashboard only. To show the same chart on two dashboards, create it on each.
+
+<Note>
+
+UTMStack v12.0.2 has no way to rename a dashboard or change its description from the screen. To get a different name, copy the dashboard with **New** > **From an existing one**, then delete the original.
+
+</Note>
+
+## Delete or remove a dashboard
+
+Open the dashboard and click the delete button (the bin).
+
+- **A dashboard you created**: UTMStack asks you to confirm ("This cannot be undone."). Its widgets are deleted with it.
+- **A shipped dashboard**: the dialog is **Remove dashboard**. The dashboard is hidden from the list and stays hidden after restarts. To get it back, click **New** > **From an existing one**: removed shipped dashboards are still offered there, and copying one gives you an editable dashboard.
+
+## What dashboards in UTMStack v12 do not do
+
+Compared with UTMStack v11, dashboards no longer have:
+
+- JSON import and export of dashboards, or a PDF export;
+- one visualization shared by several dashboards;
+- a time range per widget, or an auto-refresh setting saved with the dashboard;
+- SQL queries inside widgets, and the Gauge, Heatmap, Tag cloud and Goal chart types;
+- sums, averages or distinct counts: a widget always counts records.

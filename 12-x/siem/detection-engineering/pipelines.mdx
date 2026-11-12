@@ -1,0 +1,118 @@
+A pipeline tells UTMStack how to read one kind of raw log and turn it into a standard event. On **Configure > Pipelines** you see every pipeline, switch pipelines on or off for your tenant, change the order in which they run, and write your own. UTMStack v11 called pipelines "filters"; the shipped files are still kept in a folder named `filters`.
+
+## Before you start
+
+- The **Configure** section of the menu is shown to administrators only.
+- Viewing the page needs the permission `eventprocessing.read`.
+- Creating, editing, deleting, switching on or off, reordering and testing need `eventprocessing.write`. Of the built-in roles, only **Administrator** has it. See **Roles and Permissions**.
+
+## The pipeline list
+
+The page is titled **Pipelines**: "YAML pipelines applied to logs as they're parsed during ingestion."
+
+| Control | What it does |
+|---|---|
+| Tabs **All**, **Active**, **Inactive**, **System**, **Custom** | Show all pipelines, only those switched on or off for your tenant, only shipped ones or only your own. |
+| **Search pipelines…** | Searches the list. |
+| **All data types** | Shows only the pipelines for one data type. |
+| **Test pipeline** | Opens the test dialog for all deployed pipelines. See **Testing Pipelines and Rules**. |
+| **New pipeline** | Opens the editor for a new custom pipeline. |
+
+Columns:
+
+| Column | Meaning |
+|---|---|
+| **Pipeline** | The pipeline's name. |
+| **Data types** | The data types it processes. |
+| **Type** | **System** (shipped with UTMStack) or **Custom** (written by your team). |
+| **Active** | Switch that turns the pipeline on or off for your tenant. |
+| **Order** | **Move up** and **Move down** buttons that change the order in which pipelines run. |
+| **Actions** | Opens the pipeline. |
+
+## Switch a pipeline on or off
+
+Use the **Active** switch in the pipeline's row. The change applies to your tenant only; other tenants keep their own setting. It works for shipped and custom pipelines, and reaches the engine within about a minute.
+
+<Warning>
+
+If you switch off the only pipeline for a data type, logs of that type are no longer parsed, so rules that read their fields stop matching.
+
+</Warning>
+
+## Change the order
+
+When several pipelines process the same data type, they run one after the other, and each step sees what the previous pipelines wrote. Use **Move up** and **Move down** to change the sequence.
+
+- Your order is saved for your tenant only. The shipped files are not changed, and other tenants keep their own order.
+- The engine runs the pipelines in the order you set and then any remaining ones by the `order` value in their files.
+- Order matters only between pipelines that share a data type. In the shipped set, only `syslog` has more than one pipeline: the generic syslog pipeline runs first, then the CEF and LEEF stages.
+
+## View a shipped pipeline
+
+Click a system pipeline to open it. The panel shows: "System pipeline — read-only. You can only enable or disable it." You can read its YAML and test it, but not change or delete it.
+
+To change what a shipped pipeline does, either add a custom pipeline for the same data type that runs after it and adjusts its result, or switch the shipped pipeline off and create a custom pipeline that replaces it. There is no import, export or copy function for pipelines.
+
+## Create a custom pipeline
+
+Write a custom pipeline to parse a source that UTMStack does not cover, for example the data type of a custom integration (see **Custom Integrations**), or to add fields to a source it does cover.
+
+<Steps>
+  <Step title="Open the editor">
+
+  Click **New pipeline**. Enter a **Name**. The editor shows the file name it will use ("Will be saved as …"): your name in lower case, with spaces and other characters replaced by `_`.
+
+  </Step>
+  <Step title="Describe the pipeline">
+
+  Use the **Visual** tab or the **Code** tab. Both edit the same pipeline.
+
+  In **Visual**, each pipeline entry has:
+
+  - **Data types**: the data types it processes. Pick existing ones or type a new name.
+  - **Order**: filled in as one more than the highest order already in use.
+  - **Steps**: choose a step type under **Add step:** (grok, kv, json, csv, trim, rename, cast, reformat, delete, drop, add or dynamic). grok, json, kv, rename, add and drop have their own forms; the others are edited as YAML ("This processor is edited as raw YAML."). Each step has an optional condition (CEL).
+
+  **Add pipeline entry** adds another entry to the same file, for example for a second data type.
+
+  In **Code**, write the YAML directly. **Insert regex pattern** inserts one of the built-in named patterns at the cursor. See **Pipeline File Format and Step Reference** for the format.
+
+  </Step>
+  <Step title="Test it">
+
+  Click **Test**, choose a data type, paste a sample raw log and click **Run**. The test runs only the pipeline in the editor. See **Testing Pipelines and Rules**.
+
+  </Step>
+  <Step title="Save">
+
+  Click **Save**. The page confirms "Pipeline saved". The pipeline is active for your tenant and reaches the engine within about a minute.
+
+  </Step>
+</Steps>
+
+Your pipeline is saved as `pipeline/filters/user/<tenant id>/<name>-<tenant id>.yaml` in the engine work folder. UTMStack writes your tenant id into each entry, so the pipeline only runs on your tenant's logs.
+
+### What saving checks
+
+When you save, UTMStack checks that:
+
+- the pipeline has at least one entry;
+- each entry has data types and at least one step;
+- each step has exactly one known step type and its required fields (for example `source` for `json`, `from` and `to` for `rename`);
+- each `grok` pattern has both a field name and a pattern.
+
+An entry with no `order`, or with `0`, gets order `100`.
+
+<Warning>
+
+Saving does **not** check conditions (`where`) or regular expressions. A condition with a missing bracket, or a pattern that does not compile, is saved as valid and then fails on every log of that data type: the step is skipped and an error is added to each event's `errors` field. Always test a pipeline before you save it, and check the `errors` field in Log Explorer afterwards.
+
+</Warning>
+
+## Edit or delete a custom pipeline
+
+Open the pipeline from the list. Custom pipelines can be edited, tested and deleted. **Delete** asks you to confirm.
+
+## Apply a pipeline to all tenants
+
+On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the pipeline panel. It repeats the create, update, delete or on/off change on every selected tenant. Failures on single tenants are listed after the run and are not rolled back. See **Apply to All Tenants**.

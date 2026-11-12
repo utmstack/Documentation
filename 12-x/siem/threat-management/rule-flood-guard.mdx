@@ -1,0 +1,98 @@
+The rule flood guard protects you from alert floods. When one correlation rule raises too many open alerts for one tenant, UTMStack switches that rule off for that tenant and tells you in the notification bell. This page explains when it acts, how to fix the rule and switch it back on, and how to change its settings.
+
+## When the flood guard switches a rule off
+
+Every 5 minutes (and once when it starts), the flood guard counts the alerts of the last 24 hours. It counts only alerts that are:
+
+- **Open** (not In review or Completed),
+- top-level (echoes are not counted), and
+- not tagged **False positive**.
+
+It counts them separately for each tenant, rule name and data source. When one of these counts is above 50 (51 or more alerts), it switches the rule off.
+
+- The rule is switched off only for the tenant that was flooded. Other tenants keep it.
+- If several rules in that tenant have the same name (ignoring letter case), all of them are switched off.
+- Duplicates that a rule drops with `deduplicateBy` are never stored, so they are not counted either.
+
+## How you are told
+
+The flood guard posts a **Warning** notification in the bell of the tenant concerned, and on **Configure > Settings > Notifications**. Only that tenant is notified, and no email is sent. The message reads:
+
+```text
+Correlation rule '<rule>' generated <count> open, un-deduplicated alerts from data source '<data source>' in the last <hours>h and was automatically disabled to prevent alert flooding. If this volume is expected, use an Alert Tag Rule to mark it 'False positive', or add deduplicateBy/groupBy to the rule, then re-enable it.
+```
+
+`<hours>` is the counting window, 24 by default. "Alert Tag Rule" means a tagging rule.
+
+The rule then shows as **Inactive** on **Configure > Alerting Rules**.
+
+## Fix the rule and switch it back on
+
+Fix the cause first. If more than 50 counted alerts remain in the last 24 hours when you switch the rule back on, the next check switches it off again.
+
+<Steps>
+
+<Step title="Decide whether the alerts are real">
+
+Open **Threat Management > Alerts** and filter on the rule's name. Look at what the alerts have in common.
+
+</Step>
+
+<Step title="Deal with the flood">
+
+Choose what fits:
+
+- **The activity is expected:** create a tagging rule that adds **False positive** to these alerts. See **Tagging rules and false positives**.
+- **The rule raises one alert per event when one alert per problem is enough:** add `groupBy` (to file repeats as echoes) or `deduplicateBy` (to drop repeats for 7 days) to the rule. See **How alerts are created** and **Rule file format**.
+- **The alerts are real:** work them, and set them to **In review** or **Completed** as you go.
+
+Then bring the count down: complete the alerts of the flood, or close them as false positives. Completed alerts and alerts tagged **False positive** are not counted.
+
+</Step>
+
+<Step title="Switch the rule back on">
+
+Go to **Configure > Alerting Rules**, find the rule (set the state menu to **Inactive** to list switched-off rules), and turn on its switch in the **Active** column. UTMStack confirms with **Rule activated**.
+
+</Step>
+
+</Steps>
+
+You need the Administrator role to switch a rule on: the **Configure** section is shown to administrators only, and the action needs the `eventprocessing.write` permission. An Analyst can do the alert work in step 2, but an administrator has to switch the rule back on.
+
+## Change the flood guard settings
+
+There is no screen for the flood guard settings. They are kept in a file on the UTMStack server, so you need shell access to the server (as root) to change them:
+
+```text
+/utmstack/events-engine-workdir/pipeline/system_plugins_rule-flood-guard.yaml
+```
+
+(`/utmstack` is the default data folder. If you installed UTMStack with another data folder, the file is under that folder.)
+
+```yaml
+plugins:
+  rule-flood-guard:
+    enabled: true
+    threshold: 50
+    windowHours: 24
+    intervalSeconds: 300
+```
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `enabled` | `true` | Turns the flood guard on or off. |
+| `threshold` | `50` | A rule is switched off when it has more than this many counted alerts from one data source in one tenant. |
+| `windowHours` | `24` | How many hours back the alerts are counted. |
+| `intervalSeconds` | `300` | How often the flood guard checks, in seconds. |
+
+- UTMStack creates the file with these defaults if it is missing, and never overwrites it.
+- Changes apply without a restart.
+- A value of 0 or less is ignored and the default is used.
+- The settings apply to every tenant on the server.
+
+<Warning>
+
+Turning the flood guard off, or raising the threshold a lot, lets a noisy rule fill the alert list and hide real alerts. Prefer fixing the rule with `groupBy`, `deduplicateBy` or a tagging rule.
+
+</Warning>

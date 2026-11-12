@@ -1,0 +1,65 @@
+The Data Processing page shows how many logs UTMStack received for your tenant, how many it dropped at each stage of processing, and which sources and data types send the most. Use it to spot a source that stopped sending, a pipeline that drops more than it should, or a sudden change in volume. The page only shows figures; it changes nothing.
+
+## Before you start
+
+- Open it from **Configure > Data Processing**. The **Configure** section of the menu is shown to administrators only.
+- It needs the permission `eventprocessing.read`.
+- The figures cover your tenant only.
+
+## Time range and refresh
+
+Choose **1h**, **24h** (the default), **7d** or **30d** at the top right. The refresh button reloads the figures.
+
+<Note>
+
+The figures are collected by the statistics plugin and written every 10 minutes, so the most recent 10 minutes may not be included yet. Statistics are kept for 1,095 days (three years) by default. See **Data Retention and Cold Storage**.
+
+</Note>
+
+## What the page shows
+
+The page is titled **Data processing**: "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types."
+
+### Ingestion pipeline
+
+A funnel with four stages: **Received**, **Parsed**, **Analyzed** and **Stored**. Each stage shows how many logs are left after the drops of the stage before it.
+
+### Totals
+
+| Figure | Meaning |
+|---|---|
+| **Received** | Logs the engine accepted for processing in the chosen range. |
+| **Stored** | Received minus all drops, with the share kept ("% kept"). It is calculated from the other figures, not counted in the database. |
+| **Dropped** | All drops together, with the share of received logs ("% drop rate"). |
+| **Throughput** | Received logs per minute ("/min") over the range. |
+
+### Throughput over time
+
+A chart of **Received** and **Dropped** logs across the range.
+
+### Drop composition
+
+How the drops split between the stages:
+
+| Label | Stage |
+|---|---|
+| **Dropped (parsing)** | Dropped at the parsing stage, where the pipelines run. |
+| **Dropped (analysis)** | Dropped at the analysis stage, where events are stored and checked against rules and threat intelligence. |
+| **Dropped (correlation)** | Dropped at the alert handling stage. |
+
+### Top sources & types
+
+The sources or data types with the most logs.
+
+- Choose what to count: **Received**, **Dropped (parsing)**, **Dropped (analysis)**, **Dropped (correlation)** or **All events**.
+- Group **By data source** or **By data type**.
+- Show the result as **Bars** or a **Treemap**.
+- The list shows the first 12 entries; **Show all** shows up to 60. **Last seen** tells you when each source or type last sent data.
+
+## Using the figures
+
+| What you see | What to check |
+|---|---|
+| A source has an old **Last seen** | The source, agent or collector stopped sending. See **Data Sources Page**. |
+| **Dropped (parsing)** is high for one data type | Choose **Dropped (parsing)** and **By data type** in **Top sources & types** to find it. Then test its pipeline with a real sample and look at the `errors` field of its events in Log Explorer. See **Testing Pipelines and Rules**. |
+| Received volume jumps | Group by data source to find the sender. A `drop` step in a custom pipeline can discard logs you never need. |

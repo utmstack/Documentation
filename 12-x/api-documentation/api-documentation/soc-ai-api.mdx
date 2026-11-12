@@ -1,0 +1,219 @@
+SOC-AI is the AI assistant built into UTMStack v12. It answers questions and carries out tasks on the SIEM, and it can investigate alerts and write an assessment on them. These endpoints let a program chat with the assistant, ask for an alert analysis, read and change the AI provider settings, and check how much of the daily AI allowance is used. There was no SOC-AI API in UTMStack v11.
+
+## Permissions
+
+| Endpoint | Permission | Built-in roles |
+|---|---|---|
+| `POST /soc-ai/chat`, `POST /soc-ai/analyze`, `GET /soc-ai/usage` | `socai.read` | All |
+| `GET`, `PUT`, `DELETE /soc-ai/config` | `socai.write` | Administrator |
+
+Chat and analysis requests count against the tenant's daily AI allowance (see **Daily Allowance** below).
+
+Errors from these endpoints use this shape:
+
+```json
+{"status": "error", "message": "<reason>"}
+```
+
+## Chat with the Assistant
+
+**Endpoint:** `POST /api/v1/soc-ai/chat`
+
+Sends a task to the assistant and streams its work back as it happens. The answer is a stream of server-sent events (a standard way for a server to push a series of messages over one HTTP response, content type `text/event-stream`).
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| task | string | Yes | What you want, in plain language |
+| page | string | No | The web console page the question is about, for example `Dashboards`. Gives the assistant context. |
+| lang | string | No | Language code for the answer, for example `en` |
+| history | array | No | Earlier turns of the conversation: `[{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]` |
+
+The server does not keep conversations. To continue a conversation, send the earlier turns in `history`.
+
+```bash
+curl -skN -X POST "{{baseUrl}}/api/v1/soc-ai/chat" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"task": "How many open alerts are there, grouped by adversary?", "lang": "en"}'
+```
+
+`-N` tells curl to print each event as it arrives.
+
+**Response (HTTP 200, `text/event-stream`):**
+
+```plaintext
+event: tool_call
+data: {"kind":"tool_call","step":1,"tool":"<tool-name>","args":{}}
+
+event: tool_result
+data: {"kind":"tool_result","step":1,"tool":"<tool-name>","output":"<tool output>"}
+
+event: final
+data: {"kind":"final","text":"<the assistant's answer>"}
+```
+
+**Event types:**
+
+| Event | Meaning |
+|---|---|
+| `tool_call` | The assistant is calling one of its tools. `tool` names it, `args` holds the arguments. |
+| `tool_result` | A tool finished. `output` holds the result; `isError` is `true` when the tool failed. |
+| `compaction` | The conversation was shortened to fit the model's limit. |
+| `final` | The answer. `text` holds it. This ends the task. |
+| `error` | The task failed. `text` holds the reason. |
+
+Each `data` line is a JSON object with the fields `kind`, `step`, `tool`, `args`, `output`, `isError` and `text`; fields that do not apply are left out.
+
+**Errors before the stream starts:**
+
+| HTTP code | Message | Cause |
+|---|---|---|
+| 400 | `task is required` | `task` is missing or the body is not JSON |
+| 429 | `this tenant has used the AI requests its plan allows for today` | Daily allowance used up |
+| 502 | `SOC AI agent unreachable`, `SOC AI agent rejected credentials` and similar | The SOC-AI service or the AI provider failed, or no AI provider is configured |
+| 504 | `SOC AI agent timed out` | The SOC-AI service did not answer in time |
+
+> [!NOTE]
+> The assistant works through the same tools as the MCP server (see **MCP server**). What it can look up and change is described in **SOC-AI assistant**.
+
+## Analyze an Alert
+
+**Endpoint:** `POST /api/v1/soc-ai/analyze`
+
+Asks SOC-AI to investigate one alert. The body is the alert itself, as returned by the alert search (see **Alerts API**). It must contain `id`.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/soc-ai/analyze" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<alert-id>", "name": "<rule-name>", "severity": "high", "status": "Open", "dataSource": "win-server-01", "adversary": {"ip": "198.51.100.23"}}'
+```
+
+**Response (HTTP 202):**
+
+```json
+{"status": "queued", "alertId": "<alert-id>", "message": "Alert queued for SOC-AI analysis"}
+```
+
+The analysis continues after the answer. When it is done, the assessment is added to the alert's `notes`, marked `[AI SOC Agent]`. Read the alert again later to see it. A body without `id` returns 400 `Alert ID is required`.
+
+## AI Provider Configuration
+
+These endpoints read and change the settings shown on **Configure > Settings > SOC-AI** (see **AI providers**).
+
+### Read the Configuration
+
+**Endpoint:** `GET /api/v1/soc-ai/config`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/soc-ai/config" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "configured": true,
+  "inherited": false,
+  "provider": "openai",
+  "model": "<model-name>",
+  "url": "",
+  "apiKeySet": true,
+  "authType": "bearer",
+  "authHeaderName": "",
+  "customHeaders": {},
+  "maxTokens": 4096,
+  "maxToolIterations": 12,
+  "autoAnalyze": false,
+  "allowIncidents": false
+}
+```
+
+- `configured` is `true` when an AI provider is set up.
+- `inherited` is `true` when this tenant follows the instance default instead of its own settings.
+- `apiKeySet` tells you whether a key is stored. The key itself is never returned.
+
+### Change the Configuration
+
+**Endpoint:** `PUT /api/v1/soc-ai/config`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| provider | string | Yes | `threatwinds`, `openai`, `anthropic`, `gemini`, `groq`, `mistral`, `deepseek`, `azure`, `ollama` or `custom` |
+| model | string | Yes | Model name (for Azure OpenAI, the deployment name) |
+| url | string | No | Address of the model service. Needed for `azure`, `ollama` and `custom`. |
+| apiKey | string | No | The provider's key. Send `*****` (five asterisks) to keep the stored key. |
+| authType | string | No | How the key is sent: `bearer` (default), `header` (in the header named by `authHeaderName`) or `none` |
+| authHeaderName | string | No | Header name when `authType` is `header`, for example `api-key` for Azure OpenAI |
+| customHeaders | object | No | Extra headers to send, as name and value pairs |
+| maxTokens | integer | No | Maximum tokens per answer. Default 4096. |
+| maxToolIterations | integer | No | Maximum tool calls per task. Default 12. |
+| autoAnalyze | boolean | No | Investigate every new alert automatically |
+| allowIncidents | boolean | No | Let the automatic investigation create or update incidents |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/soc-ai/config" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"provider": "openai", "model": "<model-name>", "apiKey": "<provider-api-key>", "maxTokens": 4096, "maxToolIterations": 12, "autoAnalyze": false, "allowIncidents": false}'
+```
+
+**Response (HTTP 200):** the saved configuration, in the same shape as the read.
+
+Before saving, UTMStack tests the connection to the provider. If the test fails, nothing is saved and the answer is 400 `connection verification failed`. Choosing `threatwinds` on an instance that is not registered yet returns an error that says so.
+
+### Return to the Instance Default
+
+**Endpoint:** `DELETE /api/v1/soc-ai/config`
+
+Removes this tenant's own settings so it follows the instance default again.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/soc-ai/config" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** the configuration the tenant now follows.
+
+## Daily Allowance
+
+**Endpoint:** `GET /api/v1/soc-ai/usage`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/soc-ai/usage" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"limit": 200, "used": 37, "remaining": 163, "resetsAt": "2026-11-11T00:00:00Z"}
+```
+
+| Field | Description |
+|---|---|
+| limit | Requests allowed per day for this tenant. See the table below. |
+| used | Requests counted today |
+| remaining | Requests left today. Present only when `limit` is greater than 0. |
+| resetsAt | When the count starts again: midnight UTC |
+
+**What counts:** each chat task, each `analyze` request and each automatic alert investigation counts as one request, per tenant, per calendar day in UTC.
+
+| `limit` value | Meaning |
+|---|---|
+| Negative (for example `-1`) | No limit. Requests are not counted, so `used` stays at 0. |
+| `0` | No AI requests are allowed for this tenant |
+| A positive number | That many requests per day |
+
+When the allowance is used up, chat and analysis requests return:
+
+```json
+{"status": "error", "message": "this tenant has used the AI requests its plan allows for today", "limit": 200, "used": 201}
+```
+
+with HTTP 429. The limit comes from the tenant's AI request cap and the instance limit; see **AI usage and limits**.

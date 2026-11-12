@@ -1,0 +1,71 @@
+The **User Auditor** keeps an inventory of the user accounts that appear in your logs: Windows (Active Directory) accounts, Linux accounts and cloud accounts from Office 365, Azure, Google Cloud and AWS. For each account it records when it was created, when it last signed in and when it was deleted, so you can spot unknown, stale or removed accounts. You can also group the accounts of one person into an identity.
+
+## How the inventory is built
+
+There is nothing to set up. UTMStack builds the inventory from logs that already arrive from your data sources. It reads every event of these data types as it is processed: Windows event logs, Linux, Office 365 (management API and Microsoft Graph), Azure, Google Cloud and AWS. It raises no alerts.
+
+Changes are saved every 60 seconds, and the inventory survives restarts. Accounts are kept per tenant.
+
+| Source | What UTMStack records |
+|---|---|
+| Windows | Account created (event 4720), account deleted (event 4726) and successful logon (event 4624). Computer accounts (names ending in `$`) and built-in system accounts such as SYSTEM, LOCAL SERVICE, NETWORK SERVICE, ANONYMOUS LOGON, `DWM-*` and `UMFD-*` are skipped. An account is identified by its SID, or by `domain\name` when there is no SID. |
+| Linux | Accounts created with `useradd` and deleted with `userdel` (from the system journal), and successful logins from the audit log (`USER_LOGIN` and `USER_START` records with the result `success`). Only user IDs of 1000 and above count as people. An account is identified by machine ID and user ID when they are known, otherwise by host name and user name. |
+| Office 365 (management API) | Azure Active Directory records "Add user", "Delete user" and "UserLoggedIn". |
+| Office 365 (Microsoft Graph) | Users added, created, deleted, disabled and enabled, and successful sign-ins. |
+| Azure | Sign-ins, and users created, deleted, disabled and enabled. |
+| AWS | Successful console sign-ins (`ConsoleLogin`), `CreateUser`, `DeleteUser`, `DeleteLoginProfile` (shown as disabled) and `CreateLoginProfile` (shown as enabled). |
+| Google Cloud | Users created, deleted, suspended and unsuspended, successful logins, and service accounts created, deleted, restored, disabled and enabled. |
+
+<Note>
+
+For Windows, UTMStack does not read the "account disabled" and "account enabled" events, so a Windows account is shown as **Active** or **Deleted**, never **Disabled**. For Linux, account creation and deletion come from the system journal, and logins come from the audit log (`/var/log/audit/audit.log`). The UTMStack Linux agent collects both; logins appear only for servers that write the audit log.
+
+</Note>
+
+## Open the User Auditor
+
+Go to **User Auditor** in the side menu.
+
+| What you want to do | Permission | Built-in roles |
+|---|---|---|
+| See the inventory | `adaudit.read` | Administrator, Analyst, Viewer |
+| Create, rename, assign and delete identities | `adaudit.write` | Administrator, and any role that can manage users |
+
+The identity controls are shown only to users with `adaudit.write`. You see the accounts of your own tenant. An instance operator who can see several tenants gets a tenant menu with **All tenants**.
+
+## The page
+
+- **Account inventory**: how many accounts are active, disabled and deleted, how many were seen in the last 24 hours, the accounts **By domain**, and how many are grouped into identities or unassigned.
+- Views: **All accounts**, **Windows**, **Linux**, **O365**, **Azure**, **GCP** and **AWS**.
+- **Search by account name or SID…**
+- **Add filter** with **Lifecycle status** **is** Active, Disabled or Deleted.
+- **Refresh**, and a choice of **List** or **Cards** layout.
+
+The list shows **Account**, **Account ID** (the SID for Windows, the user ID and host for Linux, the user name for cloud accounts), **Identity**, **Status**, **Last logon**, **Last seen** and **Tenant**.
+
+### Status and badges
+
+| Status or badge | Meaning |
+|---|---|
+| Active | The account exists and is enabled. |
+| Disabled | The account was disabled. Only Office 365 through Microsoft Graph, Azure, AWS and Google Cloud report this. |
+| Deleted | UTMStack saw the account being deleted. |
+| stale | An active account whose last logon is more than 30 days ago. |
+| service | A Windows account whose name starts with `svc`. |
+
+### Account details
+
+Click an account to see its details: Account name, Domain, Hostname, SID, UID, Machine ID, Tenant, AD status, and its **Lifecycle** (Account created, Last logon, Last seen in logs, Account deleted).
+
+- **Copy SID** copies the account's SID.
+- **View events in Log Explorer** opens **Log Explorer** on the last 30 days of events for this account: for Windows, the create, delete and logon events of its SID; for Linux and cloud accounts, the events of its user name (and host, for Linux).
+
+## Group accounts into identities
+
+One person often has several accounts: a Windows account, a Linux login and a cloud account. An identity groups them so you can see them together.
+
+1. Open an account and use **Add identity**.
+2. Pick an existing group (**Search groups…**), or type a name under **New group** (2 to 64 characters, unique in your tenant) and click **Create & assign**.
+3. To take the account out again, use **Remove from group**.
+
+You can also **Rename identity** and **Delete identity**. An identity that still has accounts cannot be deleted: remove its accounts from the group first.

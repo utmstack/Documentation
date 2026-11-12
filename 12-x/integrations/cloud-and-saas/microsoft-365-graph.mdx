@@ -1,0 +1,165 @@
+The **O365 Graph** integration, new in UTMStack v12, brings Microsoft 365 security events into UTMStack through Microsoft Graph: Microsoft Defender alerts and incidents, directory audit, sign-ins, risk detections, risky users, email and link-click hunting data, and Purview audit logs. You register an app in Microsoft Entra ID; nothing is installed in your Microsoft 365 tenant.
+
+<Tip>
+
+This integration is separate from the **O365** integration, which reads the Office 365 Management Activity API (see **Microsoft 365 (Office 365 Management Activity API)**). You can use both at the same time.
+
+</Tip>
+
+## What UTMStack reads
+
+UTMStack reads these Microsoft Graph sources every 5 minutes:
+
+| Source | What it contains |
+|---|---|
+| Security alerts | Microsoft Defender XDR alerts |
+| Incidents | Microsoft Defender XDR incidents |
+| Directory audit | Changes in Microsoft Entra ID, such as users, groups, roles and applications |
+| Sign-ins | Microsoft Entra ID sign-in activity |
+| Risk detections | Microsoft Entra ID Protection risk detections |
+| Risky users | Users that Microsoft Entra ID Protection flags as at risk |
+| Advanced hunting: `EmailEvents` | Email delivery events from Microsoft Defender for Office 365 |
+| Advanced hunting: `UrlClickEvents` | Link clicks from Microsoft Defender for Office 365 |
+| Purview audit log | Microsoft Purview audit records (Commercial and GCC clouds only) |
+
+Events are stored with the data type `o365-graph`. UTMStack v12 ships 20 detection rules for this data type; see **Microsoft 365 through Microsoft Graph** in the **Rules** tab.
+
+<Note>
+
+Some sources need Microsoft licences in your tenant, for example Microsoft Defender or Microsoft Entra ID Protection. If Microsoft refuses a source because of a missing permission or licence, UTMStack cannot read that source, but it keeps reading the others.
+
+</Note>
+
+## Before you start
+
+- In Microsoft Entra ID, you need a role that can register applications and grant admin consent.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach Microsoft over HTTPS (outbound port 443).
+
+## Step 1: Register an app in Microsoft Entra ID
+
+<Steps>
+<Step title="Open Microsoft Entra ID">
+
+Open the [Azure portal](https://portal.azure.com/) and click **Microsoft Entra ID**.
+
+![Microsoft Entra ID](/assets/5e9ef482-93ad-54da-9e48-6b600757b449)
+
+</Step>
+<Step title="Go to App registrations">
+
+In the left menu, click **App registrations**.
+
+![App registrations](/assets/ef4ffad3-61ef-5da2-a646-950bcfd8a01a)
+
+</Step>
+<Step title="Register a new app">
+
+Click **New registration**. Enter a name, for example **UTMStack Graph**, select **Accounts in this organizational directory only (Single tenant)** and click **Register**.
+
+</Step>
+<Step title="Create a client secret">
+
+In the new app, go to **Certificates & secrets > New client secret**. Add a description, set it to expire in **730 days (24 months)** and click **Add**.
+
+![Client secret](/assets/54aafcfe-0f6c-5532-af54-30948f0a5fee)
+
+<Warning>
+
+Copy the secret **Value** now. Microsoft shows it only once and you cannot read it again later.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 2: Add the Microsoft Graph permissions
+
+<Steps>
+<Step title="Open the Microsoft Graph permissions">
+
+In the same app, go to **API permissions > Add a permission**, select **Microsoft Graph** and then **Application permissions**.
+
+</Step>
+<Step title="Add the permissions">
+
+Add these application permissions. The first four are the ones the UTMStack setup guide lists; the others match the Microsoft Graph sources in the table above.
+
+| Permission | Used for |
+|---|---|
+| `SecurityEvents.Read.All` | Listed by the UTMStack setup guide |
+| `Directory.Read.All` | Directory audit and sign-ins |
+| `AuditLog.Read.All` | Directory audit and sign-ins |
+| `IdentityRiskEvent.Read.All` | Risk detections |
+| `SecurityAlert.Read.All` | Security alerts |
+| `SecurityIncident.Read.All` | Incidents |
+| `IdentityRiskyUser.Read.All` | Risky users |
+| `ThreatHunting.Read.All` | Advanced hunting (`EmailEvents`, `UrlClickEvents`) |
+| `AuditLogsQuery.Read.All` | Purview audit log |
+
+</Step>
+<Step title="Grant admin consent">
+
+Back in **API permissions**, click **Grant admin consent for** your organization and confirm.
+
+</Step>
+<Step title="Copy the app IDs">
+
+Go to the app's **Overview** page and copy the **Application (client) ID** and the **Directory (tenant) ID**. You also need the secret value you copied in Step 1.
+
+![App overview](/assets/4bb4a56d-a03a-5aff-b250-d4d3ee052d41)
+
+</Step>
+</Steps>
+
+## Step 3: Connect Microsoft Graph in UTMStack
+
+Each Microsoft 365 tenant connection is a **config group**. You can add more than one.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `Graph` and open the **O365 Graph** card. The form is at the end of the setup guide, under **Connect your Microsoft 365 tenant**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **Tenant ID (Directory ID)** | The Directory (tenant) ID from Step 2. |
+| **Client ID (Application ID)** | The Application (client) ID from Step 2. |
+| **Client Secret** | The secret value from Step 1. |
+| **Cloud Environment (optional)** | Leave empty for the commercial Microsoft cloud. For a government cloud, type exactly `GCC`, `GCCHigh` or `DoD`. Any other value is treated as the commercial cloud. |
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. UTMStack signs in to Microsoft with the app's credentials before it saves them. When sign-in works, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+<Warning>
+
+The save checks that UTMStack can sign in. It does not stop you when a permission or licence is missing: in that case the config group is saved anyway. After saving, check that events arrive (see below), and review the permissions if some sources stay empty.
+
+</Warning>
+
+| Cloud Environment value | Sign-in address | Microsoft Graph address | Purview audit log |
+|---|---|---|---|
+| (empty) or `Commercial` | `login.microsoftonline.com` | `graph.microsoft.com` | Read |
+| `GCC` | `login.microsoftonline.com` | `graph.microsoft.com` | Read |
+| `GCCHigh` | `login.microsoftonline.us` | `graph.microsoft.us` | Not read |
+| `DoD` | `login.microsoftonline.us` | `dod-graph.microsoft.us` | Not read |
+
+## Check that events arrive
+
+Open the **O365 Graph** card again and click **View logs**. Log Explorer opens filtered to the `o365-graph` data type for the last 24 hours. UTMStack reads new events every 5 minutes, so allow a few minutes after you save.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per Microsoft 365 tenant.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. The client secret shows a masked value; leave it as it is to keep the stored secret. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.
+- **Renew the secret**: the client secret expires after the period you chose in Step 1. Before it expires, create a new secret in Microsoft Entra ID, then edit the config group and paste the new value.

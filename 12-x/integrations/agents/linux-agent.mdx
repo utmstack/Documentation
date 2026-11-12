@@ -1,0 +1,102 @@
+The UTMStack Linux agent is a service you install on each Linux host. It reads the systemd journal and the Linux audit log and sends the events to UTMStack v12 over an encrypted connection on port 443. It also lets your team run response commands on the host.
+
+## Before you begin
+
+- The host must reach your UTMStack server on **443/TCP**. No other port is needed.
+- You need root rights (`sudo`) on the host.
+- You need the install command from your own UTMStack instance. It contains your connection key, which only administrators can see. See **How Data Reaches UTMStack**.
+- Choose the platform that matches the host:
+
+| Platform | Package tool used by the command | Agent file |
+|---|---|---|
+| Ubuntu / Debian (AMD64) | `apt` | `utmstack_agent_service_linux_amd64` |
+| Ubuntu / Debian (ARM64) | `apt` | `utmstack_agent_service_linux_arm64` |
+| Fedora / RedHat (AMD64) | `yum` | `utmstack_agent_service_linux_amd64` |
+| Fedora / RedHat (ARM64) | `yum` | `utmstack_agent_service_linux_arm64` |
+
+<Note>
+
+The UTMStack v12 Linux agent does not use rsyslog. You do not need rsyslog installed or running for the agent to collect logs.
+
+</Note>
+
+## Install the agent
+
+<Steps>
+  <Step title="Open the Linux Agent card">
+    In UTMStack, go to **Configure > Integrations** and open the **Linux Agent** card.
+  </Step>
+  <Step title="Choose the platform and options">
+    Under **Install on Linux Agent**, choose the **Platform** and set the **Options** (see the table below).
+  </Step>
+  <Step title="Copy the command">
+    Copy the command shown. It contains a sensitive enrollment token: do not share it.
+  </Step>
+  <Step title="Run it on the host">
+    Paste the command into a terminal on the host and press Enter. Run it on every Linux host you want to monitor.
+  </Step>
+</Steps>
+
+For Ubuntu / Debian (AMD64), the command looks like this (the product fills in your server address and key):
+
+```bash
+sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget --no-check-certificate -P /opt/utmstack-linux-agent \
+    https://<server>/private/dependencies/agent/utmstack_agent_service_linux_amd64 && \
+    chmod -R 755 /opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64 && \
+    /opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64 install <server> <connection-key> yes"
+```
+
+The Fedora / RedHat commands use `yum install wget -y` instead of `apt`. The command downloads the agent into `/opt/utmstack-linux-agent`, checks that the server answers on 443, registers the agent and starts it as a systemd service.
+
+### Install options
+
+| Option | Default | Effect |
+|---|---|---|
+| **Skip TLS certificate validation (self-signed server)** | On | The agent accepts the server's certificate without checking it. Leave it on if your UTMStack server uses its self-signed certificate. Turn it off if the server has a certificate your hosts trust. In the command this is the last argument, `yes` or `no`. |
+| **Disable remote command execution on this host** | Off | Adds `--no-remote-control`. The agent then refuses every remote command, from the Data Sources console and from SOAR. This can only be undone by reinstalling the agent on the host. |
+
+## What the agent collects
+
+The agent sends everything under the data type `linux`:
+
+- **The systemd journal**, read with `journalctl`. After a restart, the agent continues from where it stopped.
+- **The Linux audit log**, `/var/log/audit/audit.log`. After a restart, the agent continues from where it stopped. The agent reads the audit log only when auditing is turned on (`auditctl -s` reports it enabled).
+
+## Audit rules the agent sets up
+
+When the agent runs as root on a normal host (not inside a container), it prepares Linux auditing for you:
+
+1. It installs the audit package if it is missing, using the host's package manager (`apt`, `dnf`, `yum`, `zypper` or `pacman`).
+2. It writes its rules to `/etc/audit/rules.d/50-utmstack.rules` and loads them.
+3. It starts the audit service.
+
+The rules only add to your existing audit rules; they do not delete any. They record:
+
+- every command that runs, and changes of user or privileges,
+- changes to `/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/gshadow`, `/etc/sudoers` and `/etc/sudoers.d`,
+- changes to `/etc/ssh/sshd_config` and `/root/.ssh`,
+- changes to cron files and folders, `/etc/systemd/system`, `/etc/rc.local`, `/etc/ld.so.preload`, `/etc/environment`, `/etc/pam.d` and `/etc/hosts`,
+- changes to the login records `/var/log/wtmp`, `/var/log/btmp` and `/var/log/lastlog`,
+- loading of kernel modules,
+- changes to the system clock and `/etc/localtime`,
+- changes to the audit configuration itself.
+
+Uninstalling the agent removes `/etc/audit/rules.d/50-utmstack.rules`.
+
+## After you install
+
+- The host appears on the **Data Sources** page, under **Agents**, within about a minute of the agent starting.
+- Its events appear in Log Explorer under the data type `linux`. Use **View logs** in the Linux Agent drawer to open them.
+- The **Agents** dashboard shows activity across all your agents.
+- The agent keeps itself up to date. See **Updates and Status**.
+
+To check the agent on the host, see **Agent Command Line**.
+
+## Uninstall the agent
+
+Open the **Linux Agent** card, choose the same **Platform**, and expand **Uninstall the agent** at the bottom of the guide. Run the command on the host. It:
+
+1. runs the agent's own `uninstall` command, which also removes the updater service and the UTMStack audit rules,
+2. stops and disables the agent services and removes their unit files,
+3. reloads systemd, waits 10 seconds and deletes `/opt/utmstack-linux-agent`.

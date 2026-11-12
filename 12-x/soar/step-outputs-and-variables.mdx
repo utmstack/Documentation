@@ -1,0 +1,83 @@
+Besides alert values, a step can use two other kinds of data: the output of an earlier enrichment step in the same run, and stored variables such as tokens, host names or passwords. This page explains both, and how secret variables are protected.
+
+## Outputs of earlier steps
+
+Enrichment steps (**HTTP call** and **LLM enrichment**) return data that later steps on the same path can insert. Write the step identifier, then the path inside its output:
+
+```text
+$(<step id>.<path>)
+```
+
+Examples:
+
+| Earlier step | Placeholder | Holds |
+|---|---|---|
+| LLM enrichment `step_2` | `$(step_2.result)` | The AI answer. |
+| HTTP call `step_1` whose answer is `{"data":{"verdict":"malicious"}}` | `$(step_1.data.verdict)` | `malicious` |
+
+How it works:
+
+- Only enrichment steps expose an output. Shell, notification, incident, email and conditional steps do not.
+- A step sees the outputs of the enrichment steps above it on its own path (its parents and their parents).
+- The **Insert field** menu in the step editor lists the alert fields and the outputs of the enrichment steps above the step. If there are none, it shows "No enrichment ancestors yet — add an enrichment node upstream to expose its output here."
+- Outputs are quoted when inserted, the same way as alert values. See **Placeholders**.
+- A **Conditional** step can check an output directly, for example field `step_1.data.verdict`, operator **is**, value `malicious`.
+
+## Stored variables
+
+Variables keep values you do not want to type into every flow, for example an API token, a firewall address or the path of an SSH key. Write:
+
+```text
+$[variables.NAME]
+```
+
+For example, a shell step on a jump host:
+
+```bash
+ssh -i $[variables.FW_SSH_KEY] admin@$[variables.FW_HOST] sudo iptables -I FORWARD -s $(alert.adversary.ip) -j DROP
+```
+
+Variables are filled in when the step runs and are quoted the same way as alert values (see **Placeholders**). Do not put quotes around them.
+
+### Manage variables
+
+There is no separate variables page in UTMStack v12. Open the **Variables** button in one of these places:
+
+- In the flow editor, in the settings of a **Shell** step.
+- In **SOAR > Interactive Console**.
+
+The panel is titled **Command variables** and shows how to reference each one ("Reference these in commands as").
+
+| Field | Notes |
+|---|---|
+| **Name** | Required. Unique within your tenant. |
+| **Value** | Required for a new variable. |
+| **Description** | What the value is for. |
+| **Secret (encrypted, masked in output)** | Stores the value encrypted and hides it in output. |
+
+Click **New variable** to add one. **Edit**, **Delete** and **Insert** (puts the reference at the cursor) are on each row.
+
+Who can manage variables: users with `soar.write` (Administrator, Analyst). Users with only `soar.read` can list them.
+
+Variables belong to a tenant. Each tenant has its own set.
+
+### Secret variables
+
+- A secret value is stored encrypted and is shown masked in the list.
+- When you edit a secret, leave **Value** blank to keep the stored value ("Leave blank to keep the stored value.").
+- To turn **Secret** off, you must type a new value. The stored secret is never revealed.
+- In **Execution history**, commands show `****` in place of the secret, and step output has the exact secret value replaced by `****`. The same masking applies to Interactive Console output.
+
+<Warning>
+
+Masking replaces the exact stored value only. If a command changes the value (for example prints it encoded or split in parts), the changed text is not masked. Do not write commands that print secrets.
+
+</Warning>
+
+Changed from UTMStack v11: v11 refused commands that printed a secret with `echo`, `cat` and similar commands. UTMStack v12 does not check commands; it masks the output instead.
+
+## Related pages
+
+- **Placeholders**
+- **Step Types**
+- **Interactive Console**

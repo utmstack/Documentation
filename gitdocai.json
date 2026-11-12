@@ -2604,8 +2604,8 @@
       "id": "ce99d1c7-65c7-5c47-8815-22e0a662dbbf",
       "name": "v11.3.0",
       "slug": "v11-3-0",
-      "is_latest": true,
-      "is_default": true,
+      "is_latest": false,
+      "is_default": false,
       "is_deprecated": false,
       "sections": [
         {
@@ -5584,6 +5584,3617 @@
                 "show_tags": true
               },
               "content_path": "v11-3-0/federation-service/federation-setup/connecting-instances-to-federation.mdx"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+      "name": "12.x",
+      "slug": "12-x",
+      "is_latest": true,
+      "is_default": true,
+      "is_deprecated": false,
+      "sections": [
+        {
+          "id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "SIEM",
+          "slug": "siem",
+          "type": "product_documentation",
+          "icon": "book-open",
+          "order": 0,
+          "visible": true,
+          "pages": [
+            {
+              "id": "5241d49e-5f5b-4ef0-bce8-32151ebde2c7",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Getting Started",
+              "slug": "getting-started",
+              "type": "folder",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/getting-started/index.mdx"
+            },
+            {
+              "id": "b48ba711-4aff-4d95-b2cd-ce42a2104088",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "5241d49e-5f5b-4ef0-bce8-32151ebde2c7",
+              "title": "Introduction",
+              "slug": "introduction",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/getting-started/introduction.mdx"
+            },
+            {
+              "id": "b335d4f5-959c-4987-8047-1aa06e6d225d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "5241d49e-5f5b-4ef0-bce8-32151ebde2c7",
+              "title": "Community and Support",
+              "slug": "community-and-support",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/getting-started/community-and-support.mdx"
+            },
+            {
+              "id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Installation",
+              "slug": "installation",
+              "type": "folder",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/index.mdx"
+            },
+            {
+              "id": "69a2a503-8c8d-436a-8283-fb2bea2e371a",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Architecture",
+              "slug": "architecture",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/architecture.mdx"
+            },
+            {
+              "id": "0c218aca-2b57-4171-86f2-e417f3cfbdc0",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "System Requirements",
+              "slug": "system-requirements",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/system-requirements.mdx"
+            },
+            {
+              "id": "3377f342-1534-49eb-a7e6-feba6a0fd6dd",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Install UTMStack",
+              "slug": "install-utmstack",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/install-utmstack.mdx"
+            },
+            {
+              "id": "24cffee7-8b5d-46a6-95bf-fe92e54b4e8d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Network Ports and Firewall",
+              "slug": "network-ports-and-firewall",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/network-ports-and-firewall.mdx"
+            },
+            {
+              "id": "a263084d-2b50-48f1-838a-d398ad691ab5",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "SSL Certificate",
+              "slug": "ssl-certificate",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/ssl-certificate.mdx"
+            },
+            {
+              "id": "e188c9e3-8f98-48ce-8488-bfda22dabfa9",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Updates",
+              "slug": "updates",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/updates.mdx"
+            },
+            {
+              "id": "4a095198-47c8-4177-b278-05a83b3368c1",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Installer Reference",
+              "slug": "installer-reference",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/installer-reference.mdx"
+            },
+            {
+              "id": "427184ee-66b4-4778-b843-4ac7e53e1f57",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Uninstall",
+              "slug": "uninstall",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/uninstall.mdx"
+            },
+            {
+              "id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Administration",
+              "slug": "administration",
+              "type": "folder",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/index.mdx"
+            },
+            {
+              "id": "d8276f83-e56a-4919-a865-1f9f3a74e5cb",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Settings Overview",
+              "slug": "settings-overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/settings-overview.mdx"
+            },
+            {
+              "id": "31b6cdb2-3c4b-44ff-bf63-4729a2f1d507",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "License and Editions",
+              "slug": "license-and-editions",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/license-and-editions.mdx"
+            },
+            {
+              "id": "df0a8f2f-15de-451d-b571-988d9ac93a5d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Email Configuration",
+              "slug": "email-configuration",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/email-configuration.mdx"
+            },
+            {
+              "id": "ac4f87bc-6434-4d3d-8454-96a776fd2481",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Notifications",
+              "slug": "notifications",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/notifications.mdx"
+            },
+            {
+              "id": "7a157c8b-066e-4497-8334-08d8d9007c2a",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Date, Time Zone and Language",
+              "slug": "date-time-zone-and-language",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/date-time-zone-and-language.mdx"
+            },
+            {
+              "id": "6d1a49a4-7b1e-42a5-97d9-f4d773836f04",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Branding",
+              "slug": "branding",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/branding.mdx"
+            },
+            {
+              "id": "53b88f0d-de43-4e30-b57d-f611737d11ce",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Data Retention and Cold Storage",
+              "slug": "data-retention-and-cold-storage",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/data-retention-and-cold-storage.mdx"
+            },
+            {
+              "id": "c4416085-3ebe-4765-abbb-d5d232148b4d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "App Audit Logs",
+              "slug": "app-audit-logs",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/app-audit-logs.mdx"
+            },
+            {
+              "id": "67739744-ec94-488e-a227-6aa08776131c",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Connection Key",
+              "slug": "connection-key",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/connection-key.mdx"
+            },
+            {
+              "id": "1947eab3-6ebb-47e2-ba3c-afd611becf4c",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Users",
+              "slug": "users",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/users.mdx"
+            },
+            {
+              "id": "a3111dfa-ff27-41da-9769-7727eb5b44d5",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Roles and Permissions",
+              "slug": "roles-and-permissions",
+              "type": "page",
+              "order": 10,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/roles-and-permissions.mdx"
+            },
+            {
+              "id": "12b2431c-c1a6-43ea-b524-49c3e0f21d7e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Profile and Two-Step Sign-In",
+              "slug": "profile-and-two-step-sign-in",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/profile-and-two-step-sign-in.mdx"
+            },
+            {
+              "id": "7e31da34-3772-460b-9265-9809ec9affa0",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "Single Sign-On",
+              "slug": "single-sign-on",
+              "type": "page",
+              "order": 12,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/single-sign-on.mdx"
+            },
+            {
+              "id": "d72859c4-39b2-4054-9de5-08bba87139a1",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "API Keys",
+              "slug": "api-keys",
+              "type": "page",
+              "order": 13,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/api-keys.mdx"
+            },
+            {
+              "id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Multi-Tenancy",
+              "slug": "multi-tenancy",
+              "type": "folder",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/index.mdx"
+            },
+            {
+              "id": "95587f90-5cf8-498e-b71c-cf155dc976bf",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Tenants",
+              "slug": "tenants",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/tenants.mdx"
+            },
+            {
+              "id": "df0d883a-1b94-4866-af3a-705ba7ee0070",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Support Access",
+              "slug": "support-access",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/support-access.mdx"
+            },
+            {
+              "id": "bfa27b41-fbc0-4b21-8331-95dec432fc7c",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Apply to All Tenants",
+              "slug": "apply-to-all-tenants",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/apply-to-all-tenants.mdx"
+            },
+            {
+              "id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Detection Engineering",
+              "slug": "detection-engineering",
+              "type": "folder",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/index.mdx"
+            },
+            {
+              "id": "ab0fdbaa-45f4-4701-8a54-44c795d5bce5",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "How UTMStack Processes Events",
+              "slug": "how-utmstack-processes-events",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/how-utmstack-processes-events.mdx"
+            },
+            {
+              "id": "281e2447-c13b-4205-80cf-d31e7a67af40",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Standard Event Schema",
+              "slug": "standard-event-schema",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/standard-event-schema.mdx"
+            },
+            {
+              "id": "8f201414-dec0-463e-9792-3e11b80b9c98",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Pipelines",
+              "slug": "pipelines",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/pipelines.mdx"
+            },
+            {
+              "id": "3f6fc92c-ffae-407a-bc45-f70d2d4f419a",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Pipeline File Format and Step Reference",
+              "slug": "pipeline-file-format-and-step-reference",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/pipeline-file-format-and-step-reference.mdx"
+            },
+            {
+              "id": "3ea2595f-e4ed-49b4-b214-97c274b55e44",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Alerting Rules",
+              "slug": "alerting-rules",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/alerting-rules.mdx"
+            },
+            {
+              "id": "67b3a0b6-5570-4407-87f0-a31147e91274",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Rule File Format",
+              "slug": "rule-file-format",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/rule-file-format.mdx"
+            },
+            {
+              "id": "07a8cac1-6200-4ef9-8988-b8ff0d6c9589",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Condition Functions Reference",
+              "slug": "condition-functions-reference",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/condition-functions-reference.mdx"
+            },
+            {
+              "id": "5c08f985-ccb7-4b9d-9256-a8936a2e3cab",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Testing Pipelines and Rules",
+              "slug": "testing-pipelines-and-rules",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/testing-pipelines-and-rules.mdx"
+            },
+            {
+              "id": "ce39962e-dd83-482c-a533-add8553d6842",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Writing and Testing Rules and Pipelines",
+              "slug": "writing-and-testing-rules-and-pipelines",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/writing-and-testing-rules-and-pipelines.mdx"
+            },
+            {
+              "id": "2f5c6ab2-9ebe-4385-ad19-8260992d47e2",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Data Processing",
+              "slug": "data-processing",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/data-processing.mdx"
+            },
+            {
+              "id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Threat Management",
+              "slug": "threat-management",
+              "type": "folder",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/index.mdx"
+            },
+            {
+              "id": "db8919e0-20a2-4eed-914a-9c58149fa44e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Alerts",
+              "slug": "alerts",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/alerts.mdx"
+            },
+            {
+              "id": "8eb67f7f-c855-4719-a349-f1b61a49cc50",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "How Alerts Are Created",
+              "slug": "how-alerts-are-created",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/how-alerts-are-created.mdx"
+            },
+            {
+              "id": "2a8a22db-d6c5-456b-b480-b9e26ae7be6b",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Tagging Rules and False Positives",
+              "slug": "tagging-rules-and-false-positives",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/tagging-rules-and-false-positives.mdx"
+            },
+            {
+              "id": "eb1b35e7-89a1-4b5f-9e19-ce09f60d4b99",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Rule Flood Guard",
+              "slug": "rule-flood-guard",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/rule-flood-guard.mdx"
+            },
+            {
+              "id": "b874d0a1-d09c-4f3d-ac90-48c180ec7556",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Incidents",
+              "slug": "incidents",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/incidents.mdx"
+            },
+            {
+              "id": "e07b1148-face-4160-8c46-9956aeadca7b",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Adversary View",
+              "slug": "adversary-view",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/adversary-view.mdx"
+            },
+            {
+              "id": "457ba583-eafd-495a-ab9d-5c65729980e3",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Alert and Incident Notifications",
+              "slug": "alert-and-incident-notifications",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/alert-and-incident-notifications.mdx"
+            },
+            {
+              "id": "cef634e0-7a5d-4bdd-b189-ec230fe10013",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Threat Intelligence and Enrichment",
+              "slug": "threat-intelligence",
+              "type": "folder",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-intelligence/index.mdx"
+            },
+            {
+              "id": "bff6b725-88df-4927-80da-45ea38fa6762",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "cef634e0-7a5d-4bdd-b189-ec230fe10013",
+              "title": "Threat Intelligence: How Indicator Alerts Work",
+              "slug": "how-indicator-alerts-work",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-intelligence/how-indicator-alerts-work.mdx"
+            },
+            {
+              "id": "687a32d8-3c73-47a3-9235-000f11f4fc8e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "cef634e0-7a5d-4bdd-b189-ec230fe10013",
+              "title": "Threat Intelligence Screens",
+              "slug": "threat-intelligence-screens",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-intelligence/threat-intelligence-screens.mdx"
+            },
+            {
+              "id": "2b1d9d99-1c63-4fa2-b235-8cf117c891c7",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "cef634e0-7a5d-4bdd-b189-ec230fe10013",
+              "title": "Geolocation Enrichment",
+              "slug": "geolocation-enrichment",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-intelligence/geolocation-enrichment.mdx"
+            },
+            {
+              "id": "7abd0d3f-6ff7-403e-859b-4117ba5a6499",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "cef634e0-7a5d-4bdd-b189-ec230fe10013",
+              "title": "User Auditor",
+              "slug": "user-auditor",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-intelligence/user-auditor.mdx"
+            },
+            {
+              "id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Log Explorer and Dashboards",
+              "slug": "log-explorer-and-dashboards",
+              "type": "folder",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/index.mdx"
+            },
+            {
+              "id": "f1728be0-af52-4a94-8f13-ad368f5fdcda",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Log Explorer",
+              "slug": "log-explorer",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/log-explorer.mdx"
+            },
+            {
+              "id": "a67c658b-0289-4e8b-b86b-0d176fa7466e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Log Explorer SQL Mode",
+              "slug": "log-explorer-sql-mode",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/log-explorer-sql-mode.mdx"
+            },
+            {
+              "id": "7039aa49-2d37-4d6c-a5c5-c2ac239c4e45",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Filter Operators Reference",
+              "slug": "filter-operators-reference",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/filter-operators-reference.mdx"
+            },
+            {
+              "id": "0f85614f-7970-4bc9-a896-ff1f9406ae79",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Dashboards",
+              "slug": "dashboards",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/dashboards.mdx"
+            },
+            {
+              "id": "e44b173b-97a5-4bbe-bd89-7cfedd014c95",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Dashboard Widgets",
+              "slug": "dashboard-widgets",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/dashboard-widgets.mdx"
+            },
+            {
+              "id": "f91363a8-f5f5-4b02-8d72-9682f770273d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Dashboards with SOC-AI",
+              "slug": "dashboards-with-soc-ai",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/dashboards-with-soc-ai.mdx"
+            },
+            {
+              "id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Compliance",
+              "slug": "compliance",
+              "type": "folder",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/index.mdx"
+            },
+            {
+              "id": "22289682-ca84-40b5-9fba-bb3f65e5ad9e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "title": "Compliance Overview",
+              "slug": "compliance-overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/compliance-overview.mdx"
+            },
+            {
+              "id": "97bb5d20-30fb-4c91-9d74-de86c9894155",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "title": "Compliance Reports",
+              "slug": "compliance-reports",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/compliance-reports.mdx"
+            },
+            {
+              "id": "e6d0fb2e-219c-415b-aa39-bc60c7247b77",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "title": "Scheduled Compliance Reports",
+              "slug": "scheduled-compliance-reports",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/scheduled-compliance-reports.mdx"
+            },
+            {
+              "id": "63faad49-1760-44a6-8a42-e8ae090f5ea0",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "title": "Custom Frameworks and Controls",
+              "slug": "custom-frameworks-and-controls",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/custom-frameworks-and-controls.mdx"
+            }
+          ]
+        },
+        {
+          "id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "API Documentation",
+          "slug": "api-documentation",
+          "type": "product_documentation",
+          "icon": "code",
+          "order": 4,
+          "visible": true,
+          "pages": [
+            {
+              "id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "title": "API Documentation",
+              "slug": "api-documentation",
+              "type": "folder",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/index.mdx"
+            },
+            {
+              "id": "1474a6d8-dc94-4a8a-a61f-85a298add856",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Introduction",
+              "slug": "introduction",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/introduction.mdx"
+            },
+            {
+              "id": "46daadb9-6f25-4878-b921-ba93af42cb2a",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Authentication and API Keys",
+              "slug": "authentication-and-api-keys",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/authentication-and-api-keys.mdx"
+            },
+            {
+              "id": "b7fc44db-9e6d-451f-afb5-be98fbb74ee7",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Alerts API",
+              "slug": "alerts-api",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/alerts-api.mdx"
+            },
+            {
+              "id": "af8a6736-ac4f-4402-bd76-1ce46df42339",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Log Search API",
+              "slug": "log-search-api",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/log-search-api.mdx"
+            },
+            {
+              "id": "28ba99a0-f28d-40da-b0da-f69c48e092e4",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Incidents API",
+              "slug": "incidents-api",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/incidents-api.mdx"
+            },
+            {
+              "id": "802cdc04-decf-42e7-8583-9afc1e872d8e",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Data Sources API",
+              "slug": "data-sources-api",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/data-sources-api.mdx"
+            },
+            {
+              "id": "5ab5ffe1-bd49-4d6c-8fb2-dd06c9955e34",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "SOAR API",
+              "slug": "soar-api",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/soar-api.mdx"
+            },
+            {
+              "id": "c58007a4-4beb-4a4f-a604-9f96c8ef1013",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "SOC-AI API",
+              "slug": "soc-ai-api",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/soc-ai-api.mdx"
+            },
+            {
+              "id": "103533eb-0b0b-4f6a-91f4-8fe817f1cfb8",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Reference Tables",
+              "slug": "reference-tables",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/reference-tables.mdx"
+            }
+          ]
+        },
+        {
+          "id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "SOAR",
+          "slug": "soar",
+          "type": "product_documentation",
+          "icon": "mi-campaign",
+          "order": 1,
+          "visible": true,
+          "pages": [
+            {
+              "id": "d0eae645-a41e-459f-9b39-dd025d60dc21",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Automated Response Overview",
+              "slug": "automated-response-overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/automated-response-overview.mdx"
+            },
+            {
+              "id": "040614a2-1a6a-478b-b567-de532f96c1f1",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Flows Page",
+              "slug": "flows-page",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/flows-page.mdx"
+            },
+            {
+              "id": "ea7e790e-b960-4da7-85be-399420360f8d",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Building a Flow",
+              "slug": "building-a-flow",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/building-a-flow.mdx"
+            },
+            {
+              "id": "fbbd1091-aaa0-4779-b915-a6a8a74284be",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Step Types",
+              "slug": "step-types",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/step-types.mdx"
+            },
+            {
+              "id": "dd13163c-9d0b-4a3a-ae4d-9c0e09406990",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Placeholders",
+              "slug": "placeholders",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/placeholders.mdx"
+            },
+            {
+              "id": "60ba5b77-d14b-4bad-b0b2-19a96094abbb",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Step Outputs and Variables",
+              "slug": "step-outputs-and-variables",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/step-outputs-and-variables.mdx"
+            },
+            {
+              "id": "a9bd16da-297d-45ef-b9bb-973ceca57590",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Shipped Flows",
+              "slug": "shipped-flows",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/shipped-flows.mdx"
+            },
+            {
+              "id": "b85bbd0b-e393-40ea-abae-2d76e78d89a0",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Running Steps on Another Host",
+              "slug": "running-steps-on-another-host",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/running-steps-on-another-host.mdx"
+            },
+            {
+              "id": "5e017951-9674-409a-acb7-b73465caa08d",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Interactive Console",
+              "slug": "interactive-console",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/interactive-console.mdx"
+            },
+            {
+              "id": "65a6eb99-4120-4712-85ad-a9158f7f7d7e",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Execution History and Run Statuses",
+              "slug": "execution-history-and-run-statuses",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/execution-history-and-run-statuses.mdx"
+            },
+            {
+              "id": "7f1a6eab-e673-44b0-a188-4abee2c3684d",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Use Cases",
+              "slug": "use-cases",
+              "type": "page",
+              "order": 10,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/use-cases.mdx"
+            }
+          ]
+        },
+        {
+          "id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "Rules",
+          "slug": "rules",
+          "type": "product_documentation",
+          "icon": "fa fa-cogs",
+          "order": 5,
+          "visible": true,
+          "pages": [
+            {
+              "id": "0443780b-dc64-4b99-b667-0d9407638b95",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Detection Rules Overview",
+              "slug": "overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/overview.mdx"
+            },
+            {
+              "id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Antivirus",
+              "slug": "antivirus",
+              "type": "folder",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/index.mdx"
+            },
+            {
+              "id": "6fa374f4-aeea-4e17-9a82-e652e0fbe491",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "ESET PROTECT",
+              "slug": "esmc-eset",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/esmc-eset.mdx"
+            },
+            {
+              "id": "737a6e03-2153-423c-a3c7-ee4ad8971e36",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "Deceptive Bytes",
+              "slug": "deceptive-bytes",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/deceptive-bytes.mdx"
+            },
+            {
+              "id": "93edb166-afa2-4d4c-9fdb-044c92e3d64d",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "SentinelOne",
+              "slug": "sentinelone",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/sentinelone.mdx"
+            },
+            {
+              "id": "9bcc5ee9-6c3d-41e9-a91a-c7f258e5ee9e",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "Kaspersky",
+              "slug": "kaspersky",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/kaspersky.mdx"
+            },
+            {
+              "id": "1c68c3a8-5f98-48e0-ac77-62419edc0af1",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "Bitdefender GravityZone",
+              "slug": "bitdefender-gravityzone",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/bitdefender-gravityzone.mdx"
+            },
+            {
+              "id": "1811cb42-a5d9-46c9-940a-860d64c9ea1b",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c85d7451-8f0c-4c6f-b335-3bcef9a26b77",
+              "title": "CrowdStrike",
+              "slug": "crowdstrike",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/antivirus/crowdstrike.mdx"
+            },
+            {
+              "id": "db02c83a-733e-440f-a63a-1a06134e1e37",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Cisco",
+              "slug": "cisco",
+              "type": "folder",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cisco/index.mdx"
+            },
+            {
+              "id": "a2e13433-a53c-47c0-80fb-5331e0ccc6f6",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "db02c83a-733e-440f-a63a-1a06134e1e37",
+              "title": "ASA",
+              "slug": "asa",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cisco/asa.mdx"
+            },
+            {
+              "id": "c68e2532-520f-4d41-9664-b9b438b2aa77",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "db02c83a-733e-440f-a63a-1a06134e1e37",
+              "title": "Switch",
+              "slug": "switch",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cisco/switch.mdx"
+            },
+            {
+              "id": "5ccb7dc7-95bc-475b-b8bd-b36b3607bcf8",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "db02c83a-733e-440f-a63a-1a06134e1e37",
+              "title": "Firepower",
+              "slug": "firepower",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cisco/firepower.mdx"
+            },
+            {
+              "id": "e593628e-e5cb-4748-a0be-eb862300c7c5",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "db02c83a-733e-440f-a63a-1a06134e1e37",
+              "title": "Meraki",
+              "slug": "meraki",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cisco/meraki.mdx"
+            },
+            {
+              "id": "a122ad17-88d4-4fa2-a0fd-bbeae3a26199",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Cloud",
+              "slug": "cloud",
+              "type": "folder",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cloud/index.mdx"
+            },
+            {
+              "id": "6e578eb5-bac8-4569-913c-9cc17dbb7a82",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "a122ad17-88d4-4fa2-a0fd-bbeae3a26199",
+              "title": "Google Cloud",
+              "slug": "google-cloud",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cloud/google-cloud.mdx"
+            },
+            {
+              "id": "1f1c874e-7ef8-45c3-9624-f69aae2a54b7",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "a122ad17-88d4-4fa2-a0fd-bbeae3a26199",
+              "title": "Azure",
+              "slug": "azure",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cloud/azure.mdx"
+            },
+            {
+              "id": "e01a6079-5f09-485a-91ae-84e6c0ee2064",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "a122ad17-88d4-4fa2-a0fd-bbeae3a26199",
+              "title": "AWS",
+              "slug": "aws",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/cloud/aws.mdx"
+            },
+            {
+              "id": "89baa93a-afbb-45d8-9516-748e10b509e2",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Fortinet",
+              "slug": "fortinet",
+              "type": "folder",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/fortinet/index.mdx"
+            },
+            {
+              "id": "a8fa6fdf-8a8d-4986-915a-b53f8aad4a64",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "89baa93a-afbb-45d8-9516-748e10b509e2",
+              "title": "FortiGate",
+              "slug": "fortigate",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/fortinet/fortigate.mdx"
+            },
+            {
+              "id": "734e88c7-b919-4fb4-845a-d431a79a6d32",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "89baa93a-afbb-45d8-9516-748e10b509e2",
+              "title": "FortiWeb",
+              "slug": "fortiweb",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/fortinet/fortiweb.mdx"
+            },
+            {
+              "id": "2e13613f-79a6-40c5-886d-299a30c63fea",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Generic",
+              "slug": "generic",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/generic.mdx"
+            },
+            {
+              "id": "c8227527-04a3-45fc-ae8e-e0a27af0e295",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "IBM",
+              "slug": "ibm",
+              "type": "folder",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/ibm/index.mdx"
+            },
+            {
+              "id": "c9288799-b392-46b1-acc0-85bf76e4be3c",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c8227527-04a3-45fc-ae8e-e0a27af0e295",
+              "title": "AIX",
+              "slug": "aix",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/ibm/aix.mdx"
+            },
+            {
+              "id": "e5cfc043-4966-45a8-b119-4eef532dd112",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c8227527-04a3-45fc-ae8e-e0a27af0e295",
+              "title": "AS/400",
+              "slug": "as-400",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/ibm/as-400.mdx"
+            },
+            {
+              "id": "7b5c7004-42d6-4e54-ae73-9baa4c35d7ec",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "JSON Input",
+              "slug": "json-input",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/json-input.mdx"
+            },
+            {
+              "id": "e13ad3ca-c24a-4445-968d-cf0c8b6a6d3c",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Linux",
+              "slug": "linux",
+              "type": "folder",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/linux/index.mdx"
+            },
+            {
+              "id": "19e938d8-0015-4a9c-aa84-a41a5c40e9d8",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "e13ad3ca-c24a-4445-968d-cf0c8b6a6d3c",
+              "title": "RHEL Family",
+              "slug": "rhel-family",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/linux/rhel-family.mdx"
+            },
+            {
+              "id": "959c3e8b-d6bd-4629-9357-01567cdafb85",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "e13ad3ca-c24a-4445-968d-cf0c8b6a6d3c",
+              "title": "Debian Family",
+              "slug": "debian-family",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/linux/debian-family.mdx"
+            },
+            {
+              "id": "2c7f906b-b865-44dd-8f88-27da8a4c8061",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "e13ad3ca-c24a-4445-968d-cf0c8b6a6d3c",
+              "title": "General",
+              "slug": "general",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/linux/general.mdx"
+            },
+            {
+              "id": "16df59e7-477e-446a-863b-1468247395dd",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "macOS",
+              "slug": "macos",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/macos.mdx"
+            },
+            {
+              "id": "cc51fb68-e540-4d34-b0de-69901c9a6091",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "MikroTik",
+              "slug": "mikrotik",
+              "type": "page",
+              "order": 10,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/mikrotik.mdx"
+            },
+            {
+              "id": "389533f2-5f81-45b1-89f1-12fbcff96d36",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Netflow",
+              "slug": "netflow",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/netflow.mdx"
+            },
+            {
+              "id": "cdd830aa-c644-43eb-a6b4-d8b1301f5e21",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "NIDS / Suricata",
+              "slug": "nids-suricata",
+              "type": "page",
+              "order": 12,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/nids-suricata.mdx"
+            },
+            {
+              "id": "1563a064-31e4-4b0d-87ac-11f534fdb969",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Palo Alto",
+              "slug": "palo-alto",
+              "type": "page",
+              "order": 13,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/palo-alto.mdx"
+            },
+            {
+              "id": "a3423221-7de4-423f-91d7-d3e27f5322b8",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "pfSense",
+              "slug": "pfsense",
+              "type": "page",
+              "order": 14,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/pfsense.mdx"
+            },
+            {
+              "id": "c6604fd9-0fb0-4138-adc5-5f6bca3f80bf",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "SonicWall",
+              "slug": "sonicwall",
+              "type": "page",
+              "order": 15,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/sonicwall.mdx"
+            },
+            {
+              "id": "c31aa2d1-a5ea-4984-923e-398e5076ea9d",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Sophos",
+              "slug": "sophos",
+              "type": "folder",
+              "order": 16,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/sophos/index.mdx"
+            },
+            {
+              "id": "f9584789-f3cf-4cda-b044-46b46a1fd8e1",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c31aa2d1-a5ea-4984-923e-398e5076ea9d",
+              "title": "XG Firewall",
+              "slug": "xg-firewall",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/sophos/xg-firewall.mdx"
+            },
+            {
+              "id": "1dd521cf-02b6-4a91-b0ef-6a59be6e4108",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c31aa2d1-a5ea-4984-923e-398e5076ea9d",
+              "title": "Sophos Central",
+              "slug": "sophos-central",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/sophos/sophos-central.mdx"
+            },
+            {
+              "id": "7b9812ee-3ede-4545-a5af-ef5b860213ba",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Syslog / CEF",
+              "slug": "syslog-cef",
+              "type": "page",
+              "order": 17,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/syslog-cef.mdx"
+            },
+            {
+              "id": "e4bbd99b-51bf-41d8-8521-8f34edfad31c",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "VMware ESXi",
+              "slug": "vmware-esxi",
+              "type": "page",
+              "order": 18,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/vmware-esxi.mdx"
+            },
+            {
+              "id": "c3650488-88cc-4c06-aa27-badb1777e1e2",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "title": "Microsoft",
+              "slug": "microsoft",
+              "type": "folder",
+              "order": 19,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/microsoft/index.mdx"
+            },
+            {
+              "id": "119aefd3-9848-4e25-8438-eb96358f5a2f",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c3650488-88cc-4c06-aa27-badb1777e1e2",
+              "title": "Windows",
+              "slug": "windows",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/microsoft/windows.mdx"
+            },
+            {
+              "id": "c589de5b-3b42-4a8e-834f-3e573e5f199a",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c3650488-88cc-4c06-aa27-badb1777e1e2",
+              "title": "Office 365",
+              "slug": "office-365",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/microsoft/office-365.mdx"
+            },
+            {
+              "id": "be353664-0f2f-422d-8fd2-cd6cee8ac0d5",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c3650488-88cc-4c06-aa27-badb1777e1e2",
+              "title": "Microsoft 365 through Microsoft Graph",
+              "slug": "microsoft-365-graph",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/microsoft/microsoft-365-graph.mdx"
+            },
+            {
+              "id": "3db9514c-ec67-4e6b-9862-1b4ccce7dfaa",
+              "section_id": "709d104f-0899-43c0-ad08-f89e74326ce5",
+              "parent_id": "c3650488-88cc-4c06-aa27-badb1777e1e2",
+              "title": "GitHub",
+              "slug": "github",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/rules/microsoft/github.mdx"
+            }
+          ]
+        },
+        {
+          "id": "f04394b4-fd9a-429c-ab75-c4d0e00d8b2d",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "AI",
+          "slug": "ai",
+          "type": "product_documentation",
+          "icon": "hi-sparkles-outline",
+          "order": 2,
+          "visible": true,
+          "pages": [
+            {
+              "id": "a7b16ce4-2ec4-46c6-a895-cda94f638b76",
+              "section_id": "f04394b4-fd9a-429c-ab75-c4d0e00d8b2d",
+              "title": "SOC-AI Assistant",
+              "slug": "soc-ai-assistant",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/ai/soc-ai-assistant.mdx"
+            },
+            {
+              "id": "1fdc4e64-e2a1-4f2c-8a2a-aba85a5b4ebb",
+              "section_id": "f04394b4-fd9a-429c-ab75-c4d0e00d8b2d",
+              "title": "AI Providers",
+              "slug": "ai-providers",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/ai/ai-providers.mdx"
+            },
+            {
+              "id": "fa96ff9d-acc3-48a8-86e5-89695c78478f",
+              "section_id": "f04394b4-fd9a-429c-ab75-c4d0e00d8b2d",
+              "title": "AI Usage and Limits",
+              "slug": "ai-usage-and-limits",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/ai/ai-usage-and-limits.mdx"
+            },
+            {
+              "id": "1b2c038a-944e-4b5a-b8de-0a0317930fe5",
+              "section_id": "f04394b4-fd9a-429c-ab75-c4d0e00d8b2d",
+              "title": "MCP Server",
+              "slug": "mcp-server",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/ai/mcp-server.mdx"
+            }
+          ]
+        },
+        {
+          "id": "302c6531-e396-4866-9f32-15096866c391",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "Upgrade",
+          "slug": "upgrade",
+          "type": "product_documentation",
+          "icon": "hi-arrowUpTray-solid",
+          "order": 6,
+          "visible": true,
+          "pages": [
+            {
+              "id": "8eecd1e2-14a6-490a-abe6-3a93d571e900",
+              "section_id": "302c6531-e396-4866-9f32-15096866c391",
+              "title": "Upgrading from v11 to v12",
+              "slug": "upgrading-from-v11-to-v12",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/upgrade/upgrading-from-v11-to-v12.mdx"
+            }
+          ]
+        },
+        {
+          "id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+          "version_id": "6efa86c9-66f0-4c71-b24d-6d6460de07ad",
+          "name": "Integrations",
+          "slug": "integrations",
+          "type": "product_documentation",
+          "icon": "fa fa-cogs",
+          "order": 3,
+          "visible": true,
+          "pages": [
+            {
+              "id": "ad1da724-d51e-494d-9501-ef5c679766b8",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Getting Started",
+              "slug": "getting-started",
+              "type": "folder",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/getting-started/index.mdx"
+            },
+            {
+              "id": "f29b9cf9-20aa-4f80-9bae-35581a9ad667",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ad1da724-d51e-494d-9501-ef5c679766b8",
+              "title": "How Data Reaches UTMStack",
+              "slug": "how-data-reaches-utmstack",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/getting-started/how-data-reaches-utmstack.mdx"
+            },
+            {
+              "id": "4c1776f9-0823-4cda-9cd1-aea9d16368d5",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ad1da724-d51e-494d-9501-ef5c679766b8",
+              "title": "Ports and Network Requirements",
+              "slug": "ports-and-network-requirements",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/getting-started/ports-and-network-requirements.mdx"
+            },
+            {
+              "id": "ef685ca2-d55f-4d98-a013-3d209aeb78e7",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ad1da724-d51e-494d-9501-ef5c679766b8",
+              "title": "Data Sources Page",
+              "slug": "data-sources-page",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/getting-started/data-sources-page.mdx"
+            },
+            {
+              "id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Agents",
+              "slug": "agents",
+              "type": "folder",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/index.mdx"
+            },
+            {
+              "id": "10740699-5a2d-4b96-b051-f594f05e83d1",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Windows Agent",
+              "slug": "windows-agent",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/windows-agent.mdx"
+            },
+            {
+              "id": "dced024b-7bca-4ff6-8646-6e97a3d14797",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Linux Agent",
+              "slug": "linux-agent",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/linux-agent.mdx"
+            },
+            {
+              "id": "6e8b6bf8-4313-4845-b852-85b815594920",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "macOS Agent",
+              "slug": "macos-agent",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/macos-agent.mdx"
+            },
+            {
+              "id": "c704aab4-bee1-468b-8bdf-a025089b12ad",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Agent Command Line",
+              "slug": "agent-command-line",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/agent-command-line.mdx"
+            },
+            {
+              "id": "52806179-0e98-497f-bb7f-6707aaa48c06",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Updates and Status",
+              "slug": "updates-and-status",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/updates-and-status.mdx"
+            },
+            {
+              "id": "fa4f0d1c-cca3-4569-9c95-00e3aae408ec",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "UTMStack Forwarder",
+              "slug": "utmstack-forwarder",
+              "type": "folder",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/utmstack-forwarder/index.mdx"
+            },
+            {
+              "id": "0858c2cf-7dc0-421d-8bb5-5f223563ad02",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "fa4f0d1c-cca3-4569-9c95-00e3aae408ec",
+              "title": "UTMStack Forwarder",
+              "slug": "utmstack-forwarder",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/utmstack-forwarder/utmstack-forwarder.mdx"
+            },
+            {
+              "id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Network Devices",
+              "slug": "network-devices",
+              "type": "folder",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/index.mdx"
+            },
+            {
+              "id": "902e83a8-50dc-4206-b075-68e5d42fd73a",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Cisco ASA",
+              "slug": "cisco-asa",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/cisco-asa.mdx"
+            },
+            {
+              "id": "f5232fc5-161e-434e-8cf5-252e28c6b99f",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Cisco Firepower",
+              "slug": "cisco-firepower",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/cisco-firepower.mdx"
+            },
+            {
+              "id": "e08e0944-e961-4b9a-ac9b-0efc22577919",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Cisco Meraki",
+              "slug": "cisco-meraki",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/cisco-meraki.mdx"
+            },
+            {
+              "id": "8f221d05-ad46-4bd2-8389-a0b4fe8bb394",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Cisco Switch",
+              "slug": "cisco-switch",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/cisco-switch.mdx"
+            },
+            {
+              "id": "e38e025f-a12f-42da-b945-4fe60efdb6d3",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Fortinet FortiGate",
+              "slug": "fortinet-fortigate",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/fortinet-fortigate.mdx"
+            },
+            {
+              "id": "7018bde3-ba6e-4bfa-92c8-947afa3c0221",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Fortinet FortiWeb",
+              "slug": "fortinet-fortiweb",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/fortinet-fortiweb.mdx"
+            },
+            {
+              "id": "985e842e-dcbd-4412-8985-d2f32e7a2d12",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Palo Alto Networks",
+              "slug": "palo-alto-networks",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/palo-alto-networks.mdx"
+            },
+            {
+              "id": "afc4fb69-79ee-47b6-9ab6-114718b1bcb3",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "SonicWall",
+              "slug": "sonicwall",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/sonicwall.mdx"
+            },
+            {
+              "id": "44112238-b306-4e2d-8c20-8e522cf84c2c",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Sophos Firewall (XG)",
+              "slug": "sophos-firewall-xg",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/sophos-firewall-xg.mdx"
+            },
+            {
+              "id": "cdff79f7-66e2-480a-9e9d-77fb634b1419",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "pfSense",
+              "slug": "pfsense",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/pfsense.mdx"
+            },
+            {
+              "id": "4d664ab0-6ba3-4159-b8d0-8d3b94367ad1",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "MikroTik",
+              "slug": "mikrotik",
+              "type": "page",
+              "order": 10,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/mikrotik.mdx"
+            },
+            {
+              "id": "1c254247-2be4-4df9-bb90-aac236bbac5e",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "NetFlow",
+              "slug": "netflow",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/netflow.mdx"
+            },
+            {
+              "id": "171e513f-5823-4f5b-8e1e-cdc1b6a2abfe",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
+              "title": "Suricata",
+              "slug": "suricata",
+              "type": "page",
+              "order": 12,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/network-devices/suricata.mdx"
+            },
+            {
+              "id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Servers and Hypervisors",
+              "slug": "servers-and-hypervisors",
+              "type": "folder",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/index.mdx"
+            },
+            {
+              "id": "625c151d-3574-46ff-9845-dc977219d11e",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "title": "VMware ESXi",
+              "slug": "vmware-esxi",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/vmware-esxi.mdx"
+            },
+            {
+              "id": "aac01157-b05e-44e7-8a0b-823a467122dd",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "title": "IBM AIX",
+              "slug": "ibm-aix",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/ibm-aix.mdx"
+            },
+            {
+              "id": "1cc0feda-5d58-4ded-8c31-209274550059",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "title": "IBM AS/400 (IBM i) Collector",
+              "slug": "ibm-as400-collector",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/ibm-as400-collector.mdx"
+            },
+            {
+              "id": "8467eb0d-6067-4cb8-85cf-ca14f1f4fe28",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "title": "Oracle Database",
+              "slug": "oracle-database",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/oracle-database.mdx"
+            },
+            {
+              "id": "180d3525-b437-46d0-863c-ce478d8fea56",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "bb2f157a-e56d-4208-8d7f-af7538cf3910",
+              "title": "UTMStack Self-Monitoring",
+              "slug": "utmstack-self-monitoring",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/servers-and-hypervisors/utmstack-self-monitoring.mdx"
+            },
+            {
+              "id": "e361b667-f81b-4552-8781-1e1b6ef92b4c",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Security Products",
+              "slug": "security-products",
+              "type": "folder",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/security-products/index.mdx"
+            },
+            {
+              "id": "43a1e6b5-b145-40d7-b842-efcc86a35878",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "e361b667-f81b-4552-8781-1e1b6ef92b4c",
+              "title": "ESET PROTECT",
+              "slug": "eset-protect",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/security-products/eset-protect.mdx"
+            },
+            {
+              "id": "36fc0803-1747-412c-b89f-64bf94ee7451",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "e361b667-f81b-4552-8781-1e1b6ef92b4c",
+              "title": "Kaspersky Security Center",
+              "slug": "kaspersky-security-center",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/security-products/kaspersky-security-center.mdx"
+            },
+            {
+              "id": "caa2e27b-bb43-4dfd-86e7-656cdd1e3ea5",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "e361b667-f81b-4552-8781-1e1b6ef92b4c",
+              "title": "SentinelOne",
+              "slug": "sentinelone",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/security-products/sentinelone.mdx"
+            },
+            {
+              "id": "f385c664-1376-45be-bd65-aa7b2f8c3015",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "e361b667-f81b-4552-8781-1e1b6ef92b4c",
+              "title": "Deceptive Bytes",
+              "slug": "deceptive-bytes",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/security-products/deceptive-bytes.mdx"
+            },
+            {
+              "id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Cloud and SaaS",
+              "slug": "cloud-and-saas",
+              "type": "folder",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/index.mdx"
+            },
+            {
+              "id": "3afd23b2-b5cb-4ba8-9225-1bb062e32fad",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "AWS CloudWatch",
+              "slug": "aws-cloudwatch",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/aws-cloudwatch.mdx"
+            },
+            {
+              "id": "c800d23a-363c-4f32-b726-3285ff31cb47",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "Microsoft Azure",
+              "slug": "microsoft-azure",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/microsoft-azure.mdx"
+            },
+            {
+              "id": "832690ea-b9ec-468a-a5de-b2c1c9298c47",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "Google Cloud",
+              "slug": "google-cloud",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/google-cloud.mdx"
+            },
+            {
+              "id": "4de21be8-c090-44d7-b201-94fd9a467d06",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "Microsoft 365 (Office 365 Management Activity API)",
+              "slug": "microsoft-365",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/microsoft-365.mdx"
+            },
+            {
+              "id": "0a1b620b-b1ee-4ee4-b3ca-a4d07a04f190",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "Microsoft 365 through Microsoft Graph",
+              "slug": "microsoft-365-graph",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/microsoft-365-graph.mdx"
+            },
+            {
+              "id": "3210a83b-3e3d-4242-a8b0-c16d4d3c7138",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "CrowdStrike Falcon",
+              "slug": "crowdstrike-falcon",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/crowdstrike-falcon.mdx"
+            },
+            {
+              "id": "fd5b6fa2-0f91-46f8-b4f0-52e7ad48914b",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "c13fde1b-197b-41af-aa9e-2341a9c58de4",
+              "title": "Sophos Central",
+              "slug": "sophos-central",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/cloud-and-saas/sophos-central.mdx"
+            },
+            {
+              "id": "e0f3c726-92da-4bc1-b8da-0a2a718de4d6",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Applications",
+              "slug": "applications",
+              "type": "folder",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/applications/index.mdx"
+            },
+            {
+              "id": "8381376d-e387-49eb-8a8f-9ce6283ea4dd",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "e0f3c726-92da-4bc1-b8da-0a2a718de4d6",
+              "title": "GitHub",
+              "slug": "github",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/applications/github.mdx"
+            },
+            {
+              "id": "ddc8df50-cb53-495a-9ca5-bd29cca5c06a",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "title": "Custom",
+              "slug": "custom",
+              "type": "folder",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/custom/index.mdx"
+            },
+            {
+              "id": "05beed21-2920-4470-b17a-ec24fa86761f",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ddc8df50-cb53-495a-9ca5-bd29cca5c06a",
+              "title": "Custom Integrations",
+              "slug": "custom-integrations",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/custom/custom-integrations.mdx"
             }
           ]
         }

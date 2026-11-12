@@ -1,0 +1,130 @@
+The **Threat Intelligence** menu gives you four screens that look up information in ThreatWinds, the threat intelligence service behind UTMStack: **Indicators**, **AI Analyst**, **Triage** and **Report**. Use them to check whether an IP address, domain, URL or file hash is known to be malicious, to see which values from your own alerts ThreatWinds knows, and to share an indicator you found.
+
+An indicator (also called an IOC, indicator of compromise) is a value such as an IP address, domain, URL or file hash that is linked to malicious activity.
+
+## Before you start
+
+- Every user with the `threatintel.read` permission can use all four screens. The Administrator, Analyst and Viewer roles all have it.
+- Your server must be registered with the UTMStack update server (`cm.utmstack.com`), which happens during installation, and must be able to reach it over HTTPS. Otherwise the screens show **Threat Intelligence isn't configured**. See **Threat intelligence: how indicator alerts work**.
+- Each screen sends what you search for, paste or report to ThreatWinds. The **Indicators** screen also sends the most frequent values from your alerts. Read **What is sent to ThreatWinds** on the page **Threat intelligence: how indicator alerts work** before you use them.
+
+## Indicators
+
+Go to **Threat Intelligence > Indicators**.
+
+### What the page shows
+
+The header shows how many indicators were **matched in your env**: values from your own alerts that ThreatWinds knows. To find them, UTMStack takes up to 1,000 of the most frequent IP addresses, host names, domains, file hashes, URLs and email addresses from both sides of your tenant's top-level alerts and asks ThreatWinds which of them it knows. This list is refreshed every 5 minutes at most.
+
+When none of your values is known (and you have not set a search, filter or time range), the page shows general ThreatWinds data instead and says **No instance indicators — showing generic data**.
+
+- **IOC matches**: the number of indicators per family: **IP**, **URL**, **Domain** and **Signatures**.
+- **Lookup any indicator**: paste an IP address, domain, hash, URL or CVE (a published vulnerability ID) and click **Lookup**. If ThreatWinds knows it, its details open.
+- **Export IOCs**: downloads every indicator that matches the current search as a CSV file with id, type, value, tags, lastSeen, reputation, bestReputation, worstReputation and accuracy.
+
+### Tabs
+
+| Tab | What it lists |
+|---|---|
+| IOCs | The indicators, with **Type**, **Indicator**, **Reputation**, **Tags** and **Last seen**. |
+| Threat actors | The threat actors among the loaded results. |
+| Feeds | The ThreatWinds feeds, with **Feed**, **Type**, **Accuracy** (Level 1, Level 2 or Level 3) and **Format**. Each feed has **Download feed** and **Checksum**. |
+
+Use the search box, the time range (**Last 15 min**, **Last 1 hour**, **Last 24 hours**, **Last 7 days**, **Last 30 days** or **All time**; default **All time**), **Filters** (type, reputation from −3 to 3, accuracy from 0 to 3, tags to include or exclude, date range) and **Refresh** to narrow the list.
+
+### Reputation
+
+ThreatWinds rates each indicator from −3 to 3:
+
+| Reputation | Shown as |
+|---|---|
+| −3 | Alarming |
+| −2, −1 | Suspicious |
+| 0 | Indefinable |
+| 1 | Fair |
+| 2, 3 | Trustworthy |
+
+Accuracy says how sure ThreatWinds is, from Level 1 to Level 3.
+
+### Indicator details
+
+Click an indicator to open its details: **Timeline**, **Network / origin**, **Associations**, **Geolocations**, **About** and **Activity**, with First seen, Last seen, Country, City, ASO (network owner), ASN (network number), Reputation, Accuracy (current, best and worst) and an **AI brief**.
+
+## AI Analyst
+
+Go to **Threat Intelligence > AI Analyst**. This is an analyst workspace where you ask an AI agent about indicators. "The agent queries ThreatWinds directly and shows its work."
+
+- **Conversations**: start one with **New conversation**. Conversations are saved on your UTMStack server, per tenant and user.
+- **Model**: Silas 1.7 Pro (default), Silas 1.6 Pro or Silas 1.6.
+- **Results**: entity details, relationship graphs and maps that the agent finds appear in this pane.
+
+<Note>
+
+The three example questions on an empty conversation send a request as soon as you click them. Every request to the agent uses ThreatWinds AI, which is billed through your ThreatWinds subscription.
+
+</Note>
+
+The AI Analyst is a threat intelligence tool. It is separate from the SOC-AI assistant that works on your alerts (see **SOC-AI assistant**).
+
+## Triage
+
+Go to **Threat Intelligence > Triage** to check a list of indicators in one go.
+
+<Steps>
+
+<Step title="Paste the indicators">
+
+Paste IP addresses, domains, URLs or hashes into **Indicators**, one per line or separated by commas. Defanged values such as `1.2.3[.]4` and `hxxp://` are accepted. Up to 500 indicators are checked per run.
+
+</Step>
+
+<Step title="Run">
+
+Click **Triage**. UTMStack looks up 6 indicators at a time and shows the progress. Click **Stop** to stop, or **Clear** to start again.
+
+</Step>
+
+<Step title="Read the verdicts">
+
+| Verdict | Meaning |
+|---|---|
+| Malicious | Reputation −3 or −2. |
+| Suspicious | Reputation −1. |
+| Unknown | Reputation 0. |
+| Benign | Reputation above 0. |
+| Not found | ThreatWinds does not know the value. |
+| Unrecognised | The value is not a recognised indicator. |
+
+</Step>
+
+<Step title="Export">
+
+Click **Export CSV** for all rows, or **Export STIX** for a STIX file (a standard format for sharing threat intelligence). The STIX file includes only malicious and suspicious rows.
+
+</Step>
+
+</Steps>
+
+## Report
+
+Go to **Threat Intelligence > Report** to publish an indicator to the ThreatWinds graph.
+
+<Warning>
+
+**Report** publishes the indicator and everything you enter with it to the shared ThreatWinds database, where other ThreatWinds users can see it. Reporting also queues a scan of the target. Do not report internal addresses, internal host names or personal data.
+
+</Warning>
+
+| Field | What to enter |
+|---|---|
+| Indicator | The IP address, domain, URL, hash or email address. |
+| Type | Filled in from the value; you can change it. |
+| Tags | Comma-separated tags, for example `phishing, credential-theft`. |
+| Notes | A description. |
+| Reputation | Alarming, Worrying, Concerning, Indefinable, Adequate, Good or Exceptional. "Leave unset if you have not reached a verdict." |
+| Related indicators | Other values linked to this one, as **Related to** or **Part of**. |
+| Details | Optional extra attributes. Anything left blank is not submitted. |
+| Correlate | Ticked attributes are published as their own linked entities. |
+| Visible to | Who can see the indicator. The only group offered is `public`. |
+
+Click **Report indicator**. The receipt shows when the indicator is live in the ThreatWinds database; this can take a while.

@@ -1,0 +1,107 @@
+The **CrowdStrike** integration brings detections and audit activity from CrowdStrike Falcon into UTMStack through the Falcon Event Streams API. You create an API client in Falcon, and UTMStack streams events with its credentials. Nothing is installed on your endpoints or in Falcon by UTMStack.
+
+## How it works
+
+- UTMStack connects to the Falcon Event Streams API of your CrowdStrike cloud region with an API client that has the **Event streams: Read** scope.
+- Events are stored with the data type `crowdstrike`. UTMStack v12 ships 17 detection rules for this data type; see **CrowdStrike** in the **Rules** tab.
+
+## Before you start
+
+<Note>
+
+The Event Streams API is often disabled by default. You may need to contact CrowdStrike Support to turn it on before the integration can work.
+
+</Note>
+
+- In Falcon, you need permission to create API clients.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach the CrowdStrike API over HTTPS (outbound port 443).
+
+## Step 1: Create an API client in Falcon
+
+<Steps>
+<Step title="Open API clients and keys">
+
+In the Falcon console, open the menu (the icon at the top left) and go to **Support and resources > API clients and keys**.
+
+</Step>
+<Step title="Create a new API client">
+
+In the **OAuth2 API clients** tab, click **Create API client**.
+
+![CrowdStrike](/assets/41606d5b-ae84-53d4-ab15-c1222c7f4d98)
+
+</Step>
+<Step title="Name the client and grant the Event Streams scope">
+
+Enter a descriptive client name, for example `UTMStack_SIEM_Connector`. Select the **Event streams** scope with **Read** access, then click **Create**.
+
+</Step>
+<Step title="Record the credentials">
+
+Copy the **Client ID**, the **Client Secret** and the **Base URL** shown for your CrowdStrike region.
+
+<Warning>
+
+Falcon shows the Client Secret only once. If you lose it, you must create a new secret.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 2: Connect CrowdStrike in UTMStack
+
+Each API client connection is a **config group**. You can add more than one, for example one per Falcon tenant.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `CrowdStrike` and open the **Crowdstrike** card. The form is at the end of the setup guide, under **API client configuration**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **App name** | A descriptive name for this API client, for example `utmstack-falcon`. |
+| **Client ID** | The Client ID from Step 1. |
+| **Client Secret** | The Client Secret from Step 1. |
+| **Base URL (cloud region)** | The Base URL of your CrowdStrike region (see the table below). |
+
+All fields are required.
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. UTMStack signs in to CrowdStrike and checks access to Event Streams before it saves the credentials. When the check passes, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+| CrowdStrike region | Base URL |
+|---|---|
+| US-1 | `https://api.crowdstrike.com` |
+| US-2 | `https://api.us-2.crowdstrike.com` |
+| EU-1 | `https://api.eu-1.crowdstrike.com` |
+| US-GOV-1 | `https://api.laggar.gcw.crowdstrike.com` |
+
+### If the save fails
+
+| Message | What to check |
+|---|---|
+| Invalid Client ID or Client Secret | The Client ID or secret is wrong, or the secret was reset. |
+| Client ID does not have permission to access Event Streams | Add the **Event streams: Read** scope to the API client in Falcon. |
+| Unrecognized CrowdStrike Cloud Region / Invalid CrowdStrike Cloud Region | Use one of the Base URLs in the table above. |
+| Cannot resolve CrowdStrike API host / Connection to CrowdStrike timed out | The Base URL is wrong, or the UTMStack server cannot reach it on port 443. |
+
+## Check that events arrive
+
+Open the **Crowdstrike** card again and click **View logs**. Log Explorer opens filtered to the `crowdstrike` data type for the last 24 hours.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per API client.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. The client secret shows a masked value; leave it as it is to keep the stored secret. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.

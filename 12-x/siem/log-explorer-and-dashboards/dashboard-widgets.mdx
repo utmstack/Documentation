@@ -1,0 +1,139 @@
+A widget is one chart, number or table on a dashboard. You build it in the widget editor by answering a few questions: which data, which records, and how to break them down. UTMStack v12 writes the query for you; widgets have no SQL.
+
+## Before you start
+
+- You need the `dashboards.write` permission (Administrator and Analyst roles).
+- Widgets can only be added to dashboards you created or copied. Shipped dashboards cannot be changed.
+- A widget belongs to one dashboard. It is saved as soon as you click **Save widget**.
+
+## Add a widget
+
+<Steps>
+
+<Step title="Open the dashboard in edit mode">
+
+Open the dashboard and click **Edit** (the pencil), then **Add widget**.
+
+</Step>
+
+<Step title="Pick a chart type">
+
+The **Pick a chart type** dialog opens. Choose one of the types in the table below and click **Continue**. You can change the type later.
+
+</Step>
+
+<Step title="Answer the questions">
+
+The **New widget** page opens with the questions on the left and a live **Chart preview** on the right. Fill them in as described in **Build the widget** below.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save widget**. You return to the dashboard, still in edit mode. Move or resize the new widget if needed, then click **Save** in the edit bar.
+
+</Step>
+
+</Steps>
+
+## Chart types
+
+| Type | What it shows |
+|---|---|
+| **Bar** | Compare values across categories, or counts over time |
+| **Line** | Trends over time |
+| **Area** | A filled line chart that stresses volume |
+| **Pie** | Share of a whole by category |
+| **Metric** | A single number: how many records match |
+| **Table** | Aggregated rows: a count per value of a field, or a list of records with chosen columns |
+| **List** | Raw records, one per row, with chosen columns |
+| **Coordinate map** | One marker per record on a world map, from latitude and longitude fields |
+| **Text** | Each record as a line of text (field: value pairs) |
+
+Every chart type counts records. A widget cannot add up, average or count distinct values of a field.
+
+## Build the widget
+
+### Title
+
+Optional. Without a title, the widget is named after its chart type.
+
+### Which data?
+
+Choose the **Data set**: `logs` or `alerts`. Until you choose one, conditions and grouping are disabled ("Choose a data set to enable conditions and grouping.").
+
+<Note>
+
+The widget editor has no data type setting. To limit a widget to one source, add the condition **dataType** is (for example) `wineventlog`.
+
+</Note>
+
+### Include only events where…
+
+Add conditions to narrow the records. Click **Add condition**, then pick a **Field**, an **Operator** and a **Value**. With no conditions, "all events in the time range are included". All conditions must match.
+
+| Operator | Value |
+|---|---|
+| is, is not | One value |
+| is one of | Comma-separated values |
+| is greater than, is less than or equals | One value |
+| is between | **From** and **To** |
+| contains, does not contain, starts with, ends with | One value |
+| exists, does not exist | No value needed |
+
+How each operator compares values is described on **Filter Operators Reference**. In UTMStack v12.0.2, **is greater than**, **is less than or equals** and **is between** do not work on fields inside `origin`, `target` or `log`: use them only on top-level number fields. For time, rely on the dashboard's time range instead of a condition.
+
+### Break down by
+
+Bar, Line, Area and Pie charts, and Table, ask how to split the count:
+
+| Choice | Settings | Result |
+|---|---|---|
+| **Over time** | **Bucket size**: **Auto** (1 hour), 1m, 5m, 15m, 1h, 1d or 1w. Optionally a **Field** ("Optional: one line per value of this field."). | A count per time bucket, as one line, or one line per value of the field |
+| **Top values** | A **Field** ("Pick a field to group by…"). | A count per value of that field, largest first |
+
+**How many** sets the number of values (or lines) shown. The default is 50.
+
+For **Table**, this section is called **Top values table**. **Top values** gives one row per value with its count. **Over time** instead lists records with the **Columns** you choose.
+
+Only fields with a single value per record can be used to group: not whole objects such as `origin`, not lists and not the original log line.
+
+### Columns
+
+For **Table** (with **Over time**), **List**, **Coordinate map** and **Text**, the widget shows records, newest first. Under **Columns**, click **Add a column…** to choose the fields to show. With no columns, every field of the record is shown. **How many** sets the number of records (default 50).
+
+The column header shows the last part of the field name (`country` for `origin.geolocation.country`), unless two columns would end the same way.
+
+### Coordinate map
+
+A coordinate map needs a latitude and a longitude for each record. Add the two geolocation fields of one side as columns, for example `origin.geolocation.latitude` and `origin.geolocation.longitude`. Add `origin.geolocation.city` or `origin.ip` as a third column to label the markers. Records without a valid position are skipped ("No points with valid lat/lon.").
+
+The map background is loaded from OpenStreetMap, so the browser needs internet access to show it. The geolocation fields are written by pipelines that use geolocation enrichment; see **Geolocation Enrichment**.
+
+## Change a widget
+
+1. Open the dashboard and click **Edit**.
+2. Use the widget's edit button. The **Edit widget** page opens.
+3. To switch chart type, click the **Chart:** chip next to the title, pick a type and click **Apply**.
+4. Change the answers and click **Save widget**.
+
+<Warning>
+
+Widgets on shipped dashboards, and widgets built by the SOC-AI assistant, can carry a data type and conditions that the widget editor does not show. If you open such a widget (for example on a copy of a shipped dashboard) and click **Save widget**, its data type and those conditions are removed, and the widget starts counting every record of the data set. Before you save, add the conditions again, including **dataType** is `<type>`.
+
+</Warning>
+
+## Remove a widget
+
+In edit mode, use the widget's remove button, then click **Save**. Confirm "Delete this widget? This cannot be undone." The widget is deleted for good.
+
+## Limits
+
+| Limit | Value |
+|---|---|
+| What a widget measures | A count of records only |
+| Values, lines or records per widget | 50 by default, 10,000 at most |
+| Time buckets | Auto (1 hour), 1 minute, 5 minutes, 15 minutes, 1 hour, 1 day, 1 week |
+| Time window | The dashboard's time range; widgets have no time range of their own |
+
+When a widget cannot load, it shows "Could not load widget data." with the reason and a retry button.

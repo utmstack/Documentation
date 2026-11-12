@@ -1,0 +1,74 @@
+UTMStack v12 agents update themselves, and you can check their health both on the host and in UTMStack. This page explains how agent updates work, how to pause them, and where to look when an agent stops reporting.
+
+## How agents update
+
+Each agent installs a second service, `UTMStackUpdater`, next to the agent service `UTMStackAgent`.
+
+1. Every 5 minutes, the updater asks your UTMStack server which agent version it offers.
+2. When the server offers a new version, the updater downloads it from the server on port 443 and verifies the download.
+3. It replaces the agent with the new version. If the new version fails, it rolls back to the previous one.
+
+Agents update when the agent version offered by the UTMStack server changes, which happens when your UTMStack server is updated to a release with a new agent.
+
+<Note>
+
+The UTMStack Forwarder and the IBM AS/400 Collector do not update themselves. See **UTMStack Forwarder** and **IBM AS/400 (IBM i) Collector**.
+
+</Note>
+
+## Pause or resume updates on a host
+
+Use the agent's `set-auto-update` command with administrator rights. See **Agent Command Line** for where the agent program is.
+
+<CodeGroup>
+
+```bash Linux (pause)
+sudo /opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64 set-auto-update off
+sudo systemctl restart UTMStackUpdater
+```
+
+```powershell Windows (pause)
+& "C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe" set-auto-update off
+Restart-Service UTMStackUpdater
+```
+
+</CodeGroup>
+
+- `off` pauses updates. The updater keeps checking but does not install what the server offers, so the agent stays on the version it has now.
+- `on` resumes updates.
+- The change takes effect the next time the updater service starts, so restart `UTMStackUpdater` (or the host) after you run the command.
+
+<Warning>
+
+Pausing is not the same as choosing a version. There is no way to install an older agent version: you can only stay on the version that is already installed.
+
+</Warning>
+
+## Check an agent in UTMStack
+
+- The **Data Sources** page (**Configure > Data Sources**, tab **Agents**): each agent shows **Live** (seen in the last 15 minutes), **Idle** (seen in the last 24 hours) or **Offline** (not seen for more than 24 hours, or never). Open an agent to see its events in the last 24 hours, its ingestion trend and a "possible log gap" warning when it is offline. See **Data Sources Page**.
+- **Agents dashboard**: shows agent activity across Linux, Windows and macOS.
+- **Log Explorer**: search the agent's data type (`wineventlog`, `linux` or `macos`) to see its latest events.
+
+A newly installed agent appears on the Data Sources page within about a minute of starting.
+
+## Check an agent on the host
+
+If an agent shows **Idle** or **Offline**, check it on the host.
+
+<Steps>
+  <Step title="Check that the services run">
+    Make sure `UTMStackAgent` and `UTMStackUpdater` are running: in **Services** on Windows, with `systemctl status UTMStackAgent` on Linux, or with `sudo launchctl list | grep UTMStack` on macOS.
+  </Step>
+  <Step title="Check log collection">
+    Run the agent's `status` command. It shows, for each log source on the host, how many events were received and saved, how many failed, and when the last event arrived. See **Agent Command Line**.
+  </Step>
+  <Step title="Read the agent log">
+    Open `logs/utmstack_agent.log` in the agent folder (for example `/opt/utmstack-linux-agent/logs/utmstack_agent.log` or `C:\Program Files\UTMStack\UTMStack Agent\logs\utmstack_agent.log`).
+  </Step>
+  <Step title="Check the network">
+    Make sure the host still reaches your UTMStack server on 443/TCP. See **Ports and Network Requirements**.
+  </Step>
+</Steps>
+
+While the connection is down, the agent keeps undelivered logs in its local store and sends them when the connection is back, within the limits described in **Agent Command Line**.

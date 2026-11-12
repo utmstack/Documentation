@@ -1,0 +1,68 @@
+Branding (white-labelling) replaces the UTMStack name, colours and logos with your own. In UTMStack v12 the brand appears on the sign-in screen, in the menu, in emails and in PDF reports. Branding needs an **Enterprise** licence.
+
+## Before you start
+
+- You need the **Administrator** role (`config.write` permission).
+- The server needs an Enterprise licence. On Community, the page shows "White-labelling is an Enterprise feature" and nothing can be changed. See **License and Editions**.
+- Prepare your images. Allowed formats: PNG, SVG, WEBP, JPG or ICO, up to 5 MB each.
+
+## Set up your brand
+
+<Steps>
+
+<Step title="Open Branding">
+
+Go to **Configure > Settings > Branding**.
+
+</Step>
+
+<Step title="Turn on white-labelling">
+
+Under **White-label**, switch on **Enable white-labeling**.
+
+</Step>
+
+<Step title="Set the identity">
+
+Under **Identity**:
+
+- **Product name**: the name shown in the browser title bar, the menu and emails.
+- **Accent color**: the main colour for buttons, links and selected items. Pick one of the eight preset colours or choose **Custom color**.
+
+</Step>
+
+<Step title="Upload logos">
+
+Under **Logos**, click **Upload** (or **Replace**) for each image:
+
+- **Logo (light)**: used with the light theme.
+- **Logo (dark)**: used with the dark theme.
+- **Favicon**: the small icon in the browser tab.
+
+</Step>
+
+<Step title="Upload report images">
+
+Under **Report assets**, upload a **Report logo** and a **Report cover**. They are added to the PDF reports UTMStack generates.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save changes**. Sign out to check the sign-in screen with your brand.
+
+</Step>
+
+</Steps>
+
+## Go back to the UTMStack look
+
+Click **Restore UTMStack defaults** on the Branding page. This removes your product name, colour and images.
+
+## Branding and tenants
+
+On a multi-tenant licence, each tenant has its own branding. A tenant administrator can brand their own tenant from the same page. A tenant that has not set up branding shows the standard UTMStack look; it does not take the operator's branding.
+
+## Branding at installation
+
+UTMStack partners can also ship an installer with a built-in brand: a `branding` folder with a `brand.yaml` file and image files, placed next to the installer, sets the product name shown by the installer and the starting branding of the server. A `LICENSE` file placed next to the installer is installed as the licence.

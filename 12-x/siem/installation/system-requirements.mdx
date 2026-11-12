@@ -1,0 +1,137 @@
+This page lists what a server needs before you install UTMStack v12: the operating system, the hardware the installer checks, sizing guidance, network access, and the changes the installer makes to the server.
+
+## Use a dedicated server
+
+Install UTMStack v12 on a server, physical or virtual, that runs nothing else. The installer changes system settings, installs Docker and nginx, and takes over ports 80 and 443. During installation and after every update it also deletes all Docker images that no running container uses, including images that belong to other applications on the same server.
+
+## Operating system
+
+The installer accepts these Linux distributions:
+
+| Distribution | Notes |
+|---|---|
+| Ubuntu | Installed with `apt`. |
+| Debian | Installed with `apt`. |
+| Red Hat Enterprise Linux | Installed with `dnf`. |
+
+The installer checks the name of the distribution only, not its release. Any other name stops the installer with the message `your Linux distribution (...) is not supported`. Red Hat compatible distributions that report their own name, such as Rocky Linux, AlmaLinux, CentOS or Oracle Linux, are refused.
+
+The installer is built for 64-bit x86 servers (x86-64, also called AMD64). Use a current, supported release of your distribution.
+
+The installer must run as the root user.
+
+## Minimum hardware checked by the installer
+
+The installer stops if the server is below these limits:
+
+| Resource | Minimum | What happens below it |
+|---|---|---|
+| CPU | 2 logical cores | `your system does not have the minimum required CPU cores: 2` |
+| Memory | 13,360 MB in total | `insufficient memory`, with the amount available and the amount required |
+| Free disk space on `/` | About 30 GB | `your system does not have the minimum required free disk space: 30 GB` |
+
+These are the limits below which the installer refuses to run, not sizing for production. The installer reserves 1,000 MB of memory for the operating system and gives every service its minimum share of the rest. Memory above the minimums is shared out by priority, with the largest share going to the event processor and ClickHouse. See **Installer reference** for the service limits.
+
+## Sizing
+
+The UTMStack project publishes these starting points for one month of logs kept on the server's own disk. They assume that 60 data sources produce about 100 GB of logs a month.
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Small" icon="pi pi-building">
+
+    **50 data sources (120 GB a month)**
+
+    - CPU: 4 cores
+    - RAM: 16 GB
+    - Disk: 150 GB
+
+    </Card>
+    <Card title="Large" icon="pi pi-building-columns">
+
+    **240 data sources (500 GB a month)**
+
+    - CPU: 16 cores
+    - RAM: 32 GB
+    - Disk: 500 GB
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Medium" icon="pi pi-server">
+
+    **120 data sources (250 GB a month)**
+
+    - CPU: 8 cores
+    - RAM: 16 GB
+    - Disk: 250 GB
+
+    </Card>
+    <Card title="Very large" icon="pi pi-globe">
+
+    **500 data sources (1,000 GB a month)**
+
+    - CPU: 32 cores
+    - RAM: 64 GB
+    - Disk: 1,000 GB
+
+    </Card>
+  </Column>
+</Columns>
+
+A data source is any single source of logs: a device, an agent, a cloud or SaaS integration, a network appliance, a server or an application.
+
+Adjust the disk for how long you keep data:
+
+- **Data on the server (hot storage).** Logs and alerts on the server's own disk, under `/utmstack`.
+- **Cold storage.** Logs and alerts that UTMStack moves, after a number of days you choose, to an S3-compatible bucket, Azure Blob Storage, or a local or NFS folder. Cold data stays searchable from the same pages; nothing has to be restored.
+
+<Warning>
+
+By default UTMStack v12 keeps logs and alerts for **730 days** and ingestion statistics for 1,095 days. Size the disk for the period you need, or change the periods in **Configure > Settings > Data Retention** after installation. See **Data retention and cold storage**.
+
+</Warning>
+
+After you go live, watch CPU, memory and disk use, and add resources when needed. When you add memory, run `utmstack_installer --recalculate-memory` so the services can use it. See **Installer reference**.
+
+## Storage
+
+- Use SSD storage for the UTMStack data folder.
+- UTMStack keeps its data under `/utmstack`. To put it on a separate disk, mount that disk at `/utmstack` before you install.
+- The operating system disk (`/`) also needs space: the installer checks free space there, and Docker keeps its images and the PostgreSQL database volume under `/var/lib/docker` by default.
+
+## Network access
+
+The server needs internet access during installation and afterwards, unless you use an air-gapped installation (see **Install UTMStack**).
+
+- At the start, the installer tests internet access by connecting over HTTPS to `8.8.8.8`, `1.1.1.1` and `google.com`, with a 3-second limit. If all three fail, it switches to air-gapped mode.
+- During installation it must also reach the UTMStack update server, `cm.utmstack.com`. If it cannot reach it for about a minute, it prints `No Internet connection detected. Installation will continue offline.`
+- It downloads packages from your distribution's mirrors and from `download.docker.com`, and container images from `ghcr.io` and Docker Hub.
+
+For the full list of inbound and outbound ports, see **Network ports and firewall**.
+
+Other network needs:
+
+- **IPv4.** The installer turns IPv6 off on the whole server. Make sure you can reach the server over IPv4, including for SSH.
+- **Address range 10.21.199.0/24.** The installer creates a network interface `vlan10` with the address `10.21.199.3/24`. Make sure this range is not used on your network.
+- **DNS name.** Give the server a DNS name if you want a trusted SSL certificate. On a multi-tenant licence, each tenant needs its own DNS name that points to the server.
+- **Time synchronisation.** Keep the server's clock synchronised with NTP or Chrony. Correct time matters for correlating events and for the time stamps of alerts.
+
+## What the installer changes on the server
+
+| Change | Details |
+|---|---|
+| Kernel settings | Appends to `/etc/sysctl.conf`: `vm.max_map_count=262144`, IPv6 off (`net.ipv6.conf.all.disable_ipv6=1`, `net.ipv6.conf.default.disable_ipv6=1`), and TCP keepalive settings (`net.ipv4.tcp_keepalive_time=600`, `net.ipv4.tcp_keepalive_intvl=60`, `net.ipv4.tcp_keepalive_probes=3`). |
+| Kernel module | Loads `8021q` and adds it to `/etc/modules`. |
+| Network interface | Creates `vlan10` (VLAN ID 10, address `10.21.199.3/24`) on the main network card: `/etc/netplan/99-vlan.yaml` on Ubuntu, `/etc/network/interfaces.d/vlan10` on Debian, `/etc/sysconfig/network-scripts/ifcfg-vlan10` on Red Hat. On Ubuntu it installs the `vlan` package; on Debian `vlan` and `ifupdown`. On Red Hat it runs a full `dnf update -y`. |
+| Red Hat only | Sets SELinux to permissive (now and in `/etc/selinux/config`) and stops and disables firewalld. |
+| Docker | Installs Docker CE from `download.docker.com` and starts Docker Swarm, using the server's main IP address. |
+| nginx | Installs nginx from your distribution and writes its configuration: `/etc/nginx/sites-available/default` on Ubuntu and Debian, `/etc/nginx/nginx.conf` on Red Hat. It also writes a maintenance page, `/etc/nginx/html/custom_502.html`. |
+| Cockpit | Installs Cockpit, a web console for server management, on port 9090. |
+| Files | Creates `/root/utmstack.yml` and the `/utmstack` folder, and installs the update service. See **Installer reference**. |
+
+<Note>
+
+The installer rewrites the nginx configuration file on every update. Do not add your own settings to it: they will be lost.
+
+</Note>

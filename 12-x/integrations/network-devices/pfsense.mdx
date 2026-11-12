@@ -1,0 +1,73 @@
+UTMStack v12 collects pfSense firewall logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the pfSense integration on a Collector, then turn on remote logging in pfSense. Nothing is installed on the firewall.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Pfsense** (category Firewall) |
+| Data type | `firewall-pfsense` |
+| Default ports on the Collector | 7017/UDP; 7017/TCP (also used for TLS) |
+| Included in UTMStack | A parsing filter, 3 detection rules and the **pfSense Firewall** dashboard |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Pfsense** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7017`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-pfsense 7017 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Turn on remote logging in pfSense
+
+<Steps>
+  <Step title="Open the log settings">
+    In the pfSense web interface, go to **Status → System Logs → Settings**.
+  </Step>
+  <Step title="Add the Collector">
+    Under **Remote Logging Options**, check **Enable Remote Logging** and set a Remote log server to `<collector-ip>:7017`.
+  </Step>
+  <Step title="Choose what to send">
+    Choose which logs to send (or **Everything**) and click **Save**.
+  </Step>
+</Steps>
+
+<Note>
+
+The setup guide in UTMStack fills in your UTMStack server's address in this step. Keep it only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
+
+</Note>
+
+## Step 3: Check that logs arrive
+
+- In the **Pfsense** drawer, click **View logs**. Log Explorer opens with the `firewall-pfsense` data type for the last 24 hours.
+- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+- **Open dashboard** in the drawer finds the **pfSense Firewall** dashboard, which shows what the firewall allows and blocks.
+
+## Stop collecting
+
+In the **Pfsense** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-pfsense udp
+```

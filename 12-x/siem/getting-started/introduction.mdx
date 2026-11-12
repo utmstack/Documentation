@@ -1,0 +1,232 @@
+UTMStack 12 is the newest major version of UTMStack, a unified threat management platform. This page explains what UTMStack does, which editions exist, and what is new in version 12.
+
+## What UTMStack does
+
+UTMStack is an open-source platform that combines **SIEM** (Security Information and Event Management: collecting, storing and searching logs) and **XDR** (Extended Detection and Response: detecting threats across many sources and acting on them). It correlates log data, threat intelligence and malware activity patterns from many sources in real time, so that you can find and stop complex threats that use stealthy techniques.
+
+Correlation happens while logs are being processed, before they are stored. This reduces the work the server has to do later and shortens the time between an event and an alert.
+
+<Tip>
+
+[See UTMStack in action in the online demo](https://utmstack.com/demo).
+
+</Tip>
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Log management and correlation" icon="pi pi-database">
+
+    Collect logs from agents, network devices and cloud services, parse them into a common format and correlate them in real time.
+
+    </Card>
+    <Card title="Threat intelligence" icon="fa fa-search">
+
+    Match events against threat intelligence feeds and look up any indicator.
+
+    </Card>
+    <Card title="Compliance" icon="hi-clipboardDocumentCheck-solid">
+
+    Evaluate your posture against security frameworks and see which controls are met.
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Threat detection and response" icon="mi-security">
+
+    Turn events into alerts with correlation rules, group them into incidents and respond with automated flows.
+
+    </Card>
+    <Card title="Investigation" icon="mi-fingerprint">
+
+    Search logs in Log Explorer, follow adversaries and victims, and review what happened around an alert.
+
+    </Card>
+    <Card title="AI-assisted operations" icon="hi-beaker-solid">
+
+    Use the SOC-AI assistant for alerts, incidents, dashboards and response flows.
+
+    </Card>
+  </Column>
+</Columns>
+
+<Warning>
+
+**Install UTMStack v12 only if you are starting from scratch.** There is no upgrade package from v11 to v12 yet. An upgrade package is in progress, and it will give you a seamless transition from v11 to v12 with no data loss. Until then, keep your v11 server on v11. See **Upgrading from v11 to v12**.
+
+</Warning>
+
+## Editions
+
+UTMStack v12 comes in two editions. A licence can also add the multi-tenant option.
+
+| Edition | How you get it | What it adds |
+|---|---|---|
+| Community | Free and open source. No licence file is needed. | The core platform: log collection and search, correlation rules, alerts, incidents, automated response, dashboards, threat intelligence, SOC-AI and the CMMC 2.0 and GDPR compliance frameworks. |
+| Enterprise | A licence from UTMStack, installed in **Configure > Settings > License** | API keys, single sign-on (identity providers), white-label branding, all shipped compliance frameworks, and some tools of the built-in MCP server (the interface AI assistants use to work with UTMStack). |
+| Multi-tenant option | Part of an Enterprise licence for managed service providers (MSSPs) | Tenants on one server, support access to tenants, and **Apply to all tenants**. |
+
+A licence is issued for one server, identified by its instance ID. If a licence expires or cannot be verified, UTMStack falls back to Community. See **License and editions** for the details.
+
+## What's new in UTMStack v12
+
+### The platform at a glance
+
+Version 12 is a rebuild of most of the product. The main changes compared with v11:
+
+- **New storage.** Logs, alerts and statistics are stored in ClickHouse instead of OpenSearch. Older data can move to cold storage (an S3-compatible bucket, Azure Blob Storage or a local or NFS folder) and stays searchable.
+- **Rewritten backend and web interface.** The backend is written in Go and the web interface in React. The menus, pages and labels are different from v11.
+- **One port for agents.** Agents and collectors reach the server on port 443 only. Ports 9000, 9001 and 50051 are no longer used.
+- **Syslog and NetFlow move to the UTMStack Forwarder.** Network devices send their logs to the UTMStack Forwarder (shown as "Collector" in the product), a separate service you install on a Linux machine, instead of to the UTMStack server. See **UTMStack Forwarder**.
+- **Real tenants.** On a multi-tenant licence, each tenant has its own users, settings, alerts, integrations, response flows and audit data. v11 data source groups no longer exist.
+- **Two-step sign-in is per user.** Each user turns it on in their own profile. There is no longer a global switch.
+- **Licensing.** API keys, single sign-on and white-label branding now need an Enterprise licence.
+- **Operating systems.** The installer accepts Ubuntu, Debian and Red Hat Enterprise Linux.
+- **Installation.** There is no ISO image for v12; install with the installer program. See **Install UTMStack**.
+
+### Release history
+
+| Version | Published | Status on GitHub |
+|---|---|---|
+| v12.0.0 | 29 September 2026 | Pre-release |
+| v12.0.1 | 6 November 2026 | Pre-release |
+| v12.0.2 | 11 November 2026 | Latest release |
+
+### v12.0.0
+
+The first v12 release brings major improvements to multi-tenant management, AI-assisted operations, automated response and log exploration. It also adds new dashboards, incidents, compliance and threat intelligence capabilities.
+
+<Accordion multiple={true}>
+  <AccordionTab title="Multi-tenancy and administration" icon="fa fa-sitemap">
+
+    - Multi-tenant support with separate settings, users, alerts, integrations and response flows for each tenant.
+    - Local user creation and tenant administrator provisioning.
+    - API key settings.
+    - Tenant branding options, including dark-mode icons and highlight toggles.
+    - A broadcast option for the instance operator (**Apply to all tenants**) and grouped notifications.
+    - Tenant-specific integrations, catalogues, connector settings, response flows and audit data.
+    - Authorised cross-tenant incident access for managed service provider installations.
+
+  </AccordionTab>
+
+  <AccordionTab title="AI-assisted operations" icon="hi-beaker-solid">
+
+    - A docked SOC-AI assistant that helps with dashboards, incidents and response workflows.
+    - The ThreatWinds AI provider is available as a default that needs no configuration.
+    - AI-assisted dashboard creation and editing, with copy and dismiss options.
+    - AI usage is metered per tenant.
+
+  </AccordionTab>
+
+  <AccordionTab title="Automated response (SOAR)" icon="fa fa-random">
+
+    SOAR (Security Orchestration, Automation and Response) runs response actions when alerts match conditions.
+
+    - An interactive console, execution history, more action nodes and clearer run statuses.
+    - Web response actions support query parameters, default headers and cache clearing.
+    - Improved canvas layout and table scrolling.
+
+  </AccordionTab>
+
+  <AccordionTab title="Detection, alerts and incidents" icon="mi-security">
+
+    - New Windows, macOS and Linux detection rules.
+    - Alert rules with synchronised visual, code and test modes, plus export and disable options.
+    - A playground to test filters and rules before saving them.
+    - A rule flood guard that can switch off noisy correlation rules automatically and notify you.
+    - Better rule deduplication and grouping, with failures shown instead of hidden.
+    - Redesigned incidents with a creation wizard, custom assignment and notifications.
+    - Adversary View with a relationship chart that shows the connections between adversaries, alerts and victims.
+    - Threat intelligence fallback data and cleaner indicator matching.
+    - A Linux user auditor.
+
+  </AccordionTab>
+
+  <AccordionTab title="Logs, dashboards and compliance" icon="pi pi-database">
+
+    - Faster and more efficient log storage and querying.
+    - Log Explorer manual query mode with autocompletion and related-event filters.
+    - Resizable tables and columns in Log Explorer, alerts, pipelines and SOAR.
+    - Dashboard refresh intervals and auto-refresh.
+    - Pipeline filter order is fully under your control.
+    - Compliance reports that can be signed, with multi-tenant support and clearer completion percentages.
+
+  </AccordionTab>
+
+  <AccordionTab title="Agents and data sources" icon="pi pi-server">
+
+    - Agents can update themselves and show a clearer status. Linux agents can monitor audit files.
+    - Agents reconnect more reliably and keep stable connections.
+    - Remote enable and disable for UTMStack Forwarder integrations.
+    - A log timeline and offline counts for each data source.
+
+  </AccordionTab>
+
+  <AccordionTab title="Interface" icon="fa fa-paint-brush">
+
+    - A collapsible sidebar with an icon-only mode and an overview toggle.
+    - Better consistency, dark-mode labels and spacing across the interface.
+
+  </AccordionTab>
+
+</Accordion>
+
+The release also contains many fixes. Among them: updates no longer wipe manual memory settings, correlation rules no longer disappear after updates, custom integrations receive data correctly, and the Windows install command works correctly.
+
+### v12.0.1
+
+This release improves installation and update reliability, especially on Debian and Ubuntu.
+
+- Installation on Debian and Ubuntu completes more cleanly.
+- Updates are less likely to fail when temporary files are stored in a different location.
+
+### v12.0.2
+
+This release improves sign-in reliability and corrects the AWS integration.
+
+- The AWS integration now refers to CloudWatch instead of IAM User.
+- A sign-in issue that could occur when no user name was entered is fixed.
+
+## The main menu
+
+| Menu | What you find there |
+|---|---|
+| Overview | A summary of your security data: data sources, top MITRE ATT&CK techniques, top targeted assets, compliance score and system health. |
+| Tenants | Every customer on the server (multi-tenant licence only, shown to the instance operator). |
+| Dashboards | Interactive dashboards and widgets. |
+| Live Operations | An animated view of recent alerts. |
+| Threat Management | **Alerts**, **Tagging Rules**, **Incidents** and **Adversary View**. |
+| SOAR | Automated response **Flows**, **Execution history** and the **Interactive Console**. |
+| Log Explorer | Search across all stored logs. |
+| User Auditor | Active Directory accounts seen in your Windows security logs. |
+| Threat Intelligence | **Indicators**, **AI Analyst**, **Triage** and **Report**. |
+| Compliance | Your posture against security frameworks. |
+| Configure | **Data Sources**, **Integrations**, **Alerting Rules**, **Pipelines**, **Data Processing**, **Team** and **Settings**. Only users with the Administrator role see this group. |
+
+## Getting started
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Check the requirements" icon="pi pi-server">
+
+    Prepare a dedicated server. See **System requirements** and **Network ports and firewall**.
+
+    </Card>
+    <Card title="Connect your data sources" icon="fa fa-plug">
+
+    Install agents and connect devices and cloud services. See **How data reaches UTMStack**.
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Install UTMStack" icon="pi pi-download">
+
+    Download and run the installer, then sign in for the first time. See **Install UTMStack**.
+
+    </Card>
+    <Card title="Get help" icon="pi pi-comments">
+
+    Ask the community, report issues and contribute. See **Community and support**.
+
+    </Card>
+  </Column>
+</Columns>

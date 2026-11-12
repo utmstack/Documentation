@@ -1,0 +1,84 @@
+UTMStack v12 collects SentinelOne events through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the SentinelOne integration on a Collector, then turn on the Syslog integration in the SentinelOne management console. Nothing is installed on your endpoints.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Sentinel One** (category XDR) |
+| Data type | `antivirus-sentinel-one` |
+| Default ports on the Collector | 7012/TCP (also used for TLS); 7012/UDP |
+| Included in UTMStack | A parsing filter and 19 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The SentinelOne management console must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Sentinel One** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The guide selects **TCP** by default, because SentinelOne streams CEF over TCP.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · tcp · port 7012`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration antivirus-sentinel-one 7012 tcp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Configure the SentinelOne Syslog integration
+
+<Steps>
+  <Step title="Open the Settings">
+    In the SentinelOne management console sidebar, click **Settings**.
+
+    <img
+      height="200"
+      src="/assets/08ee8343-7ece-5819-a130-efa43c413478"
+      alt="SentinelOne"
+    />
+  </Step>
+  <Step title="Configure Syslog">
+    Go to **Integrations → Syslog** and enable it. Set the host to the Collector host and the port to **7012**, and keep the format as **CEF**.
+
+    <img
+      height="200"
+      src="/assets/36d00c31-b3ef-5860-ac77-b00c99bfff16"
+      alt="SentinelOne"
+    />
+  </Step>
+  <Step title="Test and save">
+    Click **Test** to check the connection, then click **Save**.
+  </Step>
+</Steps>
+
+<Note>
+
+The setup guide in UTMStack fills in your UTMStack server's address in this step. Keep it only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
+
+</Note>
+
+## Step 3: Check that logs arrive
+
+- In the **Sentinel One** drawer, click **View logs**. Log Explorer opens with the `antivirus-sentinel-one` data type for the last 24 hours.
+- Within about 10 minutes, the SentinelOne console appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Sentinel One** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration antivirus-sentinel-one tcp
+```

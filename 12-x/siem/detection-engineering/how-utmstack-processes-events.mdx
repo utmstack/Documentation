@@ -1,0 +1,167 @@
+UTMStack turns every log it receives into a standard event, checks the event against detection rules and threat intelligence, and stores it. This page follows one log from the moment it arrives until it is stored or raises an alert, and shows where the pipelines and rules that drive this are kept.
+
+## The main parts
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Event processor" icon="hi-cpuChip-outline">
+
+    The engine that parses, analyses and correlates every log. It runs a set of plugins in a fixed order.
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Plugins" icon="mi-extension">
+
+    Separate programs that add one job each to the engine: a parsing step, storage, rules, threat intelligence, alert handling and more.
+
+    </Card>
+  </Column>
+</Columns>
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="Pipelines" icon="hi-adjustmentsHorizontal-outline">
+
+    YAML files that describe how to read one kind of raw log and turn it into a standard event. UTMStack v11 called them filters.
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="Alerting rules" icon="mi-rule">
+
+    YAML files that describe a threat. When an event matches, the engine raises an alert.
+
+    </Card>
+  </Column>
+</Columns>
+
+You manage pipelines on **Configure > Pipelines** and rules on **Configure > Alerting Rules**. Both pages are shown to administrators only. See **Pipelines** and **Alerting Rules**.
+
+## The path of a log
+
+<Steps>
+  <Step title="Collection">
+
+  A log comes from a UTMStack agent, a collector (the UTMStack Forwarder, the IBM AS/400 collector or UTMStack self-monitoring) or a cloud integration. Agents and collectors send their logs to the UTMStack server over port 443, where they are handed to the `log-input` service. Cloud integrations, such as Microsoft 365, AWS or Azure, are plugins that run on the UTMStack server and read the logs from the provider. See **How Data Reaches UTMStack**.
+
+  </Step>
+  <Step title="Intake and queue">
+
+  `log-input` confirms a log to the sender only after a durable queue has stored it. The queue keeps logs for up to 24 hours. The event processor reads the logs from this queue.
+
+  </Step>
+  <Step title="Entry checks">
+
+  The event processor refuses a log that has no data type, no tenant, no valid time in RFC 3339 format (for example `2026-11-11T09:30:00Z`), no raw text or no id. Agents, collectors and integrations fill these in for you.
+
+  </Step>
+  <Step title="Parsing">
+
+  The engine runs every pipeline whose data types include the log's data type, in a set order. The steps extract fields from the raw text, rename them to the standard names, convert types and add enrichment such as geolocation. A pipeline can also discard a log it does not need. The result is an event in the **Standard Event Schema**.
+
+  </Step>
+  <Step title="Analysis">
+
+  The event goes, always in this order, to:
+
+  1. `com.utmstack.events`, which stores the event.
+  2. `cel`, which checks the event against the alerting rules for its data type.
+  3. `feeds`, which checks the event's IP addresses, domains and host names against threat intelligence.
+  4. `com.utmstack.ad-audit`, which updates the **User Auditor**.
+
+  </Step>
+  <Step title="Alert handling">
+
+  When a rule or a threat intelligence match raises an alert, the alert goes, in this order, to:
+
+  1. `com.utmstack.alerts`, which drops duplicates, groups repeats, applies tagging rules and stores the alert.
+  2. `com.utmstack.soc-ai`, the SOC-AI analysis.
+  3. `com.utmstack.soar`, which starts any response flow whose trigger matches.
+
+  See **How Alerts Are Created**.
+
+  </Step>
+  <Step title="Statistics">
+
+  Counts of received and dropped logs go to `com.utmstack.stats`. You see them on **Configure > Data Processing**. See **Data Processing**.
+
+  </Step>
+</Steps>
+
+<Note>
+
+The order of the plugins is set by the installer. It is not shown in the product and you cannot change it.
+
+</Note>
+
+## Where events and alerts are stored
+
+UTMStack v12 stores data in a ClickHouse database, not in OpenSearch as v11 did.
+
+| Data | Table | Notes |
+|---|---|---|
+| Events | `logs` | Written in batches, every 5 seconds or every 1,000 events, whichever comes first. A new event can take a few seconds to appear in Log Explorer. |
+| Alerts | `alerts` | One row per alert, including grouped repeats. |
+| Processing statistics | `statistics` | Written every 10 minutes. |
+
+Logs and alerts are deleted after 730 days by default. See **Data Retention and Cold Storage** to change this.
+
+## Plugins
+
+| Plugin | Stage | What it does |
+|---|---|---|
+| Parsing steps: `json`, `kv`, `csv`, `grok`, `rename`, `cast`, `reformat`, `trim`, `add`, `delete`, `drop`, `dynamic` | Parsing | The building blocks of a pipeline. See **Pipeline File Format and Step Reference**. |
+| `com.utmstack.geolocation` | Parsing | Adds country, city and network owner for an IP address. A pipeline calls it with a `dynamic` step. |
+| `com.utmstack.events` | Analysis | Stores every event in the `logs` table. |
+| `cel` | Analysis | Evaluates the alerting rules. CEL (Common Expression Language) is the condition language the rules are written in. |
+| `feeds` | Analysis | Matches IP addresses, domains and host names against threat intelligence. See **Threat Intelligence: How Indicator Alerts Work**. |
+| `com.utmstack.ad-audit` | Analysis | Builds the account inventory shown in User Auditor. |
+| `com.utmstack.alerts` | Alert handling | De-duplicates, groups, tags and stores alerts. |
+| `com.utmstack.soc-ai` | Alert handling | SOC-AI analysis of alerts. |
+| `com.utmstack.soar` | Alert handling | Runs response flows. |
+| `com.utmstack.stats` | Notification | Records processing statistics. |
+| `com.utmstack.rule-flood-guard` | Background | Switches off a rule that floods a tenant with alerts. See **Rule Flood Guard**. |
+| `com.utmstack.feeds` | Background | When **Contribute incidents** is on (**Settings > ThreatWinds Integration**), sends the indicators of open incidents to ThreatWinds. It does no matching. |
+| `com.utmstack.playground` | Background | Runs the **Test** dialogs on the Pipelines and Alerting Rules pages. |
+| Integrations: `aws`, `azure`, `gcp`, `o365`, `o365_graph`, `crowdstrike`, `sophos`, `bitdefender` | Input | Collect logs from cloud services and security products. |
+
+Plugins talk to the engine over Unix sockets (local connections between programs on the same server) using gRPC, a standard protocol for programs to call each other. All plugin programs are built into the UTMStack images.
+
+The source code of the engine itself is not public. The plugin library it shares with the plugins, `github.com/threatwinds/go-sdk`, is public.
+
+## The event processor containers
+
+The event processor runs as two containers from the same image:
+
+| Service | Role |
+|---|---|
+| `event-processor-worker` | Processes logs: parsing, analysis and alert handling. Its container log holds the engine's messages, which you need for troubleshooting. |
+| `event-processor-manager` | Manages the engine and runs the SOC-AI and test playground services. |
+
+## Where pipelines and rules are kept
+
+Pipelines and rules are YAML files on the UTMStack server, under `/utmstack/events-engine-workdir/` (if you installed with another data folder, replace `/utmstack` with it).
+
+| What | Folder |
+|---|---|
+| Shipped rules | `rules/system/<source>/` |
+| Custom rules | `rules/user/<tenant id>/` |
+| Shipped pipelines | `pipeline/filters/system/` |
+| Custom pipelines | `pipeline/filters/user/<tenant id>/` |
+| Per-tenant settings: switched-off rules and pipelines, pipeline order, asset list | `pipeline/tenants.yaml` |
+| Named patterns for the `grok` step | `pipeline/patterns.yaml` |
+
+The product writes all of these files for you. Use the Pipelines and Alerting Rules pages instead of editing the files.
+
+<Warning>
+
+Every time the backend starts, it copies the shipped rules and pipelines of the installed release into the `system` folders and deletes shipped files that are no longer in the release. Any change you make by hand to a shipped file is lost. Your on/off choices and your pipeline order are kept.
+
+</Warning>
+
+## How fast changes apply
+
+When you save, switch on or off, or reorder a rule or pipeline, the change reaches the engine within about a minute. The backend rereads the folders every 10 seconds, and the engine rereads changed rule files and the pipeline settings once a minute.
+
+UTMStack v12.0.2 ships 721 rule files and 37 pipeline files.

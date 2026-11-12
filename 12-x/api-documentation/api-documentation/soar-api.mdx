@@ -1,0 +1,418 @@
+SOAR (security orchestration, automation and response) is the part of UTMStack v12 that runs **flows**: automatic responses that start when an alert matches their conditions. These endpoints list, create, change and start flows, read the execution history, manage variables and run live commands on agents. None of the UTMStack v11 SOAR endpoints (`/api/utm-alert-response-rules`, `/api/utm-incident-jobs`, `/api/utm-incident-variables` and the others) exist in UTMStack v12.
+
+## Permissions
+
+| Action | Permission | Built-in roles |
+|---|---|---|
+| List and read flows, executions and variables | `soar.read` | All |
+| Create, change, delete, switch flows on or off; manage variables; use the command console | `soar.write` | Administrator, Analyst |
+| Start a flow by hand | `soar.execute` | Administrator only |
+| Apply flows to many tenants at once | `soar.write` and platform administrator | Administrators of the default tenant |
+
+## How Flows Are Identified
+
+A flow is stored as a YAML file. Its id is the file name, called `relPath`, for example `bruteForce-linux-host-block-ip.yaml`. When you create a flow, `relPath` is made from its name: lower case, with every run of other characters replaced by `-`, plus `.yaml`. For example, the name `Notify on RDP brute force` gives `notify-on-rdp-brute-force.yaml`. Renaming a flow later does not change its `relPath`.
+
+Flows that ship with UTMStack (`"systemOwner": true`) are read-only: you can read them, switch them on or off and start them by hand, but updating or deleting one returns 403. To change one, create a copy under a new name.
+
+Put `relPath` in the address as it is (it contains only letters, digits, `-`, `_` and `.`).
+
+## List Flows
+
+**Endpoint:** `GET /api/v1/soar/rules`
+
+| Parameter | Type | Description |
+|---|---|---|
+| name.contains | string | Name contains this text |
+| relPath.contains | string | `relPath` contains this text |
+| active.equals | boolean | `true` for flows that are switched on, `false` for flows that are off |
+| systemOwner.equals | boolean | `true` for shipped flows, `false` for your own |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 20 |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/soar/rules?active.equals=true&page=0&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** a list of flows sorted by name. The total is in the `X-Total-Count` header.
+
+```json
+[
+  {
+    "relPath": "notify-on-rdp-brute-force.yaml",
+    "name": "Notify on RDP brute force",
+    "description": "Bell notification when the RDP brute force rule fires",
+    "conditions": [{"operator": "IS", "field": "name", "value": "<rule-name>"}],
+    "roots": ["step_0"],
+    "nodes": {
+      "step_0": {"kind": "executor", "executor": "notify", "params": {"message": "RDP brute force detected. Check the Alerts page.", "type": "WARNING"}}
+    },
+    "active": true,
+    "systemOwner": false,
+    "lastModifiedDate": "2026-11-10T14:30:00Z"
+  }
+]
+```
+
+## Get a Flow
+
+**Endpoint:** `GET /api/v1/soar/rules/{relPath}`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one flow, in the shape shown above. An unknown `relPath` returns 404 `flow not found`.
+
+## Create a Flow
+
+**Endpoint:** `POST /api/v1/soar/rules`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Up to 150 characters. Must give a `relPath` that is not used yet. |
+| description | string | No | Up to 512 characters |
+| conditions | array | Yes | At least one trigger condition: `{"operator": "...", "field": "...", "value": ...}` on the alert's fields. All must match. |
+| roots | string[] | Yes | The step ids that run first |
+| nodes | object | Yes | The steps, keyed by step id |
+| maxDepth | integer | No | 1 to 1,000. How many steps deep a run may go. Default 50. |
+| active | boolean | Yes | `true` to switch the flow on when it is saved |
+
+**Step (node) fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| kind | string | `executor` or `enrichment` |
+| executor | string | The step type: `shell`, `http`, `conditional`, `notify`, `mail`, `incident`, `llm_enrich` or `llm_action` |
+| command | string | Shell steps: the command to run on the agent |
+| shell | string | Shell steps: the shell, for example `sh` or `bash` |
+| platform | string | Shell steps: the agent platform the command is for |
+| agent | string | Shell steps: run on this host instead of the alert's source |
+| excludedAgents | string[] | Shell steps: hosts that must never run this step |
+| params | object | Settings of the step type (see below) |
+| onSuccess | string[] | Step ids to run when this step succeeds |
+| onError | string[] | Step ids to run when this step fails |
+
+**Required settings per step type:**
+
+| Step type | Required | Other settings |
+|---|---|---|
+| `shell` | `command` | `shell`, `platform`, `agent`, `excludedAgents` |
+| `http` | `params.url` (an absolute `http` or `https` address) | `params.method`, `params.headers`, `params.body`, `params.timeoutSec` |
+| `conditional` | `params.conditions` | |
+| `notify` | `params.message` | `params.type`: `INFO` (default), `WARNING` or `ERROR` |
+| `mail` | `params.to`, `params.subject`, `params.body` | `params.cc` |
+| `incident` | `params.name` | `params.description` |
+| `llm_enrich`, `llm_action` | `params.prompt` | |
+
+`llm_action` is accepted by the API but is not offered in the flow editor's palette in UTMStack v12.0.2. Each step type is described in **Step types**. Placeholders such as `$(alert.adversary.ip)` are described in **Placeholders**, and `$[variables.NAME]` in **Step outputs and variables**.
+
+**Trigger and conditional operators:** `IS`, `IS_NOT`, `CONTAINS`, `NOT_CONTAINS`, `EXISTS`, `NOT_EXISTS`, `START_WITH`, `NOT_START_WITH`, `ENDS_WITH`, `NOT_ENDS_WITH`, `IS_ONE_OF`, `IS_NOT_ONE_OF`. This is a different list from the search filter operators: SOAR writes `CONTAINS` and `EXISTS`, search writes `CONTAIN` and `EXIST`.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/soar/rules" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Notify on RDP brute force",
+    "description": "Bell notification when the RDP brute force rule fires",
+    "conditions": [{"operator": "IS", "field": "name", "value": "<rule-name>"}],
+    "roots": ["step_0"],
+    "nodes": {
+      "step_0": {
+        "kind": "executor",
+        "executor": "notify",
+        "params": {"message": "RDP brute force detected. Check the Alerts page.", "type": "WARNING"}
+      }
+    },
+    "active": false
+  }'
+```
+
+**Response (HTTP 200):** the saved flow, including its `relPath`.
+
+- A name whose `relPath` is already used returns 409 `rule name already in use`.
+- A missing required field returns 400 with the field name.
+- Problems inside the flow, such as a root that matches no step, an unknown step type, a wire to a step that does not exist or a missing step setting, are refused. In UTMStack v12.0.2 this refusal comes back as HTTP 500 `operation failed` without the reason, so check your flow against the tables above, or build it in the flow editor and read it back with `GET`.
+
+## Update a Flow
+
+**Endpoint:** `PUT /api/v1/soar/rules/{relPath}`
+
+The body is the whole flow, with the same fields as for creation. The `relPath` stays the same even if you change the name. `active` sets whether the flow is on.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Notify on RDP brute force", "conditions": [{"operator": "IS", "field": "name", "value": "<rule-name>"}],
+       "roots": ["step_0"], "nodes": {"step_0": {"kind": "executor", "executor": "notify", "params": {"message": "RDP brute force detected.", "type": "ERROR"}}},
+       "active": true}'
+```
+
+**Response (HTTP 200):** the saved flow. A shipped flow returns 403 `system alert response rule is read-only`.
+
+## Switch a Flow On or Off
+
+**Endpoint:** `PUT /api/v1/soar/rules/{relPath}/enabled`
+
+Works on shipped flows too.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml/enabled" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": true}'
+```
+
+**Response:** HTTP 204.
+
+## Delete a Flow
+
+**Endpoint:** `DELETE /api/v1/soar/rules/{relPath}`
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. A shipped flow returns 403.
+
+## Start a Flow by Hand
+
+**Endpoint:** `POST /api/v1/soar/rules/{relPath}/trigger` (permission `soar.execute`, Administrator only)
+
+Runs the flow now with the alert you send. The flow's trigger conditions are not checked, and the flow runs even when it is switched off.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| alert | object | No | The alert the flow works on: an alert as returned by the search (see **Alerts API**), or a smaller object with only the fields the flow uses. Its values fill the `$(alert.…)` placeholders. Default `{}`. |
+| agent | string | No | Up to 150 characters. Host name that runs the first shell steps instead of the alert's source. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml/trigger" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"alert": {"id": "<alert-id>", "name": "<rule-name>", "dataSource": "win-server-01", "adversary": {"ip": "198.51.100.23"}}, "agent": ""}'
+```
+
+**Response (HTTP 202):**
+
+```json
+{"flowRunId": "<flow-run-id>"}
+```
+
+The run continues in the background. Follow it in the execution history (see also **Execution history and run statuses**). An unknown flow returns 404; a flow with no steps returns 409 `flow is not started`.
+
+## Execution History
+
+**Endpoint:** `GET /api/v1/soar/rule-executions`
+
+Each row is one step of one flow run, or one command from the console.
+
+| Parameter | Type | Description |
+|---|---|---|
+| origin | string | `FLOW` (started by an alert or by hand) or `MANUAL` (command console) |
+| rulePath | string | Exact `relPath` of the flow |
+| alertId | string | Alert id contains this text |
+| agent | string | Host name contains this text |
+| triggeredBy | string | User contains this text |
+| status | string | Exact status (see below) |
+| nonExecutionCause | string | Exact cause (see below) |
+| startedAtFrom | string (RFC 3339) | Started on or after |
+| startedAtTo | string (RFC 3339) | Started on or before |
+| page | integer | Starting at `0` |
+| size | integer | Default 20, maximum 200 |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/soar/rule-executions?rulePath=notify-on-rdp-brute-force.yaml&page=0&size=20" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** newest first, total in `X-Total-Count`.
+
+```json
+[
+  {
+    "id": "<execution-id>",
+    "origin": "FLOW",
+    "rulePath": "notify-on-rdp-brute-force.yaml",
+    "alertId": "<alert-id>",
+    "triggeredBy": "analyst@example.com",
+    "agent": "",
+    "command": "",
+    "result": "notified (WARNING): RDP brute force detected. Check the Alerts page.",
+    "status": "EXECUTED",
+    "startedAt": "2026-11-10T14:30:00Z",
+    "finishedAt": "2026-11-10T14:30:01Z",
+    "retries": 0,
+    "nodeId": "step_0",
+    "kind": "executor",
+    "executor": "notify",
+    "flowRunId": "<flow-run-id>"
+  }
+]
+```
+
+**Status values:**
+
+| API value | Shown in the console as | Meaning |
+|---|---|---|
+| `WAITING` | Waiting | Waiting for earlier steps |
+| `PENDING` | Pending | Ready to run |
+| `EXECUTING` | Executing | Running |
+| `EXECUTED` | Executed | Finished successfully |
+| `FAILED` | Failed | Finished with an error |
+| `DEAD` | Unreachable | Could not be delivered |
+
+**Reasons a step did not run (`nonExecutionCause`):** `AGENT_OFFLINE`, `AGENT_NOT_FOUND`, `MAX_DEPTH_EXCEEDED`, `DISPATCHER_LOST`, `UNKNOWN`.
+
+## Variables
+
+Variables hold values that flows and console commands use as `$[variables.NAME]`, such as an address or a token. Secret variables are stored encrypted and are never returned.
+
+| Method | Endpoint | Permission | Description |
+|---|---|---|---|
+| GET | `/api/v1/soar/variables` | `soar.read` | List, sorted by name. Query: `variableName` (contains), `page` (from 0), `size`. Total in `X-Total-Count`. |
+| GET | `/api/v1/soar/variables/{id}` | `soar.read` | Get one |
+| POST | `/api/v1/soar/variables` | `soar.write` | Create |
+| PUT | `/api/v1/soar/variables` | `soar.write` | Update (body includes `id`) |
+| DELETE | `/api/v1/soar/variables/{id}` | `soar.write` | Delete. Answer `{"message": "deleted"}`. |
+
+**Create body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| variableName | string | Yes | Name used in `$[variables.NAME]` |
+| variableValue | string | Yes | The value |
+| variableDescription | string | No | What it is for |
+| isSecret | boolean | No | `true` to store it encrypted and hide it in answers and command output |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/soar/variables" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"variableName": "FIREWALL_API_TOKEN", "variableValue": "<token>", "variableDescription": "Token for the firewall API", "isSecret": true}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "id": "<variable-id>",
+  "variableName": "FIREWALL_API_TOKEN",
+  "variableDescription": "Token for the firewall API",
+  "variableValue": "****",
+  "isSecret": true,
+  "createdBy": "analyst@example.com",
+  "createdAt": "2026-11-10T14:30:00Z",
+  "lastModifiedBy": "",
+  "lastModifiedDate": null
+}
+```
+
+**Updating:** send `id` and the fields to change. For a secret variable, leaving `variableValue` empty or sending `****` keeps the stored value. To turn a secret variable into a normal one, send a new value too; otherwise the answer is 400.
+
+## Command Console (WebSocket)
+
+The command console runs one live command on an agent and streams the output back. It is what the **Interactive console** page uses. It uses a WebSocket (a connection that stays open so the server can send output as it arrives).
+
+**Endpoint:** `GET /api/v1/soar/ws/command/{agentId}` upgraded to a WebSocket, at `wss://<your-utmstack-address>/api/v1/soar/ws/command/<agent-id>`
+
+**Requirements:**
+
+- Permission `soar.write`.
+- A credential: `Authorization: Bearer <access-token>`, a `token=<access-token>` query parameter, or `Utm-Api-Key: {{apiKey}}`.
+- A password confirmation token from `POST /api/v1/auth/empty_login` (see **Authentication and API Keys**), sent as the query parameter `password_token=<password-token>` or the header `X-Password-Token`. It is valid for 5 minutes.
+- The agent id: the `metadata.agentId` value of the agent in `GET /api/v1/datasources` (see **Data Sources API**). An agent of another tenant, or an unknown id, returns 404 `agent not found`.
+
+**Steps:**
+
+<Steps>
+<Step title="Get the agent id">
+
+List agents with `GET /api/v1/datasources` and `search_query=source_kind.eq.agent`, and read `metadata.agentId`.
+
+</Step>
+<Step title="Get a password confirmation token">
+
+Call `POST /api/v1/auth/empty_login` with your own email address and password. Use the token within 5 minutes.
+
+</Step>
+<Step title="Open the WebSocket">
+
+Connect to `wss://<your-utmstack-address>/api/v1/soar/ws/command/<agent-id>?password_token=<password-token>` with your credential header.
+
+</Step>
+<Step title="Send one command">
+
+Send one JSON message:
+
+```json
+{"command": "hostname", "shell": "bash"}
+```
+
+Optional fields: `reason`, `originType`, `originId`. Variables written as `$[variables.NAME]` are filled in before the command is sent.
+
+</Step>
+<Step title="Read the output">
+
+The server sends messages until the command ends:
+
+```json
+{"type": "output", "data": "linux-host-01\n"}
+```
+
+```json
+{"type": "done"}
+```
+
+or, on failure:
+
+```json
+{"type": "error", "message": "<reason>"}
+```
+
+The connection then closes. Open a new connection for the next command.
+
+</Step>
+</Steps>
+
+Secret variable values are masked in the output. Each command is recorded in the execution history with origin `MANUAL`.
+
+## Apply Flows to Many Tenants
+
+On installations with the multi-tenant licence, administrators of the default tenant can create, update, delete or switch a flow in many tenants with one call.
+
+| Method | Endpoint | Body |
+|---|---|---|
+| POST | `/api/v1/platform/soar/rules/bulk/create` | `{"selector": ..., "rule": <flow as for create>}` |
+| POST | `/api/v1/platform/soar/rules/bulk/update` | `{"selector": ..., "relPath": "...", "rule": <flow as for update>}` |
+| POST | `/api/v1/platform/soar/rules/bulk/delete` | `{"selector": ..., "relPath": "..."}` |
+| POST | `/api/v1/platform/soar/rules/bulk/enable` | `{"selector": ..., "relPath": "...", "enabled": true}` |
+
+The `selector` is either `{"tenantIds": ["<tenant-id-1>", "<tenant-id-2>"]}` or `{"allTenants": true}` (every active tenant).
+
+**Response (HTTP 200):**
+
+```json
+{"succeeded": ["<tenant-id-1>"], "failed": [{"tenantId": "<tenant-id-2>", "error": "<reason>"}]}
+```
+
+Some tenants can fail while others succeed. Retry only the ones listed in `failed`.
+
+## UTMStack v11 Endpoints That No Longer Exist
+
+| UTMStack v11 | UTMStack v12 |
+|---|---|
+| `/api/utm-alert-response-rules` | `/api/v1/soar/rules` (flows, identified by `relPath`) |
+| `/api/utm-alert-response-action-templates` | None. Copy a shipped flow instead. |
+| `/api/utm-alert-response-rule-executions`, `/api/utm-alert-response-rule-histories` | `/api/v1/soar/rule-executions` |
+| `/api/utm-incident-variables` | `/api/v1/soar/variables` |
+| `/api/utm-incident-jobs` | None |

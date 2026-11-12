@@ -1,0 +1,169 @@
+The **Alerts** page lists the alerts that your correlation rules and threat intelligence raise. Use it to find alerts, read what happened, and work each alert: set its status, add notes and tags, assign it, link it to an incident, run a response and export the list.
+
+## Open the Alerts page
+
+Go to **Threat Management > Alerts**. The header shows how many alerts match your current view and how many are open right now.
+
+| What you want to do | Permission | Built-in roles |
+|---|---|---|
+| See alerts | `alerts.read` | Administrator, Analyst, Viewer |
+| Change status, notes, assignee or tags, and add alerts to an incident | `alerts.write` | Administrator, Analyst |
+| Run a response from an alert (lightning icon) | `soar.execute` | Administrator |
+
+<Note>
+
+The page shows every button to every user. If your role does not have the permission for an action, UTMStack refuses it with the message `missing required permission: alerts.write`.
+
+</Note>
+
+## What the list shows
+
+The list shows top-level alerts. When a rule raises the same alert again and the rule groups its alerts, the repeat is stored as an **echo** of the first alert. Echoes are not shown as rows; the **Echoes** column counts them. See **How alerts are created**.
+
+- The list starts with the last 7 days.
+- It loads 50 alerts at a time as you scroll.
+- It is always sorted newest first. You cannot sort by another column.
+- The page checks for new open alerts every 10 seconds. When there are more, a **New alerts** message appears. Click **View** to see them.
+
+| Column | What it shows |
+|---|---|
+| (selection box) | Select the alert for a bulk action. |
+| Actions | Tag icon **Create a tag from this alert**: opens a new tagging rule filled in from this alert. See **Tagging rules and false positives**. |
+| (lightning icon) | Runs the shipped response for this alert. See **Run a response** below. |
+| (incident icon) | **Create incident from this alert**, or, if the alert is already in an incident, **View incident details**. |
+| Alert | The alert name, the **AI assessed** and **Incident** badges when they apply, the category, the data source, up to two tags and the assignee. |
+| Status | The status. Click it to change the status. |
+| Technique | The attack technique named by the rule. |
+| Source | The affected side of the alert (the target): its host or IP address. |
+| Adversary | The side the rule treats as the attacker: its host or IP address. |
+| Severity | High, Medium or Low. |
+| Echoes | How many echoes the alert has. Click the number to list them under the row. |
+| Time | When UTMStack processed the event that raised the alert. |
+
+<Note>
+
+An alert's time is when the server processed the event, not when the event happened on the device. Logs that arrive late give late alert times.
+
+</Note>
+
+## Narrow the list
+
+| Control | What it does |
+|---|---|
+| Status tabs | **All**, **Open**, **In review** and **Completed**, each with a count. |
+| **Search by alert name…** | Shows alerts whose name contains the text you type. |
+| Severity menu | **All severities**, **High**, **Medium** or **Low**. |
+| **Tags** | Shows alerts that carry any of the tags you pick. The match is on part of the tag name, so a short tag name can also match longer tags that contain it. |
+| Time range | **Quick ranges** (Last 15 minutes up to Last 30 days), **Relative**, **Absolute** or **All time**. |
+| **Add filter** | Adds a condition on one alert field. See the table below. **Clear all** removes every filter. |
+| Refresh (icon) | Reloads the list. |
+
+**Add filter** offers these fields: Alert name, Category, Technique, Description, Severity, Status, Risk, Sensor (the data source), Data type, Tags, Assignee, Notes, Is incident, Incident name, Incident id, Confidentiality, Integrity, Availability, and for both sides of the alert (Adversary and Target) the IP, host, user, domain, URL, country, ASN and ASO.
+
+The operators are **contains**, **is**, **is not**, **exists** and **does not exist**. When you pick **is** or **is not**, UTMStack suggests the values that really occur in your alerts (up to 100).
+
+### Overview
+
+Switch the view from **Alerts** to **Overview** to see charts for the same filters: **Alerts over time**, **By severity** and **By status**.
+
+## Alert statuses
+
+| Status | Meaning |
+|---|---|
+| Open | A new alert. Every new alert starts as Open, unless a tagging rule marks it as a false positive. |
+| In review | Someone is working on the alert. |
+| Completed | The work is finished. You must write an **Observation** when you complete a single alert; UTMStack keeps it as the alert's **Status note**. |
+
+To change the status of one alert, click its status in the list, or open the alert and click **Set status**. The menu also offers **Complete + false positive**, which sets the status to Completed and adds the **False positive** tag. See **Tagging rules and false positives**.
+
+Good to know:
+
+- A status change also applies to every echo of the alert. Notes, assignee and tags apply only to the alert you changed.
+- Moving an alert from Completed back to Open removes its **False positive** tag.
+- The open-alert count in the header counts alerts that are Open, top-level and not tagged **False positive**.
+- One action can change at most 10,000 alerts. A larger selection is refused with `too many alerts in one action; narrow the selection`.
+- Older alerts can show the status **Automatic review**. UTMStack v12 no longer sets it, and there is no tab for it.
+- When an incident is set to **Merged**, its alerts are set to Merged too. There is no Merged tab, so these alerts appear only under **All**.
+
+## Severity and risk
+
+Each alert has a severity of **High**, **Medium** or **Low**. It comes from the rule's impact values and can be adjusted by the asset sensitivity of the affected host. See **How alerts are created**.
+
+**Risk** (in the alert details and the **Add filter** list) is the alert's impact score: the highest of its confidentiality, integrity and availability values, from 0 to 3.
+
+## The alert panel
+
+Click a row to open the alert panel. At the top you can:
+
+- **Set status**.
+- **Tag**: add or remove tags (see **Tags** below).
+- **Add to incident**. This button is hidden once the alert belongs to an incident.
+- **Assign**: pick a user (the list shows up to 200 users), or **Unassign**.
+
+The panel has four tabs.
+
+| Tab | What it shows |
+|---|---|
+| Summary | Description, Solution and References from the rule; Details (Severity, Risk, Assignee, Category, Technique, Sensor, Data type, Alert ID, Status note); **Part of an incident** with the incident name, ID, creator and date when the alert is in an incident; and the **Notes** box. |
+| Parties | Two cards, **Source / target** and **Adversary**, with IP, Host, User, Domain and Country. |
+| Events | A sample of up to about 11 events that the rule stored on the alert, plus the events of its echoes. |
+| History | Every change with the user who made it: Status updated, Tags updated, Notes updated, Solution updated and Marked as incident. |
+
+### Notes
+
+Type in the **Notes** box and click **Save notes**. Notes are shared with everyone who can see the alert. When the alert has an AI assessment, the box is labelled **Your notes**.
+
+### See all the logs behind an alert
+
+The **Events** tab shows only a sample. Click **View all related logs** to see the full set: UTMStack runs the rule's search again on the server, collects up to 1,000 matching logs and opens them in **Log Explorer** with a time range of the last 30 days.
+
+<Tip>
+
+For rules that count events over a time window, the Events tab can show only the event that completed the match. Use **View all related logs** to see the others.
+
+</Tip>
+
+### AI summary
+
+When SOC-AI is set up, the panel offers **Generate AI summary**. SOC-AI investigates the alert and adds an assessment (**SOC AI assessment**) to the alert's notes; the alert then shows the **AI assessed** badge. This can take about a minute. The alert is sent to the AI provider chosen on **Configure > Settings > SOC-AI**, and each summary counts towards your daily AI allowance. In UTMStack v12.0.2 the button is shown to administrators only. See **SOC-AI assistant** and **AI providers**.
+
+## Tags
+
+Tags label alerts so you can find and group them. Open the **Tag** menu in the alert panel to:
+
+- Tick or untick existing tags on the alert.
+- **Create tag**: type a name, pick one of nine colors and click **Create and apply tag**.
+- **Edit tag** (name and color) or **Delete tag** for an existing tag. This changes the list of tags you can choose from; alerts that already carry the tag keep it under its old name.
+- **Create tagging rule with this tag**: start a tagging rule that applies this tag to future alerts.
+
+Tag names are unique and at most 50 characters. **False positive** is a system tag: it cannot be renamed or deleted.
+
+The same tag menu is available from the **Tags** filter in the toolbar, and **Add tag** in the bulk bar adds a tag to many alerts at once.
+
+## Link alerts to an incident
+
+Use **Add to incident** in the alert panel or the bulk bar, or the incident icon on a row (**Create incident from this alert**). Then choose:
+
+- **New incident**: enter an **Incident name** and an optional **Description**, then click **Create incident**.
+- **Existing incident**: **Pick an incident** and click **Add to incident**.
+
+An alert can belong to one incident only. See **Incidents**.
+
+## Run a response
+
+The lightning icon on a row runs the shipped response flow that covers this kind of alert. It runs the flow on the agent of the alert's affected host (or, if the alert has no host, on the agent named as its data source). Hover over the icon to see the flow's name; if no flow fits, the tooltip says **No system flow covers this alert** and the icon is greyed out.
+
+This starts a flow by hand, so it needs the `soar.execute` permission (Administrator). See **Shipped flows** and **Automated response overview**.
+
+## Work on many alerts at once
+
+Tick the boxes of the alerts you want. A bar shows how many are selected (for example **3 selected**) and offers:
+
+- **Set status**: Open, In review or Completed. The bulk menu does not ask for an observation and does not offer Complete + false positive.
+- **Add tag**.
+- **Add to incident**.
+- **Clear**: clears the selection.
+
+## Export alerts
+
+Click the **Export CSV** icon in the toolbar. UTMStack downloads up to 10,000 alerts of the current view, with the columns Timestamp, Name, Severity, Status, Category, Technique, Source, Tags and Notes.

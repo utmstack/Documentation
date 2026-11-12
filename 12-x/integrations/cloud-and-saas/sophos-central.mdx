@@ -1,0 +1,98 @@
+The **Sophos** integration brings security events from Sophos Central into UTMStack. Sophos Central provides secure APIs to retrieve event data, and UTMStack reads them with an API credential that you create in Sophos Central Admin. No agent or collector is needed.
+
+## How it works
+
+- UTMStack signs in to Sophos Central with the credential's Client ID and Client Secret and reads the Sophos Central SIEM events API every 5 minutes.
+- Events are stored with the data type `sophos-central`. UTMStack v12 ships 20 detection rules for this data type; see **Sophos Central** in the **Rules** tab.
+
+## Before you start
+
+- In Sophos Central Admin, you need permission to manage API credentials.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach Sophos Central over HTTPS (outbound port 443).
+
+## Step 1: Create an API credential in Sophos Central
+
+<Steps>
+<Step title="Open API Credentials Management">
+
+In **Sophos Central Admin**, go to **Global Settings > API Credentials Management**.
+
+<img
+  height="200"
+  src="/assets/38a018b0-b9f8-5cc9-b68e-5586046a445c"
+  alt="Sophos"
+/>
+
+</Step>
+<Step title="Create a new credential">
+
+Click **Add Credential**. Enter a **Name** and a **Description**, select the appropriate **Role**, and click **Add**. The credential must be able to read events.
+
+<img
+  height="200"
+  src="/assets/8349b2f0-5618-568c-834e-db4b0c0bfc2f"
+  alt="Sophos"
+/>
+
+</Step>
+<Step title="Copy the Client ID and Client Secret">
+
+Copy the **Client ID** and the **Client Secret** and store them in a safe place.
+
+<Warning>
+
+Sophos Central shows the Client Secret only once. Save it before you close the dialog.
+
+</Warning>
+
+<img
+  height="200"
+  src="/assets/698b67a4-2486-5637-82ce-88edd4dd4717"
+  alt="Sophos"
+/>
+
+</Step>
+</Steps>
+
+## Step 2: Connect Sophos Central in UTMStack
+
+Each Sophos Central account connection is a **config group**. You can add more than one.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `Sophos` and open the **Sophos** card (the one for Sophos Central, not **Sophos Xg**). The form is at the end of the setup guide, under **Add Sophos Central credentials**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **Client ID** | The Client ID from Step 1. |
+| **Client Secret / API Key** | The Client Secret from Step 1. |
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. You see "Config group created successfully."
+
+</Step>
+</Steps>
+
+<Warning>
+
+UTMStack does not test Sophos Central credentials when you save them: a wrong Client ID or secret is saved without an error. After saving, check that events arrive (see below). If none arrive, check the Client ID, the secret and the credential's role in Sophos Central.
+
+</Warning>
+
+## Check that events arrive
+
+Open the **Sophos** card again and click **View logs**. Log Explorer opens filtered to the `sophos-central` data type for the last 24 hours. UTMStack reads new events every 5 minutes, so allow a few minutes after you save.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per Sophos Central account.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. The secret shows a masked value; leave it as it is to keep the stored secret. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.

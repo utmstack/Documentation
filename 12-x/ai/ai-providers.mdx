@@ -1,0 +1,126 @@
+The SOC-AI assistant needs an AI provider: the service that runs the language model behind it. UTMStack v12 works with ThreatWinds out of the box and lets you switch to OpenAI, Anthropic, Google Gemini, Groq, Mistral, DeepSeek, Azure OpenAI, a local Ollama server, or any OpenAI-compatible gateway. You choose the provider in **Configure > Settings > SOC-AI**.
+
+## Who can change it
+
+Only users with the `socai.write` permission ("Configure the SOC AI provider"), which the **Administrator** role has. Analysts and Viewers cannot open the page.
+
+## The default: ThreatWinds
+
+A new installation uses **ThreatWinds** with no setup:
+
+- No API key is needed. The page note reads "Uses your UTMStack license automatically — no API key needed. Billed through your ThreatWinds subscription."
+- UTMStack creates this configuration by itself as soon as the instance is registered. If the instance is not registered yet, choosing ThreatWinds fails with "instance not registered yet".
+- In this default, **Auto-analyze alerts** and **Allow managing incidents** are off, **Max tokens** is 4096 and **Max tool iterations** is 12.
+
+## The settings page
+
+The page is titled **SOC-AI Configuration** and has four sections.
+
+### Model & connection
+
+| Field | Notes |
+|---|---|
+| **Provider** | "Selects the wire format. Anything other than Anthropic uses the OpenAI-compatible API." |
+| **Model** | Pick a suggested model or **Custom model…** to type any model identifier your provider offers. |
+| **API URL** | Shown only for Azure OpenAI, Ollama and Custom. |
+
+### Authentication
+
+| Field | Notes |
+|---|---|
+| **API key** | The key from your provider. When a key is stored, the field reads "A key is stored. Leave blank to keep it." |
+| **Authentication type** | Custom provider only: **API Key**, **Bearer**, **Custom Headers** or **None**. |
+| **Auth header name** | Custom provider with **API Key**: the header that carries the key. |
+| **Bearer token** | Custom provider with **Bearer**. |
+| **Custom headers** | Custom provider with **Custom Headers**: extra headers sent with every request. Values are stored encrypted; `*****` keeps the stored value. |
+
+### Alert triage behavior
+
+| Field | Notes |
+|---|---|
+| **Auto-analyze alerts** | "Triage incoming alerts in real time." SOC-AI investigates each new alert and writes an assessment. See **SOC-AI Assistant**. |
+| **Allow managing incidents** | "The triage agent may create or update incidents when it decides an alert warrants one." |
+
+### Advanced
+
+| Field | Default | Notes |
+|---|---|---|
+| **Max tokens** | 4096 | "Maximum tokens per LLM response." |
+| **Max tool iterations** | 12 | "Cap on the agent's plan -> tool -> observe loop." |
+
+## Providers
+
+| Provider | What you enter | Suggested models |
+|---|---|---|
+| **ThreatWinds** | Nothing. | Set by UTMStack. |
+| **OpenAI** | Model, API key. | gpt-4o, gpt-4o-mini, gpt-4.1, gpt-4.1-mini, o3, o4-mini |
+| **Anthropic (Claude)** | Model, API key. | claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5-20251001 |
+| **Google Gemini** | Model, API key. | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash |
+| **Groq** | Model, API key. | llama-3.3-70b-versatile, llama-3.1-8b-instant |
+| **Mistral** | Model, API key. | mistral-large-latest, mistral-small-latest |
+| **DeepSeek** | Model, API key. | deepseek-chat, deepseek-reasoner |
+| **Azure OpenAI** | API URL, model, API key. | Free text (your deployment name). |
+| **Ollama (local)** | API URL, model. No key. | Free text. |
+| **Custom (OpenAI-compatible)** | API URL, model, authentication. | Free text. |
+
+### Azure OpenAI
+
+"Paste your full Azure deployment endpoint as the URL; the model is your deployment name. Auth uses the api-key header."
+
+The address has the form:
+
+```text
+https://<resource>.openai.azure.com/openai/deployments/<deployment>/chat/completions?api-version=…
+```
+
+### Ollama (local)
+
+"Point the URL at your Ollama host. No API key is needed for a local instance." For example:
+
+```text
+http://localhost:11434/v1/chat/completions
+```
+
+Replace `localhost` with the address of your Ollama server as the UTMStack server sees it. A local model keeps your alert and log data on your own network.
+
+### Custom (OpenAI-compatible)
+
+"Any OpenAI-compatible endpoint. Set the URL, auth and any extra headers your gateway needs." For example `https://my-gateway/v1/chat/completions`.
+
+## Save and test
+
+<Steps>
+  <Step title="Choose the provider and fill in the fields">
+
+    Pick the provider, the model and, if needed, the address and the key.
+
+  </Step>
+  <Step title="Click Save configuration">
+
+    UTMStack tests the connection first ("Verifying & saving..."). If the test fails, the configuration is not saved. If the provider only answers that you are sending too many requests, the configuration is saved anyway, because the connection itself works.
+
+  </Step>
+  <Step title="Check the assistant">
+
+    The **Ask** button appears in the top bar. Ask a simple question, for example "how many open alerts, grouped by adversary?".
+
+  </Step>
+</Steps>
+
+Keys and header values are stored encrypted and are never shown again.
+
+## Tenants
+
+On a multi-tenant installation each tenant follows the instance's configuration until it saves its own:
+
+- A tenant that follows the instance sees "Following the instance default. Saving here gives this tenant its own configuration."
+- A tenant with its own settings sees "This tenant has its own configuration." and can click **Follow the instance default** to go back.
+
+## Usage on this page
+
+The page also shows the day's AI allowance when a limit is set ("AI allowance today"). For the instance operator using ThreatWinds, a **Usage** block shows **Chat completions (today)** and when the count resets. See **AI Usage and Limits**.
+
+## Related pages
+
+- **SOC-AI Assistant**
+- **AI Usage and Limits**

@@ -1,0 +1,75 @@
+UTMStack v12 collects Palo Alto Networks firewall logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the Palo Alto integration on a Collector, then configure PAN-OS to send syslog to that Collector. Nothing is installed on the firewall.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Palo Alto** (category Firewall) |
+| Data type | `firewall-paloalto` |
+| Default ports on the Collector | 7006/UDP; 7006/TCP (also used for TLS) |
+| Included in UTMStack | A parsing filter and 11 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Palo Alto** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7006`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-paloalto 7006 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Configure PAN-OS to forward logs
+
+<Steps>
+  <Step title="Create a Syslog Server Profile">
+    In PAN-OS, go to **Device → Server Profiles → Syslog** and add a profile. Set the server address to the Collector host, transport **UDP**, port **7006** and format **BSD**.
+  </Step>
+  <Step title="Create a Log Forwarding profile">
+    Go to **Objects → Log Forwarding** and create a profile that sends Traffic, Threat and the other log types you want to the syslog profile above.
+  </Step>
+  <Step title="Attach it to your security rules">
+    Attach the Log Forwarding profile to your Security policy rules (**Policies → Security →** rule **→ Actions → Log Forwarding**).
+  </Step>
+  <Step title="Commit">
+    Click **Commit**.
+  </Step>
+</Steps>
+
+<Note>
+
+The setup guide in UTMStack fills in your UTMStack server's address in this step. Keep it only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
+
+</Note>
+
+## Step 3: Check that logs arrive
+
+- In the **Palo Alto** drawer, click **View logs**. Log Explorer opens with the `firewall-paloalto` data type for the last 24 hours.
+- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Palo Alto** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-paloalto udp
+```

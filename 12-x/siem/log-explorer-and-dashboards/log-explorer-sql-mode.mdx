@@ -1,0 +1,294 @@
+SQL mode lets you query stored logs and alerts with your own SQL statement (SQL is the standard language for asking a database questions). Use it when filters are not enough: to count, group, compare fields or look at how a field is stored. Queries are read-only and only ever see your own tenant's records.
+
+## Before you start
+
+- SQL mode is part of **Log Explorer**, so it needs the `loganalyzer.read` permission. All three built-in roles have it.
+- The language is ClickHouse SQL, because UTMStack v12 keeps its logs and alerts in a ClickHouse database. Standard `SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT` works as you would expect.
+- In SQL mode, the time range picker, filters, chart view and saved searches do not apply. Put the time window in your `WHERE` clause.
+
+## Turn on SQL mode
+
+1. Open **Log Explorer**.
+2. Click **SQL** in the query bar. The search box becomes a SQL editor with the example `` SELECT * FROM logs ORDER BY `@timestamp` DESC ``.
+3. Type your statement and press **Enter** or click **Run**.
+
+You can also type a statement that starts with `SELECT` or `WITH` and contains `FROM` straight into the normal search box: Log Explorer switches to SQL mode and runs it. Click **SQL** again to go back to the normal search.
+
+**Editor keys**
+
+| Key | What it does |
+|---|---|
+| **Enter** | Runs the statement (or accepts a suggestion when the suggestion list is open) |
+| **Shift+Enter** | Starts a new line |
+| **Ctrl+Enter** or **Cmd+Enter** | Runs the statement |
+| **Tab** | Accepts the highlighted suggestion |
+| **Up** / **Down** arrows | Move through the suggestions |
+| **Escape** | Closes the suggestion list |
+
+As you type, the editor suggests SQL words (`SELECT`, `WHERE`, `GROUP BY`, `COUNT` and others), the two table names and the field names of the dataset selected on the left.
+
+## What a statement can read
+
+A statement can read two names, and nothing else:
+
+| Name | What it is |
+|---|---|
+| `logs` | Your tenant's stored logs |
+| `alerts` | Your tenant's stored alerts |
+
+UTMStack adds the tenant condition for you. Naming any other table, another database or a table function is refused.
+
+### Columns of `logs`
+
+| Column | What it holds |
+|---|---|
+| `` `@timestamp` `` | When UTMStack received the event (date and time, UTC) |
+| `deviceTime` | The time written by the device, when the pipeline sets it |
+| `dataType` | The data type, for example `wineventlog`, `linux`, `o365` |
+| `dataSource` | The device or source that sent the event |
+| `id` | The event id |
+| `tenantId`, `tenantName` | The tenant |
+| `action`, `actionResult`, `severity`, `protocol`, `connectionStatus`, `statusCode` | Standard fields, as text |
+| `errors` | A list of processing errors, if any |
+| `origin`, `target` | The two sides of the event (`origin.ip`, `origin.user`, `target.host`, `origin.geolocation.country`, …) |
+| `log` | Every vendor-specific field, for example `log.eventCode` for Windows |
+| `compliance` | Compliance fields, when the pipeline writes them |
+| `raw` | The original log line as it arrived |
+
+### Columns of `alerts`
+
+| Column | What it holds |
+|---|---|
+| `` `@timestamp` `` | When the alert was first raised |
+| `lastUpdate` | When the alert was last changed |
+| `id`, `name` | Alert id and the name of the rule that raised it |
+| `parentId` | Empty for a top-level alert. For a repeat grouped under an earlier alert, the id of that alert. |
+| `severity` | `low`, `medium` or `high` |
+| `status` | `Open`, `In review`, `Completed`, `Merged` (older alerts may show `Automatic review`) |
+| `statusObservation`, `notes`, `assignee`, `tags`, `isIncident` | How the alert is being worked |
+| `dataType`, `dataSource`, `category`, `technique`, `description`, `solution`, `references`, `impactScore` | Taken from the rule and the event |
+| `adversary`, `target` | The adversary and target sides (`adversary.ip`, `target.host`, …) |
+| `impact`, `incidentDetail`, `lastEvent` | More detail on the alert; `lastEvent` is the last event that matched |
+| `events`, `history`, `logs`, `deduplicateBy`, `groupBy`, `tagRulesApplied`, `errors` | Lists kept with the alert |
+
+Each alert is returned once, in its latest version.
+
+## Fields inside `origin`, `target`, `log` and other objects
+
+`origin`, `target`, `log`, `compliance` and the alert objects (`adversary`, `lastEvent`, …) are JSON columns: they hold whatever fields the pipeline wrote. Reach a field inside one with a dot, for example `log.eventCode` or `origin.geolocation.country`.
+
+The same field can be stored as text in one record and as a number in another. To avoid type errors, wrap these fields in `toString()` whenever you compare, group or sort by them:
+
+```sql
+SELECT toString(log.eventCode) AS event_code, count() AS event_count
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4625'
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY event_code
+```
+
+Other rules:
+
+- A column whose name starts with `@` needs backticks: `` `@timestamp` ``.
+- Text values go in single quotes: `'wineventlog'`.
+- To check whether a field inside an object exists, use `IS NOT NULL`, for example `origin.ip IS NOT NULL`.
+- To see how a field is stored, use `dynamicType()` (example below).
+
+## Rules a statement must follow
+
+UTMStack checks every statement before it runs:
+
+- It must start with `SELECT` or `WITH`.
+- Only one statement. A single `;` at the end is allowed.
+- No comments (`--` or `/*`).
+- It must not contain certain words, anywhere in the text, even inside a field name, an alias or a quoted value. Among them: `create`, `drop`, `insert`, `alter`, `rename`, `truncate`, `attach`, `detach`, `optimize`, `grant`, `revoke`, `kill`, `set` followed by a space, `system`, `default.`, `url`, `file`, `input`, `merge`, `remote`, `cluster`, `statistics`, `dictionary`, `executable`, `s3`, `mysql`, `postgresql`, `mongodb`, `jdbc`, `odbc`, `hdfs` and `information_schema`.
+
+A refused statement shows a message such as `invalid SQL: "url" is not allowed here: the query may read the logs and alerts datasets and nothing else`. A statement that passes these checks but has a mistake in it shows the database's own error message instead.
+
+<Warning>
+
+Because the word check reads the whole text, some ordinary statements are refused in UTMStack v12.0.2. For example:
+
+| Statement contains | Why it is refused |
+|---|---|
+| `origin.url` or `target.url` | contains `url` |
+| `log.fileName`, `log.filePath` | contains `file` |
+| `dataType = 'json-input'` | contains `input` |
+| `action = 'drop'`, `count() AS dropped` | contains `drop` |
+| `count() AS created` | contains `create` |
+| `LIMIT 50 OFFSET 50` | `OFFSET 50` contains `set` followed by a space |
+
+For these, use the normal search with filters instead, or choose another alias.
+
+</Warning>
+
+## Limits
+
+| Limit | Value |
+|---|---|
+| Access | Read-only |
+| Run time | 30 seconds per statement |
+| Rows the server returns | 500 at most, whatever `LIMIT` you write |
+| Rows shown on screen | The first 50 rows of the result |
+
+To work with more rows, aggregate (`GROUP BY`), narrow the `WHERE` clause, or export.
+
+**Export a SQL result:** click **Export CSV**. Log Explorer runs the statement again and saves every column it returned, in a file named `query-<time>.csv`.
+
+<Warning>
+
+In UTMStack v12.0.2, when a statement returns 500 rows or more, the exported file repeats the first 500 rows. Keep SQL exports under 500 rows (for example with `LIMIT 499`), or export from the normal search, which exports up to 10,000 rows correctly.
+
+</Warning>
+
+## Make statements fast
+
+The `logs` table is sorted by tenant, data type, source and time. Statements that name a `dataType` and a time window read far less data:
+
+```sql
+SELECT count() AS event_count
+FROM logs
+WHERE dataType = 'linux'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+```
+
+Always add a time condition on `` `@timestamp` `` and a `LIMIT` when you list rows.
+
+## Examples
+
+All examples were checked against the rules above.
+
+**Latest events of one data type**
+
+```sql
+SELECT `@timestamp`, dataSource, action, actionResult, toString(origin.ip) AS source_ip
+FROM logs
+WHERE dataType = 'linux'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 50
+```
+
+**Which sources sent data in the last day**
+
+```sql
+SELECT dataType, dataSource, count() AS event_count, max(`@timestamp`) AS last_seen
+FROM logs
+WHERE `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY dataType, dataSource
+ORDER BY event_count DESC
+LIMIT 50
+```
+
+**Find text in the original log line**
+
+`positionCaseInsensitive()` finds text anywhere in `raw`, ignoring letter case. It is what the normal search box does.
+
+```sql
+SELECT `@timestamp`, dataSource, raw
+FROM logs
+WHERE dataType = 'linux'
+  AND positionCaseInsensitive(raw, 'sudo') > 0
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+**Failed Windows logons per account**
+
+Windows event 4625 is a failed logon. The Windows pipeline writes the event id to `log.eventCode` and the account to `target.user`.
+
+```sql
+SELECT toString(target.user) AS account, count() AS failed_logons
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4625'
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+GROUP BY account
+ORDER BY failed_logons DESC
+LIMIT 20
+```
+
+**Accounts that failed to log on from more than 3 addresses**
+
+```sql
+SELECT account, uniqExact(source_ip) AS source_ips, count() AS failed_logons
+FROM (
+  SELECT toString(target.user) AS account, toString(origin.ip) AS source_ip
+  FROM logs
+  WHERE dataType = 'wineventlog'
+    AND toString(log.eventCode) = '4625'
+    AND `@timestamp` > now() - INTERVAL 1 DAY
+)
+GROUP BY account
+HAVING source_ips > 3
+ORDER BY source_ips DESC
+```
+
+**Blocked pfSense traffic by source address**
+
+```sql
+SELECT toString(origin.ip) AS source_ip, count() AS blocked
+FROM logs
+WHERE dataType = 'firewall-pfsense'
+  AND action = 'block'
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY source_ip
+ORDER BY blocked DESC
+LIMIT 10
+```
+
+**How a field is stored**
+
+Useful when a rule or a filter on a number does not match. `None` means the field is missing in those records.
+
+```sql
+SELECT dynamicType(log.eventCode) AS stored_type, count() AS records
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY stored_type
+```
+
+**Alerts per rule in the last 7 days**
+
+`parentId = ''` keeps top-level alerts only and leaves out the repeats grouped under them.
+
+```sql
+SELECT name, severity, count() AS alert_count
+FROM alerts
+WHERE parentId = ''
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY name, severity
+ORDER BY alert_count DESC
+LIMIT 20
+```
+
+**Alerts still waiting for work**
+
+```sql
+SELECT status, severity, count() AS alert_count
+FROM alerts
+WHERE parentId = ''
+  AND status IN ('Open', 'In review')
+GROUP BY status, severity
+ORDER BY alert_count DESC
+```
+
+**Most frequent adversary addresses in high-severity alerts**
+
+```sql
+SELECT toString(adversary.ip) AS adversary_ip, count() AS alert_count
+FROM alerts
+WHERE severity = 'high'
+  AND adversary.ip IS NOT NULL
+  AND `@timestamp` > now() - INTERVAL 30 DAY
+GROUP BY adversary_ip
+ORDER BY alert_count DESC
+LIMIT 10
+```
+
+## SOC-AI uses the same SQL
+
+The SOC-AI assistant can run SQL on your behalf with its own search tool. It follows the same rules and limits, and it only reads your tenant's `logs` and `alerts`. See **SOC-AI Assistant**.

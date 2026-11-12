@@ -1,0 +1,216 @@
+Every log that UTMStack processes ends up as an event with the same set of field names, whatever product sent it. This shared layout is the standard event schema. Pipelines map vendor fields into it, and rules, dashboards, Log Explorer and compliance checks read from it, so a rule written for `origin.ip` works for every source that fills `origin.ip`.
+
+## Event structure
+
+An event has a set of top-level fields and three areas:
+
+- `log`: vendor fields that have no standard place.
+- `origin`: the side that started the activity (who or what acted).
+- `target`: the side the activity was aimed at.
+
+`origin` and `target` share the same list of fields.
+
+## Top-level fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | Text | Unique identifier of the event (a UUID). |
+| `@timestamp` | Date and time | The time carried by the incoming log, in RFC 3339 format (for example `2026-11-11T09:30:00Z`), in UTC. No pipeline step can change it. |
+| `deviceTime` | Date and time | The time recorded by the source device. If no pipeline sets it, the engine copies `@timestamp` into it. |
+| `dataType` | Text | The kind of log, for example `linux`, `wineventlog` or `firewall-fortigate-traffic`. It decides which pipelines and rules run. |
+| `dataSource` | Text | The device or integration that sent the log, for example the host name of a machine with an agent. |
+| `tenantId` | Text | The tenant the event belongs to. |
+| `tenantName` | Text | The tenant's name. The engine fills it in. |
+| `action` | Text | The activity, for example a login, a file change or a connection. |
+| `actionResult` | Text | The outcome: `success`, `failed` or `denied`. See below. |
+| `protocol` | Text | Network protocol, for example `tcp`, `udp` or `http`. |
+| `connectionStatus` | Text | State of the connection, for example established or closed. |
+| `statusCode` | Whole number | A numeric status, for example HTTP `404`. |
+| `severity` | Text | The importance the source gave the event. UTMStack does not enforce a list of values. |
+| `raw` | Text | The original log text. Read-only: no step can change or delete it. |
+| `log` | Object | Vendor fields with no standard place. |
+| `origin`, `target` | Object | The two sides of the activity. See below. |
+| `errors` | List of text | Messages from pipeline steps that failed on this event. |
+| `compliance` | Map | Regulation names, each with a list of values. |
+
+### Time fields
+
+- `@timestamp` comes from the sender. The engine refuses a log whose time is missing or not in RFC 3339 format.
+- `deviceTime` is stored as a date and time with millisecond precision. If a pipeline writes a value the database cannot read as a date, the database refuses the event. Always convert a vendor time with the `reformat` step before you write it to `deviceTime`. See **Pipeline File Format and Step Reference**.
+
+### `actionResult` values
+
+Write `actionResult` as exactly one of these values, or leave it empty:
+
+| Value | Use it when |
+|---|---|
+| `success` | The action was completed. |
+| `failed` | The action was attempted and did not work, for example a wrong password. |
+| `denied` | The action was refused by a policy, a firewall or a permission check. |
+
+Do not use other spellings such as `failure`, `fail` or `blocked`: rules compare these values as text. The threat intelligence check also reads this field: it skips events whose `actionResult` is `failed`, `denied` or `blocked`, and checks every other event, including events with no value. See **Threat Intelligence: How Indicator Alerts Work**.
+
+### `dataSource` and assets
+
+If `dataSource` equals the host name or IP address of one of your tenant's assets, the engine replaces it with the asset's name.
+
+## The `log` area
+
+`log` holds every vendor field that has no standard place, for example `log.eventCode` for a Windows event id or `log.message` for a syslog message. The `json`, `kv` and `xml` parsing steps write everything they extract under `log.`.
+
+<Note>
+
+UTMStack v12 uses `log.*` for these fields. Some UTMStack v11.3 filters used `event.*` instead; v12 does not.
+
+</Note>
+
+The type of a `log` field can differ from one event to the next: a value can be a number in one event and text in another.
+
+## `origin` and `target`
+
+Both sides support the same fields. All fields are text unless the table says otherwise.
+
+### Network
+
+| Field | Description |
+|---|---|
+| `ip` | IPv4 or IPv6 address. |
+| `host` | Host name. |
+| `domain` | Domain name or fully qualified domain name. |
+| `port` | Network port. Whole number. |
+| `mac` | MAC address. |
+| `url` | Full URL. |
+| `cidr` | Network range in CIDR notation, for example `10.0.0.0/8`. |
+| `bytesSent`, `bytesReceived` | Amount of data transferred. Number. |
+| `packagesSent`, `packagesReceived` | Number of network packets. Whole number. |
+| `geolocation` | Location of the IP address. See **Geolocation**. |
+
+### Fingerprints and certificates
+
+| Field | Description |
+|---|---|
+| `certificateFingerprint` | Fingerprint of an SSL/TLS certificate. |
+| `ja3Fingerprint` | TLS client fingerprint. |
+| `jarmFingerprint` | TLS server fingerprint. |
+| `sshBanner`, `sshFingerprint` | SSH service identification. |
+
+### Identity, web and email
+
+| Field | Description |
+|---|---|
+| `user` | User name or account. |
+| `group` | Security group or role. |
+| `cookie` | Web session cookie. |
+| `jabberId` | Chat (XMPP) identifier. |
+| `email`, `emailAddress` | Email address. |
+| `emailSubject`, `emailBody` | Email content. |
+| `emailDisplayName`, `emailXMailer` | Sender name and mail client. |
+| `emailThreadIndex` | Position of the message in a conversation. |
+| `dkim`, `dkimSignature` | Email authentication data. |
+
+### WHOIS
+
+| Field | Description |
+|---|---|
+| `whoisRegistrant` | The person or organisation that registered the domain. |
+| `whoisRegistrar` | The company that manages the domain registration. |
+
+### Processes and files
+
+| Field | Description |
+|---|---|
+| `process` | Name of the program. |
+| `processState` | State of the process. |
+| `command` | Full command line. |
+| `windowsServiceName` | Internal name of a Windows service. |
+| `windowsServiceDisplayName` | Display name of a Windows service. |
+| `windowsScheduledTask` | Name of a Windows scheduled task. |
+| `file` | File name or reference. |
+| `filename` | Base file name. |
+| `path` | Full folder path of the file. |
+| `sizeInBytes` | File size. Stored as text. |
+| `mimeType` | File type (MIME type). |
+
+### Hashes and encodings
+
+| Field | Description |
+|---|---|
+| `hash` | Generic hash. |
+| `md5`, `sha1`, `sha224`, `sha256` | Specific hashes. |
+| `sha384`, `sha512`, `sha512224`, `sha512256` | SHA-2 variants. |
+| `sha3224`, `sha3256`, `sha3384`, `sha3512` | SHA-3 variants. |
+| `authentihash`, `cdhash` | Code-signing hashes (Windows and Apple). |
+| `hex`, `base64` | Encoded representations. |
+
+### System, vulnerabilities and malware
+
+| Field | Description |
+|---|---|
+| `operatingSystem` | Operating system name and version. |
+| `chromeExtension` | Browser extension id. |
+| `mobileAppId` | Mobile application id. |
+| `cpe` | Common Platform Enumeration name. |
+| `cve` | Common Vulnerabilities and Exposures id. |
+| `malware`, `malwareFamily` | Name or family of the detected malware. |
+| `malwareType` | Type of malware, for example ransomware. |
+| `pgpPublicKey`, `pgpPrivateKey` | PGP key material. |
+
+### Resources
+
+| Field | Description |
+|---|---|
+| `connections` | Number of active connections. Whole number. |
+| `usedCpuPercent` | Processor use in percent. Whole number. |
+| `usedMemPercent` | Memory use in percent. Whole number. |
+| `totalCpuUnits` | Number of processor units. Whole number. |
+| `totalMem` | Total memory in bytes. Whole number. |
+| `disks` | List of disks, each with `name`, `totalSpace` (whole number) and `usedPercent` (whole number). |
+
+### Geolocation
+
+`origin.geolocation` and `target.geolocation` are filled by the geolocation step of a pipeline. See **Geolocation Enrichment**.
+
+| Field | Description |
+|---|---|
+| `country`, `countryCode` | Country name and ISO code. |
+| `city` | City name. |
+| `latitude`, `longitude` | Coordinates. Numbers. |
+| `asn`, `aso` | Autonomous System Number and the organisation that owns it. |
+| `accuracy` | Part of the schema, but the UTMStack v12 geolocation step does not fill it. |
+
+## What is kept and what is dropped
+
+When the last pipeline step has run, the engine turns the result into an event. Four rules decide what survives. They apply silently, so check your field names carefully.
+
+| Rule | What happens | Example |
+|---|---|---|
+| Field names are cleaned | Every character other than letters, digits, dots and underscores is removed from a field name. | `log.event-type` becomes `log.eventtype`. `log.event_type` is kept as it is. |
+| Unknown names are dropped | A field outside `log` whose name is not in the schema is removed, with no error. | `origin.hostname` is dropped; the schema field is `origin.host`. |
+| A wrong type drops the event | If a schema field holds a value of the wrong type, the whole event is discarded and the engine logs "failed to convert log to event". | A word in `origin.port`. Use the `cast` step to convert ports to `int`. |
+| `raw` and `@timestamp` are protected | No step can change or delete them. | A `delete` step on `raw` does nothing. |
+
+An unreadable `deviceTime` also loses the event: the database refuses it (see **Time fields**).
+
+## How events are stored
+
+Events are stored in the ClickHouse table `logs`. Knowing the columns helps when you write SQL in Log Explorer or compliance checks:
+
+| Column | Notes |
+|---|---|
+| `tenantId`, `@timestamp`, `dataType`, `dataSource`, `id`, `deviceTime`, `tenantName` | One column each. |
+| `protocol`, `connectionStatus`, `action`, `actionResult`, `severity` | One column each. |
+| `statusCode` | Stored as text. |
+| `errors` | List of text. |
+| `origin`, `target`, `compliance`, `log` | JSON columns. `log` keeps up to 512 typed paths. |
+| `raw` | The original text. |
+
+See **Log Explorer SQL Mode**.
+
+## Good practice for mapping
+
+1. **Map every address.** Put IP addresses in `origin.ip` and `target.ip`, host names in `origin.host` and `target.host`, and user names in `origin.user` and `target.user`. Rules, threat intelligence and dashboards read these fields.
+2. **Use the exact `actionResult` values.** Write `success`, `failed` or `denied`, nothing else.
+3. **Convert times and numbers.** Use `reformat` before writing `deviceTime`, and `cast` to `int` before writing ports or counters.
+4. **Keep vendor detail under `log`.** Only move a value out of `log` when a standard field fits it.
+5. **Use `compliance`** to tag events with regulation names and values.
+6. **Rely on `raw`.** The original text is always kept, so you can check your parsing against it.

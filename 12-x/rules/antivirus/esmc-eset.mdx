@@ -1,0 +1,248 @@
+Detection rules for **ESET PROTECT** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `antivirus-esmc-eset`, which the **ESET PROTECT** integration sends.
+
+This category contains **14** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Advanced Heuristic Detection Triggers | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| ESET Blocked PowerShell Activity | Execution | T1059.001 - Command and Scripting Interpreter: PowerShell | C:3 / I:3 / A:1 |
+| ESET Exploit Detection Alert | Privilege Escalation | T1068 - Exploitation for Privilege Escalation | C:3 / I:3 / A:2 |
+| ESET Host Intrusion Prevention System Triggered | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| ESET Inbound Botnet Communication Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| ESET Network Attack Detection | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:2 / A:1 |
+| ESET Outbound Botnet Communication Detection | Command and Control | T1071 - Application Layer Protocol | C:3 / I:3 / A:2 |
+| ESET Repeated Console Authentication Failures | Credential Access | T1110 - Brute Force | C:3 / I:3 / A:2 |
+| ESET Repeated Quarantine Failures | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:2 |
+| ESET Security Agent Tampering Detection | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:3 |
+| Machine Learning Detection Anomalies | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Registry Modification Attempts Blocked | Defense Evasion, Persistence | T1112 - Modify Registry | C:2 / I:3 / A:2 |
+| Suspicious Encrypted File Activity | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:2 |
+| Suspicious Process Behavior Detection | Defense Evasion, Privilege Escalation | T1055 - Process Injection | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Advanced Heuristic Detection Triggers** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yaml)):
+
+```yaml
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-esmc-eset
+name: Advanced Heuristic Detection Triggers
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion, Privilege Escalation
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects three antivirus heuristic detections in thirty minutes on the same managed endpoint when ESET reports an explicit cleaned, deleted, quarantined, or blocked action without an action error. Detection labels are matched in structured threat or scanner fields; remediation does not establish a successful network connection.
+
+  Next Steps:
+  - Review the affected hostname and user context to understand the scope
+  - Check the process name (if available) that triggered the detection
+  - Verify if the action taken (cleaned/deleted/quarantined) was successful
+  - Look for related alerts from the same host within the past 24 hours
+  - If multiple hosts show similar detections, investigate potential lateral movement
+  - Consider isolating the affected system if threat persists
+  - Review ESET console link (if available) for detailed threat information
+  - Check file hash against threat intelligence databases if available
+  - Capture and analyze the malicious file sample if quarantined
+  - Review system logs for any unusual activities before and after detection
+  - Update ESET signatures and run a full system scan
+where: |
+  (equals("log.eventType", "Threat_Event") &&
+  (regexMatch("log.threat_name", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threat_type", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scanner_id", "(?i)(heuristic|newheur|suspicious behavior)")) &&
+  regexMatch("action", "(?i)^(cleaned|deleted|quarantined|blocked|denied|prevented)$") &&
+  (!exists("log.action_error") || equals("log.action_error", "")) &&
+  !equals("log.threat_handled", false)) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
+afterEvents:
+  - with:
+      - field: dataSource
+        operator: filter_term
+        value: '{{.dataSource}}'
+      - field: log.endpointKeyType
+        operator: filter_term
+        value: '{{.log.endpointKeyType}}'
+      - field: log.endpointKey
+        operator: filter_term
+        value: '{{.log.endpointKey}}'
+      - field: log.correlationCandidate.heuristicRemediation
+        operator: filter_term
+        value: 'match'
+    within: 30m
+    count: 3
+groupBy:
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.eventType
+
+```
+
+---
+
+## Rule Details
+
+### Advanced Heuristic Detection Triggers
+
+Detects three antivirus heuristic detections in thirty minutes on the same managed endpoint when ESET reports an explicit cleaned, deleted, quarantined, or blocked action without an action error. Detection labels are matched in structured threat or scanner fields; remediation does not establish a successful network connection.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [advanced_heuristic_detection_triggers.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### ESET Blocked PowerShell Activity
+
+Detects an explicitly blocked HIPS or antivirus event associated with the PowerShell or pwsh executable. The process comes from the structured application/process field. Review the detector and operation to establish malicious behavior; a block alone does not prove a particular command-line technique.
+
+- **Category:** Execution
+- **Technique:** T1059.001 - Command and Scripting Interpreter: PowerShell
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [suspicious_powershell_activity_blocked.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/001/](https://attack.mitre.org/techniques/T1059/001/)
+
+### ESET Exploit Detection Alert
+
+Detects an explicitly blocked, warning-or-higher exploitation detection in an antivirus threat, firewall event, or HIPS operation/rule. The structured detection must identify exploitation; an exploit-related filename or other arbitrary JSON text does not establish an exploit detection.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1068 - Exploitation for Privilege Escalation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [exploit_detection_events.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/exploit_detection_events.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1068/](https://attack.mitre.org/techniques/T1068/)
+
+### ESET Host Intrusion Prevention System Triggered
+
+Detects warning-or-higher HIPS blocks whose operation or rule explicitly identifies suspicious or malicious behavior, injection, exploitation, tampering, or self-defense. Ordinary blocked operations from a restrictive policy are excluded from this generic security-behavior rule. The event class identifies HIPS; it is not an action result. A block records an attempted operation, not successful compromise.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [host_intrusion_prevention_triggers.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### ESET Inbound Botnet Communication Detection
+
+Detects an inbound firewall detection whose event or detection name identifies botnet command-and-control activity. The managed endpoint is the network destination and the remote source is the alert adversary. A blocked attempt does not establish an active infection or successful communication; review the reported action and endpoint evidence. Records without a known direction cannot select a remote adversary side.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [botnet_inbound_communication_attempts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/botnet_inbound_communication_attempts.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### ESET Network Attack Detection
+
+Detects an explicitly blocked firewall event that identifies an attack, exploitation, intrusion, or named detection. A generic firewall policy block alone is not enough. Physical source and destination addresses remain unchanged; this rule attributes the network attempt to its source. Botnet detections use the separate direction-aware rules so an outbound client is not labeled as the remote command-and-control endpoint.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [network_attack_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/network_attack_detection.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### ESET Outbound Botnet Communication Detection
+
+Detects an outbound firewall detection whose event or detection name identifies botnet command-and-control activity. The managed endpoint is the network source and the remote destination is the alert adversary. A blocked attempt does not establish an active infection or successful communication; review the reported action and endpoint evidence. Records without a known direction cannot select a remote adversary side.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [botnet_communication_attempts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/botnet_communication_attempts.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### ESET Repeated Console Authentication Failures
+
+Detects ten failed or explicitly denied native-user console login attempts in thirty minutes for the same managed console and attempted account. The account comes from the target of the structured Native user / Login attempt audit record. Successful policy changes, task deployments, and account administration do not by themselves establish console abuse.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [eset_console_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/eset_console_abuse.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### ESET Repeated Quarantine Failures
+
+Detects five antivirus quarantine or cleaning failures in one hour on the same managed endpoint. The action_error field must explicitly report an error for a relevant remediation operation; unrelated endpoint activity cannot satisfy the threshold.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [eset_quarantine_failures.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/eset_quarantine_failures.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### ESET Security Agent Tampering Detection
+
+Detects a blocked HIPS self-defense or agent-tampering rule, or an ESET Inspect alert explicitly naming security-agent tampering. A blocked attempt does not establish that the agent was disabled. Routine audit policy changes and generic agent status text are not tampering evidence.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [eset_agent_tampering.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/eset_agent_tampering.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Machine Learning Detection Anomalies
+
+Detects antivirus detections that explicitly identify machine learning in the structured detection type, detection name, or scanner identity. ESET does not publish an exhaustive value vocabulary for these fields; the retained label heuristic does not claim coverage of every engine/version.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [machine_learning_detection_anomalies.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Registry Modification Attempts Blocked
+
+Detects warning-or-higher HIPS blocks involving a registry operation or Windows registry target. Review the operation and target to distinguish malicious persistence or tampering from legitimate software blocked by policy.
+
+- **Category:** Defense Evasion, Persistence
+- **Technique:** T1112 - Modify Registry
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [registry_modification_attempts_blocked.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1112/](https://attack.mitre.org/techniques/T1112/)
+
+### Suspicious Encrypted File Activity
+
+Detects ransomware or Filecoder labels in antivirus detection name/type fields. An encrypted file name or an ordinary encryption-related path alone is not ransomware evidence, and the detection does not establish that file encryption succeeded.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_encrypted_file_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Suspicious Process Behavior Detection
+
+Detects HIPS operations or ESET Inspect rules that explicitly identify process injection, suspicious objects/behavior, or anomalous processes. Generic blocked, terminated, or prevented action text alone does not establish one of these behaviors.
+
+- **Category:** Defense Evasion, Privilege Escalation
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [suspicious_process_behavior.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/esmc-eset/suspicious_process_behavior.yaml)
+- **Reference:** [https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html](https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)

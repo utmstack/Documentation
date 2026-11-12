@@ -1,0 +1,343 @@
+Detection rules for **Microsoft 365 through Microsoft Graph** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `o365-graph`, which the **Microsoft 365 through Microsoft Graph** integration sends.
+
+This category contains **20** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Graph Admin Role Assignment Detected | Privilege Escalation | T1098.003 - Account Manipulation: Additional Cloud Roles | C:3 / I:3 / A:1 |
+| Graph Application Consent Granted | Initial Access | T1528 - Steal Application Access Token | C:3 / I:2 / A:1 |
+| Graph Application Credential Added | Persistence | T1098.001 - Account Manipulation: Additional Cloud Credentials | C:3 / I:3 / A:1 |
+| Graph Conditional Access Policy Changed | Defense Evasion | T1556.009 - Modify Authentication Process: Conditional Access Policies | C:2 / I:3 / A:1 |
+| Graph Domain Federation Settings Changed | Persistence | T1484.002 - Domain or Tenant Policy Modification: Trust Modification | C:3 / I:3 / A:2 |
+| Graph High-Risk Sign-In Succeeded | Initial Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:2 / A:1 |
+| Graph Identity Protection Risk Detected | Credential Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:2 / A:1 |
+| Graph Inbox Rule Forwards Mail | Collection | T1114.003 - Email Collection: Email Forwarding Rule | C:3 / I:2 / A:1 |
+| Graph Mailbox Forwarding Set | Collection | T1114.003 - Email Collection: Email Forwarding Rule | C:3 / I:2 / A:1 |
+| Graph Mailbox Full Access Granted | Persistence | T1098.002 - Account Manipulation: Additional Email Delegate Permissions | C:3 / I:2 / A:1 |
+| Graph Malicious Email Delivered to Mailbox | Initial Access | T1566 - Phishing | C:3 / I:2 / A:1 |
+| Graph Microsoft Defender High Severity Alert | Security Alert | Microsoft Defender XDR alert | C:3 / I:3 / A:2 |
+| Graph Microsoft Defender Medium Severity Alert | Security Alert | Microsoft Defender XDR alert | C:2 / I:2 / A:1 |
+| Graph Password Spray from One Address | Credential Access | T1110.003 - Brute Force: Password Spraying | C:3 / I:2 / A:2 |
+| Graph Repeated Multi-Factor Prompts Failed | Credential Access | T1621 - Multi-Factor Authentication Request Generation | C:3 / I:2 / A:1 |
+| Graph Sensitive Application Permission Granted | Privilege Escalation | T1098.003 - Account Manipulation: Additional Cloud Roles | C:3 / I:3 / A:1 |
+| Graph Sign-In Succeeded After Repeated Password Failures | Credential Access | T1110.001 - Brute Force: Password Guessing | C:3 / I:2 / A:1 |
+| Graph Unified Audit Logging Disabled | Defense Evasion | T1562.008 - Impair Defenses: Disable or Modify Cloud Logs | C:2 / I:3 / A:2 |
+| Graph User Flagged as Compromised or High Risk | Credential Access | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:2 / A:1 |
+| Graph User Opened a Malicious Link | Initial Access | T1204.001 - User Execution: Malicious Link | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Graph Admin Role Assignment Detected** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_admin_role_assignment.yaml)):
+
+```yaml
+# Rule version v1.1.0
+
+dataTypes:
+  - o365-graph
+name: Graph Admin Role Assignment Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1098.003 - Account Manipulation: Additional Cloud Roles"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference
+  - https://attack.mitre.org/techniques/T1098/003/
+description: |
+  An Entra ID administrator role, or eligibility for one, was granted to a user or a service principal. Attackers who gain an administrative session often give a second account or an application a privileged role so they keep control after the first account is cleaned up. Routine just-in-time activations of an existing eligibility are not reported.
+
+  One alert is raised per account that receives a role; further roles for the same account within seven days are suppressed, because administrators often grant several roles at once.
+
+  Next Steps:
+  1. Confirm with the person who made the change (origin user) that the assignment was planned and approved.
+  2. Check the account that received the role (target user, or log.targetDisplayName for an application) for recent sign-ins from unusual places.
+  3. Remove the role if it is not justified, and review what the account did with it.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  oneOf("action", ["Add member to role", "Add eligible member to role", "Add member to role scoped over Restricted Management Administrative Unit", "Add member to role in PIM completed (permanent)", "Add member to role in PIM completed (timebound)", "Add eligible member to role in PIM completed (permanent)", "Add eligible member to role in PIM completed (timebound)"]) &&
+  (regexMatch("log.roleName", "(?i)(administrator|partner tier[12] support|directory writers)") ||
+   (equals("log.targetType", "Role") && regexMatch("log.targetDisplayName", "(?i)(administrator|partner tier[12] support|directory writers)")))
+deduplicateBy:
+  - lastEvent.log.targetId
+
+```
+
+---
+
+## Rule Details
+
+### Graph Admin Role Assignment Detected
+
+An Entra ID administrator role, or eligibility for one, was granted to a user or a service principal. Attackers who gain an administrative session often give a second account or an application a privileged role so they keep control after the first account is cleaned up. Routine just-in-time activations of an existing eligibility are not reported.
+
+One alert is raised per account that receives a role; further roles for the same account within seven days are suppressed, because administrators often grant several roles at once.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098.003 - Account Manipulation: Additional Cloud Roles
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [graph_admin_role_assignment.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_admin_role_assignment.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/003/](https://attack.mitre.org/techniques/T1098/003/)
+
+### Graph Application Consent Granted
+
+A user or an administrator consented to an application in Entra ID, giving it access to company data. Illicit consent phishing tricks users into approving a malicious application that then reads mail and files through Microsoft Graph without needing the user's password. Admin consent is recorded in log.targetResources (ConsentContext.IsAdminConsent) and grants the access for every user.
+
+One alert is raised per application; further consents to the same application within seven days are suppressed, because many users often consent to one new application in the same hour.
+
+- **Category:** Initial Access
+- **Technique:** T1528 - Steal Application Access Token
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_app_consent_granted.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_app_consent_granted.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants](https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants)
+- **Reference:** [https://attack.mitre.org/techniques/T1528/](https://attack.mitre.org/techniques/T1528/)
+
+### Graph Application Credential Added
+
+A secret or certificate was added to an existing application registration or service principal in Entra ID. A new credential lets whoever holds it sign in as the application, with all its permissions, without any user password or multi-factor prompt. Attackers use this to keep access to mail and files after a compromise.
+
+Entra ID writes the activity name with a long dash and a trailing space ("Update application – Certificates and secrets management "), so the rule matches the name by pattern. Creating a brand new application with a secret is not reported.
+
+One alert is raised per person or application making the change; repeats within seven days are suppressed, because automated secret rotation updates many applications at once.
+
+- **Category:** Persistence
+- **Technique:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [graph_app_credential_added.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_app_credential_added.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+
+### Graph Conditional Access Policy Changed
+
+An Entra ID Conditional Access policy was created, changed or deleted. These policies decide who must use multi-factor sign-in and from where; an attacker with administrator access weakens or removes them, or adds an exclusion, so stolen credentials keep working.
+
+One alert is raised per person and kind of change (create, update, delete); repeats within seven days are suppressed, because administrators often roll out several policies together.
+
+- **Category:** Defense Evasion
+- **Technique:** T1556.009 - Modify Authentication Process: Conditional Access Policies
+- **Impact:** C:2 / I:3 / A:1
+- **Rule file:** [graph_conditional_access_policy_changed.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_conditional_access_policy_changed.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/009/](https://attack.mitre.org/techniques/T1556/009/)
+
+### Graph Domain Federation Settings Changed
+
+The authentication of an Entra ID domain was switched, or its federation settings were changed. Whoever controls a domain's federation can sign in as any user of that domain without their password ("Golden SAML" and federated backdoors), so this change is rare and must always be confirmed.
+
+One alert is raised per domain and kind of change; repeats are suppressed for seven days.
+
+- **Category:** Persistence
+- **Technique:** T1484.002 - Domain or Tenant Policy Modification: Trust Modification
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [graph_domain_federation_changed.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_domain_federation_changed.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1484/002/](https://attack.mitre.org/techniques/T1484/002/)
+
+### Graph High-Risk Sign-In Succeeded
+
+A sign-in succeeded although Microsoft Entra ID Protection rated it high risk (log.riskLevelDuringSignIn or log.riskLevelAggregated), for example a sign-in from an anonymizing service, with leaked credentials or with an unusual token. Risk levels need Entra ID P2; without it Microsoft reports them as hidden and this rule does not fire.
+
+One alert is raised per user and address; repeats are suppressed for seven days.
+
+- **Category:** Initial Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_high_risk_signin.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_high_risk_signin.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/signin](https://learn.microsoft.com/en-us/graph/api/resources/signin)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Graph Identity Protection Risk Detected
+
+Microsoft Entra ID Protection raised a risk detection that is still open: either rated high, or one of the kinds that points to a compromised account whatever its level (leaked credentials, Microsoft threat intelligence, password spray, anomalous or forged tokens, malicious addresses, suspicious inbox forwarding or inbox rules, or an administrator confirming the compromise). The kind is in log.riskEventType.
+
+One alert is raised per user and kind of detection; repeats are suppressed for seven days.
+
+- **Category:** Credential Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_risk_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_risk_detection.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Graph Inbox Rule Forwards Mail
+
+An inbox rule was created or changed to forward, redirect or forward as attachment the messages it matches (New-InboxRule or Set-InboxRule with ForwardTo, RedirectTo or ForwardAsAttachmentTo). This is a common step after a mailbox is taken over: the attacker keeps receiving the victim's mail, often only messages about payments or passwords. The destination is in log.forwardingAddress and the rule in log.ObjectId.
+
+One alert is raised per rule and destination; repeats are suppressed for seven days.
+
+- **Category:** Collection
+- **Technique:** T1114.003 - Email Collection: Email Forwarding Rule
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_inbox_rule_forwarding.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_inbox_rule_forwarding.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/003/](https://attack.mitre.org/techniques/T1114/003/)
+
+### Graph Mailbox Forwarding Set
+
+Set-Mailbox gave a mailbox a forwarding address (ForwardingSmtpAddress or ForwardingAddress), so every message it receives is also sent there. Attackers set forwarding on a compromised or targeted mailbox to keep reading its mail. The destination is in log.forwardingAddress and the mailbox in log.ObjectId. Clearing forwarding is not reported.
+
+One alert is raised per mailbox and destination; repeats are suppressed for seven days.
+
+- **Category:** Collection
+- **Technique:** T1114.003 - Email Collection: Email Forwarding Rule
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_mailbox_forwarding_set.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_mailbox_forwarding_set.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1114/003/](https://attack.mitre.org/techniques/T1114/003/)
+
+### Graph Mailbox Full Access Granted
+
+A person was given full access to another mailbox with Add-MailboxPermission. Full access lets them read every message in it; attackers grant it to an account they control to keep reading a target's mail. The mailbox is in log.ObjectId and the account that received access in log.permissionGrantee. Changes made by Exchange's own service accounts (NT SERVICE, NT AUTHORITY) while it provisions system mailboxes are not reported.
+
+One alert is raised per person granting access; repeats within seven days are suppressed, because administrators often grant access to many mailboxes in one session.
+
+- **Category:** Persistence
+- **Technique:** T1098.002 - Account Manipulation: Additional Email Delegate Permissions
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_mailbox_full_access_granted.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_mailbox_full_access_granted.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/002/](https://attack.mitre.org/techniques/T1098/002/)
+
+### Graph Malicious Email Delivered to Mailbox
+
+Microsoft Defender for Office 365 classified an inbound message as phishing or malware (log.ThreatTypes) but it was still delivered to the recipient's inbox or folders, for example because of an allow rule or a policy that only marks such mail. The user can open it.
+
+One alert is raised per sender and threat type; repeats are suppressed for seven days.
+
+- **Category:** Initial Access
+- **Technique:** T1566 - Phishing
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_malicious_email_delivered.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_malicious_email_delivered.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-emailevents-table](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-emailevents-table)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+
+### Graph Microsoft Defender High Severity Alert
+
+Microsoft Defender XDR raised a high severity alert (Defender for Endpoint, Office 365, Identity, Cloud Apps, Entra ID Protection or data loss prevention). The title is in log.title, the product in log.serviceSource and the evidence in log.evidence; the affected user, device, mailbox or file is copied to target. Resolved alerts and alerts classified as false positives are not reported.
+
+Microsoft updates an alert several times; one UTMStack alert is raised per Defender detector and affected entity, and repeats are suppressed for seven days.
+
+- **Category:** Security Alert
+- **Technique:** Microsoft Defender XDR alert
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [graph_defender_high_severity_alert.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_defender_high_severity_alert.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/security-alert](https://learn.microsoft.com/en-us/graph/api/resources/security-alert)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts](https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts)
+
+### Graph Microsoft Defender Medium Severity Alert
+
+Microsoft Defender XDR raised a medium severity alert (Defender for Endpoint, Office 365, Identity, Cloud Apps, Entra ID Protection or data loss prevention). The title is in log.title, the product in log.serviceSource and the evidence in log.evidence; the affected user, device, mailbox or file is copied to target. Resolved alerts and alerts classified as false positives are not reported.
+
+Microsoft updates an alert several times; one UTMStack alert is raised per Defender detector and affected entity, and repeats are suppressed for seven days.
+
+- **Category:** Security Alert
+- **Technique:** Microsoft Defender XDR alert
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [graph_defender_medium_severity_alert.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_defender_medium_severity_alert.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/security-alert](https://learn.microsoft.com/en-us/graph/api/resources/security-alert)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts](https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts)
+
+### Graph Password Spray from One Address
+
+One address had at least 50 Entra ID sign-ins fail with a wrong user name or password (error 50126) within 30 minutes. Spraying tries a few common passwords against many accounts from the same address. The threshold sits above the busiest real day measured on customer Office 365 tenants, where a company gateway reached 20 such failures in half an hour.
+
+Graph publishes sign-ins up to ten minutes late and in batches, so the count looks back 30 minutes. One alert is raised per address; repeats are suppressed for seven days.
+
+- **Category:** Credential Access
+- **Technique:** T1110.003 - Brute Force: Password Spraying
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [graph_signin_password_spray.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_signin_password_spray.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/signin](https://learn.microsoft.com/en-us/graph/api/resources/signin)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes](https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/003/](https://attack.mitre.org/techniques/T1110/003/)
+
+### Graph Repeated Multi-Factor Prompts Failed
+
+At least five Entra ID sign-ins for one user failed at the multi-factor step (error 500121, the user denied or did not answer the prompt) within an hour. An attacker who already has the password sends prompt after prompt until the user approves one. The reason for each failure is in log.status.additionalDetails.
+
+One alert is raised per user; repeats are suppressed for seven days.
+
+- **Category:** Credential Access
+- **Technique:** T1621 - Multi-Factor Authentication Request Generation
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_mfa_fatigue.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_mfa_fatigue.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/signin](https://learn.microsoft.com/en-us/graph/api/resources/signin)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes](https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes)
+- **Reference:** [https://attack.mitre.org/techniques/T1621/](https://attack.mitre.org/techniques/T1621/)
+
+### Graph Sensitive Application Permission Granted
+
+An application was granted a Microsoft Graph or Exchange permission that reaches every mailbox, every file or the directory itself (for example Mail.Read, Files.ReadWrite.All, RoleManagement.ReadWrite.Directory or full_access_as_app). Application permissions work without a signed-in user, so an application holding one can read or change data across the whole company. Attackers grant these to an application they control to keep silent access.
+
+The permission is in log.appRoleValue (application permission) or log.permissionScope (delegated permission granted for all users). One alert is raised per application and permission; repeats are suppressed for seven days.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098.003 - Account Manipulation: Additional Cloud Roles
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [graph_sensitive_app_permission_granted.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_sensitive_app_permission_granted.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/permissions-reference](https://learn.microsoft.com/en-us/graph/permissions-reference)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/003/](https://attack.mitre.org/techniques/T1098/003/)
+
+### Graph Sign-In Succeeded After Repeated Password Failures
+
+A user signed in to Entra ID successfully after at least 20 sign-ins for the same account failed with a wrong password (error 50126) in the hour before. A run of failures followed by a success is how a guessed or sprayed password shows up. The threshold sits above what users who mistype their password produce on the busiest customer Office 365 tenants measured.
+
+One alert is raised per user and address; repeats are suppressed for seven days.
+
+- **Category:** Credential Access
+- **Technique:** T1110.001 - Brute Force: Password Guessing
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_signin_success_after_failures.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_signin_success_after_failures.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/signin](https://learn.microsoft.com/en-us/graph/api/resources/signin)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes](https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/001/](https://attack.mitre.org/techniques/T1110/001/)
+
+### Graph Unified Audit Logging Disabled
+
+Set-AdminAuditLogConfig turned off the Microsoft 365 unified audit log (UnifiedAuditLogIngestionEnabled set to False). From then on no Exchange, SharePoint, OneDrive, Teams or Entra ID activity is recorded, and the Purview audit records this integration collects stop. Attackers do this to hide what they do next.
+
+One alert is raised per organization; repeats are suppressed for seven days.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable or Modify Cloud Logs
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [graph_unified_audit_log_disabled.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_unified_audit_log_disabled.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/purview/audit-log-enable-disable](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+
+### Graph User Flagged as Compromised or High Risk
+
+Microsoft Entra ID Protection now rates a user as high risk, or an administrator confirmed the user as compromised. The collector reports a user only when their risk level or state changes, so this fires on the change itself.
+
+One alert is raised per user, state and level; repeats are suppressed for seven days.
+
+- **Category:** Credential Access
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_risky_user_compromised.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_risky_user_compromised.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskyuser](https://learn.microsoft.com/en-us/graph/api/resources/riskyuser)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Graph User Opened a Malicious Link
+
+A user opened a link that Safe Links rated as phishing or malware (log.ThreatTypes), either because the click was allowed or because the user continued past the warning page. The user may have entered credentials or downloaded malware.
+
+One alert is raised per user and link; repeats are suppressed for seven days.
+
+- **Category:** Initial Access
+- **Technique:** T1204.001 - User Execution: Malicious Link
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [graph_malicious_url_clicked.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/o365_graph/graph_malicious_url_clicked.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-urlclickevents-table](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-urlclickevents-table)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/001/](https://attack.mitre.org/techniques/T1204/001/)

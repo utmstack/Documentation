@@ -1,0 +1,168 @@
+UTMStack v12.0.2 ships 94 ready-made response flows. They all arrive switched off. 13 of them have a trigger and can run on their own once you switch them on; the other 81 have a placeholder trigger on purpose and run only when you start them by hand or after you copy them and give the copy a trigger.
+
+## What you need to know first
+
+- Shipped flows (marked **System** on the **Flows** page) cannot be edited or deleted. To change one, copy it with **New flow > From an existing one**. The copy is saved switched off and is yours to edit.
+- Each tenant switches shipped flows on separately.
+- Shipped flows act for real: they block addresses, disable or expire accounts, stop processes, isolate machines and shut them down. Read every command in the **Code** tab before you use a flow.
+- Many shipped commands put quotes around a placeholder, for example `remoteip="$(alert.adversary.ip)"`. With the automatic quoting of UTMStack v12.0.2 those values arrive with extra quote characters. Remove the quotes around placeholders in your copy. See **Placeholders**.
+- Several commands were converted from UTMStack v11 and read fields that an alert may not carry (for example process names from the event). A placeholder that cannot be filled in is sent as written. Test a copy with **Trigger flow** against a real alert before you switch it on.
+
+> [!DANGER]
+> Do not switch on a shipped flow to try it out. Use **Trigger flow** on a test machine instead (see **Flows Page**). A switched-on flow runs on every matching alert, on the machine that raised it.
+
+## Flows that have a trigger
+
+These 13 flows start when an alert with the given name is raised, once you switch them on. In each of them every step is wired to the next one on both the success and the error wire, so all steps run in order whatever the result of the previous one.
+
+Only 6 of the 13 alert names match a correlation rule that ships with UTMStack v12.0.2. The other 7 name an alert that no shipped rule raises, so these flows run only if you add a correlation rule with exactly that name (see **Building a Flow** for how matching works).
+
+| Flow name (as shown) | Starts on alert name | Shipped rule with this name in v12.0.2 | Platform | Steps | What it runs |
+|---|---|---|---|---|---|
+| System Linux: Possible Brute Force Attack | System Linux: Possible Brute Force Attack | Yes | `ubuntu` | 2 | Blocks the attacker's address on port 22 (ufw) and kills the target user's processes; then blocks the attacker's address on all ports. |
+| Linux - Ubuntu - Brute Force User via SSH | SSH Brute Force Attempts | **No** | `ubuntu` | 4 | Blocks the attacker's address on port 22 (ufw), expires the target account and **shuts the machine down**; then sets the adversary user's shell to nologin, shuts down again and kills the target user's processes. |
+| Windows Server - Failed RDP Brute Force Response | RDP Brute Force Attack | **No** | `windows` | 2 | Adds an inbound Windows Firewall block rule for the attacker's address (twice, under two rule names). |
+| Windows: Multiple remote access login failures | Windows: Multiple remote access login failures | **No** | `windows` | 2 | Adds an inbound block rule for `alert.origin.ip`, then a netsh inbound block rule for the attacker's address. |
+| Windows: Possible Brute Force Attack | Windows: Possible Brute Force Attack | Yes | `windows` | 3 | Adds an inbound block rule for the attacker's address (twice), then disables the adversary user account. |
+| Windows: Multiple Logon Failure Followed by Logon Success | Windows: Multiple Logon Failure Followed by Logon Success | Yes | `windows` | 3 | Blocks the attacker's address and disables the target user; blocks the address again; disables the adversary user. |
+| Windows Server - Volume Shadow Copy Deletion | Volume Shadow Copy Deletion | **No** | `windows` | 4 | Kills the target process, logs off and disables the target user; kills the adversary process; disables the adversary user; logs off the target user. |
+| Windows: Volume Shadow Copy Deletion | Volume Shadow Copy Deletion | **No** | `windows` | 4 | Kills the target process, disables and logs off the target user; kills the adversary process; disables the adversary user; logs off the target user. |
+| System Linux: Attempt to Disable Syslog Service | System Linux: Attempt to Disable Syslog Service | Yes | `ubuntu` | 3 | Kills the target user's processes and expires the account; sets the adversary user's shell to nologin; kills the target user's processes again. |
+| Windows: PowerShell Keylogging Script | Windows: PowerShell Keylogging Script | **No** | `windows` | 2 | Kills the process by the ID and name in the event, then kills the adversary process. |
+| Windows Server - PowerShell Empire Detection | PowerShell Empire Detection | **No** | `windows` | 3 | Kills the target process, deletes the target file and disables the target user; deletes the adversary path; disables the adversary user. |
+| Windows Server - AdminSDHolder Abuse Detection | AdminSDHolder Abuse Detection | Yes | `windows` | 2 | Disables the adversary user account (two attempts). |
+| Linux - CentOS/RHEL - RHEL-Specific Kernel Exploitation Attempt | RHEL-Specific Kernel Exploitation Attempt | Yes | `centos` | 3 | Kills the target user's processes and expires the account; sets the adversary user's shell to nologin; kills the target user's processes again. |
+
+<Warning>
+
+**Linux - Ubuntu - Brute Force User via SSH** shuts the machine down. Do not switch it on for servers that must stay up.
+
+</Warning>
+
+## Flows without a trigger
+
+The other 81 flows have the trigger `name IS TODO-set-the-correlation-rule-that-triggers-this`. No alert has that name, so they never start on their own. The file header explains why: a broad condition would run these destructive actions on every alert, and choosing which detection should run them is your decision.
+
+You can use them in two ways:
+
+1. **Copy and complete.** Copy the flow, set a real trigger (usually the alert name of one correlation rule), remove quotes around placeholders, check the platform and shell, test with **Trigger flow**, then switch the copy on.
+2. **Run by hand from an alert.** The lightning button in an alert's row in **Threat Management > Alerts**, and the lightning button in the side panel of **Live Operations**, look for the shipped flow made for that kind of alert and the host's platform. The button shows the flow's name ("Finding a response…" while it looks, "No system flow covers this alert" when there is none). Click it to start that flow once on the alert's host. You see "Response triggered" or "Could not trigger the response". This is a manual start, so it needs the `soar.execute` permission (Administrator role), and it works even though the flow is switched off.
+
+### Standard responses
+
+These 30 flows are named after an attack type, a platform, the side of the alert they act on, and the action, for example `iocMatch-linux-host-block-ip`. The alert response button picks from them by that name.
+
+| Flow name (as shown) | File | Platform | What it runs |
+|---|---|---|---|
+| Disable changed user | `accountChange-macos-target-disable-user` | `macos` | Runs `pwpolicy -setstatus On` for the target user. |
+| Kill tunnel process | `c2tunnel-linux-host-kill-process` | `ubuntu` | Saves the matching processes to `/var/log/utmstack-evidence.txt`, then kills processes matching the target process. |
+| Kill tunnel process | `c2tunnel-windows-host-kill-process` | `windows` | Saves the process details to `C:\utmstack-c2-evidence.txt`, then stops the target process. |
+| Block threat IP | `cloud-linux-host-block-ip` | `ubuntu` | Blocks the attacker's address in the iptables INPUT and FORWARD chains. |
+| Kill exfil process | `exfil-windows-host-kill-process` | `windows` | Saves the process details to `C:\utmstack-exfil-evidence.txt`, then stops the target process. |
+| Disable compromised user | `generic-linux-target-disable-user` | `ubuntu` | Sets the target user's shell to nologin, or locks the account. |
+| Disable compromised user | `generic-windows-target-disable-user` | `windows` | Disables the target user account. |
+| Block threat IP | `iocMatch-linux-host-block-ip` | `ubuntu` | Blocks the attacker's address inbound and outbound (iptables). |
+| Block threat IP | `iocMatch-macos-host-block-ip` | `macos` | Adds inbound and outbound block rules to `/etc/pf.utmstack.conf` and loads that file in pf. |
+| Block threat IP | `iocMatch-windows-host-block-ip` | `windows` | Adds inbound and outbound Windows Firewall block rules for the attacker's address. |
+| Disable compromised user | `kerberosTicket-windows-target-disable-user` | `windows` | Disables the target user account. |
+| Block threat IP | `perimeterDetect-linux-host-block-ip` | `ubuntu` | Blocks the attacker's address inbound (iptables). |
+| Block threat IP | `perimeterDetect-windows-host-block-ip` | `windows` | Adds an inbound block rule for the attacker's address. |
+| Remove persistence and disable user | `persistence-linux-host-remove-persistence` | `ubuntu` | Saves cron jobs and enabled services to `/var/log/utmstack-persistence-evidence.txt`; then removes the crontab of the account the agent runs as and disables the target user. |
+| Remove persistence and disable user | `persistence-macos-host-remove-persistence` | `macos` | Lists LaunchAgents and LaunchDaemons into an evidence file; then unloads the target user's LaunchAgents and runs `pwpolicy -setstatus On` for the target user. |
+| Remove persistence and disable user | `persistence-windows-host-remove-persistence` | `windows` | Saves scheduled tasks and Run keys to `C:\utmstack-persistence-evidence.txt`; then deletes the scheduled task named after the target process and disables the target user. |
+| Reset account password | `phishing-linux-host-reset-password` | `ubuntu` | Sets a new password for the target user with `passwd --stdin`, or forces a password change at next sign-in. |
+| Reset account password | `phishing-macos-host-reset-password` | `macos` | Runs `dscacheutil -q user` for the target user. This looks the user up; it does not change the password. |
+| Reset account password | `phishing-windows-host-reset-password` | `windows` | Runs `net user` for the target user with the `*` password option. |
+| Isolate host | `ransomware-linux-host-isolate` | `ubuntu` | Brings every network interface except loopback down. |
+| Isolate host | `ransomware-macos-host-isolate` | `macos` | Brings every hardware network port down. |
+| Kill reverse shell process | `reverseShell-linux-host-kill-process` | `ubuntu` | Saves the matching processes to `/var/log/utmstack-evidence.txt`, then kills processes matching the target process. |
+| Kill reverse shell process | `reverseShell-windows-host-kill-process` | `windows` | Saves the process details to `C:\utmstack-revshell-evidence.txt`, then stops the target process. |
+| Disable compromised user | `softwareDeploy-linux-target-disable-user` | `ubuntu` | Sets the target user's shell to nologin, or locks the account. |
+| Block threat IP | `toolDownload-linux-host-block-ip` | `ubuntu` | Blocks the attacker's address inbound (iptables). |
+| Block threat IP | `toolDownload-macos-host-block-ip` | `macos` | Adds an inbound TCP block rule to `/etc/pf.utmstack.conf` and loads that file in pf. |
+| Block threat IP | `toolDownload-windows-host-block-ip` | `windows` | Adds an inbound block rule for the attacker's address. |
+| Reset account password | `userExec-linux-host-reset-password` | `ubuntu` | Sets a new password for the target user with `passwd --stdin`, or forces a password change at next sign-in. |
+| Reset account password | `userExec-macos-host-reset-password` | `macos` | Runs `dscacheutil -q user` for the target user. This looks the user up; it does not change the password. |
+| Reset account password | `userExec-windows-host-reset-password` | `windows` | Runs `net user` for the target user with the `*` password option. |
+
+### Former UTMStack v11 playbooks
+
+These 8 flows come from UTMStack v11 playbooks whose correlation rule does not ship with UTMStack v12, so their trigger was replaced with the placeholder.
+
+| Flow name (as shown) | File | Platform | What it runs |
+|---|---|---|---|
+| Windows: A user account was added to administration groups | `accountChange-windows-target-disable-user` | `windows` | Disables the target user, then the adversary user. |
+| Linux - Process Injection Techniques Detection | `processInjection-linux-target-disable-user` | `ubuntu` | Expires the target user's account; sets the adversary user's shell to nologin. |
+| Linux - CentOS/RHEL - CVE Vulnerability Detection in RHEL System | `webAttack-linux-host-shutdown` | `centos` | **Shuts the machine down** (two attempts). |
+| Windows Defender Exclusions Added via PowerShell | `windows-defender-exclusions-added-via-powershell` | `windows` | Reads the event's log message and removes the process or path exclusion it names. |
+| Windows Defender: Protection Disabled | `windows-defender-protection-disabled` | `windows` | Runs `MpCmdRun.exe -Enable`, then turns Defender real-time monitoring back on. |
+| Windows: Disable Windows Firewall Rules via Netsh | `windows-disable-windows-firewall-rules-via-netsh` | `windows` | Turns the firewall on for all profiles, then enables **all** firewall rules. |
+| Windows: Disabling Windows Defender Security Settings via PowerShell | `windows-disabling-windows-defender-security-settings-via-powershell` | `windows` | Step 1 sets several Defender settings (real-time and behaviour monitoring, PUA protection, MAPS reporting, cloud protection) to on when the log message mentions them and to **off** when it does not. Step 2 turns back on the settings the log message names. |
+| Windows: Remote Desktop Enabled in Windows Firewall by Netsh | `windows-remote-desktop-enabled-in-windows-firewall-by-netsh` | `windows` | Turns Remote Desktop off and removes the firewall rule named in the event's log message. |
+
+### Former UTMStack v11 action templates
+
+UTMStack v11 had a catalogue of 73 action templates. In UTMStack v12 those that were kept became these 43 single-step flows, so you can copy a whole flow instead of picking a command. Their trigger is a placeholder, and their **Platform** is only a hint for whoever completes them: it does not stop the command from running on another kind of machine.
+
+| Flow name (as shown) | File | Platform | What it runs |
+|---|---|---|---|
+| Windows: Shutdown OS forced | `dataDestruction-windows-host-shutdown` | `windows` | **Shuts the machine down at once** (`shutdown /s /f /t 0`). |
+| Enable Windows Defender | `defenseEvasion-windows-host-restore-av` | `windows` | Turns Defender real-time monitoring back on. |
+| Disable RDP and remove rule in FW | `disable-rdp-and-remove-rule-in-fw` | `windows` | Turns Remote Desktop off and removes the firewall rule named in the log message. |
+| Windows: Disable RPD | `lateral-windows-host-disable-rdp` | `windows` | Turns Remote Desktop off. |
+| Linux: Disable target.user | `linux-disable-target-user` | `linux` | Sets the target user's shell to nologin. |
+| Linux: Isolate host | `linux-isolate-host` | `linux` | Brings every network interface except loopback down. |
+| Macos: Disable adversary.user | `macos-disable-adversary-user` | `macos` | Sets the adversary user's shell to `/usr/bin/false`. |
+| Macos: Disable target.user | `macos-disable-target-user` | `macos` | Sets the target user's shell to `/usr/bin/false`. |
+| Macos: Isolate host | `macos-isolate-host` | `macos` | Turns every network service off. |
+| Kill suspicious keylogging process by name | `malware-windows-host-kill-process-name` | `windows` | Kills the process named in the event. |
+| Kill suspicious keylogging process by PID | `malware-windows-host-kill-process-pid` | `windows` | Kills the process ID given in the event. |
+| Linux: Block server outbound network access | `outbound-linux-host-block-ip` | `linux` | Blocks outbound traffic to the attacker's address (iptables). |
+| Macos: Block server outbound network access | `outbound-macos-host-block-ip` | `macos` | Loads one pf rule that blocks outbound traffic to the attacker's address. `pfctl -f -` replaces the rules pf has loaded. |
+| Windows: Block server outbound network access | `outbound-windows-host-block-ip` | `windows` | Adds an outbound block rule for the attacker's address. |
+| Linux: Remove all permissions for a user | `privEsc-linux-adversary-remove-permissions` | `linux` | Removes the adversary user from all its secondary groups. |
+| Macos: Remove all permissions for a user | `privEsc-macos-adversary-remove-permissions` | `macos` | Removes the adversary user from its groups, except staff and everyone. |
+| Windows: Remove all permissions for a user | `privEsc-windows-adversary-remove-permissions` | `windows` | Removes the adversary user from every local group except Users. |
+| Remove exclusions via added powershell | `remove-exclusions-via-added-powershell` | `windows` | Removes the Defender process or path exclusion named in the log message. |
+| Remove folder and process exclusion added via powershell | `remove-folder-and-process-exclusion-added-via-powershell` | `windows` | Removes the Defender process or path exclusion named in the log message. |
+| Remove Folder Exclusion | `remove-folder-exclusion` | `windows` | Removes the Defender path exclusion named in the log message. |
+| Remove Process Exclusion | `remove-process-exclusion` | `windows` | Removes a Defender process exclusion. The command contains the fixed example name `evil.exe`; edit it in your copy. |
+| Restore Behavior Monitoring | `restore-behavior-monitoring` | `windows` | Turns Defender behaviour monitoring on when the log message mentions `-DisableBehaviorMonitoring`, and **off** otherwise. |
+| Restore Cloud-based Protection | `restore-cloud-based-protection` | `windows` | Sets Defender cloud protection to 1 when the log message mentions `CloudProtection`, and to 0 otherwise. |
+| Restore MAPS Reporting | `restore-maps-reporting` | `windows` | Sets Defender MAPS reporting to 1 when the log message mentions `-MAPSReporting`, and to 0 otherwise. |
+| Restore PUA Protection | `restore-pua-protection` | `windows` | Sets Defender PUA protection to Enabled when the log message mentions `-PUAProtection`, and to Disabled otherwise. |
+| Restore Real-time Monitoring | `restore-real-time-monitoring` | `windows` | Turns Defender real-time monitoring on when the log message mentions `-DisableRealtimeMonitoring`, and **off** otherwise. |
+| Linux OpenSUSE: Block server inbound network access | `scan-linux-adversary-block-ip-inbound-opensuse` | `rhel` | Adds a firewalld rule that drops the attacker's address, then reloads firewalld. |
+| Linux RHEL: Block server inbound network access | `scan-linux-adversary-block-ip-inbound-rhel` | `rhel` | Adds a firewalld rule that drops the attacker's address, then reloads firewalld. |
+| Linux Debian: Block server inbound network access | `scan-linux-adversary-block-ip-inbound` | `ubuntu` | Appends an iptables INPUT rule that drops the attacker's address. |
+| Linux OpenSUSE: Block Adversary IP | `scan-linux-adversary-block-ip-opensuse` | `rhel` | Adds a firewalld rule that drops the attacker's address, then reloads firewalld. |
+| Linux RHEL: Block Adversary IP | `scan-linux-adversary-block-ip-rhel` | `rhel` | Adds a firewalld rule that drops the attacker's address, then reloads firewalld. |
+| Linux Debian: Block Adversary IP | `scan-linux-adversary-block-ip` | `ubuntu` | Appends an iptables INPUT rule that drops the attacker's address. |
+| Macos: Block server inbound network access | `scan-macos-adversary-block-ip` | `macos` | Loads one pf rule that blocks inbound traffic from the attacker's address. `pfctl -f -` replaces the rules pf has loaded. |
+| Windows: Block server inbound network access | `scan-windows-adversary-block-ip-inbound` | `windows` | Adds an inbound block rule for the attacker's address. |
+| Windows: Block Adversary IP | `scan-windows-adversary-block-ip` | `windows` | Adds an inbound block rule for the attacker's address. |
+| Disable Compromised User Account | `travel-linux-target-disable-user` | `linux` | Expires the target user's account. |
+| Windows Defender: Auto Reenable Protections | `windows-defender-auto-reenable-protections` | `windows` | Turns back on the Defender settings named in the log message. |
+| Windows Defender: Enable Windows Defender protection | `windows-defender-enable-windows-defender-protection` | `windows` | Turns Defender real-time monitoring back on. |
+| Windows: Disable adversary.user | `windows-disable-adversary-user` | `windows` | Disables the adversary user account. |
+| Windows: Disable RDP and disable FW rule | `windows-disable-rdp-and-disable-fw-rule` | `windows` | Turns Remote Desktop off and removes the firewall rule named in the log message. |
+| Windows: Disable target.user | `windows-disable-target-user` | `windows` | Disables the target user account. |
+| Windows: Enable firewall rules previously disabled | `windows-enable-firewall-rules-previously-disabled` | `windows` | Enables **all** Windows Firewall rules. |
+| Windows: Isolate host | `windows-isolate-host` | `windows` | Disables every network adapter. The machine loses its connection to UTMStack. |
+
+## Ready-made commands in the editor
+
+Besides the shipped flows, the editor palette has nine ready-made shell steps for each platform (isolate, shut down, kill a process, log a user out, disable a user, block an address, restart, uninstall a package, remove a file). See **Building a Flow**.
+
+## Changed from UTMStack v11
+
+- The 23 playbooks and 73 action templates are replaced by these 94 flows.
+- Placeholders were rewritten to start with `alert.`, for example `$(alert.adversary.ip)`.
+- Several former playbooks no longer have a trigger: Windows Defender Exclusions Added via PowerShell, Windows Defender: Protection Disabled, Windows: Disabling Windows Defender Security Settings via PowerShell, Windows: Disable Windows Firewall Rules via Netsh, Windows: Remote Desktop Enabled in Windows Firewall by Netsh, Windows: A user account was added to administration groups, Linux - Process Injection Techniques Detection, and Linux - CentOS/RHEL - CVE Vulnerability Detection in RHEL System.
+
+## Related pages
+
+- **Flows Page**
+- **Building a Flow**
+- **Placeholders**
+- **Use Cases**

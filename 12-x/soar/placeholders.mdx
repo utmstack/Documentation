@@ -1,0 +1,78 @@
+Placeholders put values from the alert into a step, for example the attacker's address into a firewall command. UTMStack v12 fills them in when the step runs and, since v12.0.2, quotes every value it inserts. This page explains the syntax, which alert fields you can use, and how the quoting works.
+
+## Syntax
+
+Write `$(alert.<field path>)`. Every alert path starts with `alert.`.
+
+```bash
+iptables -I INPUT -s $(alert.adversary.ip) -j DROP
+```
+
+Stored variables use a different form, `$[variables.NAME]`; see **Step Outputs and Variables**.
+
+You can use placeholders in shell commands and in the fields of HTTP call, LLM enrichment, notification, incident and email steps. In the step editor, the **Insert field** menu lists the alert fields and puts the placeholder at the cursor.
+
+Changed from UTMStack v11: `$(adversary.ip)` is now `$(alert.adversary.ip)`, and `$(log.message)` is now `$(alert.lastEvent.log.message)`. Commands copied from UTMStack v11 must be rewritten.
+
+## Common alert fields
+
+| Placeholder | Holds |
+|---|---|
+| `$(alert.id)` | The alert identifier. |
+| `$(alert.name)` | The alert name (the correlation rule name). |
+| `$(alert.severity)` | `low`, `medium` or `high`. |
+| `$(alert.category)` | The rule category. |
+| `$(alert.technique)` | The MITRE ATT&CK technique written in the rule. |
+| `$(alert.dataType)` | The kind of data that raised the alert, for example `wineventlog` or `linux`. |
+| `$(alert.dataSource)` | The host or source that raised the alert. Shell steps run here by default. |
+| `$(alert.adversary.ip)`, `$(alert.adversary.user)`, `$(alert.adversary.host)` | The attacking side. |
+| `$(alert.target.ip)`, `$(alert.target.user)`, `$(alert.target.host)`, `$(alert.target.port)` | The attacked side. |
+| `$(alert.adversary.process)`, `$(alert.target.file)`, `$(alert.target.path)` and similar | Process, file and path names, when the rule fills them in. |
+| `$(alert.lastEvent.<field>)` | A field of the last event behind the alert, for example `$(alert.lastEvent.origin.ip)`, `$(alert.lastEvent.action)` or a raw log field such as `$(alert.lastEvent.log.message)`. |
+
+Which fields an alert carries depends on the rule that raised it. Open a recent alert of the same rule to see what is filled in.
+
+## What happens when the value is missing
+
+A placeholder whose field does not exist in the alert is left as written. For example, `$(alert.target.user)` stays the literal text `$(alert.target.user)` if the alert has no target user, and the command is sent with that text. In bash, sh and PowerShell, `$( … )` is itself shell syntax, so the shell then tries to run a command with that name and the step usually fails. Test a flow with **Trigger flow** against a real alert of the same rule before you switch it on.
+
+## Automatic quoting
+
+Every value UTMStack inserts is quoted for the step's shell, so a value cannot break out of your command:
+
+| Shell | What UTMStack does with the value |
+|---|---|
+| `bash`, `sh` | Wraps it in single quotes. A single quote inside the value is escaped. |
+| `powershell` | Wraps it in single quotes. A single quote inside the value is doubled. |
+| `cmd` | Puts `^` before each special character: ampersand, vertical bar, less-than, greater-than, caret, double quote, percent and exclamation mark. Line breaks become spaces. |
+
+For example, on bash:
+
+```bash
+# You write
+iptables -I INPUT -s $(alert.adversary.ip) -j DROP
+# The agent receives
+iptables -I INPUT -s '203.0.113.7' -j DROP
+```
+
+<Warning>
+
+**Do not put your own quotes around a placeholder.** Write `-s $(alert.adversary.ip)`, not `-s "$(alert.adversary.ip)"`. Your quotes and UTMStack's quotes combine, the value ends up with extra quote characters, and the protection against values that break out of the command no longer works. Some shipped flows still contain quoted placeholders; fix them in your copy (see **Shipped Flows**).
+
+</Warning>
+
+## Placeholders outside shell commands
+
+Values placed into HTTP call, LLM enrichment, notification, email and incident fields are quoted too, with single quotes. A notification message written as `Blocked $(alert.adversary.ip)` arrives as `Blocked '203.0.113.7'`.
+
+Keep in mind for UTMStack v12.0.2:
+
+- An HTTP address, header or body that contains a placeholder receives the value with the single quotes around it. Many APIs will not accept that, so check the request on the receiving side before you rely on it.
+- A value that contains an apostrophe or a double quote (for example a user name such as `O'Brien`) breaks an HTTP call, LLM enrichment, notification, email or incident step that inserts it: if it is a start step the run does not start, otherwise the step stays **Waiting** and never runs.
+- The same applies to stored variables inserted into these fields (see **Step Outputs and Variables**).
+
+## Related pages
+
+- **Step Outputs and Variables**
+- **Step Types**
+- **Building a Flow**

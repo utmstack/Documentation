@@ -1,0 +1,153 @@
+A flow is made of steps (the editor calls them *nodes*). This page lists every step type the flow editor offers in UTMStack v12, its fields, and how it behaves when it runs.
+
+## Two kinds of step
+
+| Kind | What it does | Output for later steps |
+|---|---|---|
+| **Executor** | Does something: runs a command, sends a message, opens an incident, checks a condition. | None. |
+| **Enrichment** | Fetches data: an HTTP answer or an AI answer. | Yes. Later steps can insert parts of it. See **Step Outputs and Variables**. |
+
+The palette shows the kind next to each step type (EXECUTOR or ENRICHMENT).
+
+Every step ends in success or failure. On success the green wires run, on failure the red wires run. See **Building a Flow**.
+
+## Step types at a glance
+
+| Palette label | Type in YAML (`executor`) | Kind | Use it to |
+|---|---|---|---|
+| Shell (endpoint agent) | `shell` | Executor | Run a command on a machine through its UTMStack agent. |
+| HTTP call | `http` | Enrichment | Call a web address (an API of a firewall, ticketing tool, chat service) from the UTMStack server. |
+| LLM enrichment | `llm_enrich` | Enrichment | Ask the SOC-AI assistant a question and use its answer in later steps. |
+| Send notification | `notify` | Executor | Post an in-app notification. |
+| Open incident | `incident` | Executor | Open an incident linked to the alert. |
+| Send email | `mail` | Executor | Send an email. |
+| Conditional (if/else branch) | `conditional` | Executor | Choose the next steps based on alert values or earlier step outputs. |
+
+## Shell (endpoint agent)
+
+Sends a command to a UTMStack agent and waits for the result.
+
+| Field | YAML key | Notes |
+|---|---|---|
+| **Platform** | `platform` | The platform the command is written for. It filters the host list and the shell list in the editor. |
+| **Shell** | `shell` | Windows: `cmd` or `powershell`. Other platforms: `bash` or `sh`. Default: cmd on Windows, bash elsewhere. |
+| **Run on** | `agent`, `excludedAgents` | **alert source** (default), **one host**, or **all except**. See **Running Steps on Another Host**. |
+| **Command** | `command` | Required. You can insert alert values and variables. See **Placeholders**. |
+
+How it behaves:
+
+- A command that ends with a non-zero exit code is a failure and takes the red wire. This needs agents from UTMStack v12.0.2 or later; older agents report every command as executed.
+- The command's output is stored with the step. The **Execution history** page does not show it, so run a command in the **Interactive Console** when you need to see its output.
+- If the agent is offline, the step is marked **Failed** with the cause **Agent offline** and its red wire runs. If no agent has the host name, the step is marked **Failed** too.
+- Commands for one agent run one at a time, so a long command delays the next one on the same machine.
+
+<Warning>
+
+The **Platform** field does not stop a step from running on a machine of another platform. The step runs on whatever host **Run on** resolves to. If a Windows command reaches a Linux machine, it simply fails. Use trigger conditions (for example **Data type**) to keep a flow on the right kind of machine.
+
+</Warning>
+
+## HTTP call
+
+Sends one web request. The request leaves from the **UTMStack server**, not from an agent, so the server must be able to reach the address.
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **Method** | `method` | GET, POST, PUT, PATCH, DELETE, HEAD or OPTIONS. If empty: POST when a body is set, otherwise GET. |
+| **URL** | `url` | Required. A full `https://` or `http://` address. |
+| **HTTP headers** | `headers` | Name and value rows. |
+| **Query params** | (added to the URL) | Name and value rows, merged into the address. |
+| **Body (JSON)** | `body` | Only for POST, PUT and PATCH. Must be valid JSON. |
+| (Code tab only) | `timeoutSec` | Seconds to wait. Default 30. |
+
+How it behaves:
+
+- A new HTTP step starts with four headers: `Content-Type: application/json`, `Accept: */*`, `Accept-Encoding: gzip, deflate, br` and `Connection: keep-alive`. Each header and query row has a tick box; rows you untick are not sent.
+- When a body is set, `Content-Type: application/json` is sent.
+- Any answer outside the 200 to 299 range is a failure.
+- The step stores the status line and the first 4,096 characters of the answer.
+- Because the step is an enrichment step, the answer must be JSON. Later steps can insert values from it. An answer that is not JSON makes the step fail.
+- Many services answer with plain text (a chat webhook may answer just `ok`). For those, open the **Code** tab and change the step's `kind` from `enrichment` to `executor`. The answer is then not read as JSON, and later steps cannot use it.
+- The server checks the certificate of an `https` address. There is no option to skip that check, so a device with a self-signed certificate is refused. For such devices, run the call from a shell step on a host that can reach them (see **Running Steps on Another Host**).
+
+## LLM enrichment
+
+Sends a prompt to the SOC-AI assistant (LLM stands for large language model, the AI behind the assistant). The assistant may use its own tools to look things up before it answers.
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **Prompt** | `prompt` | Required. You can insert alert values. |
+
+How it behaves:
+
+- The model is told to answer with one JSON object that has a `result` property, and UTMStack enforces that shape even if the model does not. Later steps insert the answer with `$(<step id>.result)`, for example `$(step_2.result)`.
+- It needs a working AI provider. See **AI Providers**.
+- An AI step that is still running after 6 minutes is queued again.
+
+## Send notification
+
+Posts an in-app notification for the tenant, shown in the bell menu.
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **Level** | `type` | INFO, WARNING or ERROR. Any other value becomes INFO. |
+| **Message** | `message` | Required. You can insert alert values. |
+
+## Open incident
+
+Opens an incident and links the alert that started the flow.
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **Incident name** | `name` | Required. Example from the editor: `Suspicious login on $(alert.dataSource)`. |
+| **Description** | `description` | Optional context for responders. |
+
+How it behaves:
+
+- The incident's severity is the alert's severity (low when the alert has none).
+- Incident names must be unique in a tenant. A fixed name works only once: the second run fails because an incident with that name already exists. Put a value that changes per alert into the name, for example `$(alert.id)`.
+- The step fails when the run has no alert, for example a manual run with raw JSON that has no alert `id`.
+
+## Send email
+
+Sends an email through the tenant's mail settings (**Configure > Settings > Email Configuration**). Set those up and test them first.
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **To (comma-separated)** | `to` | Required. At least one valid address. |
+| **CC (comma-separated, optional)** | `cc` | |
+| **Subject** | `subject` | Required. |
+| **Body** | `body` | Required. Sent as HTML. |
+
+The email has no attachments.
+
+## Conditional (if/else branch)
+
+Checks one or more conditions against the run's data. If **all** conditions match, the green wire runs; if any condition misses, the red wire runs. The editor hint reads "All conditions must match. Match → success branch (green); miss → error branch (red)."
+
+| Field | YAML key (inside `params`) | Notes |
+|---|---|---|
+| **Conditions** | `conditions` | Field, operator, value. Same 12 operators as the trigger (see **Building a Flow**). At least one. |
+
+What you can check:
+
+- Alert values, with field paths that start with `alert.`, for example `alert.severity` or `alert.target.host`.
+- Outputs of earlier enrichment steps, with the step identifier first, for example `step_2.result` or `step_1.data.verdict`.
+
+A conditional step whose conditions do not match is shown as **Failed** in **Execution history**. That only means the red branch was taken.
+
+## Limits that apply to every step
+
+| Limit | Value |
+|---|---|
+| Steps running at the same time on the server | 5 |
+| Longest time one step may run | 5 minutes |
+| A step stuck in Executing is closed after | about 6 minutes (AI and conditional steps are queued again; others are marked Failed) |
+| Check for waiting steps | immediately when new work arrives, and every 15 seconds |
+
+## Related pages
+
+- **Building a Flow**
+- **Placeholders**
+- **Step Outputs and Variables**
+- **Running Steps on Another Host**

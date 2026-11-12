@@ -1,0 +1,93 @@
+UTMStack v12 sends email through your own mail server (SMTP server). It uses it for alert and incident notifications, scheduled compliance reports, user invitations, password resets, email sign-in codes and the **Send email** step of automated response flows. This page explains every field on the **Email configuration** page and how to set the correct **Base URL**.
+
+## Before you start
+
+- You need the **Administrator** role. Viewing the page needs the `config.read` permission and saving needs `config.write`.
+- Have your mail server details ready: host name, port, encryption type, and a user name and password if the server requires them.
+- Make sure the UTMStack server can reach your mail server on its port.
+
+## Open the page
+
+Go to **Configure > Settings > Email Configuration**. The page title is **Email configuration**.
+
+Right after the first sign-in, UTMStack opens this page for you once you have set the administrator's email address.
+
+## SMTP server
+
+| Field | What to enter | Default |
+|---|---|---|
+| Host | Host name of your SMTP server, for example `smtp.example.com` | Empty |
+| Port | The port your mail server accepts mail on | `587` |
+| Encryption | **TLS**, **SSL** or **None** | **TLS** |
+| Username | The account used to sign in to the mail server | Empty |
+| Password | The password of that account. Once saved, it is not shown again: leave the field blank to keep it, or type a new one to change it. | Empty |
+
+## Sender
+
+| Field | What to enter |
+|---|---|
+| From address | The address emails are sent from. **Send test** needs it. |
+| Organization name | Your organization's name. It appears in alert and incident notification emails. |
+| Base URL | The public address of this UTMStack server, used for links in emails. See **Set the Base URL** below. |
+
+## Recipients
+
+| Section | Field | What it does |
+|---|---|---|
+| Alert recipients | To, CC | Addresses notified when new alerts are raised. If **To** is empty, alerts are not emailed. |
+| Incident recipients | To, CC | Addresses notified when an incident is created. If **To** is empty, incidents are not emailed. |
+
+Type an address and click **Add** to add it to a list.
+
+## Save and test
+
+1. Fill in the fields and click **Save changes**.
+2. Click **Send test**. UTMStack sends a test email to the email address of the user who is signed in.
+3. Check that the email arrives. If it does not, check the host, port, encryption and credentials, and that the server can reach the mail server.
+
+## Set the Base URL
+
+The **Base URL** is the address your users type in their browser to open UTMStack, for example `https://siem.example.com`. UTMStack builds the links in invitation and password-reset emails from it. If the Base URL is empty, those emails are not sent.
+
+<Warning>
+
+During installation, the installer fills in the Base URL as `https://<server host name>.utmstack.com`. That address is only correct for servers hosted by UTMStack. On your own server, replace it, or the links in emails will point to the wrong place.
+
+</Warning>
+
+<Steps>
+
+<Step title="Find the address your users open">
+
+Use the address you open UTMStack with in your browser, including `https://`, for example `https://siem.example.com` or `https://192.0.2.10`. Use a host name that matches your SSL certificate if you have installed one (see **SSL Certificate**).
+
+</Step>
+
+<Step title="Open Email Configuration">
+
+Go to **Configure > Settings > Email Configuration**.
+
+</Step>
+
+<Step title="Replace the Base URL">
+
+Under **Sender**, replace the value in **Base URL** with your address. Enter only `https://` and the host name, without a path.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save changes**.
+
+</Step>
+
+</Steps>
+
+## Email settings and tenants
+
+On a multi-tenant licence, each tenant has its own email settings. A field that a tenant has never saved uses the value of the default tenant, so tenants can send mail through the operator's mail server without setting up their own.
+
+Each tenant administrator should open **Email Configuration** in their own tenant and set:
+
+- **Base URL** to the tenant's own address, for example `https://customer-a.example.com`. Users of a tenant sign in on the tenant's address (see **Tenants**).
+- Their own **Alert recipients** and **Incident recipients**.

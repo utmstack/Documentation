@@ -1,0 +1,72 @@
+UTMStack v12 collects Sophos Firewall (SFOS, formerly XG) logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the integration on a Collector, then add the Collector as a syslog server in the Sophos Firewall console. Nothing is installed on the firewall. For Sophos Central, see **Sophos Central** instead.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Sophos Xg** (category Firewall) |
+| Data type | `firewall-sophos-xg` |
+| Default ports on the Collector | 7008/UDP; 7008/TCP (also used for TLS) |
+| Included in UTMStack | A parsing filter and 9 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Sophos Xg** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7008`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-sophos-xg 7008 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Add a syslog server in Sophos Firewall
+
+<Steps>
+  <Step title="Open the log settings">
+    In the Sophos Firewall (SFOS) console, go to **System → System services → Log settings**.
+  </Step>
+  <Step title="Add the Collector">
+    Add a Syslog Server with the address of the Collector host and port **7008**.
+  </Step>
+  <Step title="Choose the log types">
+    Choose the log types you want to forward (firewall, IPS, ATP, web and others) and click **Apply**.
+  </Step>
+</Steps>
+
+<Note>
+
+The setup guide in UTMStack fills in your UTMStack server's address in this step. Keep it only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
+
+</Note>
+
+## Step 3: Check that logs arrive
+
+- In the **Sophos Xg** drawer, click **View logs**. Log Explorer opens with the `firewall-sophos-xg` data type for the last 24 hours.
+- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Sophos Xg** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-sophos-xg udp
+```

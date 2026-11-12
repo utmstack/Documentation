@@ -1,0 +1,145 @@
+A compliance report shows where one framework stands for your tenant: the score, the status of every requirement and control, the evidence behind each result, and the verdicts and notes people have recorded. You can run it at any time, record your own verdicts, and download it as a PDF for an auditor.
+
+## Before you start
+
+- Opening reports and downloading PDFs needs `compliance.read` (all built-in roles).
+- Running an evaluation, setting a status and adding notes need `compliance.write` (Administrator role).
+- Without an Enterprise licence, only CMMC 2.0, GDPR and your own frameworks can be opened. See **Compliance Overview**.
+
+## Open a report
+
+1. Click **Compliance** in the main menu. The **Frameworks** tab opens.
+2. Click a framework card.
+
+The report page shows the last report of that framework. Opening it does not run it again. If the framework has never run, you see "This framework has not been evaluated yet." and a **Run evaluation** button.
+
+Each tenant has one standing report per framework. Every run replaces it.
+
+## Run an evaluation
+
+Click **Run evaluation**. UTMStack runs every check of every automatic control in the framework and rebuilds the report.
+
+The **reporting window** is the period the checks look at. It ends now and starts:
+
+- the number of days set on a schedule for this framework, if there is one (see **Scheduled Compliance Reports**);
+- otherwise, 30 days earlier.
+
+Notes and verdicts recorded on the previous report are kept:
+
+- A note stays on its control.
+- A status a person set stays, even if the engine now says something else. The report then shows "Recorded when the engine said X; it now says Y", so you can decide whether the verdict still holds.
+
+## Read the report
+
+**Header**
+
+| Element | What it shows |
+|---|---|
+| **Compliance score** | The share of all the framework's requirements that are compliant (see **Compliance Overview**) |
+| **Generated** | When the report was run |
+| **window** | The start and end of the reporting window |
+| "N of M requirements met · T in the framework" | Compliant requirements, requirements that could be judged, and all requirements |
+| Status counters | How many requirements are Compliant, Non-compliant, At risk, Not covered, Not evaluated, Pending and Out of scope |
+
+**Score over time** appears above the findings once the framework has run on at least two different days. It shows two lines over the last 90 days, one point per day:
+
+- **Compliance score**: the score of the last run of that day.
+- **Evaluated**: the share of requirements that could be judged.
+
+A score that rises while **Evaluated** falls usually means a log source went quiet, not that a control was fixed.
+
+**Findings**
+
+The findings are grouped by the framework's sections, each with its own percentage. Under each requirement (its status, id and name) are the controls that satisfy it. Each control line shows:
+
+- its status (an asterisk `*` means a person set it);
+- the control id and name;
+- the evidence: a one-line reason, for example "1 of 3 checks with data passed" or "no data for 4 check(s) in the window";
+- the note, if any, with who wrote it;
+- **Coverage** and **Activity** (in UTMStack v12.0.2 these are always 0; see **Compliance Overview**).
+
+### Control details
+
+Click a control line to open its details:
+
+| Part | What it shows |
+|---|---|
+| **Coverage**, **Activity** | Linked correlation rules and their alerts in the window |
+| **Evidence** | Why the control has its status. Click **See more** for the full text. |
+| **Check results** | Each check with its outcome (**Passed**, **Failed**, **No data**, **Error**), how many records matched ("hits"), and its rule and value. **No data** reads "no `<data type>` data in the window". |
+| **Recorded verdict** | The status a person set, who set it, and what the engine said at the time |
+| Control text | Family, scope, strategy, source, the **Statement** (the NIST text) and the **Remediation** (what a failure means and how to fix it) |
+
+**Error** means the check could not run, which is not the same as failing it. It neither passes nor fails the control.
+
+## Record a verdict
+
+Use this for manual controls, which stay **Out of scope** until someone judges them, and for any automatic result you disagree with.
+
+<Steps>
+
+<Step title="Pick the status">
+
+On the control line, open the status drop-down (**Set status**) and pick the new status.
+
+</Step>
+
+<Step title="Give the reason">
+
+The **Reason required** dialog opens: "Provide a reason for this status change. It will be recorded." Type the justification in **Reason**, for example where the evidence is kept. Up to 4,000 characters.
+
+</Step>
+
+<Step title="Confirm">
+
+Click **Confirm change**. The requirement, section and score are recalculated at once.
+
+</Step>
+
+</Steps>
+
+Picking the same status the engine gave records only the note; the control keeps following the engine.
+
+## Add a note
+
+Use a note to record context without changing the status, for example "Remediation in progress — ticket OPS-4412, due end of quarter."
+
+1. Click the note button at the end of the control line (**Add a note**).
+2. Type the note. "Recorded on the report. It does not change the control's status."
+3. Click **Confirm change**.
+
+A control has one note. Writing a new one replaces the old one.
+
+<Warning>
+
+In UTMStack v12.0.2, saving a note with the note button on a control whose status a person set removes that status: the control goes back to the engine's result. To change the note of such a control, set the status again with **Set status** and write the new text as the reason.
+
+</Warning>
+
+## Download the PDF
+
+1. Click **Download PDF**. A preview of the PDF opens.
+2. Click **Download PDF** in the preview to save it. The file is named after the framework, for example `PCI_DSS_v4_0_1.pdf`.
+
+The PDF is built from the standing report; it does not run the framework again. It contains:
+
+| Part | Content |
+|---|---|
+| Cover | Your logo and cover image (see **Branding**), the framework, the score, "N of M requirements met", **PREPARED BY** (the email of the user who downloaded it), **REPORTING PERIOD** and **ISSUED** |
+| **Scope and method** | How controls are measured and the reporting period |
+| **Executive summary** | Requirements by status |
+| **Findings by section** | Every requirement and control with its status and evidence |
+| **Recorded verdicts and notes** | "Each entry below was written by a named person against a specific control": every verdict and note with its author and date. Where a verdict differs from the engine's, both are shown. |
+| **Not evaluated — missing sources** | Controls that could not be judged, grouped by the log source that would settle them |
+
+The PDF is always in English and is marked "Confidential — prepared for internal and audit use only."
+
+<Note>
+
+The PDF records who wrote each verdict and note and when. It does not carry a digital signature.
+
+</Note>
+
+## Multi-tenant servers
+
+Reports, verdicts, notes, score history and schedules are kept per tenant. Each tenant's report only counts that tenant's logs and alerts.

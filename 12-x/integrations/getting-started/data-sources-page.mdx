@@ -1,0 +1,86 @@
+The **Data Sources** page lists every agent, integration and direct sender that feeds events into UTMStack v12, and shows whether each one is still sending. Use it to spot sources that went quiet, label and rate your assets, open a live console on an agent, and export a report.
+
+Go to **Configure > Data Sources**. The page title is **Data sources**: "Agents, integrations and direct sources feeding events. Status is derived from the last time each source was seen."
+
+## What the page shows
+
+| Area | What it shows |
+|---|---|
+| **Ingestion** | A chart of events received over a time range you choose (the last 24 hours by default). |
+| **Data sources** | How many data sources are configured. |
+| Health summary | How many sources are online and offline, and the total. |
+| Tabs | **All**, **Agents**, **Integrations**, **Direct**, **Offline**, each with a count. |
+| Toolbar | **Search by name…**, **List** or **Cards** view, and **Refresh**. |
+| Header buttons | **Export PDF** and **Connect a source** (opens the Integrations page). |
+
+In the list view the columns are **Source**, **Type**, **Status**, **Events 24h** and **Last seen**. Click a label on any source to show only the sources with that label; clear the filter from the "Filtered by label" chip.
+
+## Kinds of data source
+
+| Kind | Tab | How it gets on the list |
+|---|---|---|
+| Agent | **Agents** | Added when a Windows, Linux or macOS agent registers. |
+| Integration | **Integrations** | Added when you save a config group for a cloud integration. Its name is the config group name. |
+| Direct | **Direct** | Any sender UTMStack sees in its ingestion statistics, for example a firewall sending through the UTMStack Forwarder. A background job adds or refreshes these every 10 minutes. |
+
+## Status
+
+| Status | Meaning |
+|---|---|
+| **Live** | Last seen less than 15 minutes ago. |
+| **Idle** | Last seen between 15 minutes and 24 hours ago. |
+| **Offline** | Last seen more than 24 hours ago, or never. |
+
+The **Offline** tab lists every source that is Offline, including sources that were never seen.
+
+## Source details
+
+Click a source to open its details.
+
+- **Stats & identity**: Events 24h, Last seen, Discovered, Kind, Data type, IP and ID.
+- **Metadata**: extra details reported by the source, when there are any.
+- **Ingestion trend**: a small chart of recent events. Gaps show when the source stopped sending. When a source is offline, a warning shows "Last event … — possible log gap".
+- **View logs**: opens Log Explorer for this source over the last 7 days.
+- **Labels**: type a label and press Enter to add it. Changes save automatically.
+- **Asset sensitivity**: rate the business importance of this asset for **Confidentiality**, **Integrity** and **Availability** (None, Low, Medium or High), then click **Save**. Alerts that target this host or IP are weighted by these values.
+- **Console** (agents only): see below.
+- **Danger zone**: **Delete data source**, then **Confirm delete**.
+
+<Note>
+
+Deleting a data source removes it from this list only. Its historical events stay searchable in Log Explorer. If the source keeps sending data, or its agent is still registered, it is discovered again and comes back on the list.
+
+</Note>
+
+## Run commands on an agent (console)
+
+For agents, the details include a **Console** section: "Run commands on this host through its agent (live response)."
+
+<Steps>
+  <Step title="Open the console">
+    Click **Open console**. On Windows hosts, choose **cmd** or **powershell**. Other systems use bash.
+  </Step>
+  <Step title="Authenticate">
+    UTMStack asks you to authenticate before the first command runs.
+  </Step>
+  <Step title="Run a command">
+    Type a command and press Enter. The output streams back into the console.
+  </Step>
+</Steps>
+
+- **Variables** lets you store values and reference them in commands. Mark a variable as **Secret (encrypted, masked in output)** for passwords and keys.
+- The console is turned off when the agent is Offline (not seen for more than 24 hours).
+- An agent installed with remote command execution disabled refuses every command. See **Agent Command Line**.
+- Running commands needs the `soar.write` permission. The same commands are available from **SOAR > Interactive Console**.
+
+## Export a report
+
+Click **Export PDF**. UTMStack builds the "UTMStack — Data Sources Report" with event totals, the number of agents, integrations and direct sources, the volume received and the full list. Click **Print / Save as PDF** and use your browser's print dialog to save it.
+
+## Permissions
+
+| Action | Permission needed |
+|---|---|
+| View the page and source details | `datasources.read` |
+| Change labels or asset sensitivity, delete a source | `datasources.write` |
+| Run console commands on an agent | `soar.write` |

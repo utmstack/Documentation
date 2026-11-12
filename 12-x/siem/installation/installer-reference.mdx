@@ -1,0 +1,162 @@
+This page lists every argument of the UTMStack v12 installer, the files and folders it creates, the names of the services it deploys, and how it divides memory between them.
+
+## Where the installer lives
+
+- You download the installer as a file named `installer` and run it once, as root, to install UTMStack.
+- During installation it copies itself to `/usr/local/bin/utmstack_installer` and creates the shorter name `/usr/local/bin/utmstack` for the same program. The update service uses this copy, and updates replace it with the installer of each new version.
+
+After installation, use the installed copy:
+
+```bash
+sudo /usr/local/bin/utmstack_installer --help
+```
+
+## Arguments
+
+| Argument | What it does |
+|---|---|
+| (none), `--install`, `-i` | Installs UTMStack. If the `UTMStackComponentsUpdater` service already exists, it only restarts that service and stops. |
+| `--uninstall`, `-u` | Uninstalls UTMStack. See **Uninstall**. |
+| `--version`, `-v` | Prints the installed version and edition, for example `UTMStack version: v12.0.2, edition: community`. |
+| `--help`, `-h` | Prints the list of arguments. |
+| `--recalculate-memory` | Recalculates the memory limits of all services from the server's current memory, saves them, and redeploys the services. |
+| `--apply-memory` | Applies the memory limits in `/utmstack/updates/memory-allocation.json` and redeploys the services. |
+| `--apply-memory --dry-run` | Checks the memory limits in that file and prints them, without redeploying anything. |
+| `--run`, `-r` | Used by the update service. Do not run it yourself. |
+
+Any other argument prints the help.
+
+## Files and folders
+
+| Path | Contents |
+|---|---|
+| `/root/utmstack.yml` | Settings and secrets generated at installation. Do not change or delete it. |
+| `/var/log/utmstack-installer.log` | Detailed installation log. |
+| `/utmstack/cert` | Certificates: `utm.crt` and `utm.key` (used by nginx and the services), `ca.crt` and `ca.key`. See **SSL certificate**. |
+| `/utmstack/clickhouse/data` | Logs, alerts and statistics (ClickHouse). |
+| `/utmstack/clickhouse/cold` | Cold storage when you choose a local or NFS folder. |
+| `/utmstack/clickhouse/init`, `/conf`, `/config.d` | ClickHouse table definitions and configuration. |
+| `/utmstack/nats` | The message queue between log intake and processing. |
+| `/utmstack/valkey` | The sign-in session cache. |
+| `/utmstack/events-engine-workdir` | Event processor files: `pipeline`, `rules`, `soar`, `compliance` and `logs`. |
+| `/utmstack/uploads` | Uploaded images such as avatars and branding. |
+| `/utmstack/front-end/nginx` | nginx configuration of the web container. Rewritten on every update. |
+| `/utmstack/locks` | One file per completed installation step. Do not delete these files. |
+| `/utmstack/images` | Container image files for air-gapped installations. |
+| `/utmstack/updates` | Update service files (see below). |
+| `compose.yml` next to the installer | The service definitions the installer deployed. For updates this is `/usr/local/bin/compose.yml`. |
+| Docker volume `postgres_data` | The PostgreSQL databases `utmstack` and `agentmanager`: users, tenants, settings, incidents and other configuration. It is not under `/utmstack`. |
+
+Files in `/utmstack/updates`:
+
+| File | Contents |
+|---|---|
+| `version.json` | Installed version, edition and change log. |
+| `instance-config.yml` | The instance ID and key this server received from the UTMStack update server. |
+| `LICENSE` | The installed licence file. |
+| `pending-updates.json` | An update that has been downloaded but not yet applied. |
+| `memory-allocation.json` | Memory limits of the services. |
+| `last-admin-email.txt` | The administrator email address last sent to the update server. |
+| `logs/utmstack-updater.log` | Update service log. |
+
+### Contents of /root/utmstack.yml
+
+| Key | Meaning |
+|---|---|
+| `main_server` | The server's main IP address, detected at each run. |
+| `branch` | The release channel. Leave it unchanged. |
+| `password` | Generated password (16 characters). It is the PostgreSQL, ClickHouse and Valkey password and the first password of the `admin` user. |
+| `data_dir` | Data folder. Default `/utmstack`. |
+| `server_type` | Installation type. Default `aio` (all in one). |
+| `server_name` | The server's host name. |
+| `internal_key` | Generated key (32 characters) that UTMStack services use to call each other. |
+| `shared_key` | Generated key (32 characters) that nginx on the host adds to every request it forwards to the web container. |
+| `updates_folder` | Folder of the update service. Default `/utmstack/updates`. |
+
+<Warning>
+
+This file contains the database password and the internal keys. Keep it readable by root only, keep a secure copy, and never share it.
+
+</Warning>
+
+## Docker services
+
+The installer deploys one Docker Swarm stack named `utmstack`. Use these names with `docker service logs` and `docker service ps`:
+
+| Service | Purpose |
+|---|---|
+| `utmstack_frontend` | Web interface and internal router |
+| `utmstack_backend` | REST API |
+| `utmstack_agentmanager` | Agent and collector management |
+| `utmstack_log-input` | Log intake |
+| `utmstack_nats` | Message queue |
+| `utmstack_event-processor-worker` | Parsing and correlation |
+| `utmstack_event-processor-manager` | Event processor management, SOC-AI and playground |
+| `utmstack_clickhouse` | Log, alert and statistics storage |
+| `utmstack_postgres` | Configuration database |
+| `utmstack_valkey` | Session cache |
+
+For example:
+
+```bash
+docker service ls
+docker service logs --tail 100 utmstack_event-processor-worker
+```
+
+## Memory limits
+
+The installer gives each service a memory limit. It takes the server's total memory, keeps 1,000 MB for the operating system, gives every service its minimum and shares the rest by priority. Services with priority 1 get the largest share.
+
+| Service | Priority | Minimum (MB) | Maximum (MB) |
+|---|---|---|---|
+| `event-processor` | 1 | 5,120 | 61,440 |
+| `clickhouse` | 1 | 5,120 | 61,440 |
+| `log-input` | 2 | 256 | 1,024 |
+| `postgres` | 2 | 500 | 2,048 |
+| `nats` | 3 | 256 | 2,048 |
+| `valkey` | 3 | 128 | 1,024 |
+| `backend` | 3 | 700 | 2,048 |
+| `agentmanager` | 3 | 200 | 1,024 |
+| `frontend` | 3 | 80 | 1,024 |
+
+The minimums add up to 12,360 MB. With the 1,000 MB kept for the system, the installer needs at least 13,360 MB of memory. The `event-processor` value is the limit of each of the two event processor services (worker and manager).
+
+The result is saved in `/utmstack/updates/memory-allocation.json` and reused by every update, so manual changes survive updates.
+
+### Change the memory limits by hand
+
+1. Edit `/utmstack/updates/memory-allocation.json`. Each service has an entry like this; change only `AssignedMemory` (in MB):
+
+   ```json
+   "backend": {
+       "Name": "backend",
+       "Priority": 3,
+       "AssignedMemory": 2048,
+       "MinMemory": 700,
+       "MaxMemory": 2048
+   }
+   ```
+
+2. Check the file without changing anything:
+
+   ```bash
+   sudo /usr/local/bin/utmstack_installer --apply-memory --dry-run
+   ```
+
+   The installer refuses the file if a service is missing, if a value is below the service's minimum or above its maximum, or if the total is more than the server's memory minus 1,000 MB.
+
+3. Apply it. The services are redeployed, which takes a while:
+
+   ```bash
+   sudo /usr/local/bin/utmstack_installer --apply-memory
+   ```
+
+### After adding or removing memory
+
+Run:
+
+```bash
+sudo /usr/local/bin/utmstack_installer --recalculate-memory
+```
+
+This calculates new limits for the current memory, overwrites `memory-allocation.json` (manual changes in it are lost) and redeploys the services.

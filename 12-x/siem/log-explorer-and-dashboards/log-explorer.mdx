@@ -1,0 +1,217 @@
+**Log Explorer** is where you search the logs and alerts that UTMStack v12 has stored. You can filter by any field, look at the original log line, chart the results, save searches for your team and export results to a CSV file (a spreadsheet-friendly text file).
+
+## Who can use Log Explorer
+
+Log Explorer is in the main menu, so every user sees it.
+
+| Action | Permission | Built-in roles that have it |
+|---|---|---|
+| Search, chart and export | `loganalyzer.read` | Administrator, Analyst, Viewer |
+| Save and delete saved searches | `loganalyzer.write` | Administrator, Analyst |
+
+Every search only returns records of the tenant you are working in. See **Roles and Permissions** for custom roles.
+
+## What you can search
+
+UTMStack v12 stores records in its event store (a ClickHouse database). Log Explorer reads two fixed datasets:
+
+| Dataset | What it holds |
+|---|---|
+| `logs` | Every log after it went through its pipeline (normalized events) |
+| `alerts` | Every alert raised by a correlation rule, including repeats that were grouped under an earlier alert |
+
+Inside a dataset, the **data type** says which kind of record it is, for example `wineventlog` (Windows), `linux`, `o365` or `firewall-pfsense`. The data type list is read from the stored records, so a source that stopped sending data stops being offered. Up to 200 data types are listed.
+
+There are no index patterns to maintain any more: the datasets and data types come from the data itself.
+
+How long records are kept is set on **Data Retention and Cold Storage**.
+
+## Search for events
+
+<Steps>
+
+<Step title="Open Log Explorer">
+
+In the main menu, click **Log Explorer**.
+
+</Step>
+
+<Step title="Choose what to search">
+
+Click the selector on the left of the query bar. It shows the dataset and the data type, for example **logs · All data types**. Click a dataset name to search all of its data types, or click one data type. Type in **Filter data types…** to find one quickly.
+
+Changing the dataset or data type clears your filters and columns.
+
+</Step>
+
+<Step title="Choose the time range">
+
+Click the time range button and pick a range (see **Time range** below). A new search starts with **Last 24 hours**.
+
+</Step>
+
+<Step title="Type search text (optional)">
+
+Type text in **Search across all fields…** and press **Enter** or click **Search**.
+
+</Step>
+
+<Step title="Add filters (optional)">
+
+Click **Add filter** to narrow the results by field (see **Filters** below).
+
+</Step>
+
+</Steps>
+
+The counter above the results shows how many events match and in which data type ("**N** events in **wineventlog**").
+
+### Time range
+
+| Option | What it does |
+|---|---|
+| **Quick ranges** | Last 15 minutes, Last 1 hour, Last 6 hours, Last 24 hours, Last 7 days, Last 30 days |
+| **Relative** | **Last** N minutes, hours, days, weeks or months. Click **Apply**. |
+| **Absolute** | A **From** and a **To** date and time. If you leave **To** empty, it means now. Click **Apply**. |
+
+A relative range is fixed when the search starts. If you scroll down to load more results, they come from the same window even while new logs keep arriving. Click the refresh button to run the search again with the current time.
+
+### Search text
+
+The search box looks for your text anywhere in the original log line as it arrived (the `raw` field). Upper and lower case do not matter, and characters such as `%` and `_` are matched as they are, not as wildcards.
+
+The `alerts` dataset has no original log line, so the box is disabled there and shows "This data source has no full-text field — filter by field instead". Use filters on alert fields instead.
+
+<Tip>
+
+If you type a statement that starts with `SELECT` or `WITH` and contains `FROM`, Log Explorer switches to SQL mode and runs it. See **Log Explorer SQL Mode**.
+
+</Tip>
+
+## Filters
+
+Click **Add filter**, pick a field, an operator and a value, and click **Add**. While you choose a value, Log Explorer suggests the 100 most frequent values of that field in your current search. All filters must match (they are combined with AND).
+
+| Operator | Matches when |
+|---|---|
+| is | The field has exactly this value. Letter case must match. |
+| is not | The field has a different value. Records without the field are left out too. |
+| contains | The field contains this text anywhere, ignoring letter case. |
+| exists | The field has a value. |
+
+Each filter appears as a chip above the results. Click a chip to change it, click its **x** to remove it, or click **Clear all**.
+
+Some filters are added for you by other screens, for example when you open the logs behind an alert. They appear as **is one of** or **is not one of** chips with a list of values.
+
+The full list of operators, and exactly how each one compares values, is on **Filter Operators Reference**.
+
+## Fields sidebar
+
+The left panel lists the fields that really exist in your tenant's records of the selected dataset.
+
+- **Selected fields** are the columns shown in the table. **Available fields** are the rest. Type in **Filter fields…** to find one.
+- Click a field to see its top 5 values in the current search, with the share of each. This needs a data type to be selected; with **All data types** no values are shown.
+- Next to each value, **Filter for value** (+) adds an **is** filter and **Filter out value** (−) adds an **is not** filter.
+- **Add as column** shows the field as a table column. Click again to remove it.
+
+<Note>
+
+The field list is refreshed at most every 5 minutes. A field that a pipeline has only just started writing can take up to 5 minutes to appear.
+
+</Note>
+
+Vendor-specific fields are under `log.`, for example `log.eventCode` for Windows events. Standard fields are at the top level (`action`, `actionResult`, `severity`) or under `origin.` and `target.`. See **Standard Event Schema**.
+
+## Results
+
+Results are sorted newest first. Log Explorer loads 50 rows at a time and loads more as you scroll ("Loading more…"). When everything is loaded you see "All N events loaded".
+
+If you have not chosen any columns, the table shows **Time**, **Source**, up to 10 of the following fields that have values in the results, and a **Message** column with a short summary of the record:
+
+`severity`, `dataType`, `action`, `actionResult`, `origin.user`, `origin.ip`, `origin.host`, `target.user`, `target.ip`, `target.host`, `target.port`, `protocol`, `statusCode`, `connectionStatus`, `command`, `origin.url`, `target.url`
+
+You can drag column edges to resize them. To remove a column you added, use the remove button in its header.
+
+### Look at one event
+
+Click a row to open it.
+
+| Element | What it does |
+|---|---|
+| **Parsed fields** | Every field of the record, one per line, with buttons to **Filter for** or **Filter out** that value |
+| **JSON** | The whole record as JSON (the structured text format UTMStack stores) |
+| **Copy JSON** | Copies the record to the clipboard |
+| **Surrounding events** | Shows events from 15 minutes before to 15 minutes after this one, from the same source. It replaces your filters and time range. |
+
+## Histogram and chart view
+
+When a data type is selected, a small histogram above the table shows how many events arrived over time. The bucket size follows the time range: per minute up to 2 hours, per hour up to 2 days, per day up to 60 days, and per week up to a year. For ranges longer than one year the histogram is not shown.
+
+Use the **Table** / **Chart** switch to see the results as a chart:
+
+1. Click **Chart**.
+2. In **Aggregate on**, pick a field.
+   - For a date field such as `@timestamp`, choose **per** Minute, Hour, Day or Week to see events over time.
+   - For any other field, the chart shows its top 20 values.
+
+The chart uses the same dataset, data type, time range, search text and filters as the table. It does not need a data type: without one it charts the whole dataset. Chart view is not available in SQL mode.
+
+## Tabs
+
+You can keep several searches open at the same time in tabs.
+
+- Click **+** to open a **New tab**. It starts on `logs`, all data types, the last 24 hours and the table view.
+- Double-click a tab name to rename it. Press **Enter** to keep the new name or **Escape** to cancel.
+- Click the **x** on a tab to close it. The last tab cannot be closed.
+
+Tabs are kept in your browser, for your user. They do not follow you to another browser or computer. To share a search, save it.
+
+## Saved searches
+
+A saved search keeps the dataset, data type, time range, filters and search text. It does not keep your table columns or a SQL statement, and the **Saved** button is hidden in SQL mode.
+
+**Save a search**
+
+1. Set up the search.
+2. Click **Saved**, then **Save current search**.
+3. Type a name (up to 100 characters) and press **Enter** or click **Save**.
+
+Saving with a name that already exists replaces the earlier search.
+
+**Open or delete a saved search**
+
+Click **Saved**. The list shows the saved searches in alphabetical order. Click a name to load it, or use the delete button next to it.
+
+Saved searches are stored on the server and shared by every user of the tenant: everyone sees the same list, and any user with `loganalyzer.write` can replace or delete any saved search.
+
+Searches that an earlier v12 build kept only in your browser are moved to the server the first time you open the list.
+
+## Export to CSV
+
+Click the download button (**Export CSV**) in the query bar. Log Explorer exports the current search:
+
+- with the same columns as the table (your columns, or **Time**, **Source**, the automatic columns and **Message**);
+- up to 10,000 rows, newest first;
+- as a UTF-8 file with a byte-order mark, so that Excel shows accented and non-Latin characters correctly;
+- named after the dataset and the time of export, for example `logs-2026-11-11T09:30:00.csv`.
+
+To export the result of a SQL statement, see **Log Explorer SQL Mode**.
+
+## Other ways to open Log Explorer
+
+| From | What you get |
+|---|---|
+| **Threat Management > Alerts**, alert details, **View all related logs** | A filter on the ids of the logs behind the alert (up to 1,000; a message says when the list was cut). The time range is set to the last 30 days, so logs of an alert older than 30 days are not shown. |
+| A chart element on a dashboard (for the `logs` dataset) | The widget's data type and conditions, the dashboard filters, and the value you clicked. See **Dashboards**. |
+| The SOC-AI assistant | Filters and a time window chosen by the assistant. See **SOC-AI Assistant**. |
+| A link | Each URL parameter becomes an **is one of** filter. For example `/log-explorer?dataType=linux&origin.ip=10.0.0.5,10.0.0.6&@timestamp=7d`. Use `@timestamp=` with a quick range (`15m`, `1h`, `6h`, `24h`, `7d`, `30d`), or `from=` and `to=` with dates. Without a time parameter the range is the last 30 days. The link opens in a new tab. |
+
+## Check that a pipeline writes the right fields
+
+When you write or change a pipeline or rule, use Log Explorer to check real records:
+
+1. Select the data type of the source.
+2. Open a few events and look at **Parsed fields**: the fields your rule uses must be there, with the names you expect.
+3. To see how a field is stored (text or number), use SQL mode, for example `SELECT dynamicType(log.eventCode) ...`. See **Log Explorer SQL Mode**.
+
+See also **Testing Pipelines and Rules**.

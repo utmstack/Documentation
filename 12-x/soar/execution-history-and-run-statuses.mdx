@@ -1,0 +1,69 @@
+**Execution history** lists every step that automated response ran, and every Interactive Console command, with its status and target machine. Use it to check a flow after a test, follow up a real response, or find out why a step did not run.
+
+Open it from **SOAR > Execution history**.
+
+## Filters
+
+| Control | What it does |
+|---|---|
+| Search (**Search by alert ID…**) | Shows only the rows of one alert. |
+| Status buttons | **All**, or one status (see below). |
+| Origin buttons | **All**, **Flow** (started by a flow) or **Manual** (Interactive Console). |
+| **Source** | One agent, or **All sources**. |
+| Time range | The period to show. The default is the last 7 days. |
+
+## Columns
+
+| Column | What it shows |
+|---|---|
+| **Status** | The step's status, plus the cause when it could not run. |
+| **Flow** | The flow name. Console commands show "Interactive console". |
+| **Node** | The step identifier in the flow (for example `step_1`). |
+| **Command / Action** | The command that was sent, or the action of a non-shell step. Secret variables show as `****`. |
+| **Agent** | The machine the step ran on. |
+| **Date** | When the step started. |
+| **Retries** | How many times the server retried the step. |
+
+The page does not show a step's output. Test commands in the **Interactive Console** to see their output.
+
+## Statuses
+
+| Status | Screen label | Meaning |
+|---|---|---|
+| `WAITING` | **Waiting** | The step was just created by an incoming wire and is being prepared. A step that stays Waiting could not be prepared (see **Placeholders** for one cause). |
+| `PENDING` | **Pending** | Ready and waiting for the server to pick it up. |
+| `EXECUTING` | **Executing** | Running now. A step stuck here for about 6 minutes is closed: AI and conditional steps are queued again, other steps are marked Failed. |
+| `EXECUTED` | **Executed** | Finished successfully. Its green wires ran. |
+| `FAILED` | **Failed** | Finished with an error, or could not reach its machine. Its red wires ran. A **Conditional** step whose conditions did not match also shows Failed. |
+| `DEAD` | **Unreachable** | The step was on the wire that was not taken, so it did not run. |
+
+A step with several incoming wires has one row for each wire that fired, because it runs once per wire. A step wired to both the green and the red handle of its parent has an extra **Unreachable** row for the wire that was not taken.
+
+## Causes
+
+When a step could not run, the status can show a cause:
+
+| Cause | Screen label | Meaning |
+|---|---|---|
+| `AGENT_OFFLINE` | **Agent offline** | The machine's agent was not connected. |
+| `UNKNOWN` | **Unknown** | Another problem, for example the flow was deleted while it ran. |
+
+A shell step whose host name matches no agent is marked **Failed** without a cause.
+
+## Keeping history
+
+Nothing deletes old history rows in UTMStack v12.0.2.
+
+## Changed from UTMStack v11
+
+- **SOAR > Audit** is replaced by this page. The old address `/soar/audit` opens **Configure > Settings > App Audit Logs**.
+- Statuses were `PENDING`, `RUNNING`, `EXECUTED` and `ERROR`. They are now **Waiting**, **Pending**, **Executing**, **Executed**, **Failed** and **Unreachable**.
+- Origins were Alert, Incident, User Execution and others. They are now **Flow** and **Manual**.
+- v11 picked up pending work every 5 minutes. UTMStack v12 picks it up at once and checks every 15 seconds.
+- v11 promised 5 retries for an offline agent. Do not count on a fixed number in UTMStack v12; check the **Retries** column.
+
+## Related pages
+
+- **Flows Page**
+- **Building a Flow**
+- **Interactive Console**

@@ -1,0 +1,154 @@
+The **Google Cloud** integration brings your Google Cloud project logs into UTMStack. A Logs Router sink streams the logs into a Pub/Sub topic, and UTMStack pulls them from a subscription on that topic with a service account key. Nothing is installed in your Google Cloud project.
+
+## How it works
+
+- Cloud Logging sends your project logs through a **Logs Router sink** to a **Pub/Sub topic**.
+- UTMStack reads a **Pull subscription** on that topic, using the JSON key of a service account.
+- Events are stored with the data type `google`. UTMStack v12 ships 43 detection rules for this data type; see **Google Cloud** in the **Rules** tab.
+
+## Before you start
+
+- In Google Cloud, you need permission to create Pub/Sub topics and subscriptions, Logs Router sinks and service accounts in the project.
+- In UTMStack, you need the Administrator role (the `integrations.write` permission). Configuration is saved in the tenant you are working in.
+- The UTMStack server must be able to reach Google Cloud over HTTPS (outbound port 443).
+
+## Step 1: Create the Pub/Sub topic and subscription
+
+<Steps>
+<Step title="Create a Pub/Sub topic">
+
+Go to the [Pub/Sub topics page](https://console.cloud.google.com/cloudpubsub/topic/list) in the Google Cloud console and click **Create a topic**. In **Topic ID**, enter a unique topic name and save. The Logs Router sink will publish your project logs to this topic.
+
+</Step>
+<Step title="Create a subscription">
+
+Open the menu of the topic you just created and click **Create subscription**. UTMStack pulls messages from this subscription.
+
+![Google Cloud](/assets/191b6000-f9b2-596f-8ffc-206de164c755)
+
+</Step>
+<Step title="Configure the subscription">
+
+Type a name for the subscription. Leave **Delivery type** as **Pull** and **Expiration** as **Never expire**, then click **Create**. The default acknowledgement deadline (10 seconds) and message retention are fine.
+
+![Google Cloud](/assets/4c6eda83-e1c4-5012-a7b6-8aa5e03500cc)
+
+</Step>
+</Steps>
+
+## Step 2: Route your logs to the topic
+
+<Steps>
+<Step title="Open the Logs Router">
+
+Go to **Logging > Logs Router**. You can find it quickly with the search box.
+
+![Google Cloud](/assets/992e24ab-adbe-5fcf-971f-7b542864064c)
+
+</Step>
+<Step title="Create a sink">
+
+Click **Create sink** and give the sink a name and a description.
+
+![Google Cloud](/assets/cb83f33f-243f-5400-a844-903b868c01fb)
+
+</Step>
+<Step title="Point the sink at the topic">
+
+In **Sink destination**, select **Cloud Pub/Sub topic** and choose the topic you created in Step 1. Click **Next**.
+
+![Google Cloud](/assets/90418b8c-329b-55b5-ab5b-3cf3876bf003)
+
+</Step>
+<Step title="Choose which logs to send (optional)">
+
+Use inclusion and exclusion filters to choose which log entries are sent. If you do not set a filter, all logs of the project are sent to the topic. Click **Create sink**.
+
+</Step>
+</Steps>
+
+## Step 3: Create a service account and key
+
+<Steps>
+<Step title="Create a service account">
+
+Go to the [service accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts), select the project that holds your topic and sink, and click **Create service account**. UTMStack uses this account to pull logs from Pub/Sub.
+
+![Google Cloud](/assets/f1ce2f54-8876-57bb-866a-e9200a5eab40)
+
+</Step>
+<Step title="Grant the Pub/Sub role">
+
+Fill in the form and give the service account the **Pub/Sub Editor** role so UTMStack can pull from the subscription.
+
+</Step>
+<Step title="Create a JSON key">
+
+Open the service account, go to the **Keys** tab and add a new key.
+
+![Google Cloud](/assets/fe23dc16-7426-561a-a4af-560157e5f5c5)
+
+</Step>
+<Step title="Download the key">
+
+Choose **JSON** as the key type and save the file that Google downloads. Its contents go into UTMStack in Step 4.
+
+![Google Cloud](/assets/5e5cdc6b-1de2-5281-8867-e4d3f195e4ae)
+
+<Warning>
+
+Google lets you download the key only once. Keep the file in a safe place.
+
+</Warning>
+
+</Step>
+</Steps>
+
+## Step 4: Connect Google Cloud in UTMStack
+
+Each project connection is a **config group**. You can monitor more than one project by saving more config groups.
+
+<Steps>
+<Step title="Open the integration">
+
+Go to **Configure > Integrations**, search for `GCP` and open the **Gcp** card. The form is at the end of the setup guide, under **Pub/Sub configuration**.
+
+</Step>
+<Step title="Fill in the form">
+
+| Field | What to enter |
+|---|---|
+| **Config group name** | A name for this connection, for example `acme-prod`. It cannot be changed later, and it becomes the data source name on the **Data Sources** page. |
+| **Project ID** | The ID of the Google Cloud project that holds your topic, subscription and sink. |
+| **Subscription name** | The Pull subscription you created in Step 1. |
+| **Service account JSON key** | Click **Select file** and choose the JSON key file from Step 3. |
+
+All fields are required. UTMStack does not need the topic name.
+
+</Step>
+<Step title="Save">
+
+Click **Add config group**. UTMStack checks the key, the project and the subscription before it saves them. When the check passes, you see "Config group created successfully."
+
+</Step>
+</Steps>
+
+### If the save fails
+
+| Message | What to check |
+|---|---|
+| Could not parse the file as JSON | The file you selected is not the JSON key file. |
+| Invalid JSON Key | The key was deleted or does not belong to a valid service account. |
+| GCP Project ... was not found / Invalid Project ID | The project ID is wrong. Use the project ID, not the project name. |
+| The service account lacks Pub/Sub Subscriber permission in project ... | The service account does not have a role that lets it pull from the subscription, such as **Pub/Sub Editor**. |
+| Subscription ... not found in project ... | The subscription name is wrong, or it is in another project. |
+
+## Check that events arrive
+
+Open the **Gcp** card again and click **View logs**. Log Explorer opens filtered to the `google` data type for the last 24 hours.
+
+## Manage config groups
+
+- **Add more connections**: save one config group per project or subscription.
+- **Edit**: click the pencil icon next to a config group. The name cannot be changed. The stored key is kept unless you click **Replace file** and choose a new one. Click **Update config group**.
+- **Delete**: click the bin icon. The config group is deleted at once, without a confirmation, and collection stops. The data source it created stays on the **Data Sources** page; delete it there if you no longer need it.

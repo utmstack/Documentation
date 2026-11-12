@@ -1,0 +1,117 @@
+This page explains what happens between a rule matching your events and an alert appearing on the **Alerts** page: how UTMStack sets the severity, how it drops repeated alerts (de-duplication), how it files repeats under a first alert (echoes), and which alerts send an email. It is for analysts who read alerts and for anyone who writes rules.
+
+## From a rule match to an alert
+
+<Steps>
+
+<Step title="A rule matches">
+
+The event processor checks every event against the active correlation rules. When a rule's condition matches (and its counting steps, if it has any, are met), the event processor builds an alert:
+
+- From the rule: name, category, technique, description, impact values, references, and the rule's `groupBy` and `deduplicateBy` lists.
+- From the last matching event: the tenant, the data source, the data type and both sides of the event (origin and target).
+
+</Step>
+
+<Step title="UTMStack decides who is the adversary">
+
+The rule's `adversary` setting picks the side. If it is `target`, the event's target becomes the alert's **Adversary** and the event's origin becomes the alert's target. Otherwise the event's origin is the adversary and the event's target is the alert's target.
+
+</Step>
+
+<Step title="UTMStack sets the severity">
+
+See **Severity** below.
+
+</Step>
+
+<Step title="The alert is passed on">
+
+Every alert goes, in this order, to the alerts store, to SOC-AI and to automated response (SOAR). Automated response decides whether a flow runs; see **Automated response overview**.
+
+</Step>
+
+<Step title="The alerts store checks for repeats and applies tagging rules">
+
+The alerts store drops the alert if it is a duplicate, files it as an echo if it repeats an earlier alert, applies your tagging rules and saves it. An alert that carries no tenant is dropped.
+
+</Step>
+
+</Steps>
+
+Alerts raised by threat intelligence follow their own path. See **Threat intelligence: how indicator alerts work**.
+
+## Severity
+
+A rule gives three impact values, each from 0 to 3: confidentiality, integrity and availability. UTMStack takes the highest of the three and turns it into the severity:
+
+| Highest impact value | Severity |
+|---|---|
+| 3 | High |
+| 2 | Medium |
+| 1 | Low |
+| 0 | Low (the event processor calls it "info"; the alerts store saves it as Low) |
+
+The highest value is also shown as the alert's **Risk**.
+
+### How asset sensitivity changes the severity
+
+You can rate how important a host is on the **Data Sources** page (**Asset sensitivity**: Confidentiality, Integrity and Availability, each None, Low, Medium or High). See **Data Sources page**.
+
+When an alert's target host name or IP address matches a rated data source in the same tenant, UTMStack adjusts each impact value of the rule that is above 0:
+
+1. It takes the average of the rule's value and the asset's rating, rounded (a half rounds up).
+2. If the result is higher than the asset's rating, it uses the asset's rating instead.
+
+The severity is then worked out from the adjusted values. A rating can therefore lower or raise an alert's severity. Some examples:
+
+| Rule's value | Asset rating | Value used |
+|---|---|---|
+| 3 (High) | 1 (Low) | 1 |
+| 3 (High) | 3 (High) | 3 |
+| 1 (Low) | 3 (High) | 2 |
+| 2 (Medium) | 0 (None) | 0 |
+
+A data source whose three ratings are all None is not used for this.
+
+## De-duplication: dropping repeats
+
+A rule can list fields in `deduplicateBy`. When it does, UTMStack looks for an earlier alert from the same rule (same rule name) with the same values in those fields, raised in the last 7 days. If it finds one, whatever its status, the new alert is dropped completely: no row, no echo and no count.
+
+- Field names are read from the alert, for example `adversary.ip`, `adversary.host`, `target.user`, `dataSource` or `lastEvent.log.<field>`. The alert has no `origin.*` fields: use `adversary.*` and `target.*`.
+- Fields that have no value on the alert are skipped. If none of the listed fields has a value, the alert is never treated as a duplicate.
+- De-duplication is checked before grouping.
+- A short cache stops a burst of identical alerts arriving at the same moment from all being saved.
+
+<Warning>
+
+For 7 days after an alert, a repeat with the same values is dropped even if an analyst has already completed the first alert. Choose `deduplicateBy` fields that really mean "the same problem".
+
+</Warning>
+
+## Grouping: echoes
+
+A rule can list fields in `groupBy`. When it does, UTMStack looks for an existing top-level alert from the same rule with the same values in those fields, with no time limit.
+
+- If it finds one, the new alert is saved as an **echo** of that alert. An echo is a full alert with its own ID, time, events and the status Open, but it is not shown as a row on the **Alerts** page. The first alert's **Echoes** column counts it.
+- If it finds none, the new alert becomes a new top-level alert.
+- If the first alert is Completed, UTMStack sets it back to **Open**. It changes only the status: the closing observation stays, and no history entry is written.
+- Alerts from different rules are never grouped together.
+
+To see the echoes of an alert, click the number in its **Echoes** column. The list shows 20 echoes at a time, newest first.
+
+Changing the status of an alert also changes the status of all its echoes.
+
+## Which rules de-duplicate or group
+
+Of the 721 rules shipped with UTMStack v12.0.2, 101 de-duplicate (`deduplicateBy`), 609 group (`groupBy`), and 11 do neither. A rule with neither raises a separate alert every time it matches, which can trigger the **Rule flood guard**.
+
+To add or change these lists, edit the rule on **Configure > Alerting Rules**. See **Rule file format**.
+
+## Circuit breaker alerts
+
+If one rule fails to evaluate 5 times, the event processor stops running it and raises a High alert named `Circuit Breaker: <rule name>` with the category `System`. The error count starts again when the rules are reloaded.
+
+## Which alerts send email
+
+When **Alert recipients** are set on **Configure > Settings > Email Configuration**, UTMStack emails each new top-level alert. Echoes and dropped duplicates are not emailed. See **Alert and incident notifications**.

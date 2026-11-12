@@ -1,0 +1,100 @@
+Every UTMStack v12 user has a **Profile** page where they manage their own name, email, language, password, open sessions and two-step sign-in (two-factor authentication, or 2FA). Two-step sign-in asks for a 6-digit code after the password, from an authenticator app or by email.
+
+## Open your profile
+
+Click your avatar in the top-right corner and choose **Profile**. Every user can open their own profile, whatever their role.
+
+## Picture and personal information
+
+- **Change avatar** uploads a picture (PNG, JPEG, WEBP or GIF, up to 2 MB). **Remove avatar** removes it.
+- Under **Personal information**, change your **Name**, **Email** and **Language**, then click **Save changes**. Choose **System default** as language to follow the platform's default language.
+
+Your email address is also the name you sign in with. Administrators cannot change these fields for you.
+
+## Change your password
+
+1. Under **Password**, enter your **Current password**.
+2. Enter the **New password** (at least 8 characters) and type it again in **Confirm new password**. The new password must be different from the current one.
+3. Click **Update password**.
+
+Changing your password signs you out of all your other sessions.
+
+## Active sessions
+
+**Active sessions** lists the devices where you are signed in, with the browser, the operating system and when you signed in. Your current session is marked **This device**.
+
+- Click **Revoke** to end one session.
+- Click **Sign out of all other sessions** to end every session except the one you are using.
+
+A user can have up to 10 sessions at the same time. When you sign in an eleventh time, the oldest session is ended.
+
+<Note>
+
+A session you revoke can no longer renew its sign-in. A page that is already open on that device stops working within one hour.
+
+</Note>
+
+## Two-step sign-in
+
+Two-step sign-in is off for every user until they turn it on. There is no setting that turns it on for everyone; ask your users to enable it in their profile.
+
+There are two methods:
+
+| Method | How you get the code |
+|---|---|
+| **Authenticator app** (recommended) | An app such as Google Authenticator or 1Password shows a new 6-digit code every 30 seconds. |
+| **Email code** | UTMStack emails you a 6-digit code at each sign-in. Needs an email address in your profile and a working mail server (see **Email Configuration**). |
+
+### Turn on two-step sign-in
+
+<Steps>
+
+<Step title="Start">
+
+Open **Profile**. Under **Two-factor authentication**, click **Enable**.
+
+</Step>
+
+<Step title="Choose a method">
+
+Choose **Authenticator app** or **Email code** and click **Continue**.
+
+</Step>
+
+<Step title="Connect your authenticator or check your email">
+
+- **Authenticator app**: scan the QR code with your app. If you cannot scan it, type the key shown under "Or enter this key manually" into the app.
+- **Email code**: open the email UTMStack sent you. Click **Resend** if it does not arrive.
+
+</Step>
+
+<Step title="Confirm">
+
+Enter the 6-digit code and click **Verify & enable**. The section now shows **Two-factor authentication is on** and the method you chose.
+
+</Step>
+
+</Steps>
+
+### Sign in with two-step sign-in
+
+1. Enter your email and password on the sign-in page and click **Sign in**.
+2. On **Two-factor verification**, enter the 6-digit code from your authenticator app or from the email, and click **Verify**.
+
+An emailed sign-in code is valid for 5 minutes.
+
+### Turn off two-step sign-in
+
+1. Open **Profile**. Under **Two-factor authentication**, click **Disable**.
+2. Enter your current password and click **Disable 2FA**.
+
+### If you lose your authenticator
+
+UTMStack has no recovery codes. Ask an administrator to reset your two-step sign-in on the **Team** page (see **Users**). You can then sign in with your password alone and turn two-step sign-in on again.
+
+### Single sign-on and two-step sign-in
+
+- Users who sign in through a SAML 2.0 or OpenID Connect identity provider do not get the UTMStack code step. Set up multi-factor sign-in in your identity provider instead.
+- Users who sign in through an LDAP or Active Directory provider use the normal sign-in form and get the UTMStack code step if they turned it on.
+
+See **Single Sign-On**.

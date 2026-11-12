@@ -1,0 +1,68 @@
+UTMStack adds location and network-owner details to public IP addresses in your events: country, city, coordinates and the network that owns the address. This page explains which pipelines do it, which fields it writes, where the location data comes from and when a field stays empty.
+
+## Where you see it
+
+Geolocation fills the `geolocation` object of an event side, for example `origin.geolocation` and `target.geolocation`. You see these values:
+
+- In **Log Explorer**, on events.
+- On alerts: the **Country** in the **Parties** tab, and the **Adversary country**, **ASN** and **ASO** and **Target country**, **ASN** and **ASO** fields in **Add filter** and in tagging rules.
+- In the **Adversary View**, when you hover over an adversary or victim.
+- In dashboard widgets that group by these fields, for example `origin.geolocation.country`.
+
+## Fields it writes
+
+| Field | Content |
+|---|---|
+| `country` | Country name |
+| `countryCode` | Two-letter country code |
+| `city` | City name |
+| `latitude` | Latitude |
+| `longitude` | Longitude |
+| `asn` | Autonomous system number: the number of the network that owns the address |
+| `aso` | Autonomous system organization: the name of the network's owner |
+
+For example, with `origin.geolocation` you can filter on `origin.geolocation.country` or `origin.geolocation.aso`.
+
+The event schema also has an `accuracy` field under `geolocation`. UTMStack v12 does not fill it in.
+
+## Which data sources are geolocated
+
+Geolocation is a step in a pipeline (the set of parsing steps for one kind of log), not something UTMStack does to every event. The step names the address field to read and the field to write:
+
+```yaml
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params:
+      source: origin.ip
+      destination: origin.geolocation
+    where: exists("origin.ip")
+```
+
+Both `source` and `destination` are required. See **Pipeline file format and step reference**.
+
+In UTMStack v12.0.2, 25 of the 37 shipped pipelines include this step, mostly for `origin.ip` and `target.ip`:
+
+| Geolocated | Not geolocated |
+|---|---|
+| AWS, Azure, Bitdefender GravityZone, Cisco ASA, Cisco Firepower, Cisco Meraki, CrowdStrike, ESET, FortiGate, FortiWeb, Google Cloud, IBM AIX, IBM AS/400, Kaspersky, Microsoft 365 (Graph), MikroTik, NetFlow, Office 365, Palo Alto, pfSense, SonicWall, Sophos Central, Sophos XG, Suricata, Syslog CEF/LEEF | Windows, Linux, macOS, generic syslog, generic, JSON input, GitHub, VMware ESXi, Cisco switch, SentinelOne, Deceptive Bytes, UTMStack |
+
+Some pipelines also geolocate other addresses into `log.*` fields, for example the Cisco ASA, Firepower and Meraki pipelines.
+
+To geolocate a data source that is not in the list, add the step to a custom pipeline. See **Pipelines**.
+
+## When no location is added
+
+UTMStack writes nothing when:
+
+- The source field is empty or is not an IP address.
+- The address is private or reserved: `127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.0.0/16` or `224.0.0.0/24`.
+
+Other non-public ranges, such as `100.64.0.0/10` or private IPv6 ranges, are looked up like public addresses.
+
+For some public addresses no location or network owner is found. The `geolocation` field is then an empty object (`{}`).
+
+## Where the location data comes from
+
+The location data is built into the event processor image as five CSV files (`asn-blocks-v4.csv`, `asn-blocks-v6.csv`, `blocks-v4.csv`, `blocks-v6.csv` and `locations-en.csv`) in the folder `/workdir/geolocation/` inside the event processor. It is loaded once when the event processor starts and is not updated on a schedule: new location data arrives only with a new UTMStack version.
+
+Geolocation runs entirely on your server. No addresses are sent anywhere for the lookup.

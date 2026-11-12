@@ -1,0 +1,93 @@
+UTMStack v12 comes in two editions: **Community**, which needs no licence file, and **Enterprise**. An Enterprise licence can also carry the **multi-tenant** option for managed service providers (MSSPs). This page explains what each edition includes, how to install a licence, and what the **About** page shows.
+
+## Editions and what they include
+
+| Feature | Community | Enterprise | Enterprise with multi-tenant |
+|---|---|---|---|
+| Alerts, incidents, automated response (SOAR), dashboards, Log Explorer, rules, pipelines, integrations, SOC-AI | Yes | Yes | Yes |
+| API keys: creating them and signing in with them | No | Yes | Yes |
+| Single sign-on (SAML 2.0 and OpenID Connect) and creating or editing identity providers | No | Yes | Yes |
+| White-label branding | No | Yes | Yes |
+| Shipped compliance frameworks | CMMC 2.0 and GDPR only | All | All |
+| MCP tools for API keys and identity providers | No | Yes | Yes |
+| Tenants, support access, tenant switcher, **Apply to all tenants** | No | No | Yes |
+
+On Community, the compliance limit applies only to the frameworks and controls that ship with UTMStack. Frameworks and controls you create yourself are not limited.
+
+When a licence expires or cannot be verified, UTMStack falls back to Community. Your data is kept, but the Enterprise features above stop working until a valid licence is installed.
+
+## View your licence
+
+Open **Configure > Settings > License**. Only the instance operator sees this page (see **Settings Overview**).
+
+| Field | What it shows |
+|---|---|
+| Status | **Community**, **Active**, **Expiring soon** (30 days or less left) or **Expired** |
+| Edition | Community or Enterprise |
+| Ingest volume | The contracted log volume: **Not metered**, **Unlimited** or a number of GB per month. It is shown for information. |
+| MSSP / multi-tenant | Whether the multi-tenant option is enabled |
+| License type | Online or offline |
+| Instance ID | The identifier of this server. A licence is issued for one instance ID. |
+| Valid until | The expiry date, or **No expiry** |
+| Time remaining | Days left before the licence expires |
+
+The version shown in the top bar links to this page for administrators on Community (**Manage license**).
+
+## Install or replace a licence
+
+You need to be the instance operator.
+
+<Steps>
+
+<Step title="Get the licence file">
+
+Get your `LICENSE` file from UTMStack. The licence is issued for the **Instance ID** shown on the License page, so send that ID when you request it.
+
+</Step>
+
+<Step title="Open the License page">
+
+Go to **Configure > Settings > License**.
+
+</Step>
+
+<Step title="Upload the file">
+
+Under **Upload a license**, click **Choose file**, select the file and click **Install license**.
+
+</Step>
+
+<Step title="Check the result">
+
+UTMStack checks the file's signature, that it was issued for this instance ID and that it has not expired. If the file is accepted, the page shows the new edition. If not, you see "Invalid or expired license file."
+
+</Step>
+
+</Steps>
+
+The licence is stored on the server as `/utmstack/updates/LICENSE`. The server reads this file again every 5 minutes.
+
+Servers with internet access also receive their licence automatically from the UTMStack licence server every 5 minutes, so you usually do not need to upload it yourself.
+
+<Warning>
+
+Uninstalling UTMStack deletes `/utmstack/updates`, which holds the licence file and the server's registration. Keep a copy of your licence file.
+
+</Warning>
+
+## About this instance
+
+Open **Configure > Settings > About** (instance operator only). The page shows:
+
+- The edition and the server's host name (**Server**).
+- The **Instance ID**.
+- A licence summary with a **View license** link.
+- **System health** for the backend API, with a **Refresh** button.
+- **Data sources**: how many data sources are configured.
+- **Support** links (documentation, GitHub repository, issue reporting, website) and **Legal** information.
+
+You can also see the installed version and edition on the server with:
+
+```bash
+utmstack_installer --version
+```

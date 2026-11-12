@@ -1,0 +1,64 @@
+UTMStack v12 collects Cisco ASA firewall logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the Cisco ASA integration on a Collector, then point the ASA's syslog at that Collector. Nothing is installed on the ASA.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Cisco** (category Firewall) |
+| Data type | `firewall-cisco-asa` |
+| Default ports on the Collector | 514/UDP; 1470/TCP (also used for TLS) |
+| Included in UTMStack | A parsing filter and 3 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- The ASA must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Cisco** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 514`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-cisco-asa 514 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Configure the Cisco ASA
+
+On your Cisco ASA, enable syslog and point it at the Collector host on port 514. From privileged EXEC mode, enter configuration mode (`configure terminal`), then run these commands. Replace `<interface>` with your inside or management interface name, and `<collector-ip>` with the address of the Collector host.
+
+```text
+logging enable
+logging host <interface> <collector-ip> udp/514
+logging trap informational
+```
+
+If you enabled the integration with TCP or TLS, configure the ASA to send to port 1470 over that protocol instead. See Cisco's documentation for the syntax on your ASA version.
+
+## Step 3: Check that logs arrive
+
+- In the **Cisco** drawer, click **View logs**. Log Explorer opens with the `firewall-cisco-asa` data type for the last 24 hours.
+- Within about 10 minutes, the ASA appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Cisco** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-cisco-asa udp
+```

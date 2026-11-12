@@ -1,0 +1,76 @@
+UTMStack v12 groups its administration screens under **Configure > Settings**. This page lists every settings page, who can see it, and which page in this guide describes it.
+
+## Open Settings
+
+1. Sign in with a user that holds the **Administrator** role.
+2. In the main menu, open **Configure > Settings**.
+
+The main menu is replaced by the list of settings pages, with a **Back** button at the top. Click **Back** to return to the main menu.
+
+When you open **Settings**, UTMStack shows the **License** page if you are the instance operator, and the **Notifications** page otherwise.
+
+<Note>
+
+The **Configure** group, and so **Settings**, appears only for users with the **Administrator** role. Other users open their **Profile** from the avatar menu in the top bar, and the **Notifications** page from the bell.
+
+</Note>
+
+## Who is the instance operator
+
+Some settings belong to the whole server rather than to one organization on it. Only the **instance operator** sees them.
+
+- On a normal (single-tenant) installation, every user belongs to the default tenant, so every user with the **Administrator** role is an instance operator.
+- On a server with a multi-tenant licence, the instance operator is a user with the **Administrator** role in the default tenant. Administrators of a customer tenant are not instance operators. See **Tenants**.
+- While the instance operator works inside a customer tenant (a support session), the operator-only pages are hidden. See **Support Access**.
+
+## Settings pages
+
+The pages appear in this order in the Settings menu.
+
+| Menu item | Page title | Who sees it | Described in |
+|---|---|---|---|
+| License | License | Instance operator | **License and Editions** |
+| Notifications | Notifications | Everyone | **Notifications** |
+| Connection Key | Connection key | Administrators | **Connection Key** |
+| Data Retention | Data retention | Instance operator | **Data Retention and Cold Storage** |
+| Branding | Branding | Administrators (Enterprise licence to change it) | **Branding** |
+| API Keys | API keys | Administrators (Enterprise licence to create keys) | **API Keys** |
+| Identity Providers | Identity Providers | Administrators (Enterprise licence to create providers) | **Single Sign-On** |
+| Support access | Support access | Administrator of a customer tenant, multi-tenant licence only | **Support Access** |
+| Email Configuration | Email configuration | Administrators | **Email Configuration** |
+| ThreatWinds Integration | ThreatWinds Integration | Instance operator | Threat intelligence pages |
+| SOC-AI | SOC-AI Configuration | Administrators | **AI Providers** |
+| Date Format | Date & time | Administrators | **Date, Time Zone and Language** |
+| Language | Platform language | Administrators | **Date, Time Zone and Language** |
+| App Audit Logs | Audit log | Administrators | **App Audit Logs** |
+| About | About this instance | Instance operator | **License and Editions** |
+
+The **Data Retention** page is also hidden when the server's retention feature is switched off.
+
+## Other administration pages
+
+These pages are not under Settings:
+
+| Where | What it does | Described in |
+|---|---|---|
+| **Configure > Team** | Add, deactivate and reactivate users; assign roles; create custom roles | **Users**, **Roles and Permissions** |
+| Avatar menu > **Profile** | Each user's name, email, language, password, sessions and two-step sign-in | **Profile and Two-Step Sign-In** |
+| **Tenants** (main menu) | Create and manage customer tenants (multi-tenant licence, instance operator only) | **Tenants** |
+
+## Settings and tenants
+
+On a multi-tenant licence, most settings belong to each tenant: email and recipients, date and time, language, branding, identity providers, users, roles, API keys and the connection key.
+
+For email, recipients, date and time, and language, a value that the tenant has never saved is taken from the default tenant. Branding is not taken from the default tenant: a tenant without its own branding shows the standard UTMStack look.
+
+Settings that belong to the whole server are on the operator-only pages: the licence, data retention, the ThreatWinds switches and the About page.
+
+## First steps after installation
+
+After you install UTMStack v12 and sign in for the first time:
+
+1. Set a real email address for the `admin` user when UTMStack asks for it. UTMStack then opens **Email Configuration**.
+2. In **Email Configuration**, set up your mail server and correct the **Base URL**. See **Email Configuration**.
+3. Install your licence if you have one. See **License and Editions**.
+4. Add the people who will use UTMStack. See **Users**.
+5. Check **Data Retention** and decide how long to keep logs and alerts. See **Data Retention and Cold Storage**.

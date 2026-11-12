@@ -1,0 +1,74 @@
+The UTMStack self-monitoring integration sends UTMStack's own logs back into UTMStack v12. A small collector installed on the UTMStack server reads the logs of the platform's Docker containers and ships them in, so you can search and watch your SIEM's own activity like any other source.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Utmstack** (category SIEM) |
+| Data type | `utmstack` |
+| Service on the UTMStack server | `UTMStackCollector` |
+| Install folder | `/opt/utmstack-collector` |
+| Included in UTMStack | A parsing filter. No detection rules use this data type. |
+
+## Before you begin
+
+<Warning>
+
+This collector runs on the UTMStack server only. It can only be installed on a UTMStack instance running Ubuntu or a Red Hat family distribution. Install it directly on the UTMStack server, not on another host.
+
+</Warning>
+
+- You need root rights (`sudo`) on the UTMStack server.
+- You need the install command from your own UTMStack instance. It contains your connection key, which only administrators can see.
+
+## Install the collector
+
+<Steps>
+  <Step title="Open the Utmstack card">
+    In UTMStack, go to **Configure > Integrations** and open the **Utmstack** card.
+  </Step>
+  <Step title="Choose the operating system">
+    Under **Install the collector**, pick the operating system of your UTMStack server: **Ubuntu** (the command uses `apt`) or **CentOS / Red Hat** (the command uses `dnf`).
+  </Step>
+  <Step title="Run the command on the UTMStack server">
+    Copy the command and run it on the UTMStack server. Treat it like a password: it contains a sensitive connection token.
+  </Step>
+</Steps>
+
+For Ubuntu, the command looks like this:
+
+```bash
+sudo bash -c "
+  apt update -y && apt install wget -y && \
+  mkdir -p /opt/utmstack-collector && \
+  wget --no-check-certificate -P /opt/utmstack-collector \
+    https://<server>/private/dependencies/collector/utmstack_collector && \
+  chmod 755 /opt/utmstack-collector/utmstack_collector && \
+  /opt/utmstack-collector/utmstack_collector install <server> <connection-key> yes
+"
+```
+
+## What it collects
+
+The collector reads the logs of the UTMStack Docker containers on the server and sends them under the data type `utmstack`. It skips containers whose names contain any of these words: `postgres`, `logstash`, `mutate`, `node1`, `filebrowser`, `user-auditor`, `web-pdf`, `frontend`.
+
+## After you install
+
+- The collector registers itself and appears on the **Data Sources** page.
+- UTMStack container logs start arriving within a minute.
+- The events are searchable in Log Explorer under the `utmstack` data type. Use **View logs** in the **Utmstack** drawer to open them.
+
+## Uninstall the collector
+
+Expand **Uninstall the collector** in the **Utmstack** card, or run this on the UTMStack server:
+
+```bash
+sudo bash -c "
+  /opt/utmstack-collector/utmstack_collector uninstall && \
+  (systemctl stop UTMStackCollector 2>/dev/null || true) && \
+  (systemctl disable UTMStackCollector 2>/dev/null || true) && \
+  rm -rf /opt/utmstack-collector && \
+  rm -f /etc/systemd/system/UTMStackCollector.service && \
+  (systemctl daemon-reload 2>/dev/null || true)
+"
+```

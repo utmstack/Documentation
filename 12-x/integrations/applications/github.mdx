@@ -1,0 +1,93 @@
+UTMStack v12 collects GitHub events through webhooks. GitHub posts each event over HTTPS to the **UTMStack Forwarder** (the **Collector** in the web interface), which checks the event's signature and forwards it to UTMStack. Nothing is installed on GitHub.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Github** (category DevOps) |
+| Data type | `github` |
+| Listener on the Collector | HTTPS on port 7020, path `/github`, listening on all addresses |
+| Authentication | HMAC signature in the `X-Hub-Signature-256` header |
+| Included in UTMStack | A parsing filter and 13 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**.
+- GitHub sends from the internet, so port **7020/TCP** on the Collector host must be reachable from GitHub.
+- The Collector host needs a DNS name and a TLS certificate for that name issued by a public certificate authority.
+- You need the `integrations.write` permission to enable the integration from the web interface, and access to the settings of the GitHub repository or organization.
+
+<Warning>
+
+GitHub only delivers webhooks to HTTPS endpoints with a certificate issued by a public certificate authority. Self-signed certificates are rejected. Make sure the Collector host has a valid certificate for its domain before you register the webhook.
+
+</Warning>
+
+## Step 1: Load the certificate on the Collector
+
+Load the certificate and its private key once per Collector. Use one of these ways:
+
+- **Web interface**: in the **Github** card, under **Enable this integration remotely**, select the **Collector**. In the **TLS certificate** box, choose the **Certificate**, the **Private key** and, if needed, the **CA certificate**, then click **Upload certificate**.
+- **Command line** on the Collector host:
+
+  ```bash
+  sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key
+  ```
+
+  You can add the CA certificate (the chain) as a third argument.
+
+## Step 2: Enable the integration
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Github** card.
+  </Step>
+  <Step title="Check the settings">
+    Under **Enable this integration remotely**, select the **Collector**. The other fields are already set for GitHub: **Protocol** HTTPS, **Port** 7020, **Authentication** HMAC signature, **Path** `/github` and **Signature header** `X-Hub-Signature-256`.
+  </Step>
+  <Step title="Enable it and copy the secret">
+    Click **Enable integration**. UTMStack shows a secret token once: "Store this token securely — it won't be shown again." Copy it now. You need it in GitHub.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration github 7020 https
+```
+
+The terminal prints the secret token once. The Forwarder also keeps it in `/opt/utmstack-forwarder/certs/integration-http-github.token`.
+
+## Step 3: Register the webhook in GitHub
+
+In your repository or organization, go to **Settings → Webhooks → Add webhook** and fill in the form:
+
+| GitHub field | Value |
+|---|---|
+| **Payload URL** | `https://<collector-domain>:7020/github` |
+| **Content type** | `application/json` |
+| **Secret** | The token from step 2 |
+| **Which events** | **Send me everything**, or select the event types you want |
+
+Save the webhook.
+
+<Note>
+
+The setup guide in UTMStack fills in your UTMStack server's address in the Payload URL. Keep it only if the Collector runs on the UTMStack server; otherwise use the domain name of the Collector host. The name must match the certificate you loaded in step 1.
+
+</Note>
+
+## Step 4: Check that events arrive
+
+- In the **Github** drawer, click **View logs**. Log Explorer opens with the `github` data type for the last 24 hours.
+- **Rules** and **Filters** in the drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Github** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration github https
+```
+
+Then delete the webhook in GitHub.

@@ -1,0 +1,325 @@
+Detection rules for **Bitdefender GravityZone** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `antivirus-bitdefender-gz`.
+
+This category contains **21** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Bitdefender GravityZone Antitampering Detection | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:2 / I:3 / A:3 |
+| Bitdefender GravityZone Behavioral or Heuristic Threat Detection | Execution | T1027 - Obfuscated Files or Information | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Boot-Related Malware Detection | Defense Evasion | T1542.001 - Pre-OS Boot: System Firmware | C:3 / I:3 / A:3 |
+| Bitdefender GravityZone Exchange Malware Detection | Initial Access | T1566.001 - Phishing: Spearphishing Attachment | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Exclusion-Related Task Succeeded | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:1 / I:1 / A:0 |
+| Bitdefender GravityZone High Severity Malware Detection | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone High Severity Malware on Multiple Endpoints | Lateral Movement | T1080 - Taint Shared Content | C:3 / I:3 / A:3 |
+| Bitdefender GravityZone High Severity Targeted or Sandbox Detection | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Malware Not Remediated | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Memory or Exploit-Related Detection | Defense Evasion | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Mining-Related Threat Detection | Impact | T1496 - Resource Hijacking | C:2 / I:2 / A:3 |
+| Bitdefender GravityZone Network Attack Blocked | Command and Control | T1071 - Application Layer Protocol | C:3 / I:2 / A:2 |
+| Bitdefender GravityZone Phishing Detection in Report-Only Mode | Credential Access | T1566.002 - Phishing: Spearphishing Link | C:3 / I:1 / A:0 |
+| Bitdefender GravityZone Potential Fileless Attack | Defense Evasion | T1055 - Process Injection | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Protection Module Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Ransomware Detected | Impact | T1486 - Data Encrypted for Impact | C:3 / I:3 / A:3 |
+| Bitdefender GravityZone Real-Time Antimalware Disabled | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Repeated Malware Detections on One Endpoint | Execution | T1204.002 - User Execution: Malicious File | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Rootkit Detected | Defense Evasion | T1014 - Rootkit | C:3 / I:3 / A:2 |
+| Bitdefender GravityZone Sensitive Task Activity Across Endpoints | Lateral Movement | T1072 - Software Deployment Tools | C:1 / I:2 / A:1 |
+| Bitdefender GravityZone USB-Borne Threat Activity | Initial Access | T1091 - Replication Through Removable Media | C:3 / I:3 / A:2 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Bitdefender GravityZone Antitampering Detection** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/antivirus_service_stopped.yaml)):
+
+```yaml
+# Rule version v3.0.0
+
+dataTypes:
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Antitampering Detection
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Defense Evasion
+technique: 'T1562.001 - Impair Defenses: Disable or Modify Tools'
+adversary: origin
+references:
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1562/001/
+description: 'GravityZone reported an antitampering event. This identifies attempted interference with protection; it does not by itself
+  prove that a service stopped or that the attempt succeeded. Review the vendor event details, endpoint state and authorized maintenance
+  before containment.
+
+  '
+where: equals("log.BitdefenderGZModule", "antitampering")
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- lastEvent.log.BitdefenderGZModule
+
+```
+
+---
+
+## Rule Details
+
+### Bitdefender GravityZone Antitampering Detection
+
+GravityZone reported an antitampering event. This identifies attempted interference with protection; it does not by itself prove that a service stopped or that the attempt succeeded. Review the vendor event details, endpoint state and authorized maintenance before containment.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:2 / I:3 / A:3
+- **Rule file:** [antivirus_service_stopped.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/antivirus_service_stopped.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Behavioral or Heuristic Threat Detection
+
+GravityZone reports a behavioral, sandbox or heuristic detection. These engines can detect known threats and policy-defined behavior as well as new threats; this event does not prove a zero-day vulnerability. Review the signature, vendor action and endpoint evidence.
+
+- **Category:** Execution
+- **Technique:** T1027 - Obfuscated Files or Information
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [zero_day_malware_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/zero_day_malware_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1027/](https://attack.mitre.org/techniques/T1027/)
+
+### Bitdefender GravityZone Boot-Related Malware Detection
+
+An antimalware detection identifies a boot object, a boot/rootkit-related signature, or an artifact in a boot-related path. The signature or path does not establish successful persistence or firmware compromise. Review log.BitdefenderGZMalwareType (the infected-object category), target.malware, log.filePath and the vendor action. Use trusted forensic methods if the evidence supports boot-level compromise.
+
+- **Category:** Defense Evasion
+- **Technique:** T1542.001 - Pre-OS Boot: System Firmware
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [bootkit_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/bootkit_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1542/001/](https://attack.mitre.org/techniques/T1542/001/)
+
+### Bitdefender GravityZone Exchange Malware Detection
+
+The Exchange antimalware module reports a detection. Determine whether the affected object was quarantined, removed, blocked or delivered using the original vendor details and mail-system records. A matching endpoint hash is a correlation lead, not proof that a specific user opened a message. Investigate affected messages and recipients before choosing containment.
+
+- **Category:** Initial Access
+- **Technique:** T1566.001 - Phishing: Spearphishing Attachment
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [email_threat_spreading.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/email_threat_spreading.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/001/](https://attack.mitre.org/techniques/T1566/001/)
+
+### Bitdefender GravityZone Exclusion-Related Task Succeeded
+
+GravityZone reports success for a task whose vendor-provided name mentions an exclusion or allowlist. Task names are labels, not a configuration diff; confirm what changed and whether it was authorized before attributing defense evasion. Generic policy, scan and configuration tasks do not match. The full label is retained in log.taskName and log.msg.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:1 / I:1 / A:0
+- **Rule file:** [suspicious_exclusions_added.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/suspicious_exclusions_added.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone High Severity Malware Detection
+
+GravityZone reports an antimalware, behavioral or HyperDetect event with CEF severity at least 8. This is the vendor event priority, not proof of compromise. actionResult=denied means the product blocked, quarantined, killed, deleted or disinfected the threat; success means the file was restored; failed means the vendor reports the threat still present. An absent result is unknown. Review target.malware, hashes, log.filePath and log.BitdefenderGZMalwareType; the latter describes the infected-object category, not the SDK malware type.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [high_severity_threat_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/high_severity_threat_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Bitdefender GravityZone High Severity Malware on Multiple Endpoints
+
+A high-severity antimalware detection has at least two other high-severity records of the same malware name on endpoints other than the current one within 24 hours, scoped to the same collector and GravityZone company. This establishes activity on multiple endpoints, not a distinct-host count of three. Review remediation and common delivery paths.
+
+- **Category:** Lateral Movement
+- **Technique:** T1080 - Taint Shared Content
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [malware_outbreak_multiple_hosts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1080/](https://attack.mitre.org/techniques/T1080/)
+
+### Bitdefender GravityZone High Severity Targeted or Sandbox Detection
+
+A high-severity vendor detection indicates a targeted-attack label, sandbox finding or credential-access technique. These indicators do not establish an advanced persistent actor. Review the detection and endpoint evidence before attributing a campaign.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [apt_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/apt_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Bitdefender GravityZone Malware Not Remediated
+
+An AntiMalware event reports failure to remediate (still present), or reports a positive present-malware counter while quarantine and cleaned counters are zero. This establishes a remediation concern, not that a process executed or the endpoint is compromised. Ignored and report-only actions alone are not mapped to failed. Review the complete counters and vendor final action, object type, file/process and endpoint state; prioritize containment if active compromise is confirmed or strongly supported.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [quarantine_failure_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/quarantine_failure_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Memory or Exploit-Related Detection
+
+GravityZone reports an Anti-Exploit event, a HyperDetect exploit classification, or antimalware against a process object. These signals do not prove successful exploitation or the absence of an on-disk artifact. Review the vendor exploit classification, process command and parent information, action and endpoint evidence before containment.
+
+- **Category:** Defense Evasion
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [memory_threat_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/memory_threat_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+
+### Bitdefender GravityZone Mining-Related Threat Detection
+
+An antimalware signature names mining software, or a Content Control URL matches a mining-related indicator. Detection or blocking does not establish that a miner ran. Check authorization, the exact hostname or URL (a substring can be coincidental), vendor action, process activity and resource usage before attributing cryptojacking.
+
+- **Category:** Impact
+- **Technique:** T1496 - Resource Hijacking
+- **Impact:** C:2 / I:2 / A:3
+- **Rule file:** [crypto_mining_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/crypto_mining_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1496/](https://attack.mitre.org/techniques/T1496/)
+
+### Bitdefender GravityZone Network Attack Blocked
+
+At least five high-severity firewall or Network Attack Defense records explicitly report blocking from the same source address to the same managed endpoint within two hours. Unrelated activity and report-only events do not count. This is blocked attack activity, not a successful connection or confirmed compromise. Investigate repeated targeting and the protection outcome.
+
+- **Category:** Command and Control
+- **Technique:** T1071 - Application Layer Protocol
+- **Impact:** C:3 / I:2 / A:2
+- **Rule file:** [network_threat_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/network_threat_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1071/](https://attack.mitre.org/techniques/T1071/)
+
+### Bitdefender GravityZone Phishing Detection in Report-Only Mode
+
+The antiphishing module reported a phishing, fraud or untrusted URL in report-only mode. This event does not establish that a page loaded, that a user submitted credentials, or that an account was compromised. Blocked detections do not satisfy this rule.
+
+Review origin.domain, origin.url when complete, and the original log.request value, target.user and the managed endpoint. Confirm the protection policy and investigate subsequent browser, authentication and malware activity. Escalate credential containment when that investigation supports exposure.
+
+- **Category:** Credential Access
+- **Technique:** T1566.002 - Phishing: Spearphishing Link
+- **Impact:** C:3 / I:1 / A:0
+- **Rule file:** [phishing_access_blocked.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/002/](https://attack.mitre.org/techniques/T1566/002/)
+
+### Bitdefender GravityZone Potential Fileless Attack
+
+A HyperDetect event explicitly marks a fileless attack, or a behavioral detection includes a command commonly used in fileless execution. A suspicious-file or exploit label alone is insufficient. Review the full vendor command line and process ancestry; a command pattern is an investigation lead, not proof of successful fileless execution.
+
+- **Category:** Defense Evasion
+- **Technique:** T1055 - Process Injection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [fileless_malware_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/fileless_malware_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1055/](https://attack.mitre.org/techniques/T1055/)
+- **Reference:** [https://www.bitdefender.com/en-us/business/gravityzone-platform/fileless-attack-defense](https://www.bitdefender.com/en-us/business/gravityzone-platform/fileless-attack-defense)
+
+### Bitdefender GravityZone Protection Module Disabled
+
+A protection-module status event reports a disabled behavioral, power-user, data-protection or application-control module. Verify the applied policy and expected licensing or maintenance state. The status does not identify who changed the configuration or establish a malicious override. Real-time antimalware status has a separate rule.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [av_policy_override.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/av_policy_override.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Ransomware Detected
+
+The vendor attack classification, ransomware-mitigation module or detection name identifies ransomware-related activity. The finding may describe an attempt that was blocked or remediated; it does not establish that files were encrypted. Promptly review the vendor action, affected files, processes and accessible shares, and contain supported active activity according to the incident response plan.
+
+- **Category:** Impact
+- **Technique:** T1486 - Data Encrypted for Impact
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [ransomware_behavior_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/ransomware_behavior_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1486/](https://attack.mitre.org/techniques/T1486/)
+
+### Bitdefender GravityZone Real-Time Antimalware Disabled
+
+A Product Modules Status event reports real-time antimalware disabled. Confirm the applied policy, licensing, maintenance state and actual endpoint protection status. The event does not identify the person responsible or establish tampering. Review related protection events and restore expected coverage through the approved management process.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [realtime_protection_disabled.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/realtime_protection_disabled.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Bitdefender GravityZone Repeated Malware Detections on One Endpoint
+
+At least three high-severity antimalware or behavioral detection records occurred on the same managed endpoint within one hour. Only matching detection classes count; task, inventory and unrelated endpoint events are excluded. Repeated records need not represent different malware families. Review vendor actions and remediation.
+
+- **Category:** Execution
+- **Technique:** T1204.002 - User Execution: Malicious File
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [multiple_malware_from_single_source.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/multiple_malware_from_single_source.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1204/002/](https://attack.mitre.org/techniques/T1204/002/)
+
+### Bitdefender GravityZone Rootkit Detected
+
+An antimalware detection name matches a rootkit-related family or indicator. Review the exact vendor classification, affected object and remediation outcome. A signature match does not prove that the rootkit installed or that all endpoint evidence is untrustworthy. Use the incident response process and trusted forensic collection when the evidence supports compromise.
+
+- **Category:** Defense Evasion
+- **Technique:** T1014 - Rootkit
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [rootkit_detection.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/rootkit_detection.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1014/](https://attack.mitre.org/techniques/T1014/)
+
+### Bitdefender GravityZone Sensitive Task Activity Across Endpoints
+
+A successful task with a name indicating uninstall, quarantine restoration, script execution or command execution is accompanied by at least three similarly classified records of the same task type and creator on other endpoints within one hour. This is an event count, not three distinct endpoints. Normal scan/update status events do not count. Task labels and bursts alone do not prove console compromise or lateral movement. Check the creator, actual task operation and approved change record before containment.
+
+- **Category:** Lateral Movement
+- **Technique:** T1072 - Software Deployment Tools
+- **Impact:** C:1 / I:2 / A:1
+- **Rule file:** [av_console_lateral_movement.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/av_console_lateral_movement.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1072/](https://attack.mitre.org/techniques/T1072/)
+
+### Bitdefender GravityZone USB-Borne Threat Activity
+
+At least three antimalware or behavioral records with autorun/removable-media indicators occurred on the same managed endpoint within 30 minutes. Ordinary blocked or read-only device-control events do not count as malware. File-path indicators alone do not prove USB provenance or propagation; verify the device and malware evidence.
+
+- **Category:** Initial Access
+- **Technique:** T1091 - Replication Through Removable Media
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [usb_malware_propagation.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/antivirus/bitdefender_gz/usb_malware_propagation.yaml)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237089-event-types.html](https://www.bitdefender.com/business/support/en/77212-237089-event-types.html)
+- **Reference:** [https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html](https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1091/](https://attack.mitre.org/techniques/T1091/)

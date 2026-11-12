@@ -1,0 +1,86 @@
+The test dialogs on the Pipelines and Alerting Rules pages run a sample log through a separate copy of the engine, the playground, and show the parsed event and any alerts it raises. Use them to check a pipeline or rule before you save it. Alerts raised in a test appear only in the dialog; they are not added to your alert list.
+
+UTMStack v11 offered the playground as a command-line tool. In UTMStack v12 it is built into the product.
+
+## Before you start
+
+- Testing needs the permission `eventprocessing.write`. Of the built-in roles, only **Administrator** has it.
+- Every test run is recorded in the audit log.
+
+## Where to start a test
+
+| Button | Where | What it runs |
+|---|---|---|
+| **Test pipeline** | Top of **Configure > Pipelines** | Your log through all deployed pipelines. No rules. |
+| **Test** | Inside a pipeline's panel or the pipeline editor | Your log through that one pipeline, as it is in the editor, and nothing else: no other pipelines and no rules. |
+| **Test** | Top of **Configure > Alerting Rules** | Your log through all deployed pipelines, then through every deployed rule, including rules switched off for your tenant. |
+| **Test** | Inside a rule's panel or the rule editor | Your log through all deployed pipelines, then through that one rule, as it is in the editor. |
+
+The dialog is titled **Test pipeline** or **Test rule**.
+
+## Run a test
+
+<Steps>
+  <Step title="Choose the data type">
+
+  Pick the **Data type** of your sample log. It decides which pipelines and rules run. When the pipeline or rule has only one data type, the choice is fixed.
+
+  </Step>
+  <Step title="Paste a raw log">
+
+  Paste one log, exactly as the source sends it, into **Raw log**. The limit is 1 MB ("This log exceeds the 1 MB limit — trim it before running the test.").
+
+  </Step>
+  <Step title="Run">
+
+  Click **Run**. "This can take up to 15 seconds while the pipeline processes the log."
+
+  </Step>
+  <Step title="Read the result">
+
+  - **Parsed result** shows the event the pipelines produced, with a **Fields** tab and a **JSON** tab, and the time it took ("Parsed in …"). Check that every field has the name and value you expect, and look at the `errors` field for steps that failed.
+  - **Alerts**, for rule tests, lists the alerts the log raised, or "No alerts were triggered."
+
+  </Step>
+</Steps>
+
+## Get a real sample log
+
+The best test data is a real log from your own source:
+
+1. Open **Log Explorer**, choose the dataset `logs` and the data type of your source.
+2. Open an event and go to its **JSON** tab.
+3. Copy the value of its `raw` field and paste it into **Raw log**.
+
+**Copy JSON** copies the whole stored event, not the original log, so it is not the right input for a test.
+
+<Warning>
+
+**Pipeline tests show the result of the previous run.** In UTMStack v12.0.2, each pipeline test runs with the pipeline that was sent in the test before it, so after a change the first result can be out of date. Run every pipeline test twice and read the second result.
+
+</Warning>
+
+## What the test cannot show
+
+| Limit | What it means for you |
+|---|---|
+| One test at a time | If another test is running, you see "The playground is busy running another test — please try again shortly." |
+| Time limit | The test waits up to 15 seconds for the parsed event, then collects alerts until 2 seconds pass without a new one. A timeout ("The test timed out — this usually means the selected data type doesn't match the log format.") usually means no pipeline matched the data type. |
+| No geolocation | "The geolocation plugin isn't available in this lite version of the filter and rule test." `origin.geolocation` and `target.geolocation` stay empty. |
+| No threat intelligence | Threat intelligence matching does not run, so no indicator alerts appear. |
+| Counting rules need stored events | "Rules that reference prior events through afterEvent or correlation clauses require matching historical events to already exist in the system for the tested alert to trigger." The earlier events must already be stored; one test log is not enough. |
+| No data source | The test log carries only the data type and the raw text. Rules that require a data source, such as those with `!oneOf("dataSource", ["", "unknown"])`, cannot fire, and a `{{.dataSource}}` placeholder fails. |
+| Raw alerts | Alerts come straight from the engine. They are not de-duplicated, grouped or tagged. |
+| A single pipeline only | Testing from the pipeline editor runs only that pipeline. If it builds on the fields of a shipped pipeline for the same data type, save it and use **Test pipeline** at the top of the page instead. |
+| Switched-off rules | **Test** at the top of Alerting Rules also runs rules switched off for your tenant, so an alert in the test does not prove the rule is active. |
+| Broken rules look like misses | A rule whose condition does not compile, or whose YAML cannot be read, shows the same "No alerts were triggered." as a rule that did not match. Test with a log that **should** match, and expect an alert. |
+
+## After the test
+
+When the test looks right, save the pipeline or rule. Within about a minute it applies to new logs. Then:
+
+1. Send or wait for a real log from the source.
+2. In **Log Explorer**, check the new events: the fields you mapped, and the `errors` field.
+3. For a rule, check **Threat Management > Alerts** for the alert.
+
+See **Writing and Testing Rules and Pipelines**.

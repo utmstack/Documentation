@@ -1,0 +1,77 @@
+This page lists every network port a data source needs in UTMStack v12: from agents and collectors to the UTMStack server, from devices to the UTMStack Forwarder, and from the UTMStack server to cloud services.
+
+## Agents and collectors to the UTMStack server
+
+Every agent and collector talks to the UTMStack server on **443/TCP only**. This covers registration, the log stream, heartbeats, remote commands and the download of installers and updates from `https://<server>/private/dependencies/...`.
+
+| From | To | Port |
+|---|---|---|
+| Windows, Linux and macOS agents | UTMStack server | 443/TCP |
+| UTMStack Forwarder (the "Collector") | UTMStack server | 443/TCP |
+| IBM AS/400 Collector | UTMStack server | 443/TCP |
+| UTMStack self-monitoring collector | UTMStack server (it runs on the same host) | 443/TCP |
+
+The install commands check that the server answers on 443 before they register anything. If the check fails, open 443 between the host and the server and run the command again.
+
+<Note>
+
+UTMStack v11 agents used ports 9000, 9001 and 50051. UTMStack v12 does not use or publish these ports. If your firewall rules still allow them for UTMStack, you can remove those rules.
+
+</Note>
+
+## Devices to the UTMStack Forwarder
+
+Devices send their logs to the host where the UTMStack Forwarder runs, not to the agent. Open these ports **inbound on the Forwarder host** and on any firewall between the device and that host. Open only the ones you use.
+
+| Source | Data type | Port on the Forwarder |
+|---|---|---|
+| Cisco ASA | `firewall-cisco-asa` | 514/UDP, 1470/TCP |
+| Cisco Firepower | `firewall-cisco-firepower` | 514/UDP, 1470/TCP |
+| Cisco Meraki | `firewall-meraki` | 514/UDP, 1470/TCP |
+| Cisco Switch | `cisco-switch` | 514/UDP, 1470/TCP |
+| VMware ESXi | `vmware-esxi` | 7002/UDP, 7002/TCP |
+| ESET PROTECT | `antivirus-esmc-eset` | 7003/UDP, 7003/TCP |
+| Kaspersky Security Center | `antivirus-kaspersky` | 7004/UDP, 7004/TCP |
+| Fortinet FortiGate | `firewall-fortigate-traffic` | 7005/UDP, 7005/TCP |
+| Palo Alto Networks | `firewall-paloalto` | 7006/UDP, 7006/TCP |
+| MikroTik | `firewall-mikrotik` | 7007/UDP, 7007/TCP |
+| Sophos Firewall (XG) | `firewall-sophos-xg` | 7008/UDP, 7008/TCP |
+| SonicWall | `firewall-sonicwall` | 7009/UDP, 7009/TCP |
+| Deceptive Bytes | `deceptive-bytes` | 7010/UDP, 7010/TCP |
+| SentinelOne | `antivirus-sentinel-one` | 7012/UDP, 7012/TCP |
+| IBM AIX | `ibm-aix` | 7016/UDP, 7016/TCP |
+| pfSense | `firewall-pfsense` | 7017/UDP, 7017/TCP |
+| Fortinet FortiWeb | `firewall-fortiweb` | 7018/UDP, 7018/TCP |
+| Suricata | `suricata` | 7019/UDP, 7019/TCP |
+| GitHub webhooks | `github` | 7020/TCP (HTTPS) |
+| Oracle Database | `oracle` | 7021/UDP, 7021/TCP |
+| NetFlow exporters | `netflow` | 2055/UDP (UDP only) |
+
+- These are the default ports. You can choose another port when you enable an integration.
+- TLS is available on every TCP syslog port once a certificate is loaded on the Forwarder. TLS uses the TCP port.
+- GitHub sends from the internet, so port 7020 must be reachable from GitHub. See **GitHub**.
+
+## IBM AS/400 Collector to your AS/400 systems
+
+The AS/400 Collector connects out to each AS/400 (IBM i) system you list in its configuration file. The host where it runs needs network access to those systems. See **IBM AS/400 (IBM i) Collector**.
+
+## UTMStack server to cloud services
+
+Plugin integrations are pulled by the UTMStack server itself, so the server needs **outbound HTTPS** to the services you connect:
+
+| Integration | Outbound HTTPS to |
+|---|---|
+| AWS CloudWatch | Amazon Web Services APIs |
+| Microsoft Azure | Azure Event Hubs and Azure Storage |
+| Google Cloud | Google Pub/Sub |
+| Microsoft 365 and Microsoft 365 through Microsoft Graph | `login.microsoftonline.com`, `manage.office.com`, `graph.microsoft.com`, and the matching `.us` endpoints for government clouds |
+| CrowdStrike Falcon | The CrowdStrike API of your cloud region |
+| Sophos Central | `id.sophos.com`, `api.central.sophos.com` |
+
+## Ports on the UTMStack server itself
+
+For the ports analysts and administrators use (80, 443, Cockpit on 9090) and the ports you must block from outside (for example 10001), see **Network ports and firewall**.
+
+## Multi-tenant installations
+
+With the multi-tenant licence, install commands copied inside a child tenant use that tenant's domain as the server address. Make sure that name resolves from your hosts and that 443 is open to it.

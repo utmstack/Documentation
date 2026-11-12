@@ -1,0 +1,102 @@
+API keys let scripts, other tools and AI assistants use the UTMStack v12 API (application programming interface) without a person signing in. A key acts as the user who created it, with that user's roles and tenant. API keys need an **Enterprise** licence.
+
+## Before you start
+
+- The server needs an Enterprise licence. On Community, the page shows "API keys are an Enterprise feature", and requests made with a key are refused. See **License and Editions**.
+- Creating, rotating, editing and deleting keys needs the `apikey.write` permission. Of the built-in roles, only **Administrator** has it. Listing your keys needs `apikey.read`, which all built-in roles have.
+- Each user sees and manages only their own keys.
+
+## How a key's rights work
+
+A key has no rights of its own. Every request made with it is treated as a request from the user who created it:
+
+- It has exactly the permissions of that user's current roles. If you change the user's roles, the key changes too.
+- It works in that user's tenant only.
+- If the user is deactivated, all their keys stop working at once.
+
+<Tip>
+
+A key carries all of its owner's rights. For an integration or automation, prefer a key owned by a dedicated account created for that tool, rather than a person's own account. You can then manage the tool's access, and see its actions in the **App Audit Logs**, separately from any person.
+
+</Tip>
+
+## Create a key
+
+<Steps>
+
+<Step title="Open API Keys">
+
+Go to **Configure > Settings > API Keys** and click **New API key**.
+
+</Step>
+
+<Step title="Fill in the fields">
+
+| Field | What to enter |
+|---|---|
+| Name | A name that says what the key is for, for example `ci-pipeline`. It must be unique among your keys. |
+| Allowed IPs | The addresses allowed to use the key, separated by commas. Ranges in CIDR notation (for example `192.0.2.0/24`) are accepted. Leave empty to allow any address. |
+| Expires | The date the key stops working. Leave empty for a key that never expires. |
+
+</Step>
+
+<Step title="Create the key">
+
+Click **Create key**.
+
+</Step>
+
+<Step title="Copy the secret">
+
+The **API key created** window shows the secret. Click **Copy** and store it in a safe place, such as a password manager or secret store, then click **Done**.
+
+</Step>
+
+</Steps>
+
+<Warning>
+
+The secret is shown only once. UTMStack cannot show it again. If you lose it, rotate the key to get a new secret.
+
+</Warning>
+
+## Use a key
+
+Send the secret in the `Utm-Api-Key` header of each request. For example, this request returns the number of open alerts:
+
+```bash
+curl -sk "https://<your-server>/api/v1/utm-alerts/count-open-alerts" \
+  -H "Utm-Api-Key: <your-api-key>"
+```
+
+The `-k` option skips certificate checks; leave it out if your server has a trusted SSL certificate.
+
+On a multi-tenant licence, send requests to the address of the key owner's tenant.
+
+For the full API and other ways to sign in, see **Authentication and API Keys**. To connect an AI assistant with a key, see **MCP Server**.
+
+## Manage keys
+
+The list shows each key's **Name**, **Allowed IPs**, **Created**, **Last rotated**, **Expires** and **Status**:
+
+| Status | Meaning |
+|---|---|
+| Active | The key works. |
+| Expiring | The key expires within 7 days. |
+| Expired | The key no longer works. |
+
+Actions on each key:
+
+| Action | What it does |
+|---|---|
+| Rotate | Issues a new secret. The old secret stops working at once. The new secret is shown once. If the key has an expiry date, it moves forward so the key keeps the same lifetime from the moment of rotation. |
+| Edit | Changes the name, allowed IPs or expiry date. The secret stays the same. |
+| Delete | Removes the key. Any tool using it loses access at once. This cannot be undone. |
+
+Use the search box to find a key by name or allowed IP, and **Refresh** to reload the list.
+
+## Good practice
+
+- Create one key per tool, so you can rotate or delete it without affecting other tools.
+- Set an expiry date and rotate keys regularly.
+- When a person leaves, deactivate their user account; this stops all their keys at once.

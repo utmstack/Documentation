@@ -1,0 +1,255 @@
+This guide installs UTMStack v12 on a Linux server with the installer program, then walks you through the first sign-in and the first settings. Read **System requirements** and **Network ports and firewall** before you start.
+
+<Warning>
+
+Install UTMStack v12 only if you are starting from scratch. If you run UTMStack v11, do not install v12 on that server: an upgrade package from v11 to v12 is in progress. See **Upgrading from v11 to v12**.
+
+</Warning>
+
+## Before you begin
+
+Check that:
+
+- The server runs Ubuntu, Debian or Red Hat Enterprise Linux, and nothing else runs on it.
+- It has at least 2 CPU cores, 13,360 MB of memory and 30 GB free on `/`. For production, size it as described in **System requirements**.
+- You can work as the root user, for example with `sudo`.
+- The server can reach the internet, including `github.com`, `ghcr.io`, Docker Hub, `download.docker.com`, your distribution's package mirrors and `cm.utmstack.com`. For a server without internet access, see **Air-gapped installation** below.
+- You can reach the server over IPv4. The installer turns IPv6 off.
+
+## Step 1: Download the installer
+
+<CodeGroup>
+
+```bash Ubuntu and Debian
+# Update the package list and install wget
+sudo apt update
+sudo apt install wget
+
+# Download the installer of the latest UTMStack release
+wget https://github.com/utmstack/UTMStack/releases/latest/download/installer
+
+# Switch to the root user
+sudo su
+
+# Make the installer executable
+chmod +x installer
+```
+
+```bash Red Hat Enterprise Linux
+# Install wget
+sudo dnf install wget
+
+# Download the installer of the latest UTMStack release
+wget https://github.com/utmstack/UTMStack/releases/latest/download/installer
+
+# Switch to the root user
+sudo su
+
+# Make the installer executable
+chmod +x installer
+```
+
+</CodeGroup>
+
+The `latest` link always downloads the installer of the newest release that GitHub marks as **Latest**. To install a specific version, put its tag in the link, for example:
+
+```bash
+wget https://github.com/utmstack/UTMStack/releases/download/v12.0.2/installer
+```
+
+## Step 2: Run the installer
+
+Run the installer without arguments:
+
+```bash
+./installer
+```
+
+Running it without arguments is the same as `./installer --install`. Do not interrupt it. It takes a while, mostly to download the container images, and it waits for the UTMStack services to start.
+
+The installer prints each step as it goes:
+
+1. Generating the stack configuration (this is also where it checks memory).
+2. Checking the system requirements.
+3. Generating certificates.
+4. Preparing the system and the kernel.
+5. Configuring the VLAN interface.
+6. Configuring Docker and initialising Docker Swarm.
+7. Downloading the images and deploying the services.
+8. Installing the reverse proxy (nginx).
+9. Installing the administration tools (Cockpit).
+10. Initialising the UTMStack and AgentManager databases.
+11. Waiting for the backend to be ready.
+12. Generating the Base URL.
+13. Installing the update service.
+14. Running the post-installation clean-up, which deletes unused Docker images.
+
+When it finishes, the installer prints:
+
+- the location of the configuration file, `/root/utmstack.yml`;
+- the web interface address, `https://<your-server-ip>`, with the user name `admin` and the generated password;
+- the Cockpit address, `https://<your-server-ip>:9090`, where you sign in with your Linux user;
+- the location of the detailed log, `/var/log/utmstack-installer.log`.
+
+<Warning>
+
+Copy the generated password now. It is also stored in `/root/utmstack.yml`, together with the database password and internal keys. Keep a copy of that file in a safe place and do not change or delete it.
+
+</Warning>
+
+## Step 3: Sign in for the first time
+
+1. In your browser, open `https://<your-server-ip>` or `https://<your-server-name>`. Requests to `http://` are redirected to HTTPS.
+2. The server uses a self-signed certificate until you install your own, so the browser shows a security warning. Continue to the site. To remove the warning, see **SSL certificate**.
+3. On the sign-in page, type `admin` in **Email** and the generated password in **Password**, then select **Sign in**.
+4. The **Set your admin email** window opens. It cannot be closed: the administrator account still uses the default email, and a real address is needed for password recovery, notifications and alert emails. Type your address in **Email address** and select **Save and continue**.
+5. UTMStack opens **Email configuration**.
+
+<Note>
+
+From now on, sign in with the email address you just set. It replaces `admin` as the administrator's sign-in name.
+
+</Note>
+
+## Step 4: Finish the setup
+
+<Steps>
+  <Step title="Configure the mail server">
+
+    In **Configure > Settings > Email Configuration**, fill in the SMTP server, the mail server UTMStack sends email through (**Host**, **Port**, **Encryption**: TLS, SSL or None, **Username**, **Password**) and the sender (**From address**, **Organization name**). Select **Send test** to check it, then **Save changes**. UTMStack needs mail for alert and incident emails, emailed sign-in codes and password emails.
+
+  </Step>
+  <Step title="Correct the Base URL">
+
+    On the same page, set **Base URL** to the address your users open, for example `https://siem.example.com` or `https://<your-server-ip>`. Links in emails use this address. The installer fills in `https://<host name>.utmstack.com`, which is only right for servers that UTMStack hosts.
+
+  </Step>
+  <Step title="Change the administrator password">
+
+    Open the avatar menu, select **Profile** and change the password in **Password**. The generated password stays in `/root/utmstack.yml` as the database password; changing the administrator password does not affect the databases.
+
+  </Step>
+  <Step title="Add a second administrator">
+
+    In **Configure > Team**, add a second user with the Administrator role, so that you are not locked out if one password is lost. See **Users, roles and permissions**.
+
+  </Step>
+  <Step title="Install your licence">
+
+    If you have an Enterprise licence, open **Configure > Settings > License** and use **Upload a license**. Servers with internet access also receive their licence from UTMStack automatically. See **License and editions**.
+
+  </Step>
+  <Step title="Secure the server">
+
+    Install a trusted certificate (see **SSL certificate**) and set up your firewall (see **Network ports and firewall**). Block port 10001 from outside the server.
+
+  </Step>
+  <Step title="Connect your data sources">
+
+    Open **Configure > Integrations** to install agents and connect devices and cloud services. See **How data reaches UTMStack**.
+
+  </Step>
+</Steps>
+
+## Check the installation
+
+Run these commands on the server as root:
+
+```bash
+# All services of the utmstack stack should show 1/1 replicas
+docker service ls
+
+# The health check answers {"status":"ok"}
+curl -k https://localhost/api/ping
+
+# The update service should be active (running)
+systemctl status UTMStackComponentsUpdater
+
+# Installed version and edition
+/usr/local/bin/utmstack_installer --version
+```
+
+To see the log of one service, use `docker service logs`, for example:
+
+```bash
+docker service logs --tail 100 utmstack_backend
+```
+
+## Air-gapped installation
+
+If the server cannot reach `8.8.8.8`, `1.1.1.1` and `google.com` over HTTPS, the installer assumes it has no internet access and switches to air-gapped mode. It prints `AirGap mode detected - some features will be limited`.
+
+In air-gapped mode:
+
+- Docker must already be installed and running, and nginx and `systemctl` must be available. The installer checks this and lists anything missing.
+- The container images must be in `/utmstack/images` as `.tar` files. The installer loads every `.tar` file in that folder with `docker load` instead of downloading images.
+- The installer does not install Docker, nginx, the VLAN package or Cockpit.
+- The server does not register with the UTMStack update server.
+
+The image files are not published with the UTMStack releases. Contact UTMStack before you plan an air-gapped installation, to get the image files and to agree how the server will be licensed and updated.
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+  <AccordionTab title="The installer stops at the requirements check" icon="hi-wrenchScrewdriver-outline">
+
+    The message names the missing resource: CPU cores, free disk space, memory (`insufficient memory`) or an unsupported distribution. Check what the server has:
+
+    ```bash
+    nproc
+    free -m
+    df -h /
+    cat /etc/os-release
+    ```
+
+    Add resources or use a supported distribution, then run `./installer` again. See **System requirements**.
+
+  </AccordionTab>
+
+  <AccordionTab title="The installer switches to air-gapped or offline mode" icon="pi pi-globe">
+
+    `AirGap mode detected` means the server could not open an HTTPS connection to `8.8.8.8`, `1.1.1.1` or `google.com` within 3 seconds. `No Internet connection detected. Installation will continue offline.` means it could not reach `https://cm.utmstack.com` for about a minute. Allow outbound HTTPS from the server (see **Network ports and firewall**) and run the installer again.
+
+  </AccordionTab>
+
+  <AccordionTab title="The installation stopped with an error" icon="pi pi-info-circle">
+
+    1. Read the end of the log: `tail -n 100 /var/log/utmstack-installer.log`.
+    2. Fix the cause.
+    3. Run `./installer` again from the same folder. The installer records each completed step in `/utmstack/locks` and skips those steps on the next run.
+
+  </AccordionTab>
+
+  <AccordionTab title="The installer says UTMStack is already installed" icon="hi-key-outline">
+
+    The installer found the `UTMStackComponentsUpdater` service, so UTMStack is already installed. It only restarts that service and stops. It does not repair or re-install anything. To install again from scratch, see **Uninstall**.
+
+  </AccordionTab>
+
+  <AccordionTab title="The installer reports a backend start failure" icon="mi-sync">
+
+    The backend did not answer within the waiting time. Check the services and the backend log:
+
+    ```bash
+    docker service ls
+    docker service logs --tail 200 utmstack_backend
+    ```
+
+  </AccordionTab>
+
+  <AccordionTab title="The web interface does not open" icon="hi-window-solid">
+
+    1. Make sure you use `https://` and that port 443 is open between your computer and the server.
+    2. Check nginx on the server: `systemctl status nginx`.
+    3. Check the services: `docker service ls`.
+    4. A page that says "We're getting things ready" means nginx is running but the UTMStack services are still starting. Wait a few minutes and reload.
+
+  </AccordionTab>
+
+  <AccordionTab title="The administrator password is lost" icon="hi-key-outline">
+
+    The password in `/root/utmstack.yml` works only until the administrator changes it. If you created a second administrator, sign in with that account. Keep administrator passwords in a password manager.
+
+  </AccordionTab>
+
+</Accordion>

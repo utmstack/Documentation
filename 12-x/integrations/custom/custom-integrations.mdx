@@ -1,0 +1,143 @@
+A custom integration lets you bring logs from a source that the built-in integrations do not cover, such as an in-house application or a device without its own card. You create the integration in UTMStack, open a listener for it on a UTMStack Collector, point your source at that listener, and add a pipeline that parses the new data.
+
+## How it works
+
+- When you create a custom integration, UTMStack derives an identifier from its name, for example `acme-firewall` for "Acme Firewall". This identifier is the **data type** of every event the integration receives.
+- The **UTMStack Collector** (the UTMStack Forwarder service on a Linux host in your network) listens for your source on the protocol and port you choose: syslog over UDP, TCP or TLS, or JSON over HTTP or HTTPS.
+- The Collector sends the events to UTMStack on port 443. The events are stored under your integration's data type.
+- UTMStack has no parser or rules for a new data type. You add a pipeline to turn the raw logs into fields, and then you can write alerting rules for that data type.
+
+For how to install and run the Collector, see **UTMStack Forwarder**.
+
+## Before you start
+
+- You need the Administrator role (the `integrations.write` permission) to create integrations and to enable listeners on a Collector. Integrations are created in the tenant you are working in.
+- You need a Linux host for the Collector that your source can reach on the port you choose. One Collector can serve many integrations, so you can reuse an existing one.
+
+## Step 1: Create the custom integration
+
+<Steps>
+<Step title="Open the Integrations page">
+
+Go to **Configure > Integrations**. On the **Add custom integration** card ("Create a new custom source"), click **Create**.
+
+</Step>
+<Step title="Describe the integration">
+
+In **New custom integration**, fill in:
+
+| Field | What to enter |
+|---|---|
+| **Integration name** | The name shown on the card, for example `Acme Firewall`. Below the field, UTMStack shows the identifier it will store, for example "Stored as “acme-firewall” (derived from the name)". |
+| **Description** | Optional. What this integration ingests and why. |
+| **Icon** | Optional. A PNG, SVG, JPEG, GIF or WEBP image of up to 3 MB, used as the integration logo. |
+
+If another integration already uses the same identifier, UTMStack does not accept the name; choose a different one.
+
+</Step>
+<Step title="Create it">
+
+Click **Create integration**. The new card appears on the Integrations page. Use the **Custom** button next to the category list to show only your custom integrations.
+
+</Step>
+</Steps>
+
+<Note>
+
+The identifier, and so the data type, is fixed when you create the integration. Editing the integration later changes only its name, description and icon.
+
+</Note>
+
+## Step 2: Open a listener on a Collector
+
+Open your custom integration's card. The setup guide shows a diagram of the flow (your source, the Collector and UTMStack) and the panel **Enable this integration remotely**.
+
+<Steps>
+<Step title="Pick a Collector">
+
+In **Collector**, select the Collector that will receive the logs. The panel shows how many Collectors are online and offline. If you have no Collector yet, choose **Add Collector**: the guide opens **Install the UTMStack Collector** with the install command to run on a Linux host. See **UTMStack Forwarder** for details.
+
+</Step>
+<Step title="Choose the protocol and port">
+
+In **Protocol**, choose how your source sends data: **UDP**, **TCP** or **TLS** for syslog, or **HTTP** or **HTTPS** for JSON. In **Port**, enter the port the Collector should listen on. The guide suggests port `7100`.
+
+</Step>
+<Step title="Set the HTTP options (HTTP and HTTPS only)">
+
+- **Authentication**: **None**, **Bearer token** or **HMAC signature**. With a token or signature, the Collector creates a secret and the panel shows it once ("Store this token securely — it won't be shown again."). Copy it then.
+- **Path**: the address path for incoming requests. If you leave it empty, the Collector uses `/logs`.
+- **Signature header**: for HMAC only, the header that carries the signature. The command-line default is `X-Hub-Signature-256`.
+
+</Step>
+<Step title="Load a certificate (TLS and HTTPS only)">
+
+TLS and HTTPS need a certificate on the Collector. Under **TLS certificate**, add the **Certificate**, the **Private key** and, optionally, the **CA certificate**, then click **Upload certificate**. If a valid certificate is already loaded, the panel says so.
+
+</Step>
+<Step title="Enable the integration">
+
+Click **Enable integration**. The panel then shows the current state, for example "Currently: enabled · udp · port 7100".
+
+</Step>
+</Steps>
+
+<Note>
+
+An offline Collector cannot receive configuration changes. A Collector installed with remote control turned off ignores changes from the web interface; on that host, use the command line instead (below).
+
+</Note>
+
+<Accordion multiple={true}>
+<AccordionTab title="Enable the listener from the command line instead" icon="pi pi-desktop">
+
+Connect to the Collector host with SSH and run the command for your protocol and port. Replace `acme-firewall` with your integration's identifier.
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration acme-firewall 7100 udp
+```
+
+The protocol can be `udp`, `tcp`, `tls`, `http` or `https`. For HTTP and HTTPS, you can add `--auth bearer` (token) or `--auth hmac` (signature). The Collector prints the new token once and keeps it in `/opt/utmstack-forwarder/certs/integration-http-<identifier>.token`.
+
+For TLS and HTTPS, load your certificate and key first (once per Collector). An optional CA certificate can be added as a third argument; without it, the certificate itself is used as the CA.
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key
+```
+
+</AccordionTab>
+</Accordion>
+
+## Step 3: Point your source at the Collector
+
+**Syslog (UDP, TCP or TLS):** configure your source to send syslog to the Collector's address and the port you chose, for example `<collector-ip>:7100`. Most devices have a remote syslog or log forwarding setting for this.
+
+**JSON over HTTP or HTTPS:** send each event as a JSON body in an HTTP POST request to the listener. For example, on the Collector host:
+
+```bash
+curl -k -X POST "http://127.0.0.1:7100/logs" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"user jdoe logged in","host":"app-01","user":"jdoe"}'
+```
+
+If you chose **Bearer token**, add the header `Authorization: Bearer <token>`. If you chose **HMAC signature**, your source must compute an HMAC-SHA256 of each request body with the secret and send it as hexadecimal in the signature header, optionally with a prefix such as `sha256=`.
+
+<Warning>
+
+An HTTP or HTTPS listener for a custom integration listens only on `127.0.0.1`, the Collector host itself. Post from an application on that host, or put a reverse proxy in front of it. For sources on other machines, use syslog over UDP, TCP or TLS.
+
+</Warning>
+
+## Step 4: Parse the logs and add rules
+
+Incoming events are stored under your integration's data type, but they are not parsed yet.
+
+1. Check that logs arrive: open the integration's card and click **View logs**. Log Explorer opens filtered to your data type for the last 24 hours.
+2. Add a pipeline for the data type in **Configure > Pipelines** so the raw payload is mapped to the UTMStack standard event fields. The card's **Filters** button opens Pipelines filtered to your data type. See **Pipelines** and **Pipeline file format and step reference**.
+3. Write alerting rules for the data type in **Configure > Alerting Rules**. The card's **Rules** button opens the rules for your data type. See **Alerting Rules** and **Rule file format**.
+
+## Edit, disable or delete a custom integration
+
+- **Edit**: hover over the card and click the pencil icon. You can change the name, description and icon.
+- **Stop receiving logs**: open the card, select the Collector in **Enable this integration remotely** and click **Disable integration**.
+- **Delete**: hover over the card, click the bin icon and confirm. Built-in integrations cannot be edited or deleted.

@@ -1,0 +1,126 @@
+UTMStack v12 receives logs in four ways: agents on your hosts, the UTMStack Forwarder for network devices and appliances, plugins that pull from cloud services, and two dedicated collectors. This page explains each one and how to use the **Integrations** page to set them up.
+
+## The four ways in
+
+| Way in | What it is | Used for | Badge on the card |
+|---|---|---|---|
+| Agent | A service you install on each Windows, Linux or macOS host. It reads the host's own logs and sends them to UTMStack. | Windows, Linux and macOS hosts | **Agent** |
+| UTMStack Forwarder | A Linux service that listens for logs sent by other systems (syslog, NetFlow, HTTPS webhooks) and forwards them to UTMStack. The web interface calls it the **Collector**. | Firewalls, switches, hypervisors, antivirus consoles, Suricata, Oracle, GitHub and more | **Collector** |
+| Plugin | UTMStack itself connects to a cloud service's API and pulls the logs. You only enter credentials. | AWS, Azure, Google Cloud, Microsoft 365, CrowdStrike, Sophos Central, Bitdefender | **Plugin** |
+| Dedicated collector | A Linux service built for one source. | IBM AS/400 (IBM i), and UTMStack's own container logs | **Collector** |
+
+Agents, the Forwarder and the dedicated collectors all talk to the UTMStack server on port **443** only. See **Ports and Network Requirements**.
+
+<Note>
+
+In UTMStack v12 the agent no longer receives syslog. Every device that sends syslog now goes to a UTMStack Forwarder, which you install once and reuse for many integrations. See **UTMStack Forwarder**.
+
+</Note>
+
+## The Integrations page
+
+Go to **Configure > Integrations**. The page shows one card per integration.
+
+- **Search integrations…** filters the cards by name.
+- The category list (**All categories**) narrows the cards to one category, for example Firewall or Cloud.
+- **Custom** shows only the integrations your team created.
+- The three agents (Windows, Linux, macOS) always come first.
+- The last card, **Add custom integration**, lets you create your own source with **Create**. See **Custom integrations**.
+
+Each card shows its badge (**Agent**, **Collector** or **Plugin**) and a button:
+
+| Button | Meaning |
+|---|---|
+| **Set up** | Open the setup guide. |
+| **Enabled** | A Plugin integration that has at least one saved config group in your current tenant. |
+
+Agent and Collector cards always show **Set up**, even while logs are arriving, because their setup lives on your hosts and not in UTMStack.
+
+<Info>
+
+There is no "activate" switch in UTMStack v12. A device integration starts when you enable it on a Collector, an agent starts when you install it, and a cloud integration starts when you save a config group.
+
+</Info>
+
+## Inside an integration
+
+Click a card to open its drawer. The top of the drawer shows the category, the badge and four buttons:
+
+| Button | What it opens |
+|---|---|
+| **Open dashboard** | The dashboard list, searched for dashboards that belong to this integration. |
+| **View logs** | Log Explorer, filtered to this integration's data type for the last 24 hours. |
+| **Rules** | Alerting Rules, filtered to this integration's data type. |
+| **Filters** | Pipelines (parsing filters), filtered to this integration's data type. |
+
+Below the buttons is the setup guide:
+
+- **Agents** show the install command for each platform, and an **Uninstall the agent** section.
+- **Collector** integrations that use the Forwarder start with **Enable this integration remotely**, then the steps for the device, then **Install the UTMStack Collector**, **Optional — Enable via the command line instead** and **Optional — Uninstall the Collector**.
+- **Plugin** integrations show a credentials form. Each connection is saved as a **config group** with a name you choose (the v11 button "Add tenant" is now **Add config group**). The config group name becomes the data source name on the **Data Sources** page and cannot be changed later.
+- **IBM AS/400** and **Utmstack** (self-monitoring) show the install guide of their own collector.
+
+## Data types
+
+Every integration writes its logs under a **data type**, for example `firewall-cisco-asa` or `wineventlog`. The data type decides which parsing filter and which detection rules apply. You see it in Log Explorer, on the **Data Sources** page, and in the commands that enable an integration on the Forwarder.
+
+## Built-in integrations
+
+UTMStack v12.0.2 ships 34 built-in integrations. Every tenant sees them; tenants cannot edit or delete them. Card names below are as shown in the product.
+
+| Card | Badge | Category | Data type | Setup page |
+|---|---|---|---|---|
+| Windows Agent | Agent | Operating System | `wineventlog` | **Windows Agent** |
+| Linux Agent | Agent | Operating System | `linux` | **Linux Agent** |
+| Macos | Agent | Operating System | `macos` | **macOS Agent** |
+| Vmware | Collector | Virtualization | `vmware-esxi` | **VMware ESXi** |
+| Netflow | Collector | Network | `netflow` | **NetFlow** |
+| Cisco Switch | Collector | Network | `cisco-switch` | **Cisco Switch** |
+| Cisco | Collector | Firewall | `firewall-cisco-asa` | **Cisco ASA** |
+| Fire Power | Collector | Firewall | `firewall-cisco-firepower` | **Cisco Firepower** |
+| Meraki | Collector | Firewall | `firewall-meraki` | **Cisco Meraki** |
+| Fortigate | Collector | Firewall | `firewall-fortigate-traffic` | **Fortinet FortiGate** |
+| Fortiweb | Collector | Firewall | `firewall-fortiweb` | **Fortinet FortiWeb** |
+| Palo Alto | Collector | Firewall | `firewall-paloalto` | **Palo Alto Networks** |
+| Sonic Wall | Collector | Firewall | `firewall-sonicwall` | **SonicWall** |
+| Sophos Xg | Collector | Firewall | `firewall-sophos-xg` | **Sophos Firewall (XG)** |
+| Pfsense | Collector | Firewall | `firewall-pfsense` | **pfSense** |
+| Mikrotik | Collector | Firewall | `firewall-mikrotik` | **MikroTik** |
+| Suricata | Collector | IDS / IPS | `suricata` | **Suricata** |
+| Aix | Collector | Operating System | `ibm-aix` | **IBM AIX** |
+| As 400 | Collector | Operating System | `ibm-as400` | **IBM AS/400 (IBM i) Collector** |
+| Oracle | Collector | Database | `oracle` | **Oracle Database** |
+| Utmstack | Collector | SIEM | `utmstack` | **UTMStack Self-Monitoring** |
+| Eset | Collector | Antivirus | `antivirus-esmc-eset` | **ESET PROTECT** |
+| Kaspersky | Collector | Antivirus | `antivirus-kaspersky` | **Kaspersky Security Center** |
+| Sentinel One | Collector | XDR | `antivirus-sentinel-one` | **SentinelOne** |
+| Deceptive Bytes | Collector | Deception | `deceptive-bytes` | **Deceptive Bytes** |
+| Github | Collector | DevOps | `github` | **GitHub** |
+| AWS Cloudwatch | Plugin | Cloud | `aws` | **AWS CloudWatch** |
+| Azure | Plugin | Cloud | `azure` | **Microsoft Azure** |
+| Gcp | Plugin | Cloud | `google` | **Google Cloud** |
+| O365 | Plugin | Cloud | `o365` | **Microsoft 365** |
+| O365 Graph | Plugin | Cloud | `o365-graph` | **Microsoft 365 through Microsoft Graph** |
+| Crowdstrike | Plugin | XDR | `crowdstrike` | **CrowdStrike Falcon** |
+| Sophos | Plugin | XDR | `sophos-central` | **Sophos Central** |
+| Bitdefender | Plugin | Antivirus | `antivirus-bitdefender-gz` | **Bitdefender GravityZone** |
+
+## Permissions
+
+| Action | Permission needed |
+|---|---|
+| See the Integrations page and the setup guides | `integrations.read` |
+| Save cloud credentials, enable or disable an integration on a Collector, see the list of Collectors | `integrations.write` |
+| See the connection key inside the install commands | Administrator role |
+
+Install commands contain your instance's connection key. If you are not an administrator, the key appears as `*******` and the command will not work until an administrator gives you the real key. The key is managed under **Configure > Settings > Connection Key**.
+
+<Warning>
+
+Always copy install commands from your own UTMStack instance. They contain your server address and connection key. Do not share them.
+
+</Warning>
+
+## Multi-tenant installations
+
+With the multi-tenant licence, each tenant has its own integrations, config groups, agents and Collectors. When an operator has entered a child tenant, the install commands use that tenant's domain as the server address instead of the address in the browser. Copy commands from inside the tenant the host belongs to.

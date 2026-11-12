@@ -1,0 +1,125 @@
+A freshly installed SIEM (security information and event management system) raises alerts for some activity that is normal in your organization. Tagging rules let UTMStack label new alerts automatically, and the system tag **False positive** closes known, harmless alerts as soon as they arrive. Handling false positives well keeps your team focused on real threats and reduces alert fatigue.
+
+## How tagging rules work
+
+A tagging rule has one or more conditions and one or more tags. When a new alert matches **all** the conditions, UTMStack adds the rule's tags to it.
+
+- Rules apply only to alerts raised after the rule is saved. Existing alerts are not tagged again.
+- UTMStack reloads the rules every 60 seconds, so a new or changed rule can take about a minute to take effect.
+- An alert gets the tags of every rule it matches.
+- Echoes (repeats grouped under a first alert) are checked the same way as other new alerts.
+- Each rule belongs to one tenant.
+
+### The False positive tag
+
+**False positive** is a system tag. It cannot be renamed or deleted.
+
+When a tagging rule adds **False positive** to a new alert, UTMStack saves the alert with the status **Completed** and the status note `Status changed to completed because alert was tagged as False positive`. The alert is still stored:
+
+- You can find it on the **Completed** tab.
+- It is not counted in the number of open alerts.
+- It is not counted by the **Rule flood guard**.
+- It is still emailed to the **Alert recipients**, like any other new top-level alert.
+
+Every other new alert is saved as **Open**, with the status note `This alert has been evaluated by the tag rules engine`.
+
+## Who can manage tagging rules
+
+| What you want to do | Permission | Built-in roles |
+|---|---|---|
+| See tagging rules | `alerts.read` | Administrator, Analyst, Viewer |
+| Create, edit and delete tagging rules | `alerts.write` | Administrator, Analyst |
+
+## Create a tagging rule
+
+You can start a rule in three ways:
+
+- On **Threat Management > Tagging Rules**, click **New rule**.
+- On **Threat Management > Alerts**, click the tag icon **Create a tag from this alert** on an alert row. The new rule is filled in with one **is** condition for each field of the alert that has a value. Remove the conditions you do not need.
+- In any tag menu on the **Alerts** page, click **Create tagging rule with this tag**. The new rule is filled in with that tag.
+
+<Steps>
+
+<Step title="Name the rule">
+
+Under **Basics**, enter a **Rule name** (unique in your tenant) and a **Description** that says why the rule exists. Both are required.
+
+</Step>
+
+<Step title="Choose the tags">
+
+Under **Tags to apply**, click **Add tag** and pick one or more tags. To close matching alerts as false positives, pick **False positive**. You can also click **Create tag** to make a new tag here.
+
+</Step>
+
+<Step title="Add conditions">
+
+Under **Conditions (ALL must match)**, click **Add condition**. For each condition, choose a field, an operator and a value. Make the conditions as narrow as you can, so that the rule does not hide real attacks.
+
+</Step>
+
+<Step title="Save">
+
+Click **Create**. The rule applies to alerts raised from about a minute later.
+
+</Step>
+
+</Steps>
+
+### Fields
+
+Alert name, Category, Technique, Datasource, Data type, and for both sides of the alert:
+
+| Adversary | Target |
+|---|---|
+| Adversary IP | Target IP |
+| Adversary host | Target host |
+| Adversary user | Target user |
+| Adversary domain | Target domain |
+| Adversary URL | Target URL |
+| Adversary country | Target country |
+| Adversary ASN | Target ASN |
+| Adversary ASO | Target ASO |
+
+ASN is the number of the network that owns the address, and ASO is that network's owner (organization name).
+
+### Operators
+
+| Operator | Value | How it matches |
+|---|---|---|
+| is, is not | One value | Exact match. Letter case must match. |
+| contains, does not contain | One value | Part of the text. Letter case is ignored. |
+| starts with, does not start with | One value | Start of the text. Letter case is ignored. |
+| ends with, does not end with | One value | End of the text. Letter case is ignored. |
+| is one of, is not one of | Comma-separated values | Exact match against any value in the list. Letter case must match. |
+| contains one of, does not contain one of | Comma-separated values | Part of the text, for any value in the list. Letter case is ignored. |
+| is between, is not between | Two numbers, comma-separated | A number range. Of the fields above, only the ASN fields hold numbers. |
+| exists, does not exist | None | Whether the field has a value. |
+
+## Example: stop alerts from a known scanner
+
+Your vulnerability scanner at `10.0.5.20` sets off port-scan alerts every night.
+
+1. On **Threat Management > Alerts**, find one of these alerts and click its tag icon **Create a tag from this alert**.
+2. Enter a **Rule name**, for example `Nightly vulnerability scanner`, and a **Description**.
+3. Under **Tags to apply**, add **False positive**.
+4. Keep the condition **Adversary IP** **is** `10.0.5.20` and the **Alert name** condition. Remove the others.
+5. Click **Create**.
+
+From about a minute later, new alerts from that address with that name are saved as **Completed** with the **False positive** tag.
+
+## Close a single alert as a false positive
+
+To close one alert by hand without creating a rule:
+
+1. Open the alert on **Threat Management > Alerts**.
+2. Click **Set status** and choose **Complete + false positive**.
+3. Write an **Observation** (required) and click **Continue**.
+
+The alert is set to **Completed** and gets the **False positive** tag. If you later set it back to **Open**, the **False positive** tag is removed.
+
+## Manage tagging rules
+
+Go to **Threat Management > Tagging Rules**. The list shows **Rule**, **Tags**, **Conditions**, **Modified by** and **Modified**, 20 rules per page. Use **Search by rule name…** and the **All tags** menu to find a rule. Click a rule to see it, then **Edit** or **Delete**.
+
+A tagging rule cannot be switched off. To stop a rule, delete it. UTMStack asks you to confirm: `Delete the rule "<name>"? Future alerts matching its conditions will stop being tagged.` Alerts that the rule already tagged keep their tags.

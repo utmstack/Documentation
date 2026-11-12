@@ -1,0 +1,119 @@
+By default a shell step runs on the machine that raised the alert. Many devices cannot run a UTMStack agent, though: firewalls, switches, appliances, cloud services and older systems. In UTMStack v12 you reach them in one of two ways: pin a shell step to another machine that has an agent and can reach the device (what UTMStack v11 called a *proxy agent*), or call the device's web API with an **HTTP call** step from the UTMStack server.
+
+## Choose where a shell step runs
+
+Every **Shell** step has a **Run on** setting with three choices:
+
+| Choice | What it does |
+|---|---|
+| **alert source** (default) | "Runs on $(alert.dataSource) — the host that raised the matched alert." |
+| **one host** | Pins the step to one host. Pick it from the list (**pick a host…**), or type a template such as `$(alert.target.host)`. |
+| **all except** | "Runs on the host that raised the alert, but skips ones in the list." Add hosts with **add exclusion**. |
+
+The host list shows agents for the step's **Platform**. The platform list offers the platforms of your agents plus `windows`, `linux`, `ubuntu`, `centos` and `darwin`.
+
+### How UTMStack picks the machine
+
+For each shell step, UTMStack decides the target in this order:
+
+1. The host pinned on the step (**one host**), if there is one.
+2. The agent chosen in **Trigger flow**, when you start the flow by hand.
+3. The alert's `dataSource`, that is, the host that raised the alert.
+
+A later step without its own host runs where its parent step ran. Agents are found by host name.
+
+- With **all except**, a step whose target is on the exclusion list does not run; it is marked **Failed** and its red wire runs. Exclusions apply only to the alert-source choice, not to a pinned host or a host chosen in **Trigger flow**.
+- If no agent has the host name, the step is marked **Failed**. If the agent is offline, it is marked **Failed** with the cause **Agent offline**.
+- An agent installed with remote control disabled refuses every command ("Remote control disabled"). This can only be changed by reinstalling the agent on that machine.
+
+<Warning>
+
+The **Platform** of a step does not limit where it runs. A step pinned to a Linux jump host but marked `windows` still goes to the Linux host. Keep the platform, shell and command consistent.
+
+</Warning>
+
+<Note>
+
+Values inserted into a host template are quoted like any other placeholder (see **Placeholders**). Test a templated host with **Trigger flow** before you rely on it. Picking a fixed host from the list avoids this.
+
+</Note>
+
+## Option 1: a jump host with an agent
+
+Use this for devices you manage over SSH or with a command-line tool.
+
+<Steps>
+  <Step title="Choose the jump host">
+
+    Pick a machine that has the UTMStack agent installed and online, can reach the device over the network, and has the tools you need (for example `ssh`, `curl` or a cloud command-line tool). A hardened Linux server used only for this purpose is a good choice.
+
+  </Step>
+  <Step title="Store the credentials as secret variables">
+
+    Open **Variables** in **SOAR > Interactive Console** and create, for example, `FW_HOST` (the device address) and `FW_SSH_KEY` (the path of the SSH key on the jump host, marked **Secret**). See **Step Outputs and Variables**.
+
+  </Step>
+  <Step title="Test from the Interactive Console">
+
+    Select the jump host in **SOAR > Interactive Console** and check that it reaches the device, for example:
+
+    ```bash
+    ssh -o ConnectTimeout=5 -i $[variables.FW_SSH_KEY] admin@$[variables.FW_HOST] "show version"
+    ```
+
+  </Step>
+  <Step title="Pin the step to the jump host">
+
+    In the flow, add a **Shell** step, set **Platform** and **Shell** to match the jump host, choose **Run on > one host**, and pick the jump host.
+
+  </Step>
+  <Step title="Write the command">
+
+    For example, to block the attacker on a Linux gateway:
+
+    ```bash
+    ssh -i $[variables.FW_SSH_KEY] admin@$[variables.FW_HOST] sudo iptables -I FORWARD -s $(alert.adversary.ip) -j DROP
+    ```
+
+    Do not put quotes around placeholders or variables; UTMStack quotes them for the jump host's shell.
+
+  </Step>
+</Steps>
+
+<Tip>
+
+When a value travels through SSH to another device, it passes through two shells: the jump host's and the device's. Test the exact command against a real alert with **Trigger flow** and check the result on the device.
+
+</Tip>
+
+## Option 2: an HTTP call from the UTMStack server
+
+Use this for devices and services with a web API (firewalls, cloud services, ticketing tools, chat tools).
+
+- The **HTTP call** step sends the request from the UTMStack server, so no jump host is needed. The server must be able to reach the address, and outbound rules on your network must allow it.
+- The server checks the device's HTTPS certificate and has no option to skip it. A device with a self-signed certificate is refused; use a jump host for it instead.
+- Placeholders and variables inserted into the address, headers or body arrive wrapped in single quotes in UTMStack v12.0.2. Check what the API receives before you rely on such a step. See **Placeholders**.
+
+See **Step Types** for every field of the HTTP call step.
+
+## Which option to choose
+
+| | Jump host (shell step) | HTTP call step |
+|---|---|---|
+| Where the action starts | On the jump host's agent | On the UTMStack server |
+| Agent needed | On the jump host | None |
+| Network path needed | Jump host to the device | UTMStack server to the device |
+| Good for | SSH, command-line tools, self-signed devices | Web APIs with trusted certificates |
+| Credentials | Secret variables, or files on the jump host | In the step's headers. Variables inserted there arrive quoted in UTMStack v12.0.2. |
+
+## Changed from UTMStack v11
+
+- The settings **Run on specific agent** and **Dedicated agent** are now **Run on > one host**.
+- The **Automation Variables** page is now the **Variables** button.
+- v11 said a step to an offline proxy failed after 5 retries. In UTMStack v12 the **Retries** column of **Execution history** shows how many attempts were made; do not count on a fixed number.
+
+## Related pages
+
+- **Step Types**
+- **Step Outputs and Variables**
+- **Interactive Console**

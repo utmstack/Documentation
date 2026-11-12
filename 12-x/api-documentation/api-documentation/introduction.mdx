@@ -1,0 +1,162 @@
+UTMStack v12 has a REST API (a set of web addresses that programs call over HTTPS) for alerts, logs, incidents, data sources, automated response (SOAR) and the SOC-AI assistant. This page explains the base address, how requests and answers are shaped, how paging works and what the error codes mean. It does not apply to the old UTMStack Vulnerability Scanner, which is not part of UTMStack v12.
+
+## Base address
+
+Every endpoint lives under `/api/v1` on the same address and port (443) that you use for the web console:
+
+```plaintext
+https://<your-utmstack-address>/api/v1
+```
+
+All examples in this section use `{{baseUrl}}` for `https://<your-utmstack-address>` and `{{apiKey}}` for your API key. Replace them before you run a command.
+
+> [!NOTE]
+> UTMStack v11 endpoints had no version in the path (for example `/api/utm-alerts/status`). In UTMStack v12 every path starts with `/api/v1`. See **Reference Tables** for a full map from v11 paths to v12 paths.
+
+## What changed from UTMStack v11
+
+If you are porting code written for UTMStack v11, these are the changes that affect almost every call:
+
+| Topic | UTMStack v11 | UTMStack v12 |
+|---|---|---|
+| Path prefix | `/api/...` | `/api/v1/...` |
+| Log and alert storage | OpenSearch indices (`v11-log-*`, `v11-alert-*`) read through `/api/elasticsearch/...` | Two datasets, `logs` and `alerts`, read through `/api/v1/log-analyzer/...` |
+| Text fields | Separate `.keyword` fields for exact matches | No `.keyword` fields. Use the field name as it is. |
+| Relative dates | `now-24h` and similar were accepted in search filters | Search filters need absolute times (see **Log Search API**) |
+| Alert status and severity | Numbers (status `2`, severity `3`) | Words (`"Open"`, `"high"`) |
+| Incident ids | Numbers | UUIDs (36-character identifiers) |
+| API keys | Available on every edition | Enterprise licence only |
+| Postman collection and OpenAPI file | Published for v11 | The v11 files do not apply to UTMStack v12 |
+
+## Check that the API answers
+
+The health endpoint needs no sign-in. Use it to test the address and the certificate before you set up a key.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/health"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"status":"ok"}
+```
+
+The old address `{{baseUrl}}/api/ping` still works. It is forwarded to `/api/v1/health` and returns the same JSON. In UTMStack v11 it returned the text `OK`.
+
+To see the installed version and edition, call `GET /api/v1/billing/version` (any signed-in user):
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/billing/version" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "version": "<version>",
+  "edition": "enterprise",
+  "server": "<server-name>",
+  "instanceId": "<instance-id>"
+}
+```
+
+`edition` is `community` or `enterprise`.
+
+## Interactive reference
+
+The server also publishes an interactive reference at `{{baseUrl}}/swagger/index.html`.
+
+> [!WARNING]
+> In UTMStack v12.0.2 the interactive reference is incomplete and partly out of date. Some live endpoints are missing from it, for example starting a flow by hand (`POST /soar/rules/{relPath}/trigger`), assigning an alert (`POST /utm-alerts/assignee`) and listing data sources (`GET /datasources`). It also still lists an endpoint that no longer exists. Where it differs from these pages, these pages describe how the server behaves.
+
+## Request conventions
+
+- **Authentication.** Every endpoint except `/health` needs a credential. See **Authentication and API Keys**.
+- **Request bodies** are JSON. Send `Content-Type: application/json`. The one exception is alert notes, which take plain text (see **Alerts API**).
+- **Times** are written in RFC 3339 format in UTC, for example `2026-11-10T14:30:00Z`.
+- **Self-signed certificates.** If your server uses a self-signed certificate, add `-k` to curl commands (the examples use `-sk`).
+- **Calls from web pages on other sites are refused.** The server does not allow cross-site browser requests (CORS). Call the API from a script, a server or a command-line tool, not from JavaScript running on another website.
+
+## Paging
+
+Paging is not the same for every group of endpoints. Each page in this section says which style its endpoints use.
+
+| Endpoint group | Page parameter | First page | Page size parameter | Default size | Largest size | Where the total is |
+|---|---|---|---|---|---|---|
+| Log and alert search (`POST /log-analyzer/search`) | `page` (in the body) | `0` | `size` (in the body) | 50 | 500 | `total` in the JSON answer |
+| SQL search (`POST /log-analyzer/search-sql`) | `page` (query) | `1` | `size` (query) | 50 | 500 | `total` counts only the rows on this page |
+| Incidents, incident alerts, incident notes, incident history | `page` | `1` | `size` | 20 | 200 | `X-Total-Count` header |
+| Alert echoes (`GET /utm-alerts/{id}/echoes`) | `page` | `1` | `size` | 20 | 100 | `X-Total-Count` header |
+| Alert tags and tag rules | `page` | `1` | `size` | 20 | - | `X-Total-Count` header |
+| SOAR flows, executions and variables, saved queries | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| Data sources (`GET /datasources`) | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` and `total_pages` in the JSON answer |
+| API keys (`GET /api-keys`) | `page` | `1` | `page_size` | 20 | - | `page_info` in the JSON answer |
+
+> [!TIP]
+> For incident lists, a `size` larger than 200 is not reduced to 200: the server falls back to the default of 20. Ask for 200 or fewer.
+
+## Errors
+
+Most errors come back as JSON with one field:
+
+```json
+{"error": "missing required permission: alerts.write"}
+```
+
+The SOC-AI endpoints use a different shape:
+
+```json
+{"status": "error", "message": "task is required"}
+```
+
+| HTTP code | Meaning | Common cause |
+|---|---|---|
+| 200 | Success | |
+| 201 | Created | A new record was created |
+| 202 | Accepted | Work was started and continues in the background (flow runs, SOC-AI analysis) |
+| 204 | Success, no body | Deletes and some updates |
+| 400 | Bad request | Missing or invalid field, unknown filter operator, invalid field name, refused SQL |
+| 401 | Not signed in | Missing, invalid or expired token or API key |
+| 403 | Forbidden | Missing permission, missing Enterprise licence, read-only shipped item, or the tenant is suspended |
+| 404 | Not found | Unknown id, or (multi-tenant installations) an address that belongs to no tenant |
+| 409 | Conflict | Name already in use, or alerts already linked to an incident |
+| 429 | Too many requests | Too many failed sign-ins, or the daily AI allowance is used up |
+| 500 | Server error | See the message; in UTMStack v12.0.2 some invalid values are also answered with 500 (noted on each page) |
+| 502, 504 | Gateway error | The SOC-AI service could not be reached or timed out |
+
+## Roles and permissions
+
+Each endpoint needs a permission. The pages in this section name it next to each endpoint. The three built-in roles get these permissions:
+
+| Role | Permissions |
+|---|---|
+| Administrator | Everything |
+| Analyst | Every `.read` permission, plus `alerts.write`, `incidents.write`, `soar.write`, `loganalyzer.write`, `dashboards.write` and `notifications.write` |
+| Viewer | Every `.read` permission |
+
+Some actions are limited further: starting a flow by hand (`soar.execute`) and creating API keys (`apikey.write`) are given to Administrator only.
+
+## Multi-tenant installations
+
+On an installation with the multi-tenant licence, each tenant has its own address (domain).
+
+- The tenant comes from your credential. Send the request to your tenant's own address. A credential sent to another tenant's address is refused with 401 and the message `credential does not belong to this tenant`.
+- A request to an address that belongs to no tenant is answered with 404 `unknown tenant`.
+- An administrator of the default (platform) tenant who signed in with a token can work inside another tenant that granted support access, by adding the header `X-Tenant-Id: <tenant-id>`. With read-only support access, only `GET` requests are allowed.
+- API keys cannot switch tenant. A key always works inside its owner's tenant.
+- When a tenant is suspended or terminated, its users' tokens and API keys stop working at once (403 `this tenant has been suspended or terminated`).
+
+## Pages in this section
+
+| Page | What it covers |
+|---|---|
+| **Authentication and API Keys** | Signing in with a token or an API key, creating and rotating keys |
+| **Alerts API** | Searching alerts, changing status, notes, tags, assignment, echoes, related logs |
+| **Log Search API** | Datasets, fields, search, SQL, top values, charts, saved queries |
+| **Incidents API** | Creating incidents, linking alerts, status, assignment, notes, history |
+| **Data Sources API** | Data sources and agents, data types, ingestion statistics |
+| **SOAR API** | Response flows, starting a flow by hand, execution history, variables, the command console |
+| **SOC-AI API** | Assistant chat, alert analysis, AI provider configuration, daily usage |
+| **Reference Tables** | Status values, filter operators, alert fields, endpoint list, v11-to-v12 path map |

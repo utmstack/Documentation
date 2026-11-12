@@ -1,0 +1,107 @@
+SOC-AI is the AI assistant built into UTMStack v12. You ask it questions in plain language about your alerts, logs and detections, and it can also act for you: update alerts, open incidents, build dashboards and response flows, and more. It can also look at every new alert on its own and write an assessment on it.
+
+## Before you start
+
+- An AI provider must be set up in **Configure > Settings > SOC-AI**. A new installation uses the ThreatWinds provider without any key once the instance is registered. See **AI Providers**.
+- Until a provider is set up, the assistant's buttons are hidden, and AI options such as **Using AI** for new flows are locked.
+- In UTMStack v12.0.2 the assistant is shown only to users who can open the SOC-AI settings, that is the **Administrator** role. Analysts and Viewers do not see it.
+- Each question and each alert analysis counts against the daily AI allowance of your tenant, if one is set. See **AI Usage and Limits**.
+
+## Where you find it
+
+| Place | Label | What it does |
+|---|---|---|
+| Top bar | **Ask** | Opens the assistant panel. |
+| **Overview** | "What would you like to know from your security data?" with suggestions **Threat hunt**, **Observable triage**, **Write a rule**, **Current system status** | Starts a conversation from the home page. |
+| Alert details | **Ask** | Opens the assistant with this alert shared. **Stop sharing with the assistant** removes it. |
+| Incident details | **Ask** | Opens the assistant with this incident shared. |
+| **Live Operations** | **Ask SOC-AI** | Opens the assistant from the live view. |
+| Alert details | **Generate AI summary** | Asks SOC-AI to investigate the alert and add an assessment (see below). |
+| **SOAR > Flows** | **Using AI** (new flow), **Edit with AI** (flow editor) | Drafts or changes a response flow. See **Building a Flow**. |
+| **Dashboards** | **Using AI** > **Create with AI** (new dashboard), **Edit with AI** | Drafts or changes a dashboard. |
+
+## The assistant panel
+
+The panel is titled **SOC Assistant**. When it is empty it reads "Ask anything about your alerts, detections or the console — I can investigate and act on the SIEM." and suggests a first question, "how many open alerts, grouped by adversary?".
+
+| Control | What it does |
+|---|---|
+| **Send** | Sends your question. |
+| **Collapse** / **Expand** | Shrinks or enlarges the panel. |
+| **Clear conversation** | Starts over. |
+| **Copy** | Copies an answer. |
+| **Close** | Closes the panel. |
+
+In a long conversation you may see "Compacting context…" while the assistant shortens what it remembers.
+
+Conversations are kept in your browser only. UTMStack does not store them on the server, so they are not shared with colleagues and are gone when you clear them.
+
+## How it works
+
+The assistant works in a loop: it plans, calls one of UTMStack's tools, looks at the result, and repeats until it can answer. The number of rounds is capped by **Max tool iterations** in the SOC-AI settings (default 12). The tools are the same ones UTMStack offers to outside AI clients; see **MCP Server**.
+
+Read-only tools are always available to the assistant, for example log and alert search, SQL queries over logs and alerts, and counts. In a conversation it can also use these groups of tools:
+
+| Group | What the assistant can do |
+|---|---|
+| Alerts | Change status, tags and notes; manage tag rules. |
+| Incidents | Create and manage incidents. |
+| Dashboards | Create and manage dashboards and widgets. |
+| Compliance | Manage frameworks and controls, and generate reports. |
+| Correlation | Manage correlation rules, pipelines (event-processing filters) and regex patterns. |
+| Data sources | Manage data sources. |
+| SOAR | Create and manage response flows. |
+
+<Warning>
+
+The assistant changes things for real. If you ask it to close alerts, change a rule or create a flow, it does so. Check what it reports it did, and review flows and rules it creates before you switch them on.
+
+</Warning>
+
+## Automatic alert triage
+
+When **Auto-analyze alerts** is on in the SOC-AI settings, SOC-AI investigates every new alert on its own:
+
+1. It removes personal names before the alert goes to the AI: user names and email addresses of the target and the adversary (also in the alert's last event) are replaced with placeholders.
+2. It investigates with read-only tools.
+3. It writes its assessment as a note on the alert, starting with `[AI SOC Agent]`.
+
+The alert then carries the **AI assessed** badge, and its details show a **SOC AI assessment** section with a risk level and a score out of 100.
+
+During triage, SOC-AI may change only alerts. With **Allow managing incidents** on, it may also create or update incidents when it decides an alert deserves one. It never changes dashboards, compliance, rules, data sources or flows during triage.
+
+On a new installation using the ThreatWinds default, both switches are off.
+
+<Note>
+
+In testing of UTMStack v12.0.1, automatic triage also analysed repeat alerts (echoes), and on a busy server its queue could fall behind. Watch your AI usage after you turn it on.
+
+</Note>
+
+## Analyse one alert on demand
+
+In the alert details, click **Generate AI summary** ("SOC-AI investigates this alert and adds an assessment."). The request is queued and the assessment is written on the alert when it is ready, usually after about a minute. If it takes longer, you see "The AI summary is taking longer than expected. It will show up on the alert when it is ready."
+
+## What data goes to the AI provider
+
+The AI provider you choose receives your questions and the data the assistant's tools return, such as alerts and log lines, so it can answer. For automatic triage, user names and email addresses in the alert are replaced first, as described above. If your data must stay on your own network, use a local provider such as Ollama (see **AI Providers**).
+
+## Permissions
+
+| Permission | Description | Built-in roles |
+|---|---|---|
+| `socai.read` | "Use the SOC AI assistant" | Administrator, Analyst, Viewer |
+| `socai.write` | "Configure the SOC AI provider" | Administrator |
+
+Because the assistant's buttons depend on the settings check, in UTMStack v12.0.2 only users with `socai.write` see them.
+
+## Not the same as AI Analyst
+
+**Threat Intelligence > AI Analyst** is a threat intelligence feature, separate from the SOC-AI assistant. It is described with the threat intelligence pages.
+
+## Related pages
+
+- **AI Providers**
+- **AI Usage and Limits**
+- **MCP Server**
+- **Building a Flow**

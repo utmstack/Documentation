@@ -1,0 +1,296 @@
+You can add your own frameworks (for example an internal security policy or a customer's audit checklist) and your own controls with their own log checks. You build them in a visual form or write them as YAML (a plain-text format for structured data), and they sit beside the shipped catalogue.
+
+## Before you start
+
+- You need the `compliance.write` permission (Administrator role).
+- Shipped frameworks and controls are marked **Shipped** and cannot be changed or deleted. To change one, copy it and change the copy.
+- Your frameworks and controls belong to your tenant. Other tenants do not see them.
+- Without an Enterprise licence, your frameworks can only use your own controls and the 138 shipped controls of CMMC 2.0 and GDPR. See **Enterprise licence limits** below.
+
+## Create a framework
+
+<Steps>
+
+<Step title="Start">
+
+Click **Compliance** in the main menu. On the **Frameworks** tab, click **New framework**, then choose:
+
+- **From scratch**: an empty framework.
+- **From an existing one**: a copy of another framework. "Everything is copied except the identifier and the name." The **Source** becomes "Adapted from" followed by the original source. Nothing is saved until you click **Save**.
+
+</Step>
+
+<Step title="Fill in the framework">
+
+On the **Visual** tab:
+
+| Field | What to enter |
+|---|---|
+| **Key** | A short identifier, unique in your tenant, for example `acme-policy-2026`. It cannot be changed later. |
+| **Name** | The name shown on the card and the report |
+| **Description** | Optional |
+| **Source** | Optional: where the framework comes from, for example a URL |
+
+</Step>
+
+<Step title="Add sections and requirements">
+
+Click **Add section** and give it a **section key** and a **Section name**. Inside it, click **Add requirement** and give each requirement a **req id** (the id in your framework, for example `5.1`) and a **Requirement name**.
+
+</Step>
+
+<Step title="Link controls">
+
+For each requirement, click **satisfied by controls**, search the library and pick the controls that prove it. If none fits, type a name and click **Create control "…"** to create a new control on the spot (see **Create a control**).
+
+</Step>
+
+<Step title="Save">
+
+Click **Save**. The framework appears on the **Frameworks** tab. Open it and click **Run evaluation** to see its first report.
+
+</Step>
+
+</Steps>
+
+Instead of the form, you can paste or write the whole framework on the **Code** tab. Switching tabs converts between the two. If the YAML cannot be read, you see "Can't apply the YAML: …".
+
+### Framework format
+
+This is the start of the shipped GDPR framework, cut after two sections:
+
+```yaml
+key: gdpr
+name: GDPR — EU General Data Protection Regulation
+description: Obligations of controllers and processors under Regulation (EU) 2016/679, from the processing
+  principles to international transfers. Security of processing and breach handling are checked from logs and
+  alerts; the other obligations need a person to record their status.
+source: 'Regulation (EU) 2016/679, EUR-Lex (reuse permitted). Mapping to NIST SP 800-53 Rev 5 by UTMStack.'
+sections:
+- key: principles
+  name: 'Chapter II: Principles (Art. 5-11)'
+  requirements:
+  - id: Art.5(1)(a)
+    name: Lawfulness, fairness and transparency
+    satisfiedBy: [pt-2, pt-5]
+  - id: Art.5(1)(b)
+    name: Purpose limitation
+    satisfiedBy: [pt-3]
+- key: security
+  name: 'Chapter IV, Section 2: Security of personal data (Art. 32-34)'
+  requirements:
+  - id: Art.32(1)(b)
+    name: Ongoing confidentiality, integrity, availability and resilience of processing systems and services
+    satisfiedBy: [ac-2, ac-7, au-2, au-6, au-9, si-3, si-4]
+  - id: Art.33(1)
+    name: Notify a personal data breach to the supervisory authority within 72 hours
+    satisfiedBy: [ir-6, ir-8]
+```
+
+| Key | Required | Meaning |
+|---|---|---|
+| `key` | Yes | Identifier of the framework |
+| `name` | Yes | Display name |
+| `description` | No | Shown on the card |
+| `source` | No | Where the framework comes from |
+| `sections` | No | List of sections |
+| `sections[].key` | Yes | Identifier of the section |
+| `sections[].name` | Yes | Display name of the section |
+| `sections[].requirements` | No | List of requirements |
+| `requirements[].id` | Yes | The requirement's id in your framework |
+| `requirements[].name` | Yes | What the requirement asks |
+| `requirements[].satisfiedBy` | No | Control ids from the library. A requirement with no controls, or with an id that is not in the library, is **Not covered**. |
+
+## Create a control
+
+<Steps>
+
+<Step title="Start">
+
+On the **Controls** tab, click **New control**, then **From scratch** or **From an existing one**. To start from a shipped control, copy it.
+
+</Step>
+
+<Step title="Fill in the control">
+
+| Field | What to enter |
+|---|---|
+| **ID** | A unique id, for example `acme-1`. It cannot be an id that already exists, shipped or yours. It cannot be changed later. |
+| **Name** | What the control requires |
+| **Family**, **Family name** | Optional grouping, for example `ac` and "Access Control". Used by the **All families** filter. |
+| **Scope** | **Data** (automatic: judged by its checks) or **Governance** (manual: a person sets the status) |
+| **Strategy** | **ANY**: one passing evidence check is enough. **ALL**: every check must pass. |
+| **Statement** | The text of the control |
+| **Remediation** | What a failure means and how to fix it. It is shown on the report. |
+
+</Step>
+
+<Step title="Add checks (Data scope only)">
+
+Click **Add check** for each thing the logs should prove. See **Checks** below.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save**.
+
+</Step>
+
+</Steps>
+
+<Note>
+
+The hint under **Checks** says each check runs an OpenSearch SQL query. That text is left over from an earlier version: in UTMStack v12 a check is a list of filters, and UTMStack counts the matching records in the event store.
+
+</Note>
+
+### Checks
+
+| Setting | What it means |
+|---|---|
+| **key** | A short identifier of the check, unique in the control |
+| **Check name** | What the check proves, shown on the report |
+| Dataset | `logs` or `alerts`. Default `logs`. |
+| Data type | The data type the check reads, for example `wineventlog`. The list shows the data types your tenant has stored. **Any data type** reads every type, which is rarely what you want. |
+| Filters | Click **Add filter**, then enter a field, pick an operator and type a value (lists as `a, b, c`). All filters must match. |
+| Rule | **Min hits required**: passes when at least *value* records match (an evidence check). **Threshold max**: passes when at most *value* records match (a limit check; 0 means none allowed). |
+| value | The number for the rule. Default 1. |
+
+A check with **No rule** is not run. A control whose checks are all like this shows **Pending**.
+
+The **Visual** tab offers 12 operators. On the **Code** tab you can use every operator listed on **Filter Operators Reference**, for example `IS_ONE_OF` or `CONTAIN_ONE_OF`.
+
+### Control format
+
+This is the shipped control `au-6`, which checks the alert store:
+
+```yaml
+id: au-6
+family: au
+familyName: Audit and Accountability
+name: Audit Record Review, Analysis, and Reporting
+scope: data
+statement: |-
+  Review and analyze system audit records [frequency] for indications of [inappropriate or unusual activity] and the potential impact of the inappropriate or unusual activity;
+  Report findings to [personnel or roles]; and
+  Adjust the level of audit record review, analysis, and reporting within the system when there is a change in risk based on law enforcement information, intelligence information, or other credible sources of information.
+remediation: |-
+  Passes when alerts raised in the window have been reviewed: at least one was moved to "In review" or "Completed".
+  If it fails: alerts are being raised but nobody is working them. Assign alert review to a person or team and work the queue in UTMStack.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: alerts-reviewed
+    name: 'Alerts were reviewed (moved to In review or Completed)'
+    dataset: alerts
+    filters:
+      - field: status
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'In review'
+          - 'Completed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+```
+
+And this is one limit check of the shipped control `ia-2.2` (multi-factor authentication): it fails the control if any SSH sign-in with a password alone was logged on a Linux server.
+
+```yaml
+  - key: linux-ssh-password-only
+    name: 'Linux: no SSH sign-in with a password alone'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: log.message
+        operator: START_WITH
+        value: 'Accepted password for '
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+```
+
+**Control keys**
+
+| Key | Required | Meaning |
+|---|---|---|
+| `id` | Yes | Identifier of the control |
+| `name` | Yes | Display name |
+| `family`, `familyName` | No | Grouping |
+| `scope` | No | `data` (default) or `governance` |
+| `statement` | No | The control text |
+| `remediation` | No | What a failure means and how to fix it |
+| `strategy` | No | `ALL` (default) or `ANY` |
+| `checks` | No | List of checks (only used when `scope` is `data`) |
+| `source` | No | Where the control comes from. Shipped files carry it; the editor does not keep it when you save. |
+
+**Check keys**
+
+| Key | Required | Meaning |
+|---|---|---|
+| `key` | Yes | Identifier of the check |
+| `name` | Yes | What the check proves |
+| `dataset` | No | `logs` (default) or `alerts` |
+| `dataType` | No | Exact data type. Empty means every type of the dataset. |
+| `filters` | No | List of `field`, `operator`, `value`. All must match. |
+| `rule` | Yes, to run | `MIN_HITS_REQUIRED` (count ≥ `ruleValue`) or `THRESHOLD_MAX` (count ≤ `ruleValue`). Any other value, or none, and the check is not run. |
+| `ruleValue` | No | Default 1 |
+| `todo` | No | `true` marks a check that is declared but not written yet. The control shows **Pending**. |
+
+### Write checks that work
+
+- **One data type per check.** If your tenant does not send that data type in the reporting window, the check shows **No data** and neither passes nor fails. A control whose checks all have no data is **Not evaluated**, never compliant by default.
+- **Use the field names UTMStack v12 stores.** Standard fields are at the top level (`action`, `actionResult`) or under `origin.` and `target.`; vendor fields are under `log.`, for example `log.eventCode` for Windows. A field the pipeline does not write never matches. Open a few records in **Log Explorer** first and copy the names from **Parsed fields**.
+- **Mind letter case.** `IS` compares exactly; `CONTAIN`, `START_WITH` and `ENDS_WITH` ignore case.
+- **Negative operators skip missing fields.** `IS_NOT` and the other negative operators leave out records without the field.
+- **Do not use range operators on `log.*`, `origin.*` or `target.*`.** In UTMStack v12.0.2 they never match there.
+- **Try the filter first.** Build the same filters in Log Explorer or a dashboard widget over the same period and check the count before you save the control.
+
+## Edit or delete your own frameworks and controls
+
+Open the framework (pencil on its card) or the control (click it on the **Controls** tab), change it and click **Save**. To delete it, click **Delete**, then **Confirm delete**.
+
+Before you delete:
+
+- **A control:** requirements that still point to it become **Not covered** in later reports. Remove it from your frameworks first.
+- **A framework:** its last report and its schedules are not deleted with it. Delete its schedules first (see **Scheduled Compliance Reports**).
+
+Keep framework keys and control ids well under 100 characters, and the framework name and source under 250 characters. Longer values can make saving or every later evaluation fail.
+
+## Enterprise licence limits
+
+| | Community | Enterprise |
+|---|---|---|
+| Shipped frameworks you can open, evaluate and schedule | CMMC 2.0 and GDPR | All 9 |
+| Shipped controls you can use in your own frameworks | The 138 used by CMMC 2.0 and GDPR | All 320 |
+| Your own frameworks and controls | Unlimited, never locked | Unlimited |
+
+On Community, controls that need Enterprise are greyed out in the **satisfied by controls** picker ("This framework/control requires the Enterprise edition."). Saving a framework that names one of them is refused with "this control requires an Enterprise license". This also applies when you copy an Enterprise-only shipped framework.
+
+The list of the 138 controls is on **Compliance Overview**.
+
+## Apply to all tenants
+
+On a server with a multi-tenant licence, the platform administrator can push a framework or control to customer tenants. See **Apply to All Tenants**.
+
+1. Sign in as the platform administrator, outside any support session.
+2. Open the framework or control editor. Next to **Save** (and **Delete**), an icon button with the tooltip **Apply to all tenants** appears.
+3. Click it. In the dialog, tick **Apply to all tenants** or select tenants (the default tenant is marked **platform**). Click **Apply to N tenant(s)**.
+
+"This action will run on every selected tenant." Each tenant gets its own copy, and the result lists which tenants **Succeeded** and which **Failed**. "Per-tenant failures are reported after the run and are not rolled back."
+
+Push your custom controls before the frameworks that use them: a framework pushed to a tenant that does not have one of its controls shows that requirement as **Not covered** there.
+
+## Where your definitions are stored
+
+Your frameworks and controls are stored as YAML files on the UTMStack server, one file per item, under:
+
+```text
+/utmstack/events-engine-workdir/compliance/frameworks/user/<tenant id>/<key>.yaml
+/utmstack/events-engine-workdir/compliance/controls/user/<tenant id>/<id>.yaml
+```
+
+Include this folder in your server backups. Shipped definitions are part of the UTMStack release and are replaced on every update; your files are not touched by updates.

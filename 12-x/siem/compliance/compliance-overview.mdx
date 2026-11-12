@@ -1,0 +1,165 @@
+**Compliance** shows how well your environment meets security frameworks such as PCI DSS, ISO/IEC 27001 or GDPR. UTMStack v12 proves what it can from your logs and alerts, and lets a person record a verdict on everything else. This page explains how frameworks, requirements and controls fit together, and how statuses and the score are worked out.
+
+## Who can use Compliance
+
+**Compliance** is in the main menu, so every user sees it.
+
+| Action | Permission | Built-in roles that have it |
+|---|---|---|
+| Open frameworks, controls and reports, download PDFs | `compliance.read` | Administrator, Analyst, Viewer |
+| Run evaluations, record verdicts and notes, create and change frameworks, controls and schedules | `compliance.write` | Administrator |
+
+The edit buttons are shown to every user, but UTMStack refuses the change for a user without `compliance.write`. See **Roles and Permissions** to give it to a custom role.
+
+Frameworks you create, reports, verdicts, notes and schedules belong to a tenant. Each tenant has its own.
+
+## The Compliance page
+
+Click **Compliance** in the main menu. The page has three tabs:
+
+| Tab | What it shows |
+|---|---|
+| **Frameworks** | One card per framework, with its score (or "Not evaluated" until it has run once) and how many controls it uses. Click a card to open its report. See **Compliance Reports**. |
+| **Controls** | The control library. Search with **Search controls…** or pick a family in **All families**. Up to 200 controls are listed at a time; refine the search to see others. Click a control to read it. |
+| **Schedule** | Reports that run and are emailed on a schedule. See **Scheduled Compliance Reports**. |
+
+## How frameworks, requirements and controls fit together
+
+```text
+framework  →  section                          →  requirement  →  controls
+PCI DSS       Requirement 10: Log and monitor …    10.2.1.4        ac-7
+```
+
+- A **framework** is a standard or regulation, for example PCI DSS v4.0.1.
+- It is split into **sections** (its own chapters) and **requirements**, each with the framework's official id, for example `10.2.1.4` or `Art.32`.
+- Each requirement points to one or more **controls** that satisfy it.
+- The controls come from one shared library. A control is defined once and used by every framework that needs it: control `ac-7` (Unsuccessful Logon Attempts) answers PCI DSS 10.2.1.4, CMMC AC.L2-3.1.8, NIST SP 800-171 03.01.08 and ISO A.8.5 alike.
+
+The library is the NIST SP 800-53 Revision 5 catalogue (a public catalogue of security controls from the US National Institute of Standards and Technology): 320 controls. Control ids look like `au-6`; a few control enhancements look like `ia-2.1`.
+
+## Automatic and manual controls
+
+| Kind | In the control file | How it is judged | In the shipped library |
+|---|---|---|---|
+| **Automatic** | `scope: data` | By its checks, which count matching logs or alerts in the reporting window | 45 controls with 795 checks |
+| **Manual** | `scope: governance` | By a person. Logs cannot show policies, training, physical security or settings such as password rules. | 275 controls |
+
+Checks come in two kinds:
+
+- **Evidence checks** show that something is in place, for example "failed logons are recorded". They pass when at least a minimum number of records match (643 shipped checks).
+- **Limit checks** count things that must not happen, for example "an audit log was cleared" or "a sign-in without multi-factor authentication". They fail when more than the allowed number of records match, usually more than 0 (152 shipped checks).
+
+Every check reads one data type, such as `wineventlog` or `o365`. A check for a source your tenant does not send neither passes nor fails.
+
+## Shipped frameworks
+
+| Framework | Requirements | Available without an Enterprise licence |
+|---|---|---|
+| Banking Security Audit | 76 | No |
+| CMMC 2.0 | 149 | Yes |
+| GDPR — EU General Data Protection Regulation | 50 | Yes |
+| HIPAA Security Rule | 68 | No |
+| ISO/IEC 27001:2022 | 123 | No |
+| NIST SP 800-171 Rev 3 | 97 | No |
+| NIST Cybersecurity Framework 2.0 | 106 | No |
+| PCI DSS v4.0.1 | 260 | No |
+| SOC 2 — Trust Services Criteria | 61 | No |
+
+Shipped frameworks and controls are marked **Shipped** and are read-only. You can open them to look inside, copy them, and create your own beside them. See **Custom Frameworks and Controls**.
+
+## Licence limits
+
+Without an Enterprise licence (the Community edition):
+
+- Only **CMMC 2.0** and **GDPR** can be opened, evaluated and scheduled. The other shipped frameworks show an **Enterprise** badge and "Upgrade to Enterprise".
+- Only the 138 shipped controls used by CMMC 2.0 and GDPR can be used. The others show an **Enterprise** badge and cannot be added to a framework of your own.
+- Frameworks and controls you create yourself are never locked.
+
+With an Enterprise licence, every shipped framework and control is available. See **License and Editions**.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Controls available without an Enterprise licence (138)" icon="pi pi-list">
+
+| Family | Controls |
+|---|---|
+| Access Control | ac-2, ac-2.3, ac-3, ac-4, ac-5, ac-6, ac-6.2, ac-7, ac-8, ac-11, ac-12, ac-17, ac-17.3, ac-18, ac-18.1, ac-19, ac-20, ac-22 |
+| Awareness and Training | at-2, at-3 |
+| Audit and Accountability | au-2, au-3, au-5, au-6, au-7, au-8, au-9, au-9.4, au-11, au-12 |
+| Assessment, Authorization, and Monitoring | ca-2, ca-3, ca-5, ca-7, ca-8 |
+| Configuration Management | cm-2, cm-3, cm-4, cm-5, cm-6, cm-7, cm-7.5, cm-8, cm-11, cm-12, cm-13, cm-14 |
+| Contingency Planning | cp-9, cp-10 |
+| Identification and Authentication | ia-2, ia-2.1, ia-2.2, ia-2.5, ia-2.8, ia-3, ia-4, ia-5.1, ia-6 |
+| Incident Response | ir-3, ir-4, ir-5, ir-6, ir-8 |
+| Maintenance | ma-2, ma-3, ma-5 |
+| Media Protection | mp-2, mp-3, mp-4, mp-5, mp-6, mp-7 |
+| Physical and Environmental Protection | pe-2, pe-3, pe-6, pe-8, pe-17 |
+| Planning | pl-2, pl-4 |
+| Program Management | pm-1, pm-3, pm-16, pm-18, pm-19, pm-21, pm-22, pm-26, pm-27 |
+| Personnel Security | ps-3, ps-4, ps-5, ps-6 |
+| Personally Identifiable Information Processing and Transparency | pt-1, pt-2, pt-3, pt-4, pt-5, pt-7 |
+| Risk Assessment | ra-3, ra-5, ra-8, ra-10 |
+| System and Services Acquisition | sa-3, sa-4, sa-8, sa-9 |
+| System and Communications Protection | sc-2, sc-4, sc-7, sc-7.5, sc-7.7, sc-8, sc-8.1, sc-10, sc-12, sc-13, sc-15, sc-18, sc-19, sc-23, sc-28, sc-28.1, sc-32, sc-45, sc-45.1, sc-46 |
+| System and Information Integrity | si-2, si-3, si-4, si-5, si-7, si-12, si-18, si-19 |
+| Supply Chain Risk Management | sr-2, sr-3, sr-6, sr-8 |
+
+40 of these are automatic controls.
+
+</AccordionTab>
+
+</Accordion>
+
+## Statuses
+
+| Status | Meaning |
+|---|---|
+| **Compliant** | The control's checks passed, or a person recorded it as compliant. |
+| **Non-compliant** | A check failed, or a limit was exceeded. |
+| **At risk** | Some checks passed, but others could not run (strategy ALL only). |
+| **Not covered** | Nothing measures this: the control has no check, or it is not in the library. |
+| **Not evaluated** | The control has checks, but your tenant sent no data of the kind they read in the reporting window. |
+| **Pending** | A check is declared but not written yet, or has no rule. |
+| **Out of scope** | A manual control that no person has judged yet. |
+
+### How a control gets its status
+
+1. A **manual** control is **Out of scope** until a person sets its status.
+2. For an **automatic** control, UTMStack runs each check over the reporting window:
+   - A check whose data type has no records in the window is **No data**. It neither passes nor fails.
+   - An evidence check passes when the number of matching records is at least its minimum (usually 1).
+   - A limit check passes when the number of matching records is at most its maximum (usually 0).
+3. Then:
+   - If every check had no data, the control is **Not evaluated**.
+   - If any limit check failed, the control is **Non-compliant**, whatever its strategy. A source that logs correctly does not hide a violation on another source.
+   - With strategy **ANY**, one passing evidence check is enough for **Compliant**.
+   - With strategy **ALL**, any failed check makes it **Non-compliant**. If the others passed but some could not run, it is **At risk**.
+
+A person's verdict always replaces the engine's result on the report. See **Compliance Reports**.
+
+### How a requirement gets its status
+
+A requirement takes the worst status among its controls, in this order from worst to best:
+
+**Non-compliant**, **Not covered**, **At risk**, **Compliant**, **Not evaluated**, **Pending**, **Out of scope**.
+
+A requirement with no controls is **Not covered**.
+
+## How the score is counted
+
+The score is the share of the framework's requirements that are **Compliant**:
+
+> score = compliant requirements × 100 ÷ all requirements in the framework
+
+The report page says it in words, for example "40 of 70 requirements met · 120 in the framework": 40 requirements are compliant, 70 could be judged, and the framework has 120.
+
+Every requirement counts, including the ones nobody could judge. So:
+
+- Requirements that need a person's verdict (manual controls) keep the score down until someone records a status.
+- A source that stops sending logs makes requirements **Not evaluated** and lowers the score too.
+
+Use the **Score over time** chart on the report to tell the two apart: it shows the score and the share of requirements that could be judged. See **Compliance Reports**.
+
+## Coverage and activity
+
+Each control in a report also shows **Coverage** (how many enabled correlation rules are linked to the control) and **Activity** (how many alerts those rules raised in the window). In UTMStack v12.0.2 no rule is linked to a control, so both show 0 rules and 0 alerts. Judge controls by their checks.

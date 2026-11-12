@@ -1,0 +1,66 @@
+UTMStack v12 collects NetFlow traffic records through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the NetFlow integration on a Collector, then configure your routers, switches or firewalls to export flows to that Collector. Nothing is installed on the exporting devices.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Netflow** (category Network) |
+| Data type | `netflow` |
+| Default ports on the Collector | 2055/UDP only |
+| Included in UTMStack | A parsing filter, 12 detection rules and the **Network Traffic (NetFlow)** dashboard |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- Each exporter must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Netflow** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP** only) and the **Port**. The port fills in with 2055. NetFlow uses UDP only; TCP and TLS are not supported.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 2055`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration netflow 2055 udp
+```
+
+## Step 2: Configure your exporters
+
+Configure each router, switch or firewall to export NetFlow over UDP to the Collector you selected in step 1:
+
+```text
+Collector: <collector-ip>
+Port:      2055
+Protocol:  UDP
+Version:   NetFlow v9 (where supported)
+```
+
+Select the export version the device supports and configure its source interface. The Collector accepts NetFlow v5, NetFlow v9 and IPFIX. For the exact commands, see your vendor's documentation.
+
+In the product, this step fills in the IP address of the Collector you selected in step 1.
+
+## Step 3: Check that logs arrive
+
+- In the **Netflow** drawer, click **View logs**. Log Explorer opens with the `netflow` data type for the last 24 hours.
+- Within about 10 minutes, each exporter appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+- **Open dashboard** in the drawer finds the **Network Traffic (NetFlow)** dashboard: who talks to whom, over which protocols and ports.
+
+## Stop collecting
+
+In the **Netflow** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration netflow udp
+```

@@ -1,0 +1,311 @@
+This page collects the values, operators and field lists that the UTMStack v12 API pages refer to, plus a map from UTMStack v11 paths to UTMStack v12 paths to help you port existing code.
+
+## Alert Object Structure
+
+Alerts are returned by `POST /api/v1/log-analyzer/search` with `"dataset": "alerts"` and by `GET /api/v1/utm-alerts/{id}/echoes`.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique alert id |
+| `parentId` | string | Empty (`""`) for a first occurrence. For an echo (repeat occurrence), the id of the first alert. |
+| `@timestamp` | string | When the alert was raised |
+| `lastUpdate` | string | When the alert was last changed |
+| `name` | string | Name of the rule that raised the alert |
+| `description` | string | Description of the alert |
+| `solution` | string | Recommended response |
+| `severity` | string | `low`, `medium` or `high` |
+| `status` | string | See **Alert Status Values** |
+| `statusObservation` | string | Reason given with the last status change |
+| `category` | string | Category (MITRE ATT&CK tactic) |
+| `technique` | string | MITRE ATT&CK technique |
+| `dataType` | string | Data type of the logs that raised it, for example `wineventlog` |
+| `dataSource` | string | Source host or system |
+| `adversary` | object | The acting side: `ip`, `host`, `user`, `domain`, `port`, `geolocation` and more |
+| `target` | object | The affected side, same fields as `adversary` |
+| `impact` | object | `confidentiality`, `integrity`, `availability` |
+| `impactScore` | integer | Impact score |
+| `echoes` | integer | Number of echoes (in search answers) |
+| `lastEvent` | object | The most recent log that matched the rule |
+| `events` | array | The logs that raised the alert |
+| `references` | string[] | Reference links (named `reference` in UTMStack v11) |
+| `deduplicateBy`, `groupBy` | string[] | Fields the rule uses to merge repeats |
+| `errors` | string[] | Processing errors, if any |
+| `isIncident` | boolean | `true` when the alert is marked as part of an incident |
+| `incidentDetail` | object | `incidentName`, `incidentId`, `creationDate`, `createdBy`, `source` |
+| `tags` | string[] | Tags |
+| `tagRulesApplied` | string[] | Ids of the tag rules that tagged the alert |
+| `notes` | string | Notes |
+| `assignee` | string | Assigned user |
+| `history` | array | Changes: `user`, `action`, `newValue`, `timestamp` |
+| `tenantId`, `tenantName` | string | Tenant the alert belongs to |
+
+UTMStack v11 also returned `severityLabel` and `statusLabel`. UTMStack v12 has no separate labels: `severity` and `status` are already words.
+
+**History actions:** `UPDATE_STATUS`, `UPDATE_TAGS`, `UPDATE_NOTES`, `UPDATE_SOLUTION`, `MARK_AS_INCIDENT`, `UPDATE_ASSIGNEE`.
+
+## Alert Status Values
+
+| UTMStack v11 code | UTMStack v12 value | Description |
+|---|---|---|
+| `1` | `Automatic review` | Alert under automatic review |
+| `2` | `Open` | Alert is open and needs attention |
+| `3` | `In review` | Alert is being reviewed by an analyst |
+| `5` | `Completed` | Alert has been resolved |
+| - | `Merged` | Alert was merged (new in UTMStack v12) |
+
+> [!WARNING]
+> Write the values exactly as shown, including upper and lower case and the space in `In review`. Any other value is refused with 400 `invalid alert status`.
+
+## Alert and Incident Severity Values
+
+| UTMStack v11 code | UTMStack v12 value |
+|---|---|
+| `1` | `low` |
+| `2` | `medium` |
+| `3` | `high` |
+
+Sorting alerts by `severity` sorts by rank (`low`, `medium`, `high`), not alphabetically.
+
+## Incident Status Values
+
+| UTMStack v11 value | UTMStack v12 value | Description |
+|---|---|---|
+| `OPEN` | `Open` | New or open incident |
+| `IN_REVIEW` | `In review` | Under investigation |
+| `COMPLETED` | `Completed` | Resolved or closed |
+| - | `Merged` | Merged into another incident (new in UTMStack v12) |
+
+## Filter Operators
+
+The `FilterType` object is used in log and alert search, top values, chart view, the adversary view and alert tag rules.
+
+```json
+{
+  "field": "<field_name>",
+  "operator": "<operator>",
+  "value": "<value_or_list>"
+}
+```
+
+| Operator | Value Type | Description | Example |
+|---|---|---|---|
+| `IS` | string or number | Equal | `{"field":"status","operator":"IS","value":"Open"}` |
+| `IS_NOT` | string or number | Not equal | `{"field":"status","operator":"IS_NOT","value":"Completed"}` |
+| `IS_ONE_OF` | list | Equal to one of the values (`IS_ONE_OF_TERMS` and `IS_ONE_OF_TERMS_OR` do the same) | `{"field":"status","operator":"IS_ONE_OF","value":["Open","In review"]}` |
+| `IS_NOT_ONE_OF` | list | Equal to none of the values | `{"field":"severity","operator":"IS_NOT_ONE_OF","value":["low"]}` |
+| `CONTAIN` | string | Contains the text | `{"field":"name","operator":"CONTAIN","value":"Windows"}` |
+| `DOES_NOT_CONTAIN` | string | Does not contain the text (`NOT_CONTAINS` does the same) | `{"field":"tags","operator":"DOES_NOT_CONTAIN","value":"False positive"}` |
+| `CONTAIN_ONE_OF` | list | Contains at least one of the texts | `{"field":"dataSource","operator":"CONTAIN_ONE_OF","value":["centos","rocky"]}` |
+| `DOES_NOT_CONTAIN_ONE_OF` | list | Contains none of the texts | `{"field":"dataSource","operator":"DOES_NOT_CONTAIN_ONE_OF","value":["test","lab"]}` |
+| `START_WITH` | string | Starts with | `{"field":"dataSource","operator":"START_WITH","value":"win"}` |
+| `NOT_START_WITH` | string | Does not start with | `{"field":"dataSource","operator":"NOT_START_WITH","value":"lab"}` |
+| `ENDS_WITH` | string | Ends with | `{"field":"dataSource","operator":"ENDS_WITH","value":"01"}` |
+| `NOT_ENDS_WITH` | string | Does not end with | `{"field":"dataSource","operator":"NOT_ENDS_WITH","value":"test"}` |
+| `EXIST` | none | A nested field has a value | `{"field":"target.user","operator":"EXIST"}` |
+| `DOES_NOT_EXIST` | none | A nested field has no value | `{"field":"target.user","operator":"DOES_NOT_EXIST"}` |
+| `IS_BETWEEN` | list of 2 | In the range (both ends included) | `{"field":"@timestamp","operator":"IS_BETWEEN","value":["2026-11-01T00:00:00Z","2026-11-10T23:59:59Z"]}` |
+| `IS_NOT_BETWEEN` | list of 2 | Outside the range | `{"field":"impactScore","operator":"IS_NOT_BETWEEN","value":[0,2]}` |
+| `IS_GREATER_THAN` | string or number | Greater than | `{"field":"impactScore","operator":"IS_GREATER_THAN","value":3}` |
+| `IS_LESS_THAN_OR_EQUALS` | string or number | Less than or equal | `{"field":"impactScore","operator":"IS_LESS_THAN_OR_EQUALS","value":3}` |
+| `IS_IN_FIELDS` | string | The original log text contains the text (`logs` dataset only) | `{"field":"raw","operator":"IS_IN_FIELDS","value":"failed login"}` |
+| `IS_NOT_IN_FIELDS` | string | The original log text does not contain the text (`logs` dataset only) | `{"field":"raw","operator":"IS_NOT_IN_FIELDS","value":"healthcheck"}` |
+
+> [!INFO]
+> **Important notes:**
+> - There are no `.keyword` fields in UTMStack v12. Use the plain field name with every operator.
+> - All filters in a list are combined with AND. Pass `[]` (an empty list) for no filters.
+> - `CONTAIN`, `START_WITH`, `ENDS_WITH` and their opposites ignore upper and lower case.
+> - `IS` and `IS_ONE_OF` on a nested field (under `log`, `origin`, `target`, `adversary`, `lastEvent` and similar) compare the values as text, so `"4625"` matches a stored number 4625.
+> - `IS_BETWEEN` and `IS_NOT_BETWEEN` need a JSON list of exactly two values, not a comma-separated string.
+> - Range operators (`IS_BETWEEN`, `IS_GREATER_THAN`, `IS_LESS_THAN_OR_EQUALS`) on a nested field only compare records whose stored value is of the same kind as the value you send (number or text). Check the results before you rely on such a filter.
+> - `EXIST` and `DOES_NOT_EXIST` are meant for nested fields. Top-level text fields always hold a value, possibly empty; test them with `IS` or `IS_NOT` and `""` instead.
+> - `tags` is a list. Use `CONTAIN` or `DOES_NOT_CONTAIN` to test for a tag.
+> - On `@timestamp`, `IS_BETWEEN`, `IS_GREATER_THAN` and `IS_LESS_THAN_OR_EQUALS` set the search's time window.
+> - A field name can be up to 256 characters, cannot contain backticks or backslashes, and cannot have an empty part between dots. An invalid name or an unknown operator returns 400.
+
+### SOAR Operators
+
+Flow trigger conditions and conditional steps use a smaller list with different spelling: `IS`, `IS_NOT`, `CONTAINS`, `NOT_CONTAINS`, `EXISTS`, `NOT_EXISTS`, `START_WITH`, `NOT_START_WITH`, `ENDS_WITH`, `NOT_ENDS_WITH`, `IS_ONE_OF`, `IS_NOT_ONE_OF`. Note `CONTAINS` and `EXISTS` here, against `CONTAIN` and `EXIST` in search filters.
+
+## Date and Time Values
+
+UTMStack v12 search does not understand relative dates such as `now-24h`. A relative value in a search filter is ignored without an error, and the search then covers all stored data.
+
+| Format | Example | Where |
+|---|---|---|
+| RFC 3339 | `2026-11-10T14:30:00Z` | Everywhere (recommended) |
+| Date and time | `2026-11-10 14:30:00` or `2026-11-10 14:30:00.000` | `@timestamp` search filters, ingestion statistics |
+| Date only | `2026-11-10` | `@timestamp` search filters, ingestion statistics |
+| Relative | `now`, `now-24h`, `now-7d`, `now-2w` | Ingestion statistics only |
+
+The `from` and `to` fields of a search body and the incident list dates accept RFC 3339 only.
+
+## Pagination
+
+| Endpoint group | Page parameter | First page | Size parameter | Default | Maximum | Total |
+|---|---|---|---|---|---|---|
+| `POST /log-analyzer/search` | `page` (body) | `0` | `size` (body) | 50 | 500 | `total` in the answer |
+| `POST /log-analyzer/search-sql` | `page` (query) | `1` | `size` (query) | 50 | 500 | `total` = rows on this page |
+| Incidents, incident alerts, notes, history | `page` | `1` | `size` | 20 | 200 | `X-Total-Count` header |
+| Alert echoes | `page` | `1` | `size` | 20 | 100 | `X-Total-Count` header |
+| SOAR flows, executions, variables; saved queries | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| Data sources | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` in the answer |
+| API keys | `page` | `1` | `page_size` | 20 | - | `page_info` in the answer |
+
+UTMStack v11 used `top` on the search endpoint and a `Link` header on most lists. UTMStack v12 has no `top` on search; only the incident lists send a `Link` header.
+
+## Common API Errors
+
+| HTTP Code | Meaning | Common Cause |
+|---|---|---|
+| 200 | Success | Request completed |
+| 201 | Created | Record created |
+| 202 | Accepted | Flow run or SOC-AI analysis started |
+| 204 | No content | Delete or update completed |
+| 400 | Bad Request | Missing field, invalid value, unknown operator, invalid field name, refused SQL |
+| 401 | Unauthorized | Missing, invalid or expired token or API key; API key on an installation without the Enterprise licence |
+| 403 | Forbidden | Missing permission, Enterprise licence required, shipped item is read-only, tenant suspended |
+| 404 | Not Found | Unknown id or endpoint; unknown tenant address |
+| 409 | Conflict | Name already used; alert already linked to an incident |
+| 429 | Too Many Requests | Too many failed sign-ins; daily AI allowance used up |
+| 500 | Internal Server Error | Server problem. In UTMStack v12.0.2 also: unknown incident status or severity, an invalid flow, an unknown chart interval. |
+| 502, 504 | Gateway error | SOC-AI service unreachable or slow |
+
+## Endpoint Summary
+
+All paths start with `/api/v1`.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| **System** | | |
+| GET | `/health` | Health check (no sign-in) |
+| GET | `/billing/version` | Version and edition |
+| GET | `/billing/license` | Licence details |
+| **Authentication and API keys** | | |
+| POST | `/auth/login` | Sign in |
+| POST | `/auth/tfa/verify-code` | Finish two-step sign-in |
+| POST | `/auth/refresh` | Renew tokens |
+| POST | `/auth/logout` | Revoke a refresh token |
+| POST | `/auth/empty_login` | Password confirmation token |
+| GET | `/auth/me` | Current user |
+| GET, POST | `/api-keys` | List, create keys |
+| GET, PUT, DELETE | `/api-keys/{id}` | Read, change, delete a key |
+| POST | `/api-keys/{id}/generate` | Issue a new secret |
+| **Search and query** | | |
+| GET | `/log-analyzer/datasets` | List datasets |
+| GET | `/log-analyzer/datasets/{dataset}/fields` | Fields of a dataset |
+| GET | `/log-analyzer/datasets/{dataset}/data-types` | Data types in a dataset |
+| POST | `/log-analyzer/search` | Search logs or alerts |
+| POST | `/log-analyzer/search-sql` | SQL query |
+| POST | `/log-analyzer/top-x-values/{dataset}/{field}/{top}` | Field values with counts |
+| POST | `/log-analyzer/chart-view` | Counts per time bucket |
+| GET, POST, PUT | `/log-analyzer/queries` | Saved queries |
+| GET, DELETE | `/log-analyzer/queries/{id}` | One saved query |
+| **Alert management** | | |
+| GET | `/utm-alerts/count-open-alerts` | Count open alerts |
+| GET | `/utm-alerts/{id}/echoes` | Echoes of an alert |
+| GET | `/utm-alerts/related-logs` | Logs behind an alert |
+| POST | `/utm-alerts/status` | Change alert status |
+| POST | `/utm-alerts/notes` | Replace alert notes |
+| POST | `/utm-alerts/assignee` | Assign an alert |
+| POST | `/utm-alerts/tags` | Set alert tags |
+| POST | `/utm-alerts/convert-to-incident` | Mark alerts as part of an incident |
+| POST | `/adversary/alerts` | Alerts grouped by adversary |
+| GET, POST, PUT | `/utm-alert-tags` | Tag catalog |
+| GET, DELETE | `/utm-alert-tags/{id}` | One tag |
+| GET, POST, PUT | `/alert-tag-rules` | Tag rules |
+| GET, DELETE | `/alert-tag-rules/{id}` | One tag rule |
+| **Incident management** | | |
+| GET, POST | `/incidents` | List, create incidents |
+| GET | `/incidents/{id}` | One incident |
+| POST | `/incidents/add-alerts` | Link alerts |
+| PUT | `/incidents/change-status` | Change status |
+| PUT | `/incidents/assign` | Assign |
+| GET | `/incidents/assignees` | Users with assigned incidents |
+| GET, POST, PUT | `/incident-alerts` | Linked alerts |
+| DELETE | `/incident-alerts/{id}` | Remove a link |
+| POST | `/incident-alerts/update-status` | Status of linked alerts |
+| GET, POST | `/incident-notes` | Notes |
+| GET | `/incident-histories`, `/incident-histories/count`, `/incident-histories/{id}` | History |
+| **Data sources** | | |
+| GET | `/datasources` | List data sources and agents |
+| GET | `/datasources/count` | Count |
+| GET, DELETE | `/datasources/{id}` | Read, delete |
+| PUT | `/datasources/labels`, `/datasources/sensitivity` | Change labels, sensitivity |
+| GET | `/datasources/connection-key` | Agent connection key |
+| POST | `/datasources/connection-key/rotate` | New connection key |
+| GET | `/integrations/data-types` | Supported data types |
+| GET | `/eventprocessing/ingestion-stats`, `/eventprocessing/ingestion-stats/timeline` | Ingestion statistics |
+| **SOAR** | | |
+| GET, POST | `/soar/rules` | List, create flows |
+| GET, PUT, DELETE | `/soar/rules/{relPath}` | Read, change, delete a flow |
+| PUT | `/soar/rules/{relPath}/enabled` | Switch a flow on or off |
+| POST | `/soar/rules/{relPath}/trigger` | Start a flow by hand |
+| GET | `/soar/rule-executions` | Execution history |
+| GET, POST, PUT | `/soar/variables` | Variables |
+| GET, DELETE | `/soar/variables/{id}` | One variable |
+| GET (WebSocket) | `/soar/ws/command/{agentId}` | Command console |
+| POST | `/platform/soar/rules/bulk/create`, `/update`, `/delete`, `/enable` | Flows in many tenants |
+| **SOC-AI** | | |
+| POST | `/soc-ai/chat` | Chat (streamed) |
+| POST | `/soc-ai/analyze` | Analyze an alert |
+| GET, PUT, DELETE | `/soc-ai/config` | AI provider configuration |
+| GET | `/soc-ai/usage` | Daily allowance |
+
+## UTMStack v11 to UTMStack v12 Path Map
+
+The method is unchanged unless the table says otherwise. Bodies, parameters and values also changed for most endpoints; the page named in the last column explains the new form.
+
+| UTMStack v11 | UTMStack v12 | Page |
+|---|---|---|
+| `GET /api/ping` | Still works (forwarded to `GET /api/v1/health`); answers `{"status":"ok"}` | **Introduction** |
+| `GET /api/info/version` | `GET /api/v1/billing/version` | **Introduction** |
+| `POST /api/elasticsearch/search` (alerts) | `POST /api/v1/log-analyzer/search` with `"dataset": "alerts"` | **Alerts API** |
+| `POST /api/elasticsearch/search` (logs) | `POST /api/v1/log-analyzer/search` with `"dataset": "logs"` | **Log Search API** |
+| `POST /api/elasticsearch/count` | None. Use `total` from a search with `"size": 1`. | **Log Search API** |
+| `GET /api/elasticsearch/index/all` | None for tenants. Storage use is at `GET /api/v1/storage/usage` for administrators of the default tenant. | - |
+| `GET /api/elasticsearch/index/properties` | `GET /api/v1/log-analyzer/datasets/{dataset}/fields` | **Log Search API** |
+| `GET /api/elasticsearch/property/values` | `POST /api/v1/log-analyzer/top-x-values/{dataset}/{field}/{top}` | **Log Search API** |
+| `POST /api/elasticsearch/property/values-with-count` | `POST /api/v1/log-analyzer/top-x-values/{dataset}/{field}/{top}` | **Log Search API** |
+| `POST /api/log-analyzer/chart-view` | `POST /api/v1/log-analyzer/chart-view` (new body) | **Log Search API** |
+| `POST /api/elasticsearch/search/sql` | `POST /api/v1/log-analyzer/search-sql` (ClickHouse SQL) | **Log Search API** |
+| `GET /api/utm-index-patterns` | `GET /api/v1/log-analyzer/datasets` | **Log Search API** |
+| `GET /api/utm-alerts/count-open-alerts` | `GET /api/v1/utm-alerts/count-open-alerts` | **Alerts API** |
+| `POST /api/utm-alerts/status` | `POST /api/v1/utm-alerts/status` (status is a word) | **Alerts API** |
+| `POST /api/utm-alerts/notes` | `POST /api/v1/utm-alerts/notes` (plain text body) | **Alerts API** |
+| `POST /api/utm-alerts/tags` | `POST /api/v1/utm-alerts/tags` | **Alerts API** |
+| `POST /api/utm-alerts/convert-to-incident` | `POST /api/v1/utm-alerts/convert-to-incident` (needs an existing incident id) | **Alerts API** |
+| `GET`, `POST /api/utm-incidents` | `GET`, `POST /api/v1/incidents` | **Incidents API** |
+| `GET /api/utm-incidents/{id}` | `GET /api/v1/incidents/{id}` (UUID) | **Incidents API** |
+| `PUT /api/utm-incidents/change-status` | `PUT /api/v1/incidents/change-status` | **Incidents API** |
+| `POST /api/utm-incidents/add-alerts` | `POST /api/v1/incidents/add-alerts` | **Incidents API** |
+| `GET /api/utm-incident-alerts` | `GET /api/v1/incident-alerts` | **Incidents API** |
+| `DELETE /api/utm-incident-alerts/{id}` | `DELETE /api/v1/incident-alerts/{id}` | **Incidents API** |
+| `POST /api/utm-incident-alerts/update-status` | `POST /api/v1/incident-alerts/update-status` | **Incidents API** |
+| `GET`, `POST /api/utm-incident-notes` | `GET`, `POST /api/v1/incident-notes` | **Incidents API** |
+| `GET /api/utm-data-input-statuses` | `GET /api/v1/datasources` | **Data Sources API** |
+| `GET /api/utm-data-input-statuses/count` | `GET /api/v1/datasources/count` (answers `{"count": n}`) | **Data Sources API** |
+| `GET /api/agent-manager/agents` | `GET /api/v1/datasources` with `search_query=source_kind.eq.agent` | **Data Sources API** |
+| `GET /api/data-types` | `GET /api/v1/integrations/data-types` | **Data Sources API** |
+| `/api/utm-alert-response-rules` | `/api/v1/soar/rules` | **SOAR API** |
+| `/api/utm-alert-response-rule-executions`, `/api/utm-alert-response-rule-histories` | `GET /api/v1/soar/rule-executions` | **SOAR API** |
+| `/api/utm-incident-variables` | `/api/v1/soar/variables` | **SOAR API** |
+| `/api/utm-alert-response-action-templates`, `/api/utm-incident-jobs` | None | **SOAR API** |
+
+### Query Parameter Changes
+
+| UTMStack v11 | UTMStack v12 |
+|---|---|
+| `indexPattern=v11-alert-*` (query) | `"dataset": "alerts"` (body) |
+| `indexPattern=v11-log-<type>-*` (query) | `"dataset": "logs", "dataType": "<type>"` (body) |
+| `page`, `size`, `sort=@timestamp,desc`, `top` (query) | `page`, `size`, `sortBy`, `order` (body); no `top` |
+| Filter list as the whole body | `filters` field inside the body |
+| `dataType.keyword`, `dataSource.keyword` | `dataType`, `dataSource` |
+| `now-24h`, `now-7d` | Absolute RFC 3339 times |
+| `incidentStatus.equals=OPEN` | `incidentStatus=Open` |
+| `incidentName.contains=` | `incidentName=` |
+| `incidentSeverity.greaterThan=2` | `incidentSeverity=high` (exact value only) |
+| `incidentCreatedDate.greaterThanOrEqual=` | `createdDateStart=` |
+| `incidentCreatedDate.lessThanOrEqual=` | `createdDateEnd=` |
+| `incidentId.equals=` | `incidentId=` |
+| Incident lists: `page=0` first page | `page=1` first page |

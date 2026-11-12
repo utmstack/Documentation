@@ -1,0 +1,180 @@
+UTMStack v12 includes a library of **721 built-in detection rules** that watch your logs for threats, suspicious activity and risky changes. The rules run in the UTMStack correlation engine and map to the **MITRE ATT&CK** framework (a public catalogue of attacker tactics and techniques).
+
+## What are detection rules?
+
+A detection rule is a YAML file that describes a pattern of malicious or suspicious activity in one kind of log. When an incoming event matches the rule's conditions, UTMStack creates an alert with a severity, a MITRE ATT&CK classification and recommended next steps.
+
+Each rule includes:
+
+- **Name**: a short title that describes what the rule detects. It also becomes the alert name.
+- **Description**: the threat scenario and why it matters, usually followed by "Next Steps" for the analyst.
+- **Data types**: the kind of events the rule examines, for example `wineventlog` for Windows events. A rule only looks at events of its data types.
+- **Category**: the MITRE ATT&CK tactic, for example Credential Access or Lateral Movement.
+- **Technique**: the MITRE ATT&CK technique ID and name.
+- **Impact**: a Confidentiality / Integrity / Availability score. Each value goes from 0 to 3.
+- **Adversary**: which side of the event is treated as the attacker, the origin or the target.
+- **Detection logic**: the condition that an event must meet. Some rules also count earlier matching events (for example "10 failed sign-ins from the same address in 10 minutes"), and many rules group repeated alerts or drop duplicates.
+- **References**: links to MITRE ATT&CK entries and vendor documentation.
+
+## How severity is set
+
+The rule files have no severity field. UTMStack takes the highest of the three impact values:
+
+| Highest impact value | Alert severity |
+|---|---|
+| 3 | High |
+| 2 | Medium |
+| 1 or 0 | Low |
+
+Of the 721 built-in rules, 644 produce high, 57 medium and 20 low severity alerts by default.
+
+You can tell UTMStack how important a host is. On the **Data Sources** page, open a data source and set its **Asset sensitivity** (Confidentiality, Integrity and Availability). Alerts that target that host or IP address are weighted by these values, so the same rule can give a lower severity for a less important host. See **Data Sources page**.
+
+## Supported data sources
+
+Rules are organized by the data source they apply to. Each page in this section lists every rule for one source, with its MITRE ATT&CK mapping, impact and a link to the rule file.
+
+| Category | Source | Data type | Rules |
+|---|---|---|---|
+| Endpoints and operating systems | Windows | `wineventlog` | 56 |
+| | Linux (General 43, Debian Family 17, RHEL Family 10) | `linux` | 70 |
+| | macOS | `macos` | 35 |
+| Cloud platforms | AWS | `aws` | 81 |
+| | Azure | `azure` | 40 |
+| | Google Cloud | `google` | 43 |
+| SaaS and productivity | Office 365 | `o365` | 73 |
+| | Microsoft 365 through Microsoft Graph (new in v12) | `o365-graph` | 20 |
+| | GitHub | `github` | 13 |
+| Antivirus and EDR | Bitdefender GravityZone | `antivirus-bitdefender-gz` | 21 |
+| | CrowdStrike | `crowdstrike` | 17 |
+| | Deceptive Bytes | `deceptive-bytes` | 16 |
+| | ESET PROTECT | `antivirus-esmc-eset` | 14 |
+| | Kaspersky | `antivirus-kaspersky` | 19 |
+| | SentinelOne | `antivirus-sentinel-one` | 19 |
+| | Sophos Central | `sophos-central` | 20 |
+| Network security | Cisco ASA | `firewall-cisco-asa` | 3 |
+| | Cisco Firepower | `firewall-cisco-firepower` | 5 |
+| | Cisco Meraki | `firewall-meraki` | 7 |
+| | Cisco Switch | `cisco-switch` | 3 |
+| | FortiGate | `firewall-fortigate-traffic` | 7 |
+| | FortiWeb | `firewall-fortiweb` | 10 |
+| | Palo Alto | `firewall-paloalto` | 11 |
+| | SonicWall | `firewall-sonicwall` | 7 |
+| | Sophos Firewall (XG) | `firewall-sophos-xg` | 9 |
+| | pfSense | `firewall-pfsense` | 3 |
+| | MikroTik | `firewall-mikrotik` | 6 |
+| Network monitoring | NetFlow | `netflow` | 12 |
+| | NIDS / Suricata | `suricata` | 35 |
+| Infrastructure | VMware ESXi | `vmware-esxi` | 14 |
+| | IBM AIX | `ibm-aix` | 10 |
+| | IBM AS/400 | `ibm-as400` | 8 |
+| Log formats | Syslog / CEF | `syslog` | 3 |
+| | JSON Input | `json-input` | 10 |
+| | Generic | `generic` | 1 |
+| **Total** | | | **721** |
+
+### What changed since v11
+
+- **New source:** Microsoft 365 through Microsoft Graph, with 20 rules.
+- **More rules:** Linux has 21 more rules, Windows 8 more and Office 365 2 more.
+- **Removed:** one macOS rule, "Keychain Credential Dumping via CLI".
+- **Updated rule bodies:** most rules were rewritten for the v12 event fields. Vendor-specific fields are now read as `log.<field>`; v11 rules used `event.<field>`. If you bring your own rules from v11, check their field names before you import them.
+
+## How rules work
+
+1. **Log ingestion**: UTMStack receives logs from agents, the UTMStack Collector and cloud integrations.
+2. **Parsing**: pipelines turn each raw log into the UTMStack standard event fields (Configure > Pipelines).
+3. **Correlation**: the correlation engine checks each event against every active rule for the event's data type.
+4. **Alert generation**: when a rule's conditions are met, UTMStack creates an alert with full context. Rules that group alerts add repeats to the first alert instead of creating new ones, and rules that drop duplicates ignore a repeat for 7 days.
+5. **Response**: alerts appear in Threat Management > Alerts. An alert can also start a response flow in **SOAR** when it matches the flow's trigger conditions.
+
+## Where to see and switch rules
+
+All rules, built-in and your own, are listed in **Configure > Alerting Rules**. The Configure menu is shown to users with the Administrator role.
+
+- The list shows the rule name (a lock marks built-in rules), data types, category, technique, adversary, impact and an **Active** switch. You can search by name and filter by category, adversary, state (Active or Inactive), owner (System or Custom) and data type.
+- To see the rules for one integration, open **Configure > Integrations**, open the integration's card and click **Rules**. Alerting Rules opens filtered to that data type.
+- To switch a rule off or on, use its **Active** switch in the list or in the rule's panel. The change applies to your tenant only. Switching rules needs the `eventprocessing.write` permission, which only the Administrator role has by default.
+- Built-in rules cannot be edited or deleted, but you can switch them off. They are updated with each UTMStack release, and your on and off choices are kept.
+- In a multi-tenant installation, the platform administrator can apply a custom rule, or a rule's on and off state, to all tenants at once.
+
+See **Alerting Rules** for the full description of the screen.
+
+## Rule flood guard
+
+The rule flood guard protects you from alert floods. When one rule creates too many alerts, UTMStack switches that rule off automatically and tells you.
+
+How it decides:
+
+- Every 5 minutes it counts, for each tenant, rule name and data source, the alerts of the last 24 hours that are **Open**, are not grouped under another alert, and are not tagged **False positive**.
+- When one count is **more than 50**, the rule is switched off for that tenant only. Other tenants keep it. If several rules share that exact name, all of them are switched off.
+- The tenant gets a warning in the notification bell. No email is sent. The message names the rule, the number of alerts and the data source, and suggests what to do.
+
+<Steps>
+<Step title="Find the cause">
+
+Open **Threat Management > Alerts** and look at the alerts of the rule named in the notification. Decide whether the alerts are real activity or expected, harmless activity.
+
+</Step>
+<Step title="Close or tag the flood">
+
+Close the alerts you have reviewed, or mark expected ones as **False positive**. A tagging rule (**Threat Management > Tagging Rules**) can do this automatically for future alerts. Completed alerts and alerts tagged False positive are not counted.
+
+</Step>
+<Step title="Reduce repeats (custom rules)">
+
+If the rule is one of your own, add `groupBy` or `deduplicateBy` fields so that repeats of the same activity are grouped or dropped. Built-in rules cannot be edited.
+
+</Step>
+<Step title="Switch the rule back on">
+
+Open **Configure > Alerting Rules**, find the rule and turn its **Active** switch on.
+
+</Step>
+</Steps>
+
+<Warning>
+
+If more than 50 counted alerts from that rule and data source remain in the last 24 hours, the next check switches the rule off again within about 5 minutes. Close or tag the flood before you switch the rule back on.
+
+</Warning>
+
+<Accordion multiple={true}>
+<AccordionTab title="Change the flood guard settings (self-hosted servers)" icon="pi pi-cog">
+
+The flood guard has no screen in the web interface. Its settings are in the file `system_plugins_rule-flood-guard.yaml` in the engine's pipeline folder on the UTMStack server, `/utmstack/events-engine-workdir/pipeline/` with the default data folder. The settings apply to every tenant on the server, but alerts are always counted per tenant.
+
+```yaml
+plugins:
+  rule-flood-guard:
+    enabled: true
+    threshold: 50
+    windowHours: 24
+    intervalSeconds: 300
+```
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `enabled` | `true` | Turns the flood guard on or off. |
+| `threshold` | `50` | A rule is switched off when it has more alerts than this for one data source in one tenant. |
+| `windowHours` | `24` | How many hours of alerts are counted. |
+| `intervalSeconds` | `300` | How often the check runs. |
+
+Values of 0 or less are ignored. Changes apply without a restart. If the file is missing, UTMStack creates it with the defaults; it never overwrites a file that exists.
+
+</AccordionTab>
+</Accordion>
+
+See **Rule flood guard** for more detail.
+
+## Rule source code
+
+All built-in detection rules are open source and available in the UTMStack GitHub repository:
+
+**[github.com/utmstack/UTMStack/tree/v12/definitions/rules](https://github.com/utmstack/UTMStack/tree/v12/definitions/rules)**
+
+Browse the pages in this section to see every rule organized by source, with descriptions, MITRE ATT&CK mappings, impact scores and links to the YAML files.
+
+## Creating custom rules
+
+You can write your own rules in **Configure > Alerting Rules** with **New rule**, or import YAML files with **Import**. Custom rules belong to your tenant. For the rule format, the condition functions and how to test a rule before you rely on it, see **Alerting Rules**, **Rule file format**, **Condition functions (CEL) reference** and **Testing pipelines and rules**.

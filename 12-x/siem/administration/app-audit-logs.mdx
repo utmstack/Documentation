@@ -1,0 +1,63 @@
+The application audit log records what people and integrations do in UTMStack v12: sign-ins, changes to users and settings, and actions on alerts, incidents, rules and response flows. Use it to answer "who did what, and when".
+
+## Open the audit log
+
+Go to **Configure > Settings > App Audit Logs**. The page title is **Audit log**.
+
+Reading the audit log needs the `audit.read` permission. All three built-in roles have it, but only users with the **Administrator** role see the **Settings** menu.
+
+## What the page shows
+
+At the top, four numbers summarize the log:
+
+| Number | Meaning |
+|---|---|
+| Total entries | How many entries the log holds |
+| Success rate | The share of recorded actions that succeeded |
+| Top action | The most frequent action on the current page |
+| Unique actors | How many different users (and the system) appear |
+
+The table lists one entry per action, with the columns **Timestamp**, **Actor**, **Action**, **Resource**, **Status** (Success or Failure) and **IP**. Click **View** on an entry to open it. The **Overview** tab shows the actor, resource, user agent, session, metadata and any error; the **Raw JSON** tab shows the complete entry, with **Copy JSON**.
+
+## Filter the log
+
+| Filter | Use it to |
+|---|---|
+| Last 24h | Show only the last day |
+| Failures only | Show only actions that failed |
+| Auth events | Show only sign-in related actions |
+| Action prefix | Show actions whose name starts with some text, for example `auth.` or `user.update` |
+| Status | Choose Success, Failure or Any |
+| Resource type | Show actions on one kind of object, for example `user` or `alert` |
+| Resource id | Show actions on one object |
+| User | Show actions of one user |
+
+Click **Clear** to remove all filters.
+
+## What is recorded
+
+Action names start with the area they belong to. Some useful prefixes for the **Action prefix** filter:
+
+| Prefix | Actions |
+|---|---|
+| `auth.` | Sign-in, sign-out, password changes and resets, single sign-on |
+| `user.` | Creating, updating and deactivating users, assigning roles, resetting two-step sign-in |
+| `apikey.` | Creating and deleting API keys |
+| `idp.` | Creating, changing and deleting identity providers |
+| `config.`, `branding.`, `license.` | Changes to settings, branding and the licence |
+| `retention.`, `cold_storage.` | Changes to data retention and cold storage |
+| `tenant.` | Creating, changing, deactivating, reactivating and deleting tenants; changes to support access |
+| `alert.`, `incident.` | Work on alerts and incidents |
+| `correlation_rule.`, `eventprocessing.` | Changes to correlation rules and pipelines, and tests in the playground |
+| `soar.` | Changes to response flows and starting a flow by hand |
+| `compliance.` | Changes to frameworks, controls, evaluations and schedules |
+| `dashboard.`, `visualization.` | Changes to dashboards and widgets |
+| `mcp.tools.call` | Tools called by AI assistants through the MCP server |
+
+## Audit logs and tenants
+
+On a multi-tenant licence, each tenant has its own audit log. When the instance operator works inside a tenant during a support session, those actions are recorded in that tenant's log. See **Support Access**.
+
+## How long entries are kept
+
+Entries older than 365 days are deleted automatically.

@@ -1,0 +1,331 @@
+Use these endpoints to list the systems that send data to UTMStack v12 (agents included), read the list of supported data types, and see how many events each source sent. In UTMStack v12, agents are listed as data sources: the v11 endpoints `/api/utm-data-input-statuses`, `/api/agent-manager/agents` and `/api/data-types` no longer exist.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| List, read and count data sources | `datasources.read` (all built-in roles) |
+| Change labels or sensitivity, delete a data source | `datasources.write` (Administrator) |
+| Read or rotate the agent connection key | Administrator role |
+| List data types | `integrations.read` (all built-in roles) |
+| Ingestion statistics | `eventprocessing.read` (all built-in roles) |
+
+## List Data Sources (replaces Data Input Statuses and Agents)
+
+**Endpoint:** `GET /api/v1/datasources`
+
+Returns every source that sent data: agents, cloud and API collectors, and devices that send logs directly.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page_number | integer | Page number, starting at `1` |
+| page_size | integer | Default 50, maximum 500 |
+| search_query | string | Filters, see below |
+| sort_by | string | Sort, for example `last_ping_at.desc`. Several sorts are joined with `&`. Default: newest discovered first. |
+
+**Filters in `search_query`** are written as `field.operator.value`. Several filters are joined with `&` and all must match.
+
+| Field | Meaning |
+|---|---|
+| `asset_name` | Source name (host name) |
+| `data_type` | Data type, for example `wineventlog` |
+| `asset_ip` | IP address |
+| `source_kind` | `agent`, `puller` (collected by UTMStack from a cloud service or API) or `direct` (sent straight to UTMStack) |
+| `labels` | Labels text |
+| `discovered_at`, `modified_at`, `last_ping_at` | Times, in RFC 3339 format |
+
+| Operator | Meaning |
+|---|---|
+| `eq`, `neq` | Equal, not equal |
+| `like` (or `contains`), `nlike` | Contains, does not contain (upper and lower case ignored) |
+| `in`, `nin` | One of, none of (comma-separated values) |
+| `gt`, `gte`, `lt`, `lte` | Greater than, at least, less than, at most |
+| `null`, `nnull` | Has no value, has a value (no value part) |
+
+Unknown fields and operators are dropped without an error.
+
+> [!TIP]
+> The `&` that joins filters must be URL-encoded inside `search_query` (as `%26`), or it is read as the start of a new query parameter. Letting curl encode the parameters with `--get --data-urlencode` avoids mistakes, as in the examples below.
+
+### List All Data Sources
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "page_number=1" \
+  --data-urlencode "page_size=100"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "<datasource-id>",
+      "name": "win-server-01",
+      "dataType": "wineventlog",
+      "ip": "192.0.2.15",
+      "sourceKind": "agent",
+      "metadata": {
+        "agentId": "<agent-id>",
+        "os": "windows",
+        "osPlatform": "windows",
+        "version": "<agent-version>",
+        "mac": "<mac-address>",
+        "addresses": "192.0.2.15/24",
+        "aliases": "win-server-01",
+        "noRemoteControl": "false"
+      },
+      "labels": "production,finance",
+      "assetConfidentiality": 2,
+      "assetIntegrity": 2,
+      "assetAvailability": 1,
+      "discoveredAt": "2026-10-02T09:12:00Z",
+      "modifiedAt": "2026-11-10T14:29:00Z",
+      "lastPingAt": "2026-11-10T14:29:00Z"
+    }
+  ],
+  "page_number": 1,
+  "page_size": 100,
+  "total_items": 1,
+  "total_pages": 1
+}
+```
+
+**Data Source Fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Data source id |
+| `name` | string | Source name, usually the host name |
+| `dataType` | string | Data type of its logs. Agents report `wineventlog` (Windows), `linux` or `macos`. |
+| `ip` | string | IP address |
+| `sourceKind` | string | `agent`, `puller` or `direct` |
+| `metadata` | object | Agents only: host details as text values: `agentId`, `os`, `osPlatform`, `version`, `mac`, `addresses`, `aliases`, `noRemoteControl` |
+| `labels` | string | Comma-separated labels |
+| `assetConfidentiality`, `assetIntegrity`, `assetAvailability` | integer | Sensitivity of the asset, 0 to 3 |
+| `discoveredAt` | string | First time the source was seen |
+| `modifiedAt` | string | Last change |
+| `lastPingAt` | string | Last time the source reported in |
+
+There is no `down` or `status` field as in UTMStack v11. Decide whether a source is online from `lastPingAt`: the web console treats a source as offline when it has not reported for a while.
+
+### List Agents Only
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "page_number=1" \
+  --data-urlencode "page_size=100" \
+  --data-urlencode "search_query=source_kind.eq.agent" \
+  --data-urlencode "sort_by=last_ping_at.desc"
+```
+
+The `metadata.agentId` value is the id the command console needs (see **SOAR API**).
+
+### Find Sources by Name
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=asset_name.like.win"
+```
+
+### Find Sources That Stopped Reporting
+
+Sources that have not reported since a given time, and are agents:
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=last_ping_at.lt.2026-11-10T00:00:00Z&source_kind.eq.agent"
+```
+
+Sources that never reported:
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=last_ping_at.null"
+```
+
+## Get One Data Source
+
+**Endpoint:** `GET /api/v1/datasources/{id}`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/datasources/<datasource-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one data source object. An unknown id returns 404.
+
+## Count Data Sources
+
+**Endpoint:** `GET /api/v1/datasources/count`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/datasources/count" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"count": 5}
+```
+
+UTMStack v11 returned a plain number here. UTMStack v12 returns an object.
+
+## Update Labels
+
+**Endpoint:** `PUT /api/v1/datasources/labels`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| id | string (UUID) | Yes | Data source id |
+| labels | string | No | Comma-separated labels. Replaces the current labels. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/datasources/labels" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<datasource-id>", "labels": "production,finance"}'
+```
+
+**Response:** HTTP 204.
+
+## Update Sensitivity
+
+**Endpoint:** `PUT /api/v1/datasources/sensitivity`
+
+Sets how important the asset is for confidentiality, integrity and availability, each from 0 to 3. Values outside that range are brought back into it.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/datasources/sensitivity" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<datasource-id>", "assetConfidentiality": 3, "assetIntegrity": 2, "assetAvailability": 1}'
+```
+
+**Response:** HTTP 204.
+
+## Delete a Data Source
+
+**Endpoint:** `DELETE /api/v1/datasources/{id}`
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/datasources/<datasource-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. This removes the entry from the list only. If the source keeps sending data, it is added to the list again the next time it reports in.
+
+## Agent Connection Key
+
+The connection key is what new agents use to register with UTMStack (see **Connection Key**). These endpoints need the Administrator role.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/datasources/connection-key` | Returns `{"connectionKey": "<key>"}` |
+| POST | `/api/v1/datasources/connection-key/rotate` | Issues a new key and returns it in the same shape |
+
+If the agent manager cannot be reached, the answer is 503 or 502 `agent-manager unavailable`.
+
+## List Supported Data Types
+
+**Endpoint:** `GET /api/v1/integrations/data-types`
+
+Replaces `GET /api/data-types` from UTMStack v11. There is no paging; the whole list is returned.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/data-types" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200, shortened):**
+
+```json
+[
+  {"dataType": "wineventlog", "name": "<integration name>", "systemOwner": true},
+  {"dataType": "linux", "name": "<integration name>", "systemOwner": true}
+]
+```
+
+`systemOwner` is `true` for integrations that ship with UTMStack and `false` for custom integrations.
+
+## Ingestion Statistics
+
+These endpoints report how many events arrived and how many bytes they weighed. There was no equivalent in UTMStack v11.
+
+### Totals
+
+**Endpoint:** `GET /api/v1/eventprocessing/ingestion-stats`
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| groupBy | string | Yes | `dataSource` or `dataType` |
+| status | string | No | `received` (default), `parsing_dropped`, `analysis_dropped`, `correlation_dropped` or `all` |
+| from | string | No | Start. RFC 3339, `now`, or `now-` followed by a duration such as `24h`, `7d` or `2w`. Default: 24 hours before `to`. |
+| to | string | No | End, same formats. Default: now. |
+| top | integer | No | Number of groups. Default 100, maximum 1000. |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/eventprocessing/ingestion-stats?groupBy=dataSource&status=received&from=now-7d&top=50" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "groupBy": "dataSource",
+  "status": "received",
+  "from": "2026-11-03T14:30:00Z",
+  "to": "2026-11-10T14:30:00Z",
+  "total": 1520331,
+  "totalBytes": 912345678,
+  "buckets": [
+    {"key": "win-server-01", "count": 812004, "bytes": 501234567, "lastSeen": "2026-11-10T14:29:58Z"}
+  ]
+}
+```
+
+An unknown `groupBy` or `status` returns 400.
+
+### Timeline
+
+**Endpoint:** `GET /api/v1/eventprocessing/ingestion-stats/timeline`
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| groupBy | string | No | `dataSource` or `dataType`. Leave it out for a single line. |
+| status | string | No | Same values as for totals. Default `received`. |
+| interval | string | No | Bucket size such as `5m`, `1h` or `1d`. Default `auto`: 5 minutes up to 2 hours, 1 hour up to 2 days, 1 day up to 14 days, then 7 days. |
+| from, to | string | No | Same as for totals |
+| top | integer | No | Number of lines when `groupBy` is set. Default 100, maximum 1000. |
+| dataSource | string | No | Only this source (by name) |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/eventprocessing/ingestion-stats/timeline?status=received&interval=1h&from=now-24h" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "status": "received",
+  "interval": "1h",
+  "from": "2026-11-09T14:30:00Z",
+  "to": "2026-11-10T14:30:00Z",
+  "points": [
+    {"timestamp": "2026-11-10T13:00:00Z", "count": 6120, "bytes": 3702114}
+  ]
+}
+```
+
+With `groupBy`, the answer has `series` instead of `points`: a list of `{"key": "<source or data type>", "points": [...]}`.

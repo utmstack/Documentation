@@ -1,0 +1,368 @@
+These examples show how to combine trigger conditions, step types, wires, placeholders and variables into complete flows in UTMStack v12. Each one uses a correlation rule that ships with UTMStack v12.0.2. Adapt the commands to your machines, then test every flow with **Trigger flow** on a test machine before you switch it on.
+
+<Warning>
+
+Flows act for real. Every example below changes machines, accounts or network rules. Read **Building a Flow** and **Placeholders** first, and never switch a flow on before you have tested it by hand.
+
+</Warning>
+
+To use an example so that it stays switched off while you test it:
+
+1. Click **New flow > From an existing one** and pick any flow. Copies are saved switched off.
+2. Open the **Code** tab and replace its whole content with the example YAML.
+3. Adjust host names, lists and commands, then click **Save**.
+4. Test with **Trigger flow**, check **Execution history**, and only then switch the flow on.
+
+If you start with **New flow > From scratch** instead, the flow is switched on as soon as you save it.
+
+## Use case 1: Contain an SSH brute-force attack on a Linux server
+
+**Scenario.** Someone guesses passwords over SSH and finally signs in to a Linux server. You want to block the attacker's address on that server, end the sessions of the account that was used, and tell the team. If the block fails, the team must know at once.
+
+**Trigger.** Alert name **is** `System Linux: Possible Brute Force Attack` (shipped rule: several SSH sign-in failures followed by a success from the same address).
+
+**Steps.**
+
+| Step | Type | Runs | What it does |
+|---|---|---|---|
+| `step_0` | Shell (bash) on the alert source | First | Blocks the attacker's address. |
+| `step_1` | Shell (bash) | When `step_0` succeeds | Ends all processes of the target account. |
+| `step_2` | Send notification (WARNING) | When `step_0` succeeds | Tells the team what was blocked. |
+| `step_3` | Send notification (ERROR) | When `step_0` fails | Asks the team to act by hand. |
+
+```yaml
+- name: Contain Linux SSH brute force
+  description: Block the attacker on the server, end the target account's sessions, notify the team.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'System Linux: Possible Brute Force Attack'
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: shell
+      platform: linux
+      shell: bash
+      command: iptables -I INPUT -s $(alert.adversary.ip) -j DROP
+      onSuccess:
+        - step_1
+        - step_2
+      onError:
+        - step_3
+    step_1:
+      kind: executor
+      executor: shell
+      platform: linux
+      shell: bash
+      command: pkill -KILL -u $(alert.target.user)
+    step_2:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: SSH brute force on $(alert.dataSource) - blocked $(alert.adversary.ip)
+    step_3:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not block $(alert.adversary.ip) on $(alert.dataSource) - act by hand
+```
+
+**What happens.** The agent receives `iptables -I INPUT -s '203.0.113.45' -j DROP` (UTMStack adds the quotes). On success, the account's processes are ended and a warning appears in the bell menu, reading for example `SSH brute force on 'web-01' - blocked '203.0.113.45'`. If the block fails, an error notification appears instead, and `step_1` and `step_2` show as **Unreachable** in **Execution history**.
+
+**Notes.**
+
+- `step_1` and `step_2` both hang off the success wire, so they run in parallel.
+- If the alert has no target user, `$(alert.target.user)` is sent as written and `step_1` fails. Check a real alert of this rule first.
+- An `iptables` rule added this way is lost when the server restarts unless you save it.
+
+## Use case 2: Stop an account takeover on Windows and open an incident
+
+**Scenario.** A Windows machine records many failed sign-ins for an account, then a successful one from the same address. You want to block the address, disable the account and open an incident for the team to investigate.
+
+**Trigger.** Alert name **is** `Windows: Multiple Logon Failure Followed by Logon Success` (shipped rule).
+
+**Steps.**
+
+| Step | Type | Runs | What it does |
+|---|---|---|---|
+| `step_0` | Shell (PowerShell) on the alert source | First | Adds an inbound Windows Firewall block rule for the attacker's address. |
+| `step_1` | Shell (PowerShell) | After `step_0`, whatever its result | Disables the account that signed in. |
+| `step_2` | Open incident | When `step_1` succeeds | Opens an incident linked to the alert. |
+| `step_3` | Send notification (ERROR) | When `step_1` fails | Asks the team to disable the account by hand. |
+
+```yaml
+- name: Windows account takeover response
+  description: Block the source, disable the account, open an incident.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Multiple Logon Failure Followed by Logon Success'
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: New-NetFirewallRule -DisplayName ('UTMStack block ' + $(alert.adversary.ip)) -Direction Inbound -RemoteAddress $(alert.adversary.ip) -Action Block
+      onSuccess:
+        - step_1
+      onError:
+        - step_1
+    step_1:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: net user $(alert.target.user) /active:no
+      onSuccess:
+        - step_2
+      onError:
+        - step_3
+    step_2:
+      kind: executor
+      executor: incident
+      params:
+        name: Account takeover $(alert.id)
+        description: Address $(alert.adversary.ip) blocked and account $(alert.target.user) disabled on $(alert.dataSource).
+    step_3:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not disable $(alert.target.user) on $(alert.dataSource) - act by hand
+```
+
+**What happens.** The firewall rule is named after the address, for example `UTMStack block 203.0.113.45`. The account is disabled whether or not the firewall rule worked, because `step_1` is on both wires of `step_0`. The incident carries the alert's severity and links the alert.
+
+**Notes.**
+
+- Incident names must be unique in a tenant, so the name includes `$(alert.id)`. In UTMStack v12.0.2 the inserted values appear in single quotes in the incident name and description.
+- `net user … /active:no` disables a local account, or a domain account when it runs on a domain controller.
+- No placeholder is put inside quotes. UTMStack quotes each value for PowerShell.
+
+## Use case 3: Isolate a Windows machine on a ransomware sign, except critical servers
+
+**Scenario.** Deleting shadow copies or backups is a common step just before ransomware encrypts files. You want to cut such a machine off the network at once, but never your domain controllers or database servers: for those, the team decides.
+
+**Trigger.** Alert name **is** `Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)` (shipped rule).
+
+**Steps.**
+
+| Step | Type | Runs | What it does |
+|---|---|---|---|
+| `step_0` | Conditional | First | Checks that the machine is not in your list of critical servers. |
+| `step_1` | Shell (PowerShell) | When the machine is not critical | Blocks all inbound and outbound traffic with Windows Firewall rules. |
+| `step_2` | Send notification (ERROR) | When the machine is critical | Asks the team to act by hand. |
+
+```yaml
+- name: Ransomware precursor - isolate workstation
+  description: Isolate the machine unless it is a critical server.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)'
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: conditional
+      params:
+        conditions:
+          - field: alert.dataSource
+            operator: IS_NOT_ONE_OF
+            value:
+              - DC01
+              - SQL01
+      onSuccess:
+        - step_1
+      onError:
+        - step_2
+    step_1:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: New-NetFirewallRule -DisplayName UTMStack-Isolate-Out -Direction Outbound -Action Block -RemoteAddress Any; New-NetFirewallRule -DisplayName UTMStack-Isolate-In -Direction Inbound -Action Block -RemoteAddress Any
+    step_2:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Ransomware sign on critical server $(alert.dataSource) - not isolated, act now
+```
+
+**What happens.** For a workstation, the conditional step matches, the green wire runs, and the machine loses all network access, including its connection to UTMStack. For `DC01` or `SQL01`, the conditional step shows as **Failed** in **Execution history** (that only means the red branch was taken) and the team gets an error notification.
+
+> [!DANGER]
+> After `step_1` runs, UTMStack can no longer reach the machine. Someone must remove the two `UTMStack-Isolate` firewall rules on the machine itself (at the console or through out-of-band management).
+
+**Notes.**
+
+- Replace `DC01` and `SQL01` with the host names exactly as they appear in the alert's **Data source**. Comparisons are case-sensitive.
+- The isolation command is the palette's "Isolate host (block all traffic)" step for PowerShell.
+
+## Use case 4: Block an attacker on a Linux gateway from a network sensor alert
+
+**Scenario.** Your Suricata sensor (an open-source network intrusion detection system) reports SSH brute force or tunnelling from an outside address. The address should be blocked on your Linux gateway, which runs a UTMStack agent, not on the sensor that raised the alert.
+
+**Trigger.** Alert name **is** `SSH Brute Force and Tunneling Detection` (shipped Suricata rule).
+
+**Steps.**
+
+| Step | Type | Runs | What it does |
+|---|---|---|---|
+| `step_0` | Shell (bash), **Run on > one host**: your gateway | First | Drops forwarded traffic from the attacker's address. |
+| `step_1` | Send notification (ERROR) | When `step_0` fails | Asks the team to block by hand. |
+
+```yaml
+- name: Block SSH attacker on the gateway
+  description: Block the source address of Suricata SSH alerts on the Linux gateway.
+  conditions:
+    - operator: IS
+      field: name
+      value: SSH Brute Force and Tunneling Detection
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: shell
+      platform: linux
+      shell: bash
+      agent: gw-01
+      command: iptables -I FORWARD -s $(alert.adversary.ip) -j DROP
+      onError:
+        - step_1
+    step_1:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not block $(alert.adversary.ip) on the gateway - act by hand
+```
+
+**What happens.** The command always runs on `gw-01` (replace it with your gateway's host name, or pick the host in **Run on > one host**), whichever sensor raised the alert.
+
+**Notes.**
+
+- If the gateway has no agent, use a jump host with an agent and run the command over SSH, with the key path and the gateway address in secret variables. See **Running Steps on Another Host**.
+- Check that the sensor fills in the adversary address for this rule before you switch the flow on.
+
+## Use case 5: Post an alert to a chat channel
+
+**Scenario.** Your team works in a chat tool that accepts messages at an incoming-webhook address, for example Slack, which takes a JSON body with a `text` field. You want a message in the channel each time a ransomware sign is seen.
+
+**Trigger.** Alert name **is** `Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)`.
+
+```yaml
+- name: Ransomware sign - post to chat
+  description: Post the alert to the security channel.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)'
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: executor
+      executor: http
+      params:
+        method: POST
+        url: https://hooks.example.com/your-webhook-address
+        headers:
+          Content-Type: application/json
+        body:
+          text: UTMStack alert $(alert.name) on $(alert.dataSource), severity $(alert.severity)
+```
+
+**What happens.** The UTMStack server posts the message. The channel shows, for example, `UTMStack alert 'Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)' on 'WKS-042', severity 'high'`.
+
+**Notes.**
+
+- The step's `kind` is `executor`, because chat webhooks usually answer with plain text (such as `ok`), which an enrichment step would reject.
+- The request leaves from the UTMStack server, which must be able to reach the webhook address.
+- The webhook address works like a password. Anyone who can view flows can read it.
+- In UTMStack v12.0.2 each inserted value arrives in single quotes, and a value containing an apostrophe or a double quote stops the step. Shipped rule names contain neither.
+
+## Use case 6: Let the AI decide, with a safe default
+
+**Scenario.** For a noisy detection you want the SOC-AI assistant to look at the attacker's address first, and block it only when the assistant judges it malicious. Otherwise, a person should look.
+
+**Requirements.** An AI provider must be set up (see **AI Providers**).
+
+**Trigger.** Alert name **is** `System Linux: Possible Brute Force Attack`.
+
+```yaml
+- name: AI-checked SSH block
+  description: Ask SOC-AI about the source address, block only when it says so.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'System Linux: Possible Brute Force Attack'
+  roots:
+    - step_0
+  nodes:
+    step_0:
+      kind: enrichment
+      executor: llm_enrich
+      params:
+        prompt: Review the activity of address $(alert.adversary.ip) in the last 24 hours of logs. Set result to the single lowercase word block if it is clearly malicious, otherwise to the single lowercase word review.
+      onSuccess:
+        - step_1
+      onError:
+        - step_3
+    step_1:
+      kind: executor
+      executor: conditional
+      params:
+        conditions:
+          - field: step_0.result
+            operator: IS
+            value: block
+      onSuccess:
+        - step_2
+      onError:
+        - step_3
+    step_2:
+      kind: executor
+      executor: shell
+      platform: linux
+      shell: bash
+      command: iptables -I INPUT -s $(alert.adversary.ip) -j DROP
+    step_3:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: SSH brute force from $(alert.adversary.ip) on $(alert.dataSource) needs review
+```
+
+**What happens.** The assistant may search the logs before it answers. The conditional step reads its answer directly (`step_0.result`), so no quoting is involved. Only the exact answer `block` blocks the address; any other answer, or an AI error, sends a notification for a person to review.
+
+**Notes.**
+
+- AI answers can vary. Keep the safe action (notify) on every branch that is not an exact match.
+- `step_3` has two incoming wires, but they can never both fire in one run (`step_1` runs only when `step_0` succeeds), so it runs at most once.
+- An AI step can take minutes. A step still running after about 6 minutes is queued again.
+- Do not insert the AI answer into notifications, emails or HTTP calls in UTMStack v12.0.2: an apostrophe in the answer stops those steps (see **Placeholders**).
+
+## Combine the patterns
+
+You can chain these patterns in one flow: block on the machine, block on the gateway, disable the account, open an incident and post to chat. Keep each step on a single incoming wire, because a step with several incoming wires runs once per wire (see **Building a Flow**).
+
+## Related pages
+
+- **Building a Flow**
+- **Step Types**
+- **Placeholders**
+- **Step Outputs and Variables**
+- **Running Steps on Another Host**
+- **Shipped Flows**

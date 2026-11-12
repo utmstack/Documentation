@@ -1,0 +1,66 @@
+UTMStack v12 collects Cisco Meraki logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the Cisco Meraki integration on a Collector, then add the Collector as a syslog server in the Meraki Dashboard. Nothing is installed on your Meraki devices.
+
+## Connection details
+
+| Setting | Value |
+|---|---|
+| Card on the Integrations page | **Meraki** (category Firewall) |
+| Data type | `firewall-meraki` |
+| Default ports on the Collector | 514/UDP; 1470/TCP (also used for TLS) |
+| Included in UTMStack | A parsing filter and 7 detection rules |
+
+## Before you begin
+
+- A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
+- Your Meraki devices must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface.
+
+## Step 1: Enable the integration on a Collector
+
+<Steps>
+  <Step title="Open the integration">
+    In UTMStack, go to **Configure > Integrations** and open the **Meraki** card.
+  </Step>
+  <Step title="Choose the Collector, protocol and port">
+    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 514`.
+  </Step>
+</Steps>
+
+To do the same on the Collector host instead, run:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-meraki 514 udp
+```
+
+To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+## Step 2: Configure Meraki to forward logs
+
+<Steps>
+  <Step title="Open the network settings">
+    In the Meraki Dashboard, go to **Network-wide → Configure → General**.
+  </Step>
+  <Step title="Add a syslog server">
+    Scroll to the **Reporting** section and add a syslog server with the Collector IP and port 514.
+  </Step>
+  <Step title="Choose what to send">
+    Select all roles you want to forward.
+  </Step>
+</Steps>
+
+## Step 3: Check that logs arrive
+
+- In the **Meraki** drawer, click **View logs**. Log Explorer opens with the `firewall-meraki` data type for the last 24 hours.
+- Within about 10 minutes, each sending device appears on the **Data Sources** page under **Direct**.
+- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+
+## Stop collecting
+
+In the **Meraki** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-meraki udp
+```

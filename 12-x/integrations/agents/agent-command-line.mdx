@@ -1,0 +1,98 @@
+The UTMStack agent program has a small command line for checking and adjusting the agent on the host. This page lists the commands, where the program lives on each system, how the agent stores logs locally, and the files it keeps.
+
+## Where the agent program is
+
+The agent program is the file the install command downloaded. Run it with administrator rights: an administrator PowerShell window on Windows, `sudo` on Linux and macOS.
+
+| System | Agent program |
+|---|---|
+| Windows (AMD64) | `C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe` |
+| Windows (ARM64) | `C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_arm64.exe` |
+| Linux (AMD64) | `/opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64` |
+| Linux (ARM64) | `/opt/utmstack-linux-agent/utmstack_agent_service_linux_arm64` |
+| macOS (Apple Silicon) | `/opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64` |
+
+For example, to see the agent's status:
+
+<CodeGroup>
+
+```powershell Windows
+& "C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe" status
+```
+
+```bash Linux
+sudo /opt/utmstack-linux-agent/utmstack_agent_service_linux_amd64 status
+```
+
+```bash macOS
+sudo /opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 status
+```
+
+</CodeGroup>
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `install <server> <connection-key> <yes\|no> [--no-remote-control]` | Installs and registers the agent. The third argument is "skip TLS certificate validation". Use the install command from the product instead of typing this yourself. |
+| `uninstall` | Stops the agent, removes the updater service and the agent's service, and cleans up what the agent set up (for example the Linux audit rules). The uninstall command in the product also deletes the agent folder. |
+| `status` | Shows how log collection is going, one row per source (see below). |
+| `set-auto-update <on\|off>` | Pauses (`off`) or resumes (`on`) automatic agent updates. See **Updates and Status**. |
+| `change-retention <megabytes>` | Sets how many megabytes of logs the agent keeps on the host. Must be a whole number of 1 or more. Example: `change-retention 50`. |
+| `clean-logs` | Deletes old logs from the agent's local store now, and reports how many delivered (and, if needed, undelivered) logs it removed. |
+
+Running the program with no command starts the agent service itself; the operating system does this for you.
+
+### Reading the status output
+
+`status` prints the time of the snapshot and one row per collection source:
+
+| Column | Meaning |
+|---|---|
+| SOURCE | The log source on this host, for example a Windows channel or the Linux journal. |
+| RECEIVED | Events the agent read from this source. |
+| PERSISTED | Events the agent saved to its local store, ready to send. |
+| PERSIST_FAIL | Events the agent could not save. |
+| LAST EVENT | When the last event from this source arrived, or `never`. |
+
+If the service is not running, `status` says that no status snapshot is available yet.
+
+## How the agent stores logs on the host
+
+The agent saves every log in a small local database before it sends it, and marks it as delivered when UTMStack confirms it. If the connection to UTMStack drops, the agent keeps the undelivered logs and sends them again when the connection is back.
+
+- The **retention** is the size of that local store in megabytes. The default is **20 MB**. Change it with `change-retention`.
+- Every 10 minutes the agent deletes the oldest **delivered** logs until the store is back under the retention size.
+- **Undelivered** logs are kept until the store reaches five times the retention size (100 MB with the default). Beyond that, the agent deletes the oldest undelivered logs and writes a message to its log file. This only happens when UTMStack has been unreachable for a long time.
+
+<Tip>
+
+If your hosts may be cut off from UTMStack for long periods, raise the retention so the agent can hold more undelivered logs until the connection returns.
+
+</Tip>
+
+## Remote command lock
+
+If you install the agent with **Disable remote command execution on this host** (the `--no-remote-control` flag), the agent refuses every remote command on that machine, from the Data Sources console and from SOAR. In **SOAR > Interactive Console**, such an agent shows: "This agent was installed with remote control disabled…".
+
+The lock can only be removed by uninstalling the agent and installing it again without the option.
+
+## Files in the agent folder
+
+| File | What it holds |
+|---|---|
+| `config.yml` | The agent's connection settings. |
+| `uuid.yml` | The agent's unique installation ID. |
+| `retention.json` | The local retention size in megabytes. |
+| `config_state.json` | Which settings sent by the server the agent has already applied. |
+| `update_hold.json` | Whether the server has put this agent's updates on hold. |
+| `version.json` | The agent version information downloaded from the server. |
+| `logs/utmstack_agent.log` | The agent's own log file. Check it first when something does not work. |
+| `logs_process/logs.db` | The local log store described above. |
+
+## Services
+
+| Service | What it does |
+|---|---|
+| `UTMStackAgent` | Collects and sends the logs, and runs remote commands. |
+| `UTMStackUpdater` | Keeps the agent up to date. See **Updates and Status**. |

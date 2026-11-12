@@ -1,0 +1,547 @@
+These endpoints search, count and chart the logs and alerts stored in UTMStack v12. They are the same calls the **Log Explorer** page uses. UTMStack v12 keeps logs and alerts in a database with two **datasets**, `logs` and `alerts`; the OpenSearch index patterns, `.keyword` fields and `/api/elasticsearch/...` endpoints of UTMStack v11 no longer exist.
+
+## Permissions
+
+All endpoints on this page need `loganalyzer.read`, which every built-in role has. Creating, changing and deleting saved queries needs `loganalyzer.write` (Administrator and Analyst).
+
+## Datasets (replaces index patterns)
+
+**Endpoint:** `GET /api/v1/log-analyzer/datasets`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/log-analyzer/datasets" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+["logs", "alerts"]
+```
+
+In UTMStack v11 you picked an index pattern such as `v11-log-wineventlog-*`. In UTMStack v12 you pick a dataset and, if you want one kind of log, a **data type**:
+
+| UTMStack v11 index pattern | UTMStack v12 |
+|---|---|
+| `v11-log-*` | `"dataset": "logs"` |
+| `v11-alert-*` | `"dataset": "alerts"` |
+| `v11-log-wineventlog-*` | `"dataset": "logs", "dataType": "wineventlog"` |
+| `v11-log-linux-*` | `"dataset": "logs", "dataType": "linux"` |
+| `v11-log-<type>-*` | `"dataset": "logs", "dataType": "<type>"` |
+
+### List the Data Types in a Dataset
+
+**Endpoint:** `GET /api/v1/log-analyzer/datasets/{dataset}/data-types`
+
+Returns the data types that are present in the stored data (up to 200).
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/log-analyzer/datasets/logs/data-types" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+["linux", "wineventlog"]
+```
+
+## Get Dataset Fields
+
+**Endpoint:** `GET /api/v1/log-analyzer/datasets/{dataset}/fields`
+
+Returns the fields you can filter on and show. The list is read from the database itself.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/log-analyzer/datasets/logs/fields" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200, shortened):**
+
+```json
+[
+  {"name": "@timestamp", "type": "DateTime64(3, 'UTC')", "filterable": true, "searchable": false},
+  {"name": "dataType", "type": "LowCardinality(String)", "filterable": true, "searchable": true},
+  {"name": "dataSource", "type": "String", "filterable": true, "searchable": true},
+  {"name": "log.eventCode", "type": "Int64", "filterable": true, "searchable": false},
+  {"name": "target.user", "type": "String", "filterable": true, "searchable": true}
+]
+```
+
+- There are no `.keyword` fields. Use the field name as it is for every operator.
+- Nested fields (under `log`, `origin`, `target`, `compliance`) are found by sampling recent records of each data type from the last 90 days. A field that only appeared in older records is not listed, but you can still filter on it.
+- When a nested field holds different kinds of values in different records, its `type` lists them all, for example `Int64|String`.
+
+**Top-level fields of the `logs` dataset:** `@timestamp`, `dataType`, `dataSource`, `id`, `deviceTime`, `tenantName`, `protocol`, `connectionStatus`, `statusCode`, `action`, `actionResult`, `severity`, `errors`, `origin.*`, `target.*`, `compliance.*`, `log.*` and `raw` (the original log text). The fields of the `alerts` dataset are listed in **Reference Tables**.
+
+## Search Logs with Filters
+
+**Endpoint:** `POST /api/v1/log-analyzer/search`
+
+The same endpoint searches alerts; see **Alerts API**.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| dataset | string | Yes | `logs` or `alerts` |
+| dataType | string | No | Only one kind of log, for example `wineventlog` |
+| filters | FilterType[] | No | Conditions, combined with AND. See **Reference Tables** for operators. |
+| from | string (RFC 3339) | No | Start of the time window |
+| to | string (RFC 3339) | No | End of the time window |
+| page | integer | No | Page number, starting at `0` |
+| size | integer | No | Results per page. Default 50, maximum 500. |
+| sortBy | string | No | Default `@timestamp` |
+| order | string | No | `asc` or `desc`. Default `desc`. |
+
+**Response (HTTP 200):**
+
+```json
+{
+  "data": [
+    {
+      "@timestamp": "2026-11-10T14:30:00.000Z",
+      "id": "<log-id>",
+      "dataType": "wineventlog",
+      "dataSource": "win-server-01",
+      "log": {"eventCode": 4625},
+      "target": {"user": "<user>"},
+      "raw": "<original log text>"
+    }
+  ],
+  "total": 36918
+}
+```
+
+Each record is returned with all its stored fields. `total` is the number of matching records.
+
+### Time Windows
+
+Give the window in one of two ways:
+
+- `from` and `to` in the body, in RFC 3339 format.
+- An `@timestamp` filter with `IS_BETWEEN` (two values), `IS_GREATER_THAN` (start) or `IS_LESS_THAN_OR_EQUALS` (end). The server turns it into the window.
+
+Accepted time formats in `@timestamp` filters: RFC 3339 (`2026-11-10T14:30:00Z`), `2026-11-10 14:30:00`, `2026-11-10 14:30:00.000` and `2026-11-10`.
+
+> [!WARNING]
+> Relative dates such as `now-30d` are not understood by UTMStack v12 search. They are ignored without an error, so the search runs over all stored data. Work out absolute times in your script, for example with `date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%SZ` on Linux.
+
+Without any window, the search covers all stored data. Always give a window on large installations.
+
+### Search All Logs (Time Window)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10}'
+```
+
+### Search Windows Event Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "dataType": "wineventlog", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10}'
+```
+
+### Search Linux Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "dataType": "linux", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10}'
+```
+
+### Filter by Data Source (Hostname)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "dataSource", "operator": "IS", "value": "win-server-01"}]}'
+```
+
+### Filter by Multiple Data Sources
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "dataSource", "operator": "IS_ONE_OF", "value": ["win-server-01", "win-desktop-02"]}]}'
+```
+
+### Filter by Windows Event Code
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "dataType": "wineventlog", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "log.eventCode", "operator": "IS", "value": "4625"}]}'
+```
+
+`IS` on a nested field compares the values as text, so `"4625"` matches whether the value was stored as a number or as text.
+
+### Search the Original Log Text
+
+`IS_IN_FIELDS` searches the original log text (`raw`) for a piece of text, ignoring upper and lower case. It works on the `logs` dataset only. On `alerts` it returns 400.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "raw", "operator": "IS_IN_FIELDS", "value": "failed login"}]}'
+```
+
+### Search by Hostname Prefix
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "dataSource", "operator": "START_WITH", "value": "win"}]}'
+```
+
+### Filter by Field Existence
+
+`EXIST` works on nested fields (for example `target.user`). For top-level text fields, which always have a value, test for an empty value instead: `{"field": "action", "operator": "IS_NOT", "value": ""}`.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 10,
+       "filters": [{"field": "target.user", "operator": "EXIST"}]}'
+```
+
+### Absolute Date Range with a Filter
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "page": 0, "size": 10,
+       "filters": [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-09T00:00:00Z", "2026-11-10T23:59:59Z"]}]}'
+```
+
+## Check if Events Exist (Count)
+
+The UTMStack v11 endpoint `POST /api/elasticsearch/count` is gone. Run a search with `"size": 1` and read `total`:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "from": "2026-11-01T00:00:00Z", "to": "2026-11-10T23:59:59Z", "page": 0, "size": 1}'
+```
+
+## Get Field Values with Counts
+
+**Endpoint:** `POST /api/v1/log-analyzer/top-x-values/{dataset}/{field}/{top}`
+
+Returns the most frequent values of a field with their counts. It replaces both `GET /api/elasticsearch/property/values` and `POST /api/elasticsearch/property/values-with-count` from UTMStack v11.
+
+| Parameter | Location | Type | Description |
+|---|---|---|---|
+| dataset | Path | string | `logs` or `alerts` |
+| field | Path | string | The field to count, without `.keyword` |
+| top | Path | integer | How many values to return. Default 10, maximum 1000. |
+| dataType | Query | string | Optional. Only one kind of log. |
+| Body | Request body | FilterType[] | Optional filter list, including an `@timestamp` window |
+
+**Response (HTTP 200):**
+
+```json
+{
+  "total": 38521,
+  "top": [
+    {"value": "wineventlog", "count": 23081, "percent": 59.9},
+    {"value": "linux", "count": 15440, "percent": 40.1}
+  ]
+}
+```
+
+`total` is the number of records that match the filters. `percent` is each value's share of `total`.
+
+### Event Count by Data Type
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/logs/dataType/10" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]'
+```
+
+### Event Count by Data Source
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/logs/dataSource/10" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]'
+```
+
+### Windows Event User Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/logs/log.eventDataSubjectUserName/10?dataType=wineventlog" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]'
+```
+
+### Alert Severity Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/alerts/severity/10" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]'
+```
+
+### Alert Status Distribution
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/top-x-values/alerts/status/10" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]'
+```
+
+To get only the list of values (as v11 `property/values` did), read the `value` of each entry in `top`.
+
+## Chart View (Time-Series Histogram)
+
+**Endpoint:** `POST /api/v1/log-analyzer/chart-view`
+
+Returns counts per time bucket for charts. Without an `interval`, it returns the top values of `field` instead.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| dataset | string | Yes | `logs` or `alerts` (replaces v11 `indexPattern`) |
+| dataType | string | No | Only one kind of log |
+| field | string | Yes | Use `@timestamp` for a time chart, or the field to count when there is no interval |
+| interval | string | No | `minute` (or `1m`), `hour` (`1h`), `day` (`1d`) or `week` (`1w`). Lower case. |
+| fieldDataType | string | No | `date` for a time chart (kept for compatibility with the web console) |
+| top | integer | No | Number of values when there is no interval. Default 10, maximum 1000. |
+| filters | FilterType[] | No | Filters, including the `@timestamp` window |
+
+> [!NOTE]
+> UTMStack v11 accepted `Second`, `Minute`, `Hour`, `Day`, `Week` and `Month`. UTMStack v12 accepts only the lower-case values above. `Second` and `Month` are refused, and so are capitalised values such as `Day` (in UTMStack v12.0.2 the refusal comes back as HTTP 500 with `unknown interval`).
+
+### Daily Event Count
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/chart-view" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "interval": "day", "field": "@timestamp", "fieldDataType": "date",
+       "filters": [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "categories": ["2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z", "2026-11-03T00:00:00Z"],
+  "values": [1746, 1699, 1742]
+}
+```
+
+Each entry in `categories` is the start of a bucket in RFC 3339 format (UTMStack v11 used `2026-01-07 00:00:00`). `values` holds the count for the bucket at the same position.
+
+### Hourly Event Count (Specific Day)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/chart-view" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "interval": "hour", "field": "@timestamp", "fieldDataType": "date",
+       "filters": [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-11-10T00:00:00Z", "2026-11-10T23:59:59Z"]}]}'
+```
+
+### Weekly Alert Count
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/chart-view" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "interval": "week", "field": "@timestamp", "fieldDataType": "date",
+       "filters": [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["2026-09-01T00:00:00Z", "2026-11-10T23:59:59Z"]}]}'
+```
+
+There is no monthly interval. For monthly totals, use the weekly or daily counts, or an SQL query with `toStartOfMonth` (see below).
+
+## SQL Queries (SQL Editor)
+
+**Endpoint:** `POST /api/v1/log-analyzer/search-sql`
+
+Runs a read-only SQL query over the `logs` and `alerts` datasets. UTMStack v12 stores data in ClickHouse, so the query uses ClickHouse SQL, not the OpenSearch SQL of UTMStack v11. Queries written for v11 (`FROM v11-log-*`, `DATE_SUB(NOW(), INTERVAL 30 DAY)`) must be rewritten.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page | integer | Page number, starting at `1` |
+| size | integer | Rows per page. Default 50, maximum 500. |
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| query | string | Yes | One `SELECT` (or `WITH ... SELECT`) statement |
+
+**Response (HTTP 200):**
+
+```json
+{"data": [{"dataType": "linux", "events": 14621}, {"dataType": "wineventlog", "events": 22297}], "total": 2}
+```
+
+`total` is the number of rows on this page, not the number of rows the query could return. Ask for the next page until a page comes back with fewer rows than `size`.
+
+**Rules for the query:**
+
+- It must start with `SELECT` or `WITH` and be one statement. A trailing `;` is allowed.
+- Comments (`--` and `/* */`) are refused.
+- Read from `logs` and `alerts` only. Both names already contain only your own tenant's data. Database names, system tables and table functions are refused.
+- The server looks for these words anywhere in the query text, including inside field names and quoted values, and refuses the query if it finds one: `url`, `file`, `input`, `merge`, `remote`, `cluster`, `statistics`, `s3`, `hdfs`, `mysql`, `postgresql`, `mongodb`, `jdbc`, `odbc`, `executable`, `dictionary`, `insert`, `alter`, `create`, `drop`, `attach`, `detach`, `truncate`, `rename`, `optimize`, `grant`, `revoke`, `kill`, `information_schema`, and `set`, `system` followed by a space. This means, for example, that a query that mentions `target.url`, the status value `Merged`, or `OFFSET` is refused. Use the `page` and `size` parameters instead of `OFFSET`, and use the search endpoint for fields whose names contain these words.
+- A query can run for at most 30 seconds and returns at most 500 rows per page.
+- Put `@timestamp` in backticks: `` `@timestamp` ``. Write nested fields with dots, for example `log.eventCode`. Wrap nested fields in `toString(...)` when you compare or return them, because a nested field can hold numbers in some records and text in others.
+
+An invalid query returns 400 with the reason, for example `{"error": "invalid SQL: comments are not allowed"}`.
+
+### Basic Query - Select Recent Logs
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT `@timestamp`, dataType, dataSource FROM logs WHERE `@timestamp` > now() - INTERVAL 1 DAY ORDER BY `@timestamp` DESC LIMIT 5"}'
+```
+
+### Count Total Events
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT count() AS total FROM logs WHERE `@timestamp` > now() - INTERVAL 30 DAY"}'
+```
+
+### Group By Data Type
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT dataType, count() AS events FROM logs WHERE `@timestamp` > now() - INTERVAL 30 DAY GROUP BY dataType ORDER BY events DESC"}'
+```
+
+### Group By Data Source (Top Event Sources)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT dataSource, count() AS events FROM logs WHERE `@timestamp` > now() - INTERVAL 30 DAY GROUP BY dataSource ORDER BY events DESC"}'
+```
+
+### Events per Day
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT toStartOfDay(`@timestamp`) AS day, count() AS events FROM logs WHERE `@timestamp` > now() - INTERVAL 7 DAY GROUP BY day ORDER BY day"}'
+```
+
+### Search Windows Events by Event Code
+
+This finds failed Windows logons (event code 4625) in the last 7 days:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT `@timestamp`, dataSource, toString(log.eventCode) AS eventCode, toString(log.eventDataTargetUserName) AS targetUser FROM logs WHERE dataType = '\''wineventlog'\'' AND toString(log.eventCode) = '\''4625'\'' AND `@timestamp` > now() - INTERVAL 7 DAY ORDER BY `@timestamp` DESC LIMIT 10"}'
+```
+
+The `'\''` sequences put single quotes inside the shell's single-quoted text.
+
+### Search the Original Log Text
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT `@timestamp`, dataSource, raw FROM logs WHERE dataType = '\''linux'\'' AND positionCaseInsensitive(raw, '\''sshd'\'') > 0 AND `@timestamp` > now() - INTERVAL 1 DAY ORDER BY `@timestamp` DESC LIMIT 5"}'
+```
+
+### Query Alerts with SQL
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT `@timestamp`, name, status, severity FROM alerts WHERE `@timestamp` >= '\''2026-11-01 00:00:00'\'' AND `@timestamp` < '\''2026-12-01 00:00:00'\'' ORDER BY `@timestamp` DESC LIMIT 10"}'
+```
+
+### Alert Statistics with GROUP BY
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search-sql?page=1&size=25" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT severity, status, count() AS alerts_count FROM alerts WHERE parentId = '\'''\'' AND `@timestamp` >= '\''2026-11-01 00:00:00'\'' GROUP BY severity, status ORDER BY severity DESC"}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "data": [
+    {"severity": "high", "status": "Open", "alerts_count": 29},
+    {"severity": "high", "status": "Completed", "alerts_count": 3},
+    {"severity": "medium", "status": "In review", "alerts_count": 1}
+  ],
+  "total": 3
+}
+```
+
+Severity sorts by rank (`high` above `medium` above `low`), not alphabetically. Counts are whole numbers (UTMStack v11 returned them as decimals such as `3.0`).
+
+## Saved Queries
+
+Saved queries are the searches stored from the Log Explorer.
+
+| Method | Endpoint | Permission | Description |
+|---|---|---|---|
+| GET | `/api/v1/log-analyzer/queries` | `loganalyzer.read` | List. Query: `name`, `owner`, `page` (from 0), `size` (default 20, maximum 200). Total in `X-Total-Count`. |
+| GET | `/api/v1/log-analyzer/queries/{id}` | `loganalyzer.read` | Get one |
+| POST | `/api/v1/log-analyzer/queries` | `loganalyzer.write` | Create (answer 201). Leave out `id`. |
+| PUT | `/api/v1/log-analyzer/queries` | `loganalyzer.write` | Update. The body must include `id`. |
+| DELETE | `/api/v1/log-analyzer/queries/{id}` | `loganalyzer.write` | Delete |
+
+**Saved query fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| id | string (UUID) | Set by the server |
+| name | string | Required, up to 100 characters |
+| description | string | Free text |
+| owner | string | Filled with the signed-in user when left empty |
+| dataset | string | `logs` or `alerts` |
+| columns | string | The columns shown, as text written by the Log Explorer |
+| filters | string | The filters, as text written by the Log Explorer |
+| createdAt, updatedAt | string | Set by the server |

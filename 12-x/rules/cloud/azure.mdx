@@ -1,0 +1,758 @@
+Detection rules for **Azure** data sources. Each rule includes its MITRE ATT&CK mapping, impact rating, and a description of what it detects. These rules analyze events with the data type `azure`, which the **Microsoft Azure** integration sends.
+
+This category contains **40** detection rules.
+
+| Rule | Category | Technique | Impact (C/I/A) |
+|------|----------|-----------|----------------|
+| Application Gateway WAF Security Alerts | Initial Access | T1190 - Exploit Public-Facing Application | C:3 / I:3 / A:2 |
+| Azure AD Anomalous Token Detection | Credential Access | T1528 - Steal Application Access Token | C:3 / I:2 / A:1 |
+| Azure AD Bulk Privileged Role Assignment Changes | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Azure AD Impossible Travel Sign-In | Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| Azure AD Leaked Credentials Detection | Credential Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| Azure AD Password Spray Attack Detected | Credential Access | T1110.003 - Brute Force: Password Spraying | C:3 / I:2 / A:1 |
+| Azure Active Directory High Risk Sign-in | Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| Azure Automation Runbook, Job or Schedule Changed | Execution | T1059 - Command and Scripting Interpreter | C:3 / I:3 / A:2 |
+| Azure Diagnostic Settings Deletion | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:1 / I:3 / A:3 |
+| Azure Disk or Snapshot Access Granted | Data Exfiltration | T1537 - Transfer Data to Cloud Account | C:3 / I:2 / A:1 |
+| Azure Event Hub Deletion | Defense Evasion | T1562.008 - Impair Defenses: Disable Cloud Logs | C:1 / I:3 / A:3 |
+| Azure Global Administrator Role Addition to PIM User | Persistence | T1098.001 - Account Manipulation: Additional Cloud Credentials | C:3 / I:3 / A:3 |
+| Azure Key Vault Configuration Changed | Credential Access | T1552 - Unsecured Credentials | C:3 / I:3 / A:2 |
+| Azure Kubernetes Admission Webhook Modified | Persistence | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:2 |
+| Azure Kubernetes Events Deleted | Defense Evasion | T1562.001 - Impair Defenses: Disable or Modify Tools | C:1 / I:3 / A:2 |
+| Azure Security Alert Suppression Rule Created | Defense Evasion | T1562 - Impair Defenses | C:2 / I:3 / A:2 |
+| Azure Storage Public Access Configuration Written | Collection | T1530 - Data from Cloud Storage Object | C:3 / I:2 / A:1 |
+| Azure Subscription Owner Role Assigned | Identity and Access Management | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| Azure Subscription Permission Elevation via ElevateAccess | Privilege Escalation | T1078.004 - Valid Accounts: Cloud Accounts | C:3 / I:3 / A:3 |
+| Entra Application Credential Configuration Changed | Persistence | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Entra Application Role Assignment | Privilege Escalation | T1098 - Account Manipulation | C:3 / I:3 / A:2 |
+| Entra Certificate Authentication Configuration Created | Persistence | T1556 - Modify Authentication Process | C:3 / I:3 / A:2 |
+| Entra Domain Federation Configuration Changed | Credential Access | T1556 - Modify Authentication Process | C:3 / I:3 / A:3 |
+| Entra Risky Sign-in | Credential Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| Entra Sign-in with AzureHound User Agent | Discovery | T1087 - Account Discovery | C:2 / I:1 / A:0 |
+| Entra Temporary Access Pass Registered | Credential Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| Forwarded High Severity Security Alert | Threat Detection | T1562 - Impair Defenses | C:3 / I:3 / A:2 |
+| High Risk Device Code Sign-in | Initial Access | T1078 - Valid Accounts | C:3 / I:2 / A:1 |
+| High Risk Primary Refresh Token Sign-in | Credential Access | T1528 - Steal Application Access Token | C:3 / I:3 / A:1 |
+| Microsoft Defender for Cloud High Severity Alert | Intrusion Detection | Vendor threat detection | C:3 / I:3 / A:2 |
+| Multi-Factor Authentication Disabled for an Azure User | Persistence | T1556 - Modify Authentication Process | C:3 / I:3 / A:2 |
+| Possible Consent Grant Attack via Azure-Registered Application | Initial Access | T1078 - Valid Accounts | C:3 / I:3 / A:2 |
+| Repeated AKS Resource Changes | Execution | T1610 - Deploy Container | C:3 / I:3 / A:2 |
+| Repeated AKS Secret Writes or Deletes | Credential Access | T1552 - Unsecured Credentials | C:3 / I:3 / A:2 |
+| Repeated Entra Application Registration or Consent | Persistence | T1098 - Account Manipulation | C:3 / I:3 / A:1 |
+| Repeated Entra Invalid-Credential Sign-ins | Credential Access | T1110 - Brute Force | C:3 / I:2 / A:1 |
+| Repeated Entra LAPS Password Reads | Credential Access | T1003 - OS Credential Dumping | C:3 / I:2 / A:1 |
+| Repeated Entra PIM Role Activations | Privilege Escalation | T1078 - Valid Accounts | C:3 / I:3 / A:1 |
+| Repeated Successful Entra ROPC Sign-ins | Credential Access | T1078 - Valid Accounts | C:2 / I:2 / A:1 |
+| Repeated Successful Key Vault Secret or Key Reads | Collection | T1530 - Data from Cloud Storage Object | C:3 / I:2 / A:1 |
+
+---
+
+## Rule Example
+
+Below is an example of a rule definition for **Application Gateway WAF Security Alerts** ([view in repository](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/application_gateway_waf_alerts.yaml)):
+
+```yaml
+# Azure rule contract review v2.1.0
+dataTypes:
+- azure
+name: Application Gateway WAF Security Alerts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: T1190 - Exploit Public-Facing Application
+adversary: origin
+references:
+- https://learn.microsoft.com/en-us/azure/application-gateway/monitor-application-gateway-reference
+- https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs
+- https://attack.mitre.org/techniques/T1190/
+description: 'Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious
+  activity. This rule triggers when WAF blocks or detects suspicious requests that match security rules.
+
+
+  **Next Steps:**
+
+  1. Review the specific WAF rule ID and message details to understand the attack type
+
+  2. Analyze the source IP address for reputation and geographic location
+
+  3. Examine the request URL, headers, and payload for attack indicators
+
+  4. Check for additional requests from the same source IP within the time window
+
+  5. Verify if this is a legitimate application behavior or actual attack attempt
+
+  6. Consider implementing additional WAF rules or IP blocking if confirmed malicious
+
+  7. Review application logs for any successful bypass attempts
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","waf") && equalsIgnoreCase("actionResult","denied") && exists("log.properties.ruleId"))
+  && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope")
+  && !equals("log.azureScope","") && exists("origin.ip") && !equals("origin.ip","")
+
+  '
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.applicationGatewayWafAlerts
+    operator: filter_term
+    value: 'true'
+  within: 10m
+  count: 5
+
+```
+
+---
+
+## Rule Details
+
+### Application Gateway WAF Security Alerts
+
+Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious activity. This rule triggers when WAF blocks or detects suspicious requests that match security rules.
+
+- **Category:** Initial Access
+- **Technique:** T1190 - Exploit Public-Facing Application
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [application_gateway_waf_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/application_gateway_waf_alerts.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/application-gateway/monitor-application-gateway-reference](https://learn.microsoft.com/en-us/azure/application-gateway/monitor-application-gateway-reference)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs](https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs)
+- **Reference:** [https://attack.mitre.org/techniques/T1190/](https://attack.mitre.org/techniques/T1190/)
+
+### Azure AD Anomalous Token Detection
+
+Detects Azure Identity Protection alerts for anomalous tokens with unusual lifetime, unfamiliar locations, or other suspicious properties. These indicate potential token theft or manipulation.
+
+- **Category:** Credential Access
+- **Technique:** T1528 - Steal Application Access Token
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_anomalous_token.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_anomalous_token.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1528/](https://attack.mitre.org/techniques/T1528/)
+
+### Azure AD Bulk Privileged Role Assignment Changes
+
+Detects mass privileged role assignment changes in Azure AD. Multiple role assignments in a short time window indicate an attacker rapidly escalating privileges across multiple accounts for persistence and lateral movement.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_bulk_role_changes.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_bulk_role_changes.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-resource-roles-assign-roles](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-resource-roles-assign-roles)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/](https://attack.mitre.org/techniques/T1098/)
+
+### Azure AD Impossible Travel Sign-In
+
+Detects Azure Identity Protection impossible travel alerts where a user signs in from geographically distant locations in a timeframe that makes physical travel impossible. This strongly indicates credential theft or session hijacking.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_impossible_travel.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_impossible_travel.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Azure AD Leaked Credentials Detection
+
+Detects Azure Identity Protection alerts for leaked credentials found on dark web, paste sites, or other sources. This indicates user credentials have been exposed and may be used for unauthorized access.
+
+- **Category:** Credential Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_leaked_credentials.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_leaked_credentials.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Azure AD Password Spray Attack Detected
+
+Detects Azure Identity Protection password spray attack signals. Microsoft's ML-based detection identifies distributed password spray attempts across multiple accounts using common passwords.
+
+- **Category:** Credential Access
+- **Technique:** T1110.003 - Brute Force: Password Spraying
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_password_spray_detected.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_password_spray_detected.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/003/](https://attack.mitre.org/techniques/T1110/003/)
+
+### Azure Active Directory High Risk Sign-in
+
+Identifies high risk Azure Active Directory (AD) sign-ins by leveraging Microsoft's Identity Protection machine learning and heuristics. Identity Protection categorizes risk into three tiers: low, medium, and high. While Microsoft does not provide specific details about how risk is calculated, each level brings higher confidence that the user or sign-in is compromised. This rule triggers on 'high' risk level sign-ins, which indicate strong indicators of compromise such as impossible travel, anonymous IP usage, or leaked credentials.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [initial_access_azure_active_directory_high_risk_signin.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/initial_access_azure_active_directory_high_risk_signin.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0](https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs)
+
+### Azure Automation Runbook, Job or Schedule Changed
+
+A successful Azure Automation runbook write/publish, job creation or schedule write. The management operation alone does not prove malicious execution.
+
+- **Category:** Execution
+- **Technique:** T1059 - Command and Scripting Interpreter
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [automation_runbook_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/automation_runbook_abuse.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/automation/automation-runbook-types](https://learn.microsoft.com/en-us/azure/automation/automation-runbook-types)
+- **Reference:** [https://attack.mitre.org/techniques/T1059/](https://attack.mitre.org/techniques/T1059/)
+
+### Azure Diagnostic Settings Deletion
+
+Detects the deletion of diagnostic settings in Azure, which are critical for sending platform logs, metrics, and activity data to destinations like Log Analytics workspaces, Event Hubs, or storage accounts. Adversaries delete diagnostic settings to evade detection by disabling security monitoring and audit logging capabilities.
+
+This technique is commonly observed when attackers:
+- Attempt to hide malicious activities from security teams
+- Disable logging before executing destructive operations
+- Remove evidence trails of their presence in the environment
+- Prevent detection of lateral movement or data exfiltration
+
+Legitimate deletions are rare and typically occur only during:
+- Infrastructure decommissioning or major reconfigurations
+- Cost optimization initiatives (but should be heavily scrutinized)
+- Migration to new monitoring solutions
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [defense_evasion_azure_diagnostic_settings_deletion.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/defense_evasion_azure_diagnostic_settings_deletion.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log)
+
+### Azure Disk or Snapshot Access Granted
+
+A successful disk/snapshot access-export request. This grants access; it does not prove data exfiltration occurred.
+
+- **Category:** Data Exfiltration
+- **Technique:** T1537 - Transfer Data to Cloud Account
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_disk_snapshot_exfiltration.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_disk_snapshot_exfiltration.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots)
+- **Reference:** [https://attack.mitre.org/techniques/T1537/](https://attack.mitre.org/techniques/T1537/)
+
+### Azure Event Hub Deletion
+
+Detects the deletion of an Azure Event Hub, which is a critical event processing service that ingests and processes large volumes of events, logs, and telemetry data. Event Hubs are commonly used for security monitoring, log aggregation, and SIEM integration. Adversaries may delete Event Hubs to evade detection by disrupting log collection pipelines and preventing security events from reaching monitoring systems.
+
+Threat Context:
+- Event Hubs are often used to stream logs to SIEM solutions
+- Deletion interrupts security monitoring and incident detection capabilities
+- Can be part of anti-forensics activities to cover tracks
+- May indicate an attempt to blind security operations before further attacks
+
+Legitimate Use Cases:
+- Decommissioning unused Event Hubs during cost optimization
+- Infrastructure cleanup during application retirement
+- Migration to new Event Hub namespaces or different logging solutions
+- Testing and development environment cleanup
+
+Suspicious Indicators:
+- Event Hub actively receiving logs suddenly deleted
+- Deletion performed by non-administrative accounts
+- Multiple Event Hubs deleted in quick succession
+- Deletion outside change management windows
+- Deletion from unusual locations or IP addresses
+- Event Hub connected to production SIEM or security monitoring
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.008 - Impair Defenses: Disable Cloud Logs
+- **Impact:** C:1 / I:3 / A:3
+- **Rule file:** [defense_evasion_event_hub_deletion.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/defense_evasion_event_hub_deletion.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/008/](https://attack.mitre.org/techniques/T1562/008/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0005/](https://attack.mitre.org/tactics/TA0005/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/event-hubs/monitor-event-hubs](https://learn.microsoft.com/en-us/azure/event-hubs/monitor-event-hubs)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log)
+
+### Azure Global Administrator Role Addition to PIM User
+
+Detects when users are granted Global Administrator (Company Administrator) role assignments through Azure AD/Entra ID Privileged Identity Management (PIM).
+
+**Security Context:**
+The Global Administrator role is the most powerful administrative role in Azure AD/Entra ID, granting complete control over all aspects of the directory and services that use Azure AD identities. PIM enables just-in-time privileged access through eligible (requires activation) or time-bound assignments. Adversaries who gain sufficient privileges may add themselves or other compromised accounts to this role to establish persistence and maintain full administrative control over the tenant.
+
+**Detection Logic:**
+This rule monitors AuditLogs for successful PIM role assignments specifically for the Global Administrator role. It detects both:
+- **Eligible assignments (permanent)**: User can activate the role when needed
+- **Active assignments (time-bound)**: Role is directly active for a specified duration
+
+The rule identifies these assignments through the operation names and filters for the Global Administrator role specifically.
+
+**Investigation Steps:**
+1. Identify the assignor: Check log.propertiesInitiatedBy for who made the role assignment
+2. Identify the assignee: Examine log.propertiesTargetResources for the user receiving the role
+3. Verify authorization: Confirm if this assignment was part of approved privileged access request
+4. Check assignment type: Determine if it's eligible (requires activation) or time-bound (direct)
+5. Review duration: For time-bound assignments, check the duration of the assignment
+6. Analyze timing: Determine if assignment follows suspicious authentication or compromise indicators
+7. Review justification: Check if a business justification was provided in log.propertiesAdditionalDetails
+8. Check user history: Review the assignee's account for recent suspicious activity
+9. Examine recent actions: Look for privileged operations performed immediately after assignment
+10. Correlate with sign-ins: Check for unusual authentication patterns before/after assignment
+
+**Recommended Actions:**
+- If unauthorized, immediately revoke the Global Administrator role assignment
+- Review all recent PIM role assignments for anomalies
+- Enable PIM approval workflows for Global Administrator role assignments
+- Implement maximum assignment duration limits for time-bound assignments
+- Require MFA and justification for all Global Administrator activations
+- Enable PIM alerts for high-privilege role assignments
+- Audit accounts with Privileged Role Administrator permissions
+- Review and limit the number of permanent Global Administrator assignments
+- Enable Azure AD Identity Protection to detect compromised credentials
+- Implement break-glass emergency access accounts following best practices
+
+**PIM Assignment Types:**
+- **Eligible (permanent)**: User must activate the role when needed, typically with MFA and justification
+- **Active (time-bound)**: Role is directly assigned for a limited duration without activation required
+- Both types should be monitored as adversaries may use either for persistence
+
+**Common Attack Patterns:**
+- Compromised Privileged Role Administrator adding backdoor accounts
+- Insider threat establishing persistent administrative access
+- Privilege escalation from lower-privilege administrative roles
+- Adding service principals or managed identities to Global Administrator role
+- Creating long-duration time-bound assignments for sustained access
+
+**MITRE ATT&CK Reference:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+
+**Azure Documentation:**
+- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+- PIM for Azure AD roles: https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+
+- **Category:** Persistence
+- **Technique:** T1098.001 - Account Manipulation: Additional Cloud Credentials
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [persistence_azure_pim_user_added_global_admin.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/persistence_azure_pim_user_added_global_admin.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#global-administrator](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#global-administrator)
+
+### Azure Key Vault Configuration Changed
+
+A completed successful vault configuration write. It does not establish access to secrets or keys.
+
+- **Category:** Credential Access
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [credential_access_key_vault_modified.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/credential_access_key_vault_modified.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/](https://attack.mitre.org/techniques/T1552/)
+- **Reference:** [https://attack.mitre.org/tactics/TA0006/](https://attack.mitre.org/tactics/TA0006/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/key-vault/general/security-features](https://learn.microsoft.com/en-us/azure/key-vault/general/security-features)
+
+### Azure Kubernetes Admission Webhook Modified
+
+Detects creation or modification of MutatingAdmissionWebhook or ValidatingAdmissionWebhook configurations in Azure Kubernetes Service. Attackers use admission controllers to inject malicious containers or modify workload specifications. The AKS control plane (aksService) patches its own webhooks every few minutes, so one alert is raised per cluster and identity; repeats are suppressed for seven days.
+
+- **Category:** Persistence
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_kubernetes_admission_controller.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_kubernetes_admission_controller.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit)
+- **Reference:** [https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Azure Kubernetes Events Deleted
+
+Detects deletion of Kubernetes events in Azure Kubernetes Service (AKS). Attackers delete events to cover traces of their activities within the cluster.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562.001 - Impair Defenses: Disable or Modify Tools
+- **Impact:** C:1 / I:3 / A:2
+- **Rule file:** [azure_kubernetes_events_deleted.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_kubernetes_events_deleted.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/aks/monitor-aks](https://learn.microsoft.com/en-us/azure/aks/monitor-aks)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/001/](https://attack.mitre.org/techniques/T1562/001/)
+
+### Azure Security Alert Suppression Rule Created
+
+Detects creation of alert suppression rules in Azure Defender / Microsoft Defender for Cloud. Attackers create suppression rules to hide security alerts generated by their activities.
+
+- **Category:** Defense Evasion
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:2 / I:3 / A:2
+- **Rule file:** [azure_alert_suppression_rule.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_alert_suppression_rule.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-suppression-rules](https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-suppression-rules)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### Azure Storage Public Access Configuration Written
+
+A successful storage-account write explicitly allows blob public access, or a container write specifies Blob/Container public access. The request body must be present. An account-level permission alone does not make every blob public, and a written value does not prove it changed.
+
+- **Category:** Collection
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [storage_account_public_access.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/storage_account_public_access.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)
+
+### Azure Subscription Owner Role Assigned
+
+A successful role assignment at subscription scope explicitly targets the built-in Owner role in the request body. The actor authorization role is not used as the granted role; a role assignment does not prove billing ownership transfer.
+
+- **Category:** Identity and Access Management
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [subscription_ownership_transfer.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/subscription_ownership_transfer.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/role-based-access-control/change-history-report](https://learn.microsoft.com/en-us/azure/role-based-access-control/change-history-report)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Azure Subscription Permission Elevation via ElevateAccess
+
+Detects the MICROSOFT.AUTHORIZATION/ELEVATEACCESS/ACTION operation which grants a Global Administrator access to ALL Azure subscriptions in the tenant. This is an extremely high-impact action that should be very rare and carefully monitored.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078.004 - Valid Accounts: Cloud Accounts
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [azure_subscription_permission_elevation.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_subscription_permission_elevation.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin](https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Entra Application Credential Configuration Changed
+
+A completed explicit credential-management operation or application credential-property update. The property update may add, replace or remove credentials; inspect the old and new values.
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_app_credential_added.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_app_credential_added.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal](https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+
+### Entra Application Role Assignment
+
+A successful application role assignment. Permission privilege and malicious intent require reviewing the specific grant; consent has a separate rule.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_app_privileged_permissions.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_app_privileged_permissions.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/003/](https://attack.mitre.org/techniques/T1098/003/)
+
+### Entra Certificate Authentication Configuration Created
+
+A successful certificate authority entity or certificate-based authentication configuration creation. This may be approved PKI administration and does not by itself identify a rogue root CA.
+
+- **Category:** Persistence
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_new_root_ca_added.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_new_root_ca_added.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+
+### Entra Domain Federation Configuration Changed
+
+A successful federation/authentication configuration change. Review the configuration diff and approved administration; this is not proof of a forged SAML token.
+
+- **Category:** Credential Access
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:3
+- **Rule file:** [azure_federation_modified.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_federation_modified.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/whatis-fed](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/whatis-fed)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+
+### Entra Risky Sign-in
+
+The sign-in carries a high risk level or an active risk state. This signal does not establish impossible travel.
+
+- **Category:** Credential Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_ad_impossible_travel.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_ad_impossible_travel.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Entra Sign-in with AzureHound User Agent
+
+A sign-in reports an AzureHound user agent. This string can be changed or spoofed and does not prove discovery completed.
+
+- **Category:** Discovery
+- **Technique:** T1087 - Account Discovery
+- **Impact:** C:2 / I:1 / A:0
+- **Rule file:** [azure_azurehound_discovery.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_azurehound_discovery.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://bloodhound.readthedocs.io/en/latest/data-collection/azurehound.html](https://bloodhound.readthedocs.io/en/latest/data-collection/azurehound.html)
+- **Reference:** [https://attack.mitre.org/techniques/T1087/004/](https://attack.mitre.org/techniques/T1087/004/)
+
+### Entra Temporary Access Pass Registered
+
+A successful admin security-info registration explicitly identifies Temporary Access Pass as the authentication method. Other authentication-method registrations are excluded.
+
+- **Category:** Credential Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_temporary_access_pass.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_temporary_access_pass.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-temporary-access-pass](https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-temporary-access-pass)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/004/](https://attack.mitre.org/techniques/T1078/004/)
+
+### Forwarded High Severity Security Alert
+
+A new high severity record in the documented SecurityAlert schema. The vendor/product identity is retained; the schema does not require VendorName to equal Microsoft Sentinel. This is an upstream finding, not a successful attacker action.
+
+- **Category:** Threat Detection
+- **Technique:** T1562 - Impair Defenses
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_sentinel_alert_patterns.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_sentinel_alert_patterns.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/sentinel/security-alert-schema](https://learn.microsoft.com/en-us/azure/sentinel/security-alert-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1562/](https://attack.mitre.org/techniques/T1562/)
+
+### High Risk Device Code Sign-in
+
+A successful device-code sign-in carries high or active risk. Routine device-code use without that risk signal is excluded.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_device_code_auth_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_device_code_auth_abuse.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### High Risk Primary Refresh Token Sign-in
+
+A successful sign-in using a primary refresh token carries high or active risk. Token type alone does not indicate theft or access to token storage.
+
+- **Category:** Credential Access
+- **Technique:** T1528 - Steal Application Access Token
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [azure_prt_access_attempt.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_prt_access_attempt.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/devices/concept-primary-refresh-token](https://learn.microsoft.com/en-us/entra/identity/devices/concept-primary-refresh-token)
+- **Reference:** [https://attack.mitre.org/techniques/T1528/](https://attack.mitre.org/techniques/T1528/)
+
+### Microsoft Defender for Cloud High Severity Alert
+
+A Security-category record reports high alert severity. Alert issuance is not treated as a successful attacker connection.
+
+- **Category:** Intrusion Detection
+- **Technique:** Vendor threat detection
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [defender_cloud_critical_alerts.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/defender_cloud_critical_alerts.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview](https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas](https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas)
+- **Reference:** [https://attack.mitre.org/tactics/TA0001/](https://attack.mitre.org/tactics/TA0001/)
+
+### Multi-Factor Authentication Disabled for an Azure User
+
+Detects when multi-factor authentication (MFA) is disabled for an Azure AD/Entra ID user account through Audit Logs.
+
+**Security Context:**
+Multi-factor authentication is a critical security control that requires users to provide additional verification beyond just a password. Disabling MFA for user accounts significantly weakens authentication security and is a common technique used by adversaries to maintain persistent access. Once MFA is disabled, attackers can authenticate using only compromised credentials without triggering additional verification steps, making detection more difficult.
+
+**Detection Logic:**
+This rule monitors AuditLogs for successful "Disable Strong Authentication" operations, which represent the per-user MFA setting being turned off in Azure AD/Entra ID. This operation is distinct from Conditional Access MFA policies and represents the legacy per-user MFA enforcement method.
+
+**Investigation Steps:**
+1. Identify the disabler: Check log.propertiesInitiatedBy for who disabled MFA
+2. Identify affected user: Examine log.propertiesTargetResources for the user whose MFA was disabled
+3. Verify authorization: Confirm if the MFA disabling was part of legitimate administrative action
+4. Review user privilege: Determine if the affected user has elevated permissions (admins, privileged roles)
+5. Check timing: Analyze if MFA was disabled after suspicious authentication events
+6. Review authentication history: Look for failed authentication attempts before MFA disabling
+7. Check for compromise indicators: Search for unusual sign-in patterns, impossible travel, or risky sign-ins
+8. Examine subsequent logins: Monitor for authentication activity immediately after MFA disabling
+9. Review MFA methods: Check what MFA methods the user had registered before disabling
+10. Correlate with other events: Look for privilege escalation or data access after MFA disabling
+
+**Recommended Actions:**
+- If unauthorized, immediately re-enable MFA for the affected user
+- Force password reset for the affected account
+- Review all authentication activity for the affected user
+- Check for compromised credentials using Azure AD Identity Protection
+- Revoke all active sessions for the affected user
+- Enable Conditional Access policies instead of per-user MFA for better control
+- Implement PIM approval workflows for modifying MFA settings
+- Enable alerts for MFA changes on privileged accounts
+- Audit accounts with permissions to modify user authentication settings
+- Review and restrict who can disable MFA (typically requires User Administrator or higher)
+
+**Modern MFA Management:**
+- **Per-user MFA (legacy)**: This detection targets the legacy per-user MFA setting
+- **Conditional Access**: Modern approach using policies instead of per-user settings
+- **Authentication Methods Policy**: Newer method for managing FIDO2, passwordless, etc.
+
+Organizations should migrate from per-user MFA to Conditional Access policies for more granular control.
+
+**Common Attack Patterns:**
+- Disabling MFA after compromising an administrator account
+- Removing MFA from privileged accounts for easier persistent access
+- Disabling MFA before credential harvesting or lateral movement
+- Insider threats removing MFA from their own accounts
+- Disabling MFA on service accounts to enable automated authentication attacks
+
+**Related Detections:**
+- MFA method removal/changes
+- Conditional Access policy modifications
+- Authentication methods policy changes
+- Privileged role assignments without MFA
+
+**MITRE ATT&CK Reference:** T1556 - Modify Authentication Process
+
+**Azure Documentation:**
+- AuditLogs table: https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
+- Per-user MFA: https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates
+
+- **Category:** Persistence
+- **Technique:** T1556 - Modify Authentication Process
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [persistence_mfa_disabled_for_azure_user.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/persistence_mfa_disabled_for_azure_user.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1556/](https://attack.mitre.org/techniques/T1556/)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates](https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing)
+
+### Possible Consent Grant Attack via Azure-Registered Application
+
+Detects when a user grants permissions to an Azure-registered application or when an administrator grants tenant-wide permissions to an application. An adversary may create an Azure-registered application that requests access to data such as contact information, email, or documents. Consent grant attacks are commonly used in phishing campaigns where malicious OAuth applications trick users into granting excessive permissions, enabling data exfiltration or unauthorized access to organizational resources.
+
+- **Category:** Initial Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [initial_access_consent_grant_attack_via_azure_registered_application.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/initial_access_consent_grant_attack_via_azure_registered_application.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://attack.mitre.org/techniques/T1566/](https://attack.mitre.org/techniques/T1566/)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests)
+- **Reference:** [https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth](https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth)
+
+### Repeated AKS Resource Changes
+
+Repeated successful Azure control-plane changes by the same actor. These operations do not by themselves prove container compromise.
+
+- **Category:** Execution
+- **Technique:** T1610 - Deploy Container
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [aks_security_threats.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/aks_security_threats.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction)
+- **Reference:** [https://attack.mitre.org/techniques/T1610/](https://attack.mitre.org/techniques/T1610/)
+
+### Repeated AKS Secret Writes or Deletes
+
+At least five completed successful Secret writes/deletes by one actor in one cluster and collector in 30 minutes. This detects modification, not secret reading or credential theft; routine controllers and deployment automation require environment-specific tuning.
+
+- **Category:** Credential Access
+- **Technique:** T1552 - Unsecured Credentials
+- **Impact:** C:3 / I:3 / A:2
+- **Rule file:** [azure_kubernetes_secret_access.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_kubernetes_secret_access.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aksaudit)
+- **Reference:** [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/)
+- **Reference:** [https://attack.mitre.org/techniques/T1552/007/](https://attack.mitre.org/techniques/T1552/007/)
+
+### Repeated Entra Application Registration or Consent
+
+Repeated successful application/service-principal creation or consent by one actor in one directory. Review approved provisioning and consent workflows.
+
+- **Category:** Persistence
+- **Technique:** T1098 - Account Manipulation
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [app_registration_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/app_registration_abuse.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals](https://learn.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals)
+- **Reference:** [https://attack.mitre.org/techniques/T1098/001/](https://attack.mitre.org/techniques/T1098/001/)
+
+### Repeated Entra Invalid-Credential Sign-ins
+
+At least 15 sign-ins report invalid credentials (50126) from one client address in 15 minutes in the same directory and collector. This threshold does not establish distinct-user password spraying; locked/disabled accounts are excluded.
+
+- **Category:** Credential Access
+- **Technique:** T1110 - Brute Force
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_ad_password_spray.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_ad_password_spray.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks](https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks)
+- **Reference:** [https://attack.mitre.org/techniques/T1110/](https://attack.mitre.org/techniques/T1110/)
+
+### Repeated Entra LAPS Password Reads
+
+At least three completed LAPS password-read/recovery operations by one actor in one directory and collector in one hour. Review whether the recoveries were authorized.
+
+- **Category:** Credential Access
+- **Technique:** T1003 - OS Credential Dumping
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [azure_laps_credential_dump.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_laps_credential_dump.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity/devices/howto-manage-local-admin-passwords](https://learn.microsoft.com/en-us/entra/identity/devices/howto-manage-local-admin-passwords)
+- **Reference:** [https://attack.mitre.org/techniques/T1003/](https://attack.mitre.org/techniques/T1003/)
+
+### Repeated Entra PIM Role Activations
+
+At least three completed eligible-member additions or PIM role activations by one actor in one directory and collector in four hours. Review approved role activation workflows; count alone does not prove privilege abuse.
+
+- **Category:** Privilege Escalation
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:3 / I:3 / A:1
+- **Rule file:** [pim_role_activation_abuse.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/pim_role_activation_abuse.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Repeated Successful Entra ROPC Sign-ins
+
+At least five successful ROPC sign-ins by one actor in one directory and collector in one hour. Review legacy authentication use; this does not itself prove a stolen password.
+
+- **Category:** Credential Access
+- **Technique:** T1078 - Valid Accounts
+- **Impact:** C:2 / I:2 / A:1
+- **Rule file:** [azure_ropc_authentication.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/azure_ropc_authentication.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth-ropc](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth-ropc)
+- **Reference:** [https://attack.mitre.org/techniques/T1078/](https://attack.mitre.org/techniques/T1078/)
+
+### Repeated Successful Key Vault Secret or Key Reads
+
+At least 20 successful SecretGet, SecretList or KeyGet operations by one actor against one vault and collector in ten minutes. Unrelated AuditEvent operations and denied access cannot satisfy the threshold.
+
+- **Category:** Collection
+- **Technique:** T1530 - Data from Cloud Storage Object
+- **Impact:** C:3 / I:2 / A:1
+- **Rule file:** [key_vault_access_spikes.yaml](https://github.com/utmstack/UTMStack/blob/v12/definitions/rules/cloud/azure/key_vault_access_spikes.yaml)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema)
+- **Reference:** [https://learn.microsoft.com/en-us/azure/key-vault/general/logging](https://learn.microsoft.com/en-us/azure/key-vault/general/logging)
+- **Reference:** [https://attack.mitre.org/techniques/T1530/](https://attack.mitre.org/techniques/T1530/)

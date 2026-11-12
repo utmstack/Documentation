@@ -1,0 +1,577 @@
+A pipeline is a YAML file with one or more entries. Each entry names the data types it handles, its place in the running order and a list of steps that turn the raw log into a standard event. This page describes the file format, how the engine runs pipelines, and every step you can use.
+
+## File layout
+
+This is the complete shipped pipeline for the `generic` data type:
+
+```yaml
+pipeline:
+  - dataTypes: [generic]
+    order: 14
+    steps:
+      - grok:
+          patterns:
+            - fieldName: log.message
+              pattern: '(.*)'
+          source: raw
+      - json:
+          source: log.message
+          where: 'startsWith("log.message", "{")'
+```
+
+| Key | Type | Description |
+|---|---|---|
+| `pipeline` | List | The entries of this file. |
+| `dataTypes` | List of text | The data types this entry processes. Required. |
+| `order` | Whole number | The entry's place in the running order. Lower numbers run first. |
+| `steps` | List | The steps, run from top to bottom. Each step has exactly one step type. Required. |
+| `where` | Text | Optional condition on any step. The step runs only when it is true. |
+
+When you save a pipeline from the product, UTMStack also writes a `tenantId` into each entry so that it runs only for your tenant. You do not need to write it yourself.
+
+## Which entries run, and in what order
+
+1. The engine takes every entry, in every pipeline file, whose `dataTypes` include the log's data type. One log can go through several entries.
+2. It skips pipelines that are switched off for the log's tenant and custom pipelines of other tenants.
+3. It runs first the pipelines your tenant placed on the **Pipelines** page, in that sequence, then the rest by their `order` value.
+
+The shipped pipelines use the orders 0 to 37, each once. A custom pipeline saved without an `order`, or with `0`, gets `100`, so it runs after the shipped ones. Only the `syslog` data type has more than one shipped entry: generic syslog (order 31) runs first, then the CEF (35) and LEEF (36) stages.
+
+### Several entries for one data type
+
+Because every matching entry runs, you can split the work into stages, in one file or across several. Each stage sees the fields the earlier stages wrote:
+
+```yaml
+pipeline:
+  - dataTypes: [my-app]
+    order: 100
+    steps:
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+  - dataTypes: [my-app]
+    order: 101
+    steps:
+      - json:
+          source: log.message
+          where: 'startsWith("log.message", "{")'
+```
+
+## Conditions on steps (`where`)
+
+Every step accepts a `where` condition, written in the same language as rule conditions. See **Condition Functions Reference**.
+
+- The condition is checked against the log as it stands at that step, so it can read fields that earlier steps wrote.
+- When the condition is false, the step is skipped.
+- Field names inside a condition are always quoted: `exists("log.message")`, not `exists(log.message)`. An unquoted name either fails to compile or silently never matches.
+- In YAML, wrap a condition in single quotes, or start it on its own line after `|`, when it begins with `!` or contains `: `.
+
+```yaml
+- drop:
+    where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
+```
+
+## When a step fails
+
+- A step that fails (for example a `json` step whose source is missing) adds its message to the event's `errors` field. The next steps still run.
+- A `where` condition that cannot be compiled skips the step and adds an error to the event.
+- Saving a pipeline does not check conditions or regular expressions, so a broken one fails on every log of that data type. Test before you save, and look at the `errors` field in Log Explorer after you save.
+- After the last step, the engine builds the event. Unknown field names are dropped and a value of the wrong type drops the whole event. See **Standard Event Schema**.
+
+## Building a pipeline
+
+A well-structured pipeline has four phases.
+
+### Phase 1: extraction
+
+Pull the data out of the `raw` text with `json`, `kv`, `csv` or `grok`. If the log is JSON, use `json`: it is simpler and faster than patterns.
+
+```yaml
+- json:
+    source: raw
+    where: 'startsWith("raw", "{")'
+```
+
+### Phase 2: normalization
+
+Move the extracted values to the standard fields.
+
+```yaml
+- rename:
+    from:
+      - log.HOSTNAME
+      - log._HOSTNAME
+    to: origin.host
+    where: exists("log.HOSTNAME") || exists("log._HOSTNAME")
+```
+
+### Phase 3: enrichment and conversion
+
+Add context and fix types and formats.
+
+```yaml
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params:
+      source: origin.ip
+      destination: origin.geolocation
+    where: exists("origin.ip")
+- cast:
+    fields:
+      - origin.port
+    to: int
+    where: exists("origin.port")
+```
+
+### Phase 4: cleanup
+
+Remove helper fields you no longer need.
+
+```yaml
+- delete:
+    fields:
+      - log.jsonMessage
+      - log.eventType
+```
+
+<Note>
+
+The `raw` field is kept for auditing and cannot be deleted.
+
+</Note>
+
+## Step reference
+
+The product accepts 12 step types in the pipelines you save. The "Required" column shows what saving checks.
+
+| Step | Required fields | Purpose |
+|---|---|---|
+| `json` | `source` | Parse JSON text. |
+| `kv` | `source` | Parse `key=value` pairs. |
+| `csv` | `source` | Parse separated values. |
+| `grok` | `source`, `patterns` | Cut text with regular expressions. |
+| `rename` | `from`, `to` | Move a value to another field. |
+| `cast` | `to`, `fields` | Change the type of values. |
+| `trim` | `function`, `fields` | Remove part of a text value. |
+| `reformat` | `function`, `fields` | Rewrite a time in another format. |
+| `delete` | `fields` | Remove fields. |
+| `add` | `function` | Write a fixed value. |
+| `dynamic` | `plugin` | Call an enrichment plugin. |
+| `drop` | `where` | Discard the log. |
+
+### json
+
+Parses the JSON text in `source` and writes each top-level key as `log.<key>`. Nested objects stay objects, so you can reach their values with longer paths such as `log.status.errorCode`.
+
+| Field | Description |
+|---|---|
+| `source` | The field that holds the JSON text, for example `raw`. |
+| `where` | Optional condition. |
+
+If `source` does not exist, the step fails with "source was not found". Guard it with a condition:
+
+```yaml
+- json:
+    source: raw
+    where: 'startsWith("raw", "{")'
+```
+
+### kv
+
+Splits text into `key=value` pairs and writes each as `log.<key>`. Values are trimmed, and double quotes around a value are removed. A value in double quotes can contain the pair separator (for example `msg="login failed"`); a value without quotes cannot.
+
+| Field | Description |
+|---|---|
+| `source` | The field that holds the text. |
+| `fieldSplit` | The text between pairs, for example a space. Required by the engine. |
+| `valueSplit` | The text between a key and its value, for example `=`. Required by the engine. |
+| `where` | Optional condition. |
+
+```yaml
+- kv:
+    source: log.cefExtension
+    fieldSplit: ' '
+    valueSplit: '='
+    where: exists("log.cefExtension")
+```
+
+### csv
+
+Splits text on a separator and writes the parts to the field names in `headers`, in order. The names are used exactly as written, so give full paths.
+
+| Field | Description |
+|---|---|
+| `source` | The field that holds the text. |
+| `separator` | One character. Default: comma. |
+| `headers` | The field names for the columns, in order. |
+| `where` | Optional condition. |
+
+```yaml
+- csv:
+    source: log.csvMsg
+    separator: ","
+    headers:
+      - log.ruleNumber
+      - log.subRuleNumber
+      - log.anchor
+      - log.tracker
+```
+
+### grok
+
+Cuts unstructured text into fields with a sequence of regular expressions.
+
+| Field | Description |
+|---|---|
+| `source` | The field that holds the text, for example `raw`. |
+| `patterns` | A list of `fieldName` and `pattern` pairs. |
+| `where` | Optional condition. |
+
+How it works:
+
+1. The patterns are applied one after the other.
+2. Each pattern must match at the start of the text that is left (leading spaces are ignored). The matched text is trimmed and stored in `fieldName`, and the rest of the text goes to the next pattern.
+3. The fields are written only if **every** pattern matched. If one fails, matches nothing, or the text runs out first, the step writes nothing.
+4. `fieldName` is used exactly as written, so give full paths such as `origin.ip` or `log.priority`.
+5. If `source` does not exist, the step does nothing.
+
+Patterns can use the built-in named patterns, written `{{.name}}` (see **Named patterns** below), mixed with normal regular expression syntax.
+
+```yaml
+- grok:
+    patterns:
+      - fieldName: log.priority
+        pattern: '\<{{.integer}}\>'
+      - fieldName: log.deviceTime
+        pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}{{.space}}'
+      - fieldName: log.syslogHost
+        pattern: '{{.hostname}}{{.space}}'
+      - fieldName: log.msgAll
+        pattern: '{{.greedy}}'
+    source: raw
+```
+
+For the line `<134>Nov 11 09:30:00 fw01 sshd[812]: session opened`, this writes `<134>` to `log.priority`, `Nov 11 09:30:00` to `log.deviceTime`, `fw01` to `log.syslogHost` and the rest of the line to `log.msgAll`.
+
+<Tip>
+
+In pipelines you save, every pattern needs a field name. To skip a piece of text, store it in a helper field such as `log.skip1` and remove it later with `delete`.
+
+</Tip>
+
+### rename
+
+Moves a value to another field.
+
+| Field | Description |
+|---|---|
+| `from` | A list of source fields. |
+| `to` | The target field. |
+| `where` | Optional condition. |
+
+Each source in `from` that exists is copied to `to` and then removed. If several exist, the last one in the list wins. Rename single values, not objects or lists: an object or list is stored as JSON text under the new name, so paths below it stop working.
+
+```yaml
+- rename:
+    from:
+      - log.HOSTNAME
+      - log._HOSTNAME
+    to: origin.host
+    where: exists("log.HOSTNAME") || exists("log._HOSTNAME")
+```
+
+### cast
+
+Changes the type of values.
+
+| Field | Description |
+|---|---|
+| `fields` | The fields to convert. Fields that do not exist are skipped. |
+| `to` | The new type: `int`, `float`, `string`, `bool` or `[]string`. Any other type name is an error. |
+| `where` | Optional condition. |
+
+Cast ports and counters to `int` before the event is built: a text value in a number field drops the event.
+
+```yaml
+- cast:
+    fields:
+      - origin.port
+    to: int
+    where: exists("origin.port")
+```
+
+### trim
+
+Removes part of a text value. `prefix` removes the text from the start of the value, `suffix` from the end, `substring` everywhere in the value, and `regex` removes every part that matches the regular expression. Spaces around the result are removed.
+
+| Field | Description |
+|---|---|
+| `function` | `prefix`, `suffix`, `substring` or `regex`. |
+| `substring` | The text, or for `regex` the regular expression, to remove. |
+| `fields` | The fields to clean. |
+| `where` | Optional condition. |
+
+This pair removes the brackets that the `grok` example above leaves around `log.priority`, so `<134>` becomes `134`:
+
+```yaml
+- trim:
+    function: prefix
+    substring: "<"
+    fields:
+      - log.priority
+- trim:
+    function: suffix
+    substring: ">"
+    fields:
+      - log.priority
+```
+
+### reformat
+
+Rewrites a time value in another format. It overwrites the value in place.
+
+| Field | Description |
+|---|---|
+| `function` | Only `time`. |
+| `fields` | The fields to convert. |
+| `fromFormat` | The current format, as a Go time layout. |
+| `toFormat` | The new format, as a Go time layout. |
+| `where` | Optional condition. |
+
+A Go time layout writes the reference moment `Mon Jan 2 15:04:05 MST 2006` the way your value is written. For example, `02-Jan-2006 15:04:05` reads `11-Nov-2026 09:30:00`, and `2006-01-02T15:04:05Z07:00` writes RFC 3339.
+
+Always convert a vendor time before you put it in `deviceTime`. A value the database cannot read as a date loses the event.
+
+```yaml
+- reformat:
+    fields:
+      - log.esetOccurredTime
+    function: time
+    fromFormat: 02-Jan-2006 15:04:05
+    toFormat: '2006-01-02T15:04:05Z'
+    where: exists("log.esetOccurredTime")
+- rename:
+    from:
+      - log.esetOccurredTime
+    to: deviceTime
+    where: exists("log.esetOccurredTime")
+```
+
+### delete
+
+Removes fields.
+
+| Field | Description |
+|---|---|
+| `fields` | The fields to remove. |
+| `where` | Optional condition. |
+
+`raw` and `@timestamp` cannot be deleted.
+
+```yaml
+- delete:
+    fields:
+      - log.restData
+      - log.restMessage
+```
+
+### add
+
+Writes a fixed text value into a field.
+
+| Field | Description |
+|---|---|
+| `function` | Only `string`. |
+| `params.key` | The field to write, used exactly as written. |
+| `params.value` | The value. It must be text. |
+| `where` | Optional condition. |
+
+```yaml
+- add:
+    function: string
+    params:
+      key: actionResult
+      value: failed
+    where: equals("log.eventType","Audit_Event") && regexMatch("log.result", "(?i)^(failure|failed|fail|error|invalid|timeout)$")
+```
+
+### dynamic
+
+Calls an enrichment plugin. The plugin shipped for pipelines is `com.utmstack.geolocation`, which looks up an IP address and writes its location. See **Geolocation Enrichment**.
+
+| Field | Description |
+|---|---|
+| `plugin` | The plugin name: `com.utmstack.geolocation`. |
+| `params.source` | The field with the IP address. |
+| `params.destination` | Where to write the location: `origin.geolocation` or `target.geolocation`. |
+| `where` | Optional condition. |
+
+```yaml
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params:
+      source: target.ip
+      destination: target.geolocation
+    where: exists("target.ip")
+```
+
+### drop
+
+Discards the log when its condition is true. Nothing is stored and no rule sees it.
+
+| Field | Description |
+|---|---|
+| `where` | Required. A `drop` without a condition is an error and drops nothing. |
+
+```yaml
+- drop:
+    where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
+```
+
+<Note>
+
+The engine also has an `xml` step, which writes XML elements under `log.`. No shipped pipeline uses it, and pipelines you save from the product cannot use it: saving is refused with "unknown processor".
+
+</Note>
+
+## Named patterns
+
+The `grok` step can use 26 built-in named patterns. They are read-only: UTMStack restores the built-in set every time it starts, and you cannot add or change patterns. In the pipeline editor's **Code** tab, **Insert regex pattern** inserts one.
+
+| Pattern | Matches | Example |
+|---|---|---|
+| `{{.ipv4}}` | IPv4 address | `192.168.1.1` |
+| `{{.ipv6}}` | IPv6 address | `2001:db8::1` |
+| `{{.hostname}}` | Host name | `server-01.local` |
+| `{{.domain}}` | Domain name in lower case | `example.com` |
+| `{{.email}}` | Email address | `user@example.com` |
+| `{{.uuid}}` | UUID | `550e8400-e29b-41d4-a716-446655440000` |
+| `{{.integer}}` | Whole number with an optional sign | `0`, `54`, `+23`, `-11` |
+| `{{.word}}` | One word: letters, digits and underscore (no hyphen) | `event_log01` |
+| `{{.greedy}}` | All remaining text | anything |
+| `{{.data}}` | The shortest possible text. On its own it matches nothing, which makes the step fail; use it inside a longer pattern. | |
+| `{{.space}}` | One or more spaces or tabs | |
+| `{{.notSpace}}` | One or more characters that are not spaces | `abc123` |
+| `{{.commonMacAddr}}` | MAC address with colons or hyphens | `00:1A:2B:3C:4D:5E` |
+| `{{.winMacAddr}}` | MAC address with hyphens | `00-1A-2B-3C-4D-5E` |
+| `{{.ciscoMacAddr}}` | Cisco MAC address | `001a.2b3c.4d5e` |
+| `{{.syslogDate}}` | Syslog date, one space between month and day | `Jun 16 12:34:56` |
+| `{{.time}}` | Time with seconds and optional fraction | `18:30:05.123` |
+| `{{.hour}}` | Hour, `00` to `24` | `07`, `18` |
+| `{{.minute}}` | Minute, `00` to `59` | `02`, `59` |
+| `{{.seconds}}` | Seconds with optional fraction | `05.450` |
+| `{{.iso8601Timezone}}` | Time zone | `Z`, `+05:00` |
+| `{{.year}}` | A 2 to 4 digit number that does not start with 0 | `2024` |
+| `{{.monthName}}` | Month name, English or German, full or short | `January`, `Feb`, `März` |
+| `{{.monthNumber}}` | Month number, two digits | `01`, `10` |
+| `{{.monthDay}}` | Day of the month | `1`, `01`, `31` |
+| `{{.day}}` | Day name, full or short | `Monday`, `Mon` |
+
+The exact regular expressions:
+
+```yaml
+ipv4: (((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.)){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)))
+ipv6: ([0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){1,7}|::[0-1]?)
+hostname: (\b(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-]{0,62}))*(\.?|\b))
+domain: ((?:[_a-z0-9](?:[_a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)?)
+email: ((?P<name>[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)@(?P<domain>[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*))
+uuid: ([A-Fa-f0-9]{8}-(?:[A-Fa-f0-9]{4}-){3}[A-Fa-f0-9]{12})
+integer: (?:[+-]?(?:[0-9]+))
+word: \b\w+\b
+greedy: .*
+data: (.*?)
+space: \s+
+notSpace: \S+
+commonMacAddr: (?:(?:[A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2})|(?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})
+winMacAddr: (?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})
+ciscoMacAddr: (?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})
+syslogDate: '[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}'
+time: ((([01][0-9])|2[0-4]):(?:[0-5][0-9])(?::(?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)))
+hour: (([01][0-9])|2[0-4])
+minute: (?:[0-5][0-9])
+seconds: (?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)
+iso8601Timezone: (Z|([+-](([01][0-9])|2[0-4]):?([0-5][0-9])))
+year: (([1-9])[0-9]{1,3})
+monthName: \b(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\b
+monthNumber: (?:0[1-9]|1[0-2])
+monthDay: (?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])
+day: (?:Mon(?:day)?|Tue(?:sday)?|Wed(?:nesday)?|Thu(?:rsday)?|Fri(?:day)?|Sat(?:urday)?|Sun(?:day)?)
+```
+
+## Annotated example
+
+This custom pipeline handles a firewall connected through a custom integration named "Acme Firewall", so its events have the data type `acme-firewall`. See **Custom Integrations**. The firewall sends syslog lines such as:
+
+```text
+<134>Nov 11 09:30:00 fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=443 policy=deny-ext
+```
+
+```yaml
+pipeline:
+  - dataTypes: [acme-firewall]
+    order: 100
+    steps:
+      # 1. Split the line: the syslog header up to "acmefw:", then the key=value part
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.header
+              pattern: '.*acmefw:'
+            - fieldName: log.kvData
+              pattern: '{{.greedy}}'
+
+      # 2. Extract the pairs; they are written as log.action, log.src, log.dst, ...
+      - kv:
+          source: log.kvData
+          fieldSplit: " "
+          valueSplit: "="
+          where: 'exists("log.kvData")'
+
+      # 3. Map to the standard schema
+      - rename:
+          from: [log.src]
+          to: origin.ip
+      - rename:
+          from: [log.dst]
+          to: target.ip
+      - rename:
+          from: [log.dport]
+          to: target.port
+
+      # 4. Ports are whole numbers in the schema
+      - cast:
+          fields: [target.port]
+          to: int
+
+      # 5. Record the outcome with an exact standard value
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.action", "block")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.action", "accept")'
+
+      # 6. Add the location of the source address
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: 'exists("origin.ip")'
+
+      # 7. Remove the helper fields
+      - delete:
+          fields: [log.header, log.kvData]
+```
+
+For the sample line, the event gets `origin.ip` 203.0.113.7, `target.ip` 10.0.0.5, `target.port` 443 and `actionResult` `denied`, and keeps `log.action` and `log.policy`.
+
+Test it on **Configure > Pipelines** before you save it. See **Testing Pipelines and Rules**. **Writing and Testing Rules and Pipelines** shows a rule for these events.

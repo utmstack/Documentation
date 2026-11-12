@@ -1,0 +1,298 @@
+UTMStack v12 accepts two kinds of credentials: an **API key** in the `Utm-Api-Key` header, or a **bearer token** (a short-lived sign-in token) in the `Authorization` header. API keys need the Enterprise licence. Bearer tokens work on every edition.
+
+## Choose a sign-in method
+
+| Method | Header | Edition | Lifetime | Best for |
+|---|---|---|---|---|
+| API key | `Utm-Api-Key: {{apiKey}}` | Enterprise only | Until it expires, is rotated or is deleted | Scripts, integrations, AI clients that run unattended |
+| Bearer token | `Authorization: Bearer <access-token>` | All editions | 1 hour (renew it with the refresh token) | Short tasks, Community installations, testing |
+
+Both methods act as a user: the request gets that user's permissions and tenant. If both headers are sent, the bearer token is used.
+
+## API keys (Enterprise licence)
+
+> [!WARNING]
+> API keys are an Enterprise feature in UTMStack v12. On other editions you cannot create or rotate keys, and a request that carries a key is refused with 401 `invalid api key`, including keys created while an Enterprise licence was installed. To check your edition, call `GET /api/v1/billing/license` and read `edition`.
+
+### How a key behaves
+
+- **A key acts as its owner.** It has the same permissions and tenant as the user who created it. If the user's roles change, the key's access changes with them. There are no separate scopes.
+- **Each user sees only their own keys.**
+- **Creating and rotating keys** needs the `apikey.write` permission, which only the Administrator role has. Every built-in role can list its own keys (`apikey.read`).
+- **Allowed IPs.** You can limit a key to a list of client addresses. Each entry is a single address (`203.0.113.10`) or a network range in CIDR form (`203.0.113.0/24`). An empty list allows any address.
+- **Expiry.** A key without an expiry date never expires. An expired key is refused.
+- **Rotation** issues a new secret and the old secret stops working at once. If the key has an expiry date, the date moves forward by the time that passed since the last rotation, so the key keeps the same lifetime.
+- **The owner must stay active.** If the owner's account is deactivated, the key stops working.
+
+### Create a key in the web console
+
+<Steps>
+<Step title="Open the API keys page">
+
+Go to **Configure > Settings > API Keys**. The page is titled **API keys**.
+
+</Step>
+<Step title="Start a new key">
+
+Click **New API key**.
+
+</Step>
+<Step title="Fill in the fields">
+
+| Field | What to enter |
+|---|---|
+| Name | A name you will recognise, for example `ci-pipeline`. Names are unique per user. |
+| Allowed IPs | Comma-separated addresses or ranges. Leave empty to allow any address. |
+| Expires | An expiry date. Leave empty for a key that never expires. |
+
+</Step>
+<Step title="Create the key and copy the secret">
+
+Click **Create key**. The secret is shown once. Copy it and store it safely. If you lose it, use **Rotate** to issue a new one.
+
+</Step>
+</Steps>
+
+The list shows each key's **Name**, **Allowed IPs**, **Created**, **Last rotated**, **Expires** and **Status** (**Active**, **Expiring** or **Expired**). **Actions** offers **Rotate**, **Edit** and **Delete**.
+
+### Use the key
+
+Send the key in the `Utm-Api-Key` header on every request:
+
+```plaintext
+Utm-Api-Key: {{apiKey}}
+```
+
+### Verify the key
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/utm-alerts/count-open-alerts" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** a plain number, for example `10`.
+
+If you get `401` with `{"error":"invalid api key"}`, the key is wrong, expired, used from an address that is not allowed, belongs to a deactivated user, or the installation does not have the Enterprise licence.
+
+## Bearer tokens
+
+### Sign in
+
+**Endpoint:** `POST /api/v1/auth/login` (no credential needed)
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| login | string | Yes | The account's email address |
+| password | string | Yes | The account's password |
+| provider_id | string (UUID) | No | The directory (identity provider) to check the password against. Leave it out to try every active directory of the tenant. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"login": "analyst@example.com", "password": "<password>"}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "access_token": "<access-token>",
+  "refresh_token": "<refresh-token>",
+  "token_type": "Bearer",
+  "expires_at": "2026-11-10T15:30:00Z",
+  "refresh_expires_at": "2026-12-10T14:30:00Z",
+  "user": {
+    "id": "<user-id>",
+    "email": "analyst@example.com",
+    "name": "<name>",
+    "status": "active",
+    "federated": false,
+    "tfa_enabled": false
+  }
+}
+```
+
+The access token is valid for 1 hour. The refresh token is valid for 30 days. Send the access token on each request:
+
+```plaintext
+Authorization: Bearer <access-token>
+```
+
+**Sign-in errors:**
+
+| HTTP code | Message | Cause |
+|---|---|---|
+| 400 | `login and password are required` | A field is missing |
+| 401 | `invalid credentials` | Wrong email address or password |
+| 401 | `account authenticates through an identity provider` | The account signs in through single sign-on and has no UTMStack password. Use an API key instead. |
+| 403 | `user is deactivated` | The account is not active |
+| 429 | `too many failed attempts; try again later` | Too many failed sign-ins from your address |
+
+### Two-step sign-in
+
+If the account has two-step sign-in turned on, the login answer does not contain usable tokens. Instead it contains:
+
+| Field | Description |
+|---|---|
+| tfa_required | `true` |
+| tfa_type | `email` (a code is sent by email) or `totp` (a code from an authenticator app) |
+| pre_auth_token | A temporary token, valid for 5 minutes |
+
+Finish the sign-in with the 6-digit code:
+
+**Endpoint:** `POST /api/v1/auth/tfa/verify-code`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/tfa/verify-code" \
+  -H "Content-Type: application/json" \
+  -d '{"pre_auth_token": "<pre-auth-token>", "code": "123456"}'
+```
+
+The answer has the same shape as a normal sign-in answer. A wrong or expired code returns 401.
+
+> [!TIP]
+> Two-step sign-in needs a person to type the code. For unattended scripts, use an API key.
+
+### Renew the access token
+
+**Endpoint:** `POST /api/v1/auth/refresh`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/refresh" \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token": "<refresh-token>"}'
+```
+
+**Response (HTTP 200):** a new `access_token` and a new `refresh_token`, with `token_type`, `expires_at` and `refresh_expires_at`. The refresh token you sent stops working, so always keep the newest one. An invalid or expired refresh token returns 401 `invalid or expired refresh token`.
+
+### Sign out
+
+**Endpoint:** `POST /api/v1/auth/logout`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/logout" \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token": "<refresh-token>"}'
+```
+
+**Response:** HTTP 204. The refresh token is revoked.
+
+### Check who you are signed in as
+
+`GET /api/v1/auth/me` returns the current user (`id`, `email`, `name`, `status`, `federated`, `tfa_enabled` and more). It works with a bearer token or an API key.
+
+## Manage API keys with the API
+
+All key endpoints act on the signed-in user's own keys.
+
+| Method | Endpoint | Permission | Description |
+|---|---|---|---|
+| POST | `/api/v1/api-keys` | `apikey.write` + Enterprise | Create a key (returns the key record, not the secret) |
+| POST | `/api/v1/api-keys/{id}/generate` | `apikey.write` + Enterprise | Issue a new secret (rotate). Also the only way to get the secret of a new key. |
+| GET | `/api/v1/api-keys` | `apikey.read` | List your keys |
+| GET | `/api/v1/api-keys/{id}` | `apikey.read` | Get one key |
+| PUT | `/api/v1/api-keys/{id}` | `apikey.write` | Change name, allowed IPs or expiry |
+| DELETE | `/api/v1/api-keys/{id}` | `apikey.write` | Delete a key |
+
+### Create a key
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Unique among your keys |
+| allowed_ip | string[] | No | Addresses or CIDR ranges. Empty or missing allows any address. |
+| expires_at | string (RFC 3339) | No | Expiry time. Missing means the key never expires. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/api-keys" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "ci-pipeline", "allowed_ip": ["203.0.113.10"], "expires_at": "2027-01-01T00:00:00Z"}'
+```
+
+**Response (HTTP 201):**
+
+```json
+{
+  "id": "<key-id>",
+  "name": "ci-pipeline",
+  "allowed_ip": ["203.0.113.10"],
+  "created_at": "2026-11-10T14:30:00Z",
+  "generated_at": "2026-11-10T14:30:00Z",
+  "expires_at": "2027-01-01T00:00:00Z"
+}
+```
+
+A name you already use returns 409 `api key name already in use`.
+
+### Get the secret (rotate)
+
+The create call does not return the secret. Call `generate` right after creating the key to get one:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/api-keys/<key-id>/generate" \
+  -H "Authorization: Bearer <access-token>"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"api_key": "<secret>"}
+```
+
+Store the secret at once. Calling `generate` again issues a new secret and the previous one stops working immediately.
+
+### List keys
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/api-keys?page=1&page_size=20" \
+  -H "Authorization: Bearer <access-token>"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "<key-id>",
+      "name": "ci-pipeline",
+      "allowed_ip": ["203.0.113.10"],
+      "created_at": "2026-11-10T14:30:00Z",
+      "generated_at": "2026-11-10T14:30:00Z",
+      "expires_at": "2027-01-01T00:00:00Z"
+    }
+  ],
+  "page_info": {"page": 1, "page_size": 20, "total_items": 1, "total_pages": 1}
+}
+```
+
+### Update or delete a key
+
+`PUT /api/v1/api-keys/{id}` takes the same body as create and returns the updated record. Send the full list of allowed IPs and the expiry each time: a missing `allowed_ip` clears the list and a missing `expires_at` removes the expiry.
+
+`DELETE /api/v1/api-keys/{id}` returns HTTP 204. Any client using the key loses access at once.
+
+## Password confirmation token
+
+Running live commands on an agent through the command console (see **SOAR API**) needs a second proof: you re-enter your own password and get a short-lived confirmation token.
+
+**Endpoint:** `POST /api/v1/auth/empty_login` (needs a bearer token or an API key)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/empty_login" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"login": "analyst@example.com", "password": "<password>"}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"token": "<password-token>"}
+```
+
+The token is valid for 5 minutes and only for the user who requested it. It cannot be used as a normal access token. Accounts that sign in through an identity provider (single sign-on or a directory) have no UTMStack password and cannot get this token.

@@ -1,0 +1,43 @@
+UTMStack v12 shows in-app notifications under the bell in the top bar and on the **Notifications** page. This page explains where notifications come from, who sees them and how long they are kept.
+
+## Where notifications come from
+
+In UTMStack v12, two things create notifications:
+
+- **The rule flood guard.** When a correlation rule raises too many alerts, UTMStack switches the rule off for that tenant and sends a **Warning** notification that explains what happened and how to turn the rule back on.
+- **Automated response flows.** A flow can include a step that sends a notification, for example to tell analysts that a response ran. See **Automated Response Overview**.
+
+Each notification has a type: **Info**, **Warning** or **Error**.
+
+Notifications are shown only in the product. To send messages to a chat tool or another system, use an HTTP step in an automated response flow, or email (see **Email Configuration**).
+
+## The bell
+
+The bell in the top bar shows how many notifications are unread. Click it to see the latest ones. From the list you can:
+
+- Mark a notification as read or unread.
+- Delete a notification.
+- Click **Mark all read**.
+- Click **View all** to open the **Notifications** page.
+
+## The Notifications page
+
+Open it with **View all** under the bell, or with **Configure > Settings > Notifications**. The page shows how many notifications there are in total and how many are unread. For each notification you can use **Mark as read**, **Mark as unread** and **Delete**, and you can mark everything read with **Mark all read**.
+
+## Who sees notifications
+
+Notifications belong to a tenant, not to one user. Every user of the tenant sees the same list, and its read or unread state is the same for everyone. When one user marks a notification as read, or clicks **Mark all read**, it is marked read for all users of that tenant.
+
+On a multi-tenant licence, each tenant sees only its own notifications. For example, when the flood guard switches off a rule for one tenant, only that tenant is notified.
+
+| Permission | Allows | Built-in roles |
+|---|---|---|
+| `notifications.read` | See notifications | Administrator, Analyst, Viewer |
+| `notifications.write` | Mark notifications read or unread, and delete them | Administrator, Analyst |
+
+## How long notifications are kept
+
+UTMStack deletes old notifications automatically. It checks every 6 hours and deletes:
+
+- Read notifications older than 30 days.
+- All notifications older than 365 days.

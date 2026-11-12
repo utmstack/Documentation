@@ -1,0 +1,133 @@
+UTMStack v12 controls what each user can do with roles. A role is a named set of permissions, and a user can hold several roles. UTMStack ships three built-in roles, and you can create your own. This page lists every permission and what each built-in role includes.
+
+## Where to manage roles
+
+Go to **Configure > Team** and open the **Roles & permissions** tab. The tab lists every role with its number of permissions and modules, and a **Permission matrix** that shows what each role can do, module by module.
+
+| Permission | Allows |
+|---|---|
+| `roles.read` | See roles and the list of permissions |
+| `roles.write` | Create, edit and delete your own roles |
+
+To give a role to a user, see **Users**.
+
+## Built-in roles
+
+The three built-in roles are the same in every tenant. They are marked **System** and cannot be edited or deleted.
+
+| Role | Identifier | Purpose | Permissions |
+|---|---|---|---|
+| Administrator | `ROLE_ADMIN` | Full access, including users, roles and configuration | All 42 |
+| Analyst | `ROLE_ANALYST` | Runs the security operations: triages alerts, works incidents and launches response actions | 27: every read permission, plus `alerts.write`, `incidents.write`, `soar.write`, `loganalyzer.write`, `dashboards.write` and `notifications.write` |
+| Viewer | `ROLE_VIEWER` | Reads everything and changes nothing | 21: every read permission |
+
+What this means in practice:
+
+- **Analysts** cannot change users, roles, settings, identity providers, correlation rules, pipelines, integrations, data sources, compliance or retention.
+- **Analysts** can run commands on agent hosts through the **Interactive Console**, because it uses `soar.write`. They cannot start a response flow by hand: that needs `soar.execute`, which only the Administrator role has.
+- **Viewers** can use the SOC-AI assistant (`socai.read`).
+
+## Things that need the Administrator role itself
+
+A few things are tied to the **Administrator** role, not to a permission. A custom role with the same permissions does not give them.
+
+- The **Configure** menu (Data Sources, Integrations, Alerting Rules, Pipelines, Data Processing, Team and Settings) is shown only to users with the Administrator role.
+- Viewing and regenerating the **Connection Key**.
+- Setting **Support access** for a customer tenant (see **Support Access**).
+- Operator-only pages and actions (the licence, data retention, the ThreatWinds switches, tenants) need the Administrator role in the default tenant. See **Settings Overview**.
+
+## All permissions
+
+A check mark means the built-in role has the permission.
+
+| Permission | What it allows | Administrator | Analyst | Viewer |
+|---|---|:-:|:-:|:-:|
+| `users.read` | List and view users | ✓ | ✓ | ✓ |
+| `users.write` | Create and update users, assign their roles, reset their two-step sign-in | ✓ | | |
+| `users.delete` | Deactivate users | ✓ | | |
+| `roles.read` | List and view roles and the permission list | ✓ | ✓ | ✓ |
+| `roles.write` | Create, update and delete the tenant's own roles | ✓ | | |
+| `idp.read` | List and view identity providers | ✓ | ✓ | ✓ |
+| `idp.write` | Create, update and delete identity providers | ✓ | | |
+| `tenant.read` | List and view tenants (instance operator only) | ✓ | ✓ | ✓ |
+| `tenant.write` | Create, update, deactivate and delete tenants (instance operator only) | ✓ | | |
+| `config.read` | Read application settings | ✓ | ✓ | ✓ |
+| `config.write` | Change application settings, including email and branding | ✓ | | |
+| `audit.read` | List and view audit log entries | ✓ | ✓ | ✓ |
+| `notifications.read` | List and view notifications | ✓ | ✓ | ✓ |
+| `notifications.write` | Mark notifications read and delete them | ✓ | ✓ | |
+| `alerts.read` | List and view alerts, tags and tagging rules | ✓ | ✓ | ✓ |
+| `alerts.write` | Update alerts and manage alert tags and tagging rules | ✓ | ✓ | |
+| `incidents.read` | List and view incidents, their alerts, notes and history | ✓ | ✓ | ✓ |
+| `incidents.write` | Create and manage incidents, their alerts and notes | ✓ | ✓ | |
+| `soar.read` | List and view response flows and their execution history | ✓ | ✓ | ✓ |
+| `soar.write` | Create, change and delete response flows and variables; run commands in the Interactive Console | ✓ | ✓ | |
+| `soar.execute` | Start a response flow by hand | ✓ | | |
+| `compliance.read` | List and view frameworks, controls, reports and score history | ✓ | ✓ | ✓ |
+| `compliance.write` | Manage frameworks and controls, run evaluations, record verdicts on a report and manage report schedules | ✓ | | |
+| `dashboards.read` | List and view dashboards and widgets | ✓ | ✓ | ✓ |
+| `dashboards.write` | Create, update and delete dashboards and widgets | ✓ | ✓ | |
+| `loganalyzer.read` | Search logs and view saved queries | ✓ | ✓ | ✓ |
+| `loganalyzer.write` | Create, update and delete saved queries | ✓ | ✓ | |
+| `datasources.read` | List and view data sources | ✓ | ✓ | ✓ |
+| `datasources.write` | Change data source labels and asset sensitivity, and delete data sources | ✓ | | |
+| `eventprocessing.read` | List and view correlation rules and pipelines | ✓ | ✓ | ✓ |
+| `eventprocessing.write` | Create, update and delete correlation rules and pipelines; test them in the playground | ✓ | | |
+| `integrations.read` | List integrations and their configuration | ✓ | ✓ | ✓ |
+| `integrations.write` | Activate integrations and manage their configuration | ✓ | | |
+| `adaudit.read` | View the User Auditor account inventory | ✓ | ✓ | ✓ |
+| `adaudit.write` | Create and manage identity aliases in the User Auditor | ✓ | | |
+| `threatintel.read` | Search threat intelligence and its feeds | ✓ | ✓ | ✓ |
+| `storage.read` | See retention settings and what the event store holds (instance operator only) | ✓ | ✓ | ✓ |
+| `storage.write` | Change retention and configure cold storage (instance operator only) | ✓ | | |
+| `socai.read` | Use the SOC-AI assistant | ✓ | ✓ | ✓ |
+| `socai.write` | Configure the SOC-AI provider | ✓ | | |
+| `apikey.read` | List your own API keys | ✓ | ✓ | ✓ |
+| `apikey.write` | Create, rotate, edit and delete your own API keys | ✓ | | |
+
+Permissions marked "instance operator only" work only for a user with the Administrator role in the default tenant, whatever roles they hold.
+
+## Create a custom role
+
+<Steps>
+
+<Step title="Start a new role">
+
+Go to **Configure > Team**, open **Roles & permissions** and click **New role**.
+
+</Step>
+
+<Step title="Name the role">
+
+| Field | What to enter |
+|---|---|
+| Identifier | A unique name used in the API, 2 to 50 characters. It starts as `ROLE_`; complete it, for example `ROLE_AUDITOR`. |
+| Display name | The name people see, for example `Auditor` |
+| Description | What the role is for |
+
+</Step>
+
+<Step title="Choose the permissions">
+
+Under **Permissions**, tick the permissions the role needs. Use **all** to select every permission of a module.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save role**, then give the role to users on the **Members** tab.
+
+</Step>
+
+</Steps>
+
+To change a custom role, click **Edit** on it. To remove it, click **Delete**. Users who hold only that role are left without access to any module.
+
+Custom roles belong to the tenant they were created in.
+
+## Tips for designing roles
+
+- Give people the smallest role that lets them do their work. Start from **Viewer** and add permissions as needed.
+- Treat `users.write` and `roles.write` as administrator rights: anyone who can create roles and assign them can give themselves any permission.
+- `soar.write` lets the holder run commands on agent hosts through the Interactive Console. Give it only to people you trust with that access.
+- Changes to a user's roles reach their open sessions within one hour, when their sign-in renews.
