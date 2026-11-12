@@ -9,8 +9,10 @@ Since UTMStack v12.0.2, this integration refers to CloudWatch instead of IAM Use
 ## How it works
 
 - CloudTrail captures API calls and management events across your AWS account and forwards them to a CloudWatch log group.
-- UTMStack connects with the access key of an IAM user that has read-only access to CloudWatch Logs, and reads every log stream in the log group you name.
-- Events are stored with the data type `aws`. UTMStack v12 ships 81 detection rules for this data type; see **AWS** in the **Rules** tab.
+- UTMStack connects with the access key of an IAM user (AWS Identity and Access Management, the AWS service that controls who can use which AWS resources). The user only needs read-only access to CloudWatch Logs. UTMStack reads every log stream in the log group you name, and looks for new log streams every 5 minutes.
+- UTMStack reads events from the moment collection starts. Events that were already in the log group before you saved the config group are not read.
+- Events are stored with the data type `aws` and parsed by the shipped pipeline `aws/aws.yaml` (version 1.1.2). UTMStack v12 ships 81 detection rules for this data type; see **AWS** in the **Rules** tab.
+- The same pipeline also understands Amazon GuardDuty findings that reach the log group through Amazon EventBridge. One of the AWS rules, **AWS GuardDuty High or Critical Finding**, uses them.
 
 ## Before you start
 
@@ -28,12 +30,41 @@ Open the AWS console, go to the **IAM** dashboard and select **Users**.
 </Step>
 <Step title="Add a user">
 
-Click **Add user**, enter a descriptive user name, and continue to the next step.
+Click **Create user** (**Add user** in older versions of the console), enter a descriptive user name, for example `utmstack-reader`, and continue to the next step. The user does not need access to the AWS console.
 
 </Step>
 <Step title="Attach the read-only policy">
 
-Under **Permissions**, attach the policy **CloudWatchLogsReadOnlyAccess**. It gives read-only access to CloudWatch Logs.
+Under **Permissions**, choose **Attach policies directly** and attach the AWS managed policy **CloudWatchLogsReadOnlyAccess**. It gives read-only access to CloudWatch Logs.
+
+<Accordion multiple={true}>
+<AccordionTab title="Optional: a narrower policy instead" icon="pi pi-lock">
+
+UTMStack uses three CloudWatch Logs actions: it lists log groups when you save the config group, then lists the log streams of your log group and reads their events. If your security policy asks for the least access possible, attach this inline policy instead of **CloudWatchLogsReadOnlyAccess**. Replace the region, the account ID and the log group name with yours.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "logs:DescribeLogGroups",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["logs:DescribeLogStreams", "logs:GetLogEvents"],
+      "Resource": [
+        "arn:aws:logs:us-east-1:111122223333:log-group:utmstack",
+        "arn:aws:logs:us-east-1:111122223333:log-group:utmstack:*"
+      ]
+    }
+  ]
+}
+```
+
+</AccordionTab>
+</Accordion>
 
 </Step>
 <Step title="Create the user">
@@ -135,18 +166,56 @@ Click **Add config group**. UTMStack checks the credentials against AWS before i
 
 ### If the save fails
 
+When the check fails, the config group is not saved and a message starting with "credential verification failed:" explains why.
+
 | Message | What to check |
 |---|---|
 | Invalid Access Key ID | The Access Key ID is wrong or was deleted. |
 | Invalid Secret Access Key | The secret does not belong to that Access Key ID. |
 | AWS credentials have expired | Create a new access key for the IAM user. |
+| AWS credentials are invalid | The key pair was rejected for another reason. Check both values for extra spaces, or create a new access key. |
 | Invalid Default Region | The region code is wrong, for example `us-east1` instead of `us-east-1`. |
 | AWS credentials do not have permission to access CloudWatch in region ... | The IAM user is missing the **CloudWatchLogsReadOnlyAccess** policy. |
-| The CloudWatch Log Group ... was not found in region ... | The log group name is wrong, or the log group is in another region. |
+| Cannot access CloudWatch Log Groups in region ... | UTMStack could not list log groups in that region. Check the region code, the IAM policy, and that the UTMStack server reaches AWS on port 443. |
+| The CloudWatch Log Group ... was not found in region ... | The log group name is wrong (names are case-sensitive), or the log group is in another region. |
 
 ## Check that events arrive
 
-Open the **AWS Cloudwatch** card again and click **View logs**. Log Explorer opens filtered to the `aws` data type for the last 24 hours. UTMStack looks for new log streams in the log group every 5 minutes, so allow a few minutes after you save.
+<Steps>
+<Step title="Create some activity in AWS">
+
+Do something that CloudTrail records, for example sign in to the AWS console or open the IAM user list. CloudTrail usually delivers events to CloudWatch Logs a few minutes after the action.
+
+</Step>
+<Step title="Check the log group in AWS">
+
+In the CloudWatch console, open the `utmstack` log group. You should see at least one log stream with recent events. If the log group is empty, the trail is not delivering to CloudWatch Logs yet; check the trail settings first.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Open the **AWS Cloudwatch** card again and click **View logs**. Log Explorer opens with the `aws` data type for the last 24 hours. UTMStack looks for new log streams every 5 minutes, so allow up to 10 minutes after you save.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name, for example `acme-prod`. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 more minutes.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example a deleted access key, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The save fails with one of the messages above | The credentials, region or log group do not match. | Fix the value the message names and click **Add config group** again. |
+| The config group saved, but no `aws` events arrive | The trail is not sending to the log group, or it sends to a log group in another region. | In CloudTrail, open the trail and check that **CloudWatch Logs** is enabled with the log group `utmstack`. Check that the **AWS default region** in UTMStack is the region of that log group. |
+| Events stopped after some time | The access key was deactivated, deleted or rotated, or the policy was removed. | Create a new access key, then edit the config group and paste both values. |
+| Older events are missing | UTMStack reads from the moment collection starts and does not import history. | Search older activity in the CloudTrail console or in the trail's S3 bucket. |
+| Some accounts of your AWS organization are missing | The trail covers only the account where it was created. | Turn on **Apply trail to all accounts in my organization** on the trail, or add one config group per account. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. If it stays Offline, check that events in Log Explorer show your config group name as the data source. |
 
 ## Manage config groups
 

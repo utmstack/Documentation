@@ -1,0 +1,439 @@
+UTMStack v12.0.2 ships nine compliance frameworks, all built on one shared library of 320 controls. This page describes what each framework covers, how much of it UTMStack can check from your logs, which log sources settle the automatic checks, and which part always needs a person's verdict. Use it to choose the frameworks you report on and to plan how to raise their scores.
+
+For how controls, statuses and scores work, see **Compliance Overview**. For running and reading a report, see **Compliance Reports**.
+
+## The frameworks at a glance
+
+| Framework | Sections | Requirements | Controls used | Automatic controls | Without Enterprise |
+|---|---|---|---|---|---|
+| Banking Security Audit | 11 | 76 | 83 | 42 | No |
+| CMMC 2.0 | 16 | 149 | 109 | 39 | Yes |
+| GDPR — EU General Data Protection Regulation | 7 | 50 | 50 | 12 | Yes |
+| HIPAA Security Rule | 5 | 68 | 78 | 19 | No |
+| ISO/IEC 27001:2022 | 11 | 123 | 149 | 31 | No |
+| NIST SP 800-171 Rev 3 | 17 | 97 | 123 | 38 | No |
+| NIST Cybersecurity Framework 2.0 | 22 | 106 | 137 | 30 | No |
+| PCI DSS v4.0.1 | 14 | 260 | 137 | 39 | No |
+| SOC 2 — Trust Services Criteria | 20 | 61 | 95 | 25 | No |
+
+- **Controls used** is how many distinct controls the framework's requirements point to. One control can answer several requirements.
+- **Automatic controls** are judged from your logs and alerts. The other controls are manual (governance) controls: policies, training, contracts, physical security and settings that logs cannot show. They stay **Out of scope** until a person records a status, and they keep the score down until then.
+- Without an Enterprise licence (the Community edition), only CMMC 2.0 and GDPR can be opened, evaluated and scheduled. See **Compliance Overview** and **License and Editions**.
+
+The frameworks quote official requirement numbers. Where the standard is copyrighted (ISO/IEC 27001, PCI DSS, SOC 2), the requirement titles are short paraphrases and the official text is not reproduced; keep your own copy of the standard for an audit.
+
+## Each framework
+
+### Banking Security Audit
+
+A security-log audit checklist for banks and other financial institutions. It covers what an internal or external auditor checks about log collection and retention, monitoring, real-time alerting, incident evidence, log protection and governance. It is a UTMStack checklist, built from the UTMStack v11 banking audit list and informed by FFIEC, Basel and SWIFT Customer Security Programme expectations; it is not a regulator's text.
+
+It has the highest share of automatic controls (42 of 83), so it is the framework where your logs settle the most.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (11)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Log collection and retention | 9 |
+| Identity and authentication monitoring | 8 |
+| Account and privilege management | 5 |
+| Sensitive data access monitoring | 4 |
+| Change and configuration monitoring | 9 |
+| Malware and endpoint protection | 6 |
+| Network and perimeter monitoring | 5 |
+| Real-time alerting and event correlation | 10 |
+| Incident handling and evidence | 7 |
+| Audit log protection | 4 |
+| Governance and periodic review | 9 |
+
+</AccordionTab>
+
+</Accordion>
+
+### CMMC 2.0
+
+The US Department of Defense Cybersecurity Maturity Model Certification (32 CFR Part 170). Level 1 is the 15 FAR 52.204-21 safeguarding requirements; Level 2 is the 110 NIST SP 800-171 Rev 2 requirements grouped by their 14 domains; Level 3 is 24 selected NIST SP 800-172 requirements. Available without an Enterprise licence.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (16)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Level 1 — Basic safeguarding of FCI (FAR 52.204-21) | 15 |
+| AC — Access Control | 22 |
+| AT — Awareness and Training | 3 |
+| AU — Audit and Accountability | 9 |
+| CM — Configuration Management | 9 |
+| IA — Identification and Authentication | 11 |
+| IR — Incident Response | 3 |
+| MA — Maintenance | 6 |
+| MP — Media Protection | 9 |
+| PS — Personnel Security | 2 |
+| PE — Physical Protection | 6 |
+| RA — Risk Assessment | 3 |
+| CA — Security Assessment | 4 |
+| SC — System and Communications Protection | 16 |
+| SI — System and Information Integrity | 7 |
+| Level 3 — Enhanced requirements (NIST SP 800-172) | 24 |
+
+</AccordionTab>
+
+</Accordion>
+
+### GDPR — EU General Data Protection Regulation
+
+The obligations of controllers and processors under Regulation (EU) 2016/679, from the processing principles to international transfers. Security of processing (Article 32) and breach handling (Articles 33 and 34) are checked from logs and alerts; the other obligations, such as lawful basis, data subject rights and the data protection officer, need a person to record their status. Available without an Enterprise licence.
+
+Only 12 of its 50 controls are automatic, so expect a low score until someone records verdicts on the governance requirements.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (7)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Chapter II: Principles (Art. 5-11) | 13 |
+| Chapter III: Rights of the data subject (Art. 12-22) | 11 |
+| Chapter IV, Section 1: General obligations of controller and processor (Art. 24-31) | 8 |
+| Chapter IV, Section 2: Security of personal data (Art. 32-34) | 10 |
+| Chapter IV, Section 3: Data protection impact assessment and prior consultation (Art. 35-36) | 2 |
+| Chapter IV, Section 4: Data protection officer (Art. 37-39) | 3 |
+| Chapter V: Transfers of personal data to third countries or international organisations (Art. 44-49) | 3 |
+
+</AccordionTab>
+
+</Accordion>
+
+### HIPAA Security Rule
+
+The administrative, physical and technical safeguards, organizational requirements and documentation requirements for electronic protected health information under 45 CFR Part 164 Subpart C, mapped with guidance from NIST SP 800-66 Rev 2. The technical safeguards (§164.312, such as audit controls, unique user identification and transmission security) are where the automatic checks help most.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (5)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| §164.308 Administrative safeguards | 30 |
+| §164.310 Physical safeguards | 12 |
+| §164.312 Technical safeguards | 12 |
+| §164.314 Organizational requirements | 9 |
+| §164.316 Policies and procedures and documentation requirements | 5 |
+
+</AccordionTab>
+
+</Accordion>
+
+### ISO/IEC 27001:2022
+
+ISO/IEC 27001:2022 with Amendment 1:2024: the information security management system (ISMS) requirements of clauses 4 to 10 and all 93 Annex A controls. Clauses 4 to 10 (context, leadership, planning, support, operation, evaluation, improvement) are management requirements and need verdicts. Most automatic checks sit under A.8 Technological controls.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (11)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Clause 4: Context of the organization | 4 |
+| Clause 5: Leadership | 3 |
+| Clause 6: Planning | 5 |
+| Clause 7: Support | 7 |
+| Clause 8: Operation | 3 |
+| Clause 9: Performance evaluation | 6 |
+| Clause 10: Improvement | 2 |
+| A.5 Organizational controls | 37 |
+| A.6 People controls | 8 |
+| A.7 Physical controls | 14 |
+| A.8 Technological controls | 34 |
+
+</AccordionTab>
+
+</Accordion>
+
+### NIST SP 800-171 Rev 3
+
+The security requirements for protecting the confidentiality of Controlled Unclassified Information (CUI) in nonfederal systems and organizations (May 2024 edition). Withdrawn requirements are left out. Each requirement points to its source controls in NIST SP 800-53.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (17)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Access Control | 16 |
+| Awareness and Training | 2 |
+| Audit and Accountability | 8 |
+| Configuration Management | 10 |
+| Identification and Authentication | 8 |
+| Incident Response | 5 |
+| Maintenance | 3 |
+| Media Protection | 7 |
+| Personnel Security | 2 |
+| Physical Protection | 5 |
+| Risk Assessment | 3 |
+| Security Assessment and Monitoring | 4 |
+| System and Communications Protection | 10 |
+| System and Information Integrity | 5 |
+| Planning | 3 |
+| System and Services Acquisition | 3 |
+| Supply Chain Risk Management | 3 |
+
+</AccordionTab>
+
+</Accordion>
+
+### NIST Cybersecurity Framework 2.0
+
+NIST CSF 2.0 (February 2024): 6 functions (Govern, Identify, Protect, Detect, Respond, Recover), 22 categories and 106 subcategories. Each section is a category and each requirement a subcategory, such as `DE.CM-01`. The Detect and Respond categories are where logs help most; Govern and Recover need verdicts.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (22)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| GV.OC — Organizational Context (Govern) | 5 |
+| GV.RM — Risk Management Strategy (Govern) | 7 |
+| GV.RR — Roles, Responsibilities, and Authorities (Govern) | 4 |
+| GV.PO — Policy (Govern) | 2 |
+| GV.OV — Oversight (Govern) | 3 |
+| GV.SC — Cybersecurity Supply Chain Risk Management (Govern) | 10 |
+| ID.AM — Asset Management (Identify) | 7 |
+| ID.RA — Risk Assessment (Identify) | 10 |
+| ID.IM — Improvement (Identify) | 4 |
+| PR.AA — Identity Management, Authentication, and Access Control (Protect) | 6 |
+| PR.AT — Awareness and Training (Protect) | 2 |
+| PR.DS — Data Security (Protect) | 4 |
+| PR.PS — Platform Security (Protect) | 6 |
+| PR.IR — Technology Infrastructure Resilience (Protect) | 4 |
+| DE.CM — Continuous Monitoring (Detect) | 5 |
+| DE.AE — Adverse Event Analysis (Detect) | 6 |
+| RS.MA — Incident Management (Respond) | 5 |
+| RS.AN — Incident Analysis (Respond) | 4 |
+| RS.CO — Incident Response Reporting and Communication (Respond) | 2 |
+| RS.MI — Incident Mitigation (Respond) | 2 |
+| RC.RP — Incident Recovery Plan Execution (Recover) | 6 |
+| RC.CO — Incident Recovery Communication (Recover) | 2 |
+
+</AccordionTab>
+
+</Accordion>
+
+### PCI DSS v4.0.1
+
+The Payment Card Industry Data Security Standard v4.0.1: every defined-approach requirement of the 12 principal requirements and Appendices A1 and A2, by official number. With 260 requirements it is the largest framework. Requirement 10 (log and monitor all access) and Requirement 8 (identify users and authenticate access) are where the automatic checks help most.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (14)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| Requirement 1: Install and maintain network security controls | 19 |
+| Requirement 2: Apply secure configurations to all system components | 11 |
+| Requirement 3: Protect stored account data | 29 |
+| Requirement 4: Protect cardholder data with strong cryptography when it crosses open, public networks | 6 |
+| Requirement 5: Protect all systems and networks from malicious software | 13 |
+| Requirement 6: Develop and maintain secure systems and software | 19 |
+| Requirement 7: Restrict access to system components and cardholder data to business need to know | 12 |
+| Requirement 8: Identify users and authenticate access to system components | 29 |
+| Requirement 9: Restrict physical access to cardholder data | 27 |
+| Requirement 10: Log and monitor all access to system components and cardholder data | 27 |
+| Requirement 11: Test the security of systems and networks regularly | 21 |
+| Requirement 12: Support information security with organizational policies and programs | 37 |
+| Appendix A1: Extra requirements for multi-tenant service providers | 7 |
+| Appendix A2: Extra requirements for SSL or early TLS on card-present POS POI terminal connections | 3 |
+
+</AccordionTab>
+
+</Accordion>
+
+### SOC 2 — Trust Services Criteria
+
+The AICPA Trust Services Criteria (2017, with the 2022 revised points of focus): the common criteria CC1 to CC9 plus the Availability, Confidentiality, Processing Integrity and Privacy criteria. CC6 (logical and physical access) and CC7 (system operations) are where logs help most.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Sections (20)" icon="pi pi-list">
+
+| Section | Requirements |
+|---|---|
+| CC1 Control environment | 5 |
+| CC2 Communication and information | 3 |
+| CC3 Risk assessment | 4 |
+| CC4 Monitoring activities | 2 |
+| CC5 Control activities | 3 |
+| CC6 Logical and physical access | 8 |
+| CC7 System operations | 5 |
+| CC8 Change management | 1 |
+| CC9 Risk mitigation | 2 |
+| A1 Availability | 3 |
+| C1 Confidentiality | 2 |
+| PI1 Processing integrity | 5 |
+| P1 Privacy: notice | 1 |
+| P2 Privacy: choice and consent | 1 |
+| P3 Privacy: collection | 2 |
+| P4 Privacy: use, retention and disposal | 3 |
+| P5 Privacy: access | 2 |
+| P6 Privacy: disclosure and notification | 7 |
+| P7 Privacy: quality | 1 |
+| P8 Privacy: monitoring and enforcement | 1 |
+
+</AccordionTab>
+
+</Accordion>
+
+## The 45 automatic controls
+
+These are the shipped controls that UTMStack judges from your data. All of them use the strategy **ANY**: one passing evidence check is enough, but any failed limit check makes the control **Non-compliant**.
+
+- **Evidence checks** pass when at least one matching record is found, for example "failed logons are recorded".
+- **Limit checks** fail when more matching records than allowed are found, for example "an audit log was cleared".
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Automatic controls, with their checks and how many frameworks use them" icon="pi pi-list">
+
+| Control | Name | Evidence checks | Limit checks | Frameworks |
+|---|---|---|---|---|
+| ac-2 | Account Management | 23 | 0 | 8 |
+| ac-3 | Access Enforcement | 25 | 0 | 8 |
+| ac-4 | Information Flow Enforcement | 45 | 0 | 6 |
+| ac-6 | Least Privilege | 26 | 0 | 8 |
+| ac-7 | Unsuccessful Logon Attempts | 28 | 0 | 6 |
+| ac-11 | Device Lock | 4 | 0 | 3 |
+| ac-17 | Remote Access | 27 | 0 | 5 |
+| ac-18.1 | Wireless Access: Authentication and Encryption | 6 | 0 | 3 |
+| au-2 | Event Logging | 28 | 0 | 8 |
+| au-3 | Content of Audit Records | 34 | 0 | 6 |
+| au-4 | Audit Log Storage Capacity | 0 | 7 | 1 |
+| au-5 | Response to Audit Logging Process Failures | 0 | 21 | 4 |
+| au-6 | Audit Record Review, Analysis, and Reporting | 1 | 0 | 9 |
+| au-7 | Audit Record Reduction and Report Generation | 1 | 0 | 5 |
+| au-8 | Time Stamps | 11 | 0 | 5 |
+| au-9 | Protection of Audit Information | 0 | 10 | 7 |
+| au-12 | Audit Record Generation | 36 | 0 | 8 |
+| ca-7 | Continuous Monitoring | 2 | 0 | 5 |
+| cm-3 | Configuration Change Control | 23 | 0 | 7 |
+| cm-6 | Configuration Settings | 24 | 0 | 7 |
+| cm-7.5 | Least Functionality: Authorized Software, Allow-by-exception | 16 | 0 | 6 |
+| cm-11 | User-installed Software | 12 | 0 | 6 |
+| cp-9 | System Backup | 19 | 0 | 6 |
+| ia-2 | Identification and Authentication (Organizational Users) | 29 | 0 | 7 |
+| ia-2.1 | Multi-factor Authentication to Privileged Accounts | 0 | 4 | 6 |
+| ia-2.2 | Multi-factor Authentication to Non-privileged Accounts | 0 | 4 | 6 |
+| ia-2.5 | Individual Authentication with Group Authentication | 0 | 20 | 8 |
+| ia-4 | Identifier Management | 46 | 0 | 8 |
+| ia-5 | Authenticator Management | 18 | 0 | 4 |
+| ir-4 | Incident Handling | 1 | 0 | 8 |
+| ir-5 | Incident Monitoring | 1 | 0 | 9 |
+| ma-4 | Nonlocal Maintenance | 27 | 0 | 3 |
+| mp-7 | Media Use | 10 | 0 | 4 |
+| ra-5 | Vulnerability Monitoring and Scanning | 8 | 0 | 9 |
+| sc-7 | Boundary Protection | 16 | 0 | 7 |
+| sc-7.12 | Boundary Protection: Host-based Protection | 0 | 7 | 5 |
+| sc-8.1 | Transmission Confidentiality and Integrity: Cryptographic Protection | 0 | 21 | 7 |
+| sc-28.1 | Protection of Information at Rest: Cryptographic Protection | 9 | 0 | 5 |
+| sc-45 | System Time Synchronization | 11 | 0 | 4 |
+| sc-45.1 | System Time Synchronization: Synchronization with Authoritative Time Source | 0 | 10 | 5 |
+| si-2 | Flaw Remediation | 17 | 0 | 6 |
+| si-3 | Malicious Code Protection | 17 | 48 | 9 |
+| si-4 | System Monitoring | 27 | 0 | 9 |
+| si-7 | Software, Firmware, and Information Integrity | 8 | 0 | 7 |
+| si-8 | Spam Protection | 7 | 0 | 2 |
+
+Open any control on the **Controls** tab of **Compliance** to read its checks, statement and remediation text.
+
+</AccordionTab>
+
+</Accordion>
+
+### Controls your team's work settles
+
+Five checks read your alerts rather than your logs. They pass because of what your team does in UTMStack:
+
+| Control | Check | Passes when |
+|---|---|---|
+| au-6 | Alerts were reviewed (moved to In review or Completed) | At least one alert in the window was set to **In review** or **Completed** |
+| ir-4 | Alerts were worked to completion | At least one alert in the window was **Completed** |
+| ir-5 | Security alerts were raised and tracked | At least one alert was raised in the window |
+| ca-7, si-4 | Security alerts were raised and tracked | Same as ir-5 |
+
+If no alert was raised in a quiet period, ir-5 cannot pass on its own; its remediation text says to set the status by hand and note why. See **Alert Triage Workflow**.
+
+## Which log sources settle the automatic checks
+
+Almost every check reads one data type; eight read your alerts or logs of any type (last row of the table). A check whose data type your tenant did not send in the reporting window shows **No data** and neither passes nor fails. The more of these sources you connect, the more automatic controls can be judged.
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Data types read by the shipped checks, with the number of checks" icon="pi pi-list">
+
+| Data type | Checks | Data type | Checks |
+|---|---|---|---|
+| `linux` | 66 | `firewall-cisco-asa` | 26 |
+| `wineventlog` | 50 | `vmware-esxi` | 26 |
+| `azure` | 46 | `firewall-pfsense` | 24 |
+| `aws` | 38 | `cisco-switch` | 23 |
+| `firewall-fortigate-traffic` | 37 | `firewall-sophos-xg` | 21 |
+| `google` | 36 | `antivirus-esmc-eset` | 19 |
+| `macos` | 36 | `crowdstrike` | 19 |
+| `o365` | 33 | `antivirus-kaspersky` | 19 |
+| `firewall-sonicwall` | 32 | `sophos-central` | 18 |
+| `firewall-paloalto` | 30 | `firewall-mikrotik` | 17 |
+| `o365-graph` | 30 | `firewall-cisco-firepower` | 16 |
+| `firewall-fortiweb` | 16 | `firewall-meraki` | 15 |
+| `antivirus-sentinel-one` | 15 | `ibm-as400` | 14 |
+| `antivirus-bitdefender-gz` | 14 | `ibm-aix` | 12 |
+| `github` | 11 | `utmstack_edr` | 10 |
+| `suricata` | 6 | `netflow` | 5 |
+| `syslog` | 3 | `deceptive-bytes` | 2 |
+| `generic` | 1 | `json-input` | 1 |
+| Alerts (any type) | 5 | Logs of any type | 3 |
+
+</AccordionTab>
+
+</Accordion>
+
+<Note>
+
+No data source in UTMStack v12.0.2 sends the data type `utmstack_edr`, so the 10 checks that read it always show **No data**. They do not lower a control's status: a control passes on any other check that has data.
+
+</Note>
+
+## Raise a framework's score
+
+<Steps>
+
+<Step title="Connect the sources the checks read">
+
+Run the framework once and open the PDF section **Not evaluated — missing sources**. It groups the controls that could not be judged by the log source that would settle them. Connect those sources. See **How Data Reaches UTMStack**.
+
+</Step>
+
+<Step title="Fix what failed">
+
+On the report, open each **Non-compliant** control. **Check results** shows which check failed and how many records matched; the **Remediation** text says what the failure means. Fix the cause, then run the evaluation again. A failed limit check makes the control non-compliant until the window no longer contains the records, so the result clears only after the reporting window has moved past them.
+
+</Step>
+
+<Step title="Work your alerts">
+
+Move alerts to **In review** and **Completed** as you work them, so the alert checks of au-6 and ir-4 pass.
+
+</Step>
+
+<Step title="Record verdicts on manual controls">
+
+Every manual control stays **Out of scope** and counts against the score until a person records a status with a reason, for example where the policy document is kept. See **Compliance Reports**.
+
+</Step>
+
+</Steps>
+
+## Not what you need?
+
+You can copy any shipped framework and change the copy, or build your own framework and controls, for example for an internal policy or a customer's checklist. See **Custom Frameworks and Controls**.

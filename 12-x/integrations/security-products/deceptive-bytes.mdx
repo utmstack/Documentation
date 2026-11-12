@@ -7,12 +7,14 @@ UTMStack v12 collects Deceptive Bytes alerts through the **UTMStack Forwarder**,
 | Card on the Integrations page | **Deceptive Bytes** (category Deception) |
 | Data type | `deceptive-bytes` |
 | Default ports on the Collector | 7010/UDP; 7010/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 16 detection rules |
+| Format UTMStack expects | Syslog with a CEF (Common Event Format) message, which Deceptive Bytes sends |
+| Parsing pipeline | `antivirus/deceptive-bytes.yaml` (version 3.0.5). The **Filters** button in the drawer opens it. |
+| Detection rules | 16 rules for the `deceptive-bytes` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The Deceptive Bytes management console must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The Deceptive Bytes management console must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between. If your management console runs in the cloud, the port must be reachable from the internet: allow only the console's addresses and prefer TLS.
 - You need the `integrations.write` permission to enable the integration from the web interface.
 
 ## Step 1: Enable the integration on a Collector
@@ -20,9 +22,13 @@ UTMStack v12 collects Deceptive Bytes alerts through the **UTMStack Forwarder**,
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Deceptive Bytes** card.
+
+    ![Deceptive Bytes setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/e43ba1ba-0d85-42c0-88db-a43baf3cf553)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7010** below.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The **Port** fills in with the default, 7010.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7010`.
@@ -37,15 +43,42 @@ sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration deceptive-byt
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a port other than 7010
+
+The Collector listens on the port stored on the Collector host: 7010 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port, for example to 7110 over UDP:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port deceptive-bytes udp 7110
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+Only one data type can listen on a given port and protocol on one Collector.
+
 ## Step 2: Configure Deceptive Bytes to forward logs
 
-In the Deceptive Bytes management console, configure syslog forwarding to send events to the Collector host on port 7010 (UDP). Deceptive Bytes sends CEF-formatted syslog, which UTMStack stores under the `deceptive-bytes` data type.
+In the Deceptive Bytes management console, configure syslog forwarding to send events to the Collector host on port 7010, over the protocol you enabled in step 1 (UDP by default). Deceptive Bytes sends CEF-formatted syslog, which UTMStack stores under the `deceptive-bytes` data type. See the Deceptive Bytes documentation for the exact screen in your version.
 
 ## Step 3: Check that logs arrive
 
-- In the **Deceptive Bytes** drawer, click **View logs**. Log Explorer opens with the `deceptive-bytes` data type for the last 24 hours.
-- Within about 10 minutes, the management console appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+1. Trigger or wait for a Deceptive Bytes event.
+2. In the **Deceptive Bytes** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `deceptive-bytes` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show fields taken from the CEF message, and the `errors` field should be empty.
+4. Within about 20 minutes, the management console appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'deceptive-bytes'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Stop collecting
 
@@ -54,3 +87,16 @@ In the **Deceptive Bytes** card, select the same Collector and click **Disable i
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration deceptive-bytes udp
 ```
+
+Disable with the same protocol you enabled. If you enabled TCP or TLS, use `tcp` in the command.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | On the Collector host, run `sudo systemctl status UTMStackForwarder` and read `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`. See **Forwarder Troubleshooting**. |
+| The Collector is online but no events arrive | The console sends to the wrong address, port or protocol, or a firewall blocks the port | Check that the console sends to the Collector host (not the UTMStack server, unless the Collector runs there) on the same port and protocol you enabled. On the Collector host, `sudo ss -lntup` lists the open ports: look for 7010. |
+| **Enable integration** fails with "port 7010 is already in use by integration '…'" or "… by another process" | Another data type or another program already listens on that port and protocol | Use another port with `change-port` (see step 1), or stop the other listener. |
+| Events arrive but parsed fields are missing and `errors` is not empty | The message is not CEF, or a relay changed it | Send the events directly from the Deceptive Bytes console in CEF. Paste a sample into the pipeline test to see where it fails (see **Testing Pipelines and Rules**). |
+| Long events are cut off | Over UDP the Collector reads at most 2,048 bytes of each message | Enable the integration with TCP or TLS and send over that protocol. |
+| TLS does not connect | The Collector log shows "TLS handshake failed" (certificate not trusted by the sender) or "TLS connection rejected … TLS is disabled, only plain text connections accepted" (the sender uses TLS on a plain TCP listener) | Use the same choice on both sides. For TLS, load a certificate the sender trusts. See **UTMStack Forwarder**. |

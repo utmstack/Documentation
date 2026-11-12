@@ -1,0 +1,420 @@
+This page collects ready-made searches for common hunts in **Log Explorer**: failed logons, everything about one IP address, the busiest addresses on your network, one user's activity, new processes on Windows, and checks on your own alerts and data sources. Each recipe gives a quick way with filters, and a SQL statement for when you need counts or groups.
+
+Threat hunting means searching your logs for signs of an attack that no alert has caught yet. Every recipe below only reads data, and only your own tenant's records.
+
+## Before you start
+
+- You need the `loganalyzer.read` permission, which all built-in roles have. See **Log Explorer**.
+- The field names below are the ones the shipped UTMStack v12 pipelines write. Standard fields such as `origin.ip`, `target.user` and `actionResult` are described on **Standard Event Schema**. Vendor fields are under `log.`, for example `log.eventCode`.
+- A field only has values for data sources whose pipeline fills it. Before you rely on a recipe, open a few events of the data type in Log Explorer and check the field names under **Parsed fields**.
+- The SQL statements follow the rules on **Log Explorer SQL Mode**. In short: start with `SELECT` or `WITH`, put the time window in the `WHERE` clause, wrap fields inside `origin`, `target`, `log`, `adversary` and `lastEvent` in `toString()`, and avoid the refused words listed there (such as `url`, `file`, `input`, `drop`, `create` and `set` followed by a space), even in aliases.
+
+<Note>
+
+Replace the sample values (`203.0.113.45`, `j.smith`, `dc01`) with your own. The addresses `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation.
+
+</Note>
+
+## Three ways to search
+
+| Way | How | Good for |
+|---|---|---|
+| Search box | Type text in **Search across all fields…** and press **Enter**. It finds the text anywhere in the original log line, ignoring letter case. | A value you know but whose field you do not |
+| Filters | **Add filter** > field > **is**, **is not**, **contains** or **exists**. All filters must match. | Precise searches you want to save and share |
+| SQL | Click **SQL**, type a statement, press **Enter**. | Counting, grouping, comparing, finding firsts and lasts |
+
+The search box and filters use the time range picker. SQL ignores it: put the time window in the statement.
+
+## Failed logons
+
+### Windows: failed logons (event 4625)
+
+**With filters**
+
+1. Choose **logs** > `wineventlog` in the selector.
+2. **Add filter** > `log.eventCode` > **is** > `4625`.
+3. In the fields sidebar, click `target.user` and `origin.ip` and use **Add as column**.
+4. Switch to **Chart** and set **Aggregate on** to `target.user` to see the accounts with the most failures.
+
+The same search as a link (opens a new tab with the last 24 hours):
+
+```text
+/log-explorer?dataType=wineventlog&log.eventCode=4625&@timestamp=24h
+```
+
+**With SQL**: failures per account and source address in the last 24 hours.
+
+```sql
+SELECT toString(target.user) AS account,
+       toString(origin.ip) AS source_ip,
+       count() AS failed_logons,
+       min(`@timestamp`) AS first_seen,
+       max(`@timestamp`) AS last_seen
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4625'
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+GROUP BY account, source_ip
+ORDER BY failed_logons DESC
+LIMIT 50
+```
+
+The Windows pipeline writes the target account of a logon to `target.user`, the remote address to `origin.ip` (only when it is a valid address), the remote workstation name to `origin.host`, the computer that logged the event to `target.host`, and the logon type to `log.eventDataLogonType`. It sets `actionResult` to `failed` for events 4625 and 4771.
+
+### Windows: many failures, then a success
+
+Accounts that failed at least 10 times from one address and also logged on from it in the same 24 hours: a password may have been guessed. The statement does not check the order: open the events to confirm that the success came after the failures.
+
+```sql
+SELECT toString(target.user) AS account,
+       toString(origin.ip) AS source_ip,
+       countIf(toString(log.eventCode) = '4625') AS failures,
+       countIf(toString(log.eventCode) = '4624') AS successes
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) IN ('4624', '4625')
+  AND origin.ip IS NOT NULL
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+GROUP BY account, source_ip
+HAVING failures >= 10 AND successes > 0
+ORDER BY failures DESC
+```
+
+### Linux: failed SSH sign-ins
+
+**With filters**: choose **logs** > `linux`, then **Add filter** > `log.syslogIdentifier` > **is** > `sshd`, and **Add filter** > `actionResult` > **is** > `failed`. On newer systems the program name is `sshd-session`; change the first filter if you find nothing.
+
+**With SQL**: failures per server and remote address.
+
+```sql
+SELECT dataSource AS server,
+       toString(origin.ip) AS source_ip,
+       count() AS failures
+FROM logs
+WHERE dataType = 'linux'
+  AND toString(log.syslogIdentifier) IN ('sshd', 'sshd-session')
+  AND actionResult = 'failed'
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+GROUP BY server, source_ip
+ORDER BY failures DESC
+LIMIT 50
+```
+
+The Linux pipeline sets `actionResult` to `failed` for `Failed password` lines and for connections that ended before anyone signed in, and puts the remote address in `origin.ip` only on lines that state an outcome. The original line is in `log.message`.
+
+### Microsoft 365: failed sign-ins
+
+```sql
+SELECT toString(origin.user) AS account,
+       toString(origin.ip) AS source_ip,
+       toString(origin.geolocation.country) AS country,
+       count() AS failures
+FROM logs
+WHERE dataType = 'o365'
+  AND action = 'UserLoginFailed'
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY account, source_ip, country
+ORDER BY failures DESC
+LIMIT 50
+```
+
+The Office 365 pipeline writes the operation name to `action`, the user to `origin.user` and the client address to `origin.ip`.
+
+## Everything about one IP address
+
+**With the search box** (fastest): choose **logs** > **All data types**, set the time range, type `203.0.113.45` in the search box and press **Enter**. This finds the address anywhere in the original log line, whatever field a pipeline put it in.
+
+**With filters**: **Add filter** > `origin.ip` > **is** > the address. Filters on one screen are combined with AND, so look for the address as `target.ip` in a second tab. As links:
+
+```text
+/log-explorer?origin.ip=203.0.113.45&@timestamp=7d
+/log-explorer?target.ip=203.0.113.45&@timestamp=7d
+```
+
+**With SQL**: in which data sources the address appears, on which side, and when.
+
+```sql
+SELECT dataType,
+       dataSource,
+       countIf(toString(origin.ip) = '203.0.113.45') AS as_origin,
+       countIf(toString(target.ip) = '203.0.113.45') AS as_target,
+       min(`@timestamp`) AS first_seen,
+       max(`@timestamp`) AS last_seen
+FROM logs
+WHERE (toString(origin.ip) = '203.0.113.45' OR toString(target.ip) = '203.0.113.45')
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY dataType, dataSource
+ORDER BY last_seen DESC
+```
+
+This statement reads every data type. If it runs into the 30-second limit, shorten the window or add `AND dataType = '…'`.
+
+**In the alerts**: on **Threat Management > Alerts**, **Add filter** > **Adversary IP** > **is** > the address, with the time range set to **All time**. Or in SQL:
+
+```sql
+SELECT name, severity, status, count() AS alert_count, max(`@timestamp`) AS last_seen
+FROM alerts
+WHERE parentId = ''
+  AND (toString(adversary.ip) = '203.0.113.45' OR toString(target.ip) = '203.0.113.45')
+GROUP BY name, severity, status
+ORDER BY last_seen DESC
+```
+
+To check the address against threat intelligence, see **Threat Intelligence Screens**.
+
+## Top talkers
+
+The addresses that open the most connections. These examples use FortiGate traffic logs (`firewall-fortigate-traffic`); for another firewall, change the data type, and check that its pipeline fills `origin.ip` and `target.ip`.
+
+**With filters**: choose the data type, switch to **Chart** and set **Aggregate on** to `origin.ip`. The chart shows the top 20 values.
+
+**With SQL**: connections and distinct destinations per source address in the last hour.
+
+```sql
+SELECT toString(origin.ip) AS source_ip,
+       count() AS connections,
+       uniqExact(toString(target.ip)) AS destinations
+FROM logs
+WHERE dataType = 'firewall-fortigate-traffic'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+GROUP BY source_ip
+ORDER BY connections DESC
+LIMIT 20
+```
+
+By data volume, for pipelines that fill `origin.bytesSent` (FortiGate fills it from `sentbyte`):
+
+```sql
+SELECT toString(origin.ip) AS source_ip,
+       round(sum(toFloat64OrZero(toString(origin.bytesSent))) / 1048576, 1) AS mib_sent
+FROM logs
+WHERE dataType = 'firewall-fortigate-traffic'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+GROUP BY source_ip
+ORDER BY mib_sent DESC
+LIMIT 20
+```
+
+For NetFlow, use the data type `netflow`, or open the shipped **Network Traffic (NetFlow)** dashboard. See **Shipped Dashboards**.
+
+## One user's activity
+
+**With the search box**: choose **logs** > **All data types**, type the user name and press **Enter**.
+
+**With SQL**: every event where the user appears on either side in the last 24 hours. `positionCaseInsensitive()` finds the name inside longer values, such as `CORP\j.smith` or `j.smith@example.com`, and ignores letter case.
+
+```sql
+SELECT `@timestamp`,
+       dataType,
+       dataSource,
+       action,
+       actionResult,
+       toString(origin.ip) AS source_ip
+FROM logs
+WHERE (positionCaseInsensitive(toString(origin.user), 'j.smith') > 0
+    OR positionCaseInsensitive(toString(target.user), 'j.smith') > 0)
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 100
+```
+
+A summary of what the user did, by source and outcome:
+
+```sql
+SELECT dataType, action, actionResult, count() AS events
+FROM logs
+WHERE (positionCaseInsensitive(toString(origin.user), 'j.smith') > 0
+    OR positionCaseInsensitive(toString(target.user), 'j.smith') > 0)
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY dataType, action, actionResult
+ORDER BY events DESC
+LIMIT 50
+```
+
+For the account's lifecycle (created, last logon, deleted), see **User Auditor**: its **View events in Log Explorer** button opens the account's events for the last 30 days.
+
+## New processes on Windows
+
+Windows logs every new process as event 4688 when process auditing is on. The UTMStack Windows agent turns it on, and also turns on command lines in these events; a Group Policy can override this. See **Windows Agent**.
+
+**Processes started in the last hour**:
+
+```sql
+SELECT `@timestamp`,
+       toString(target.host) AS computer,
+       toString(log.eventDataSubjectUserName) AS account,
+       toString(log.data.NewProcessName) AS process,
+       toString(log.data.CommandLine) AS command_line
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4688'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 100
+```
+
+**Programs seen for the first time in the last day**, compared with the six days before:
+
+```sql
+SELECT toString(log.data.NewProcessName) AS process,
+       uniqExact(toString(target.host)) AS computers,
+       count() AS starts,
+       min(`@timestamp`) AS first_seen
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4688'
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY process
+HAVING first_seen > now() - INTERVAL 1 DAY
+ORDER BY first_seen DESC
+LIMIT 50
+```
+
+**Office programs starting a command shell** (a common sign of a malicious document):
+
+```sql
+SELECT `@timestamp`,
+       toString(target.host) AS computer,
+       toString(log.data.ParentProcessName) AS parent,
+       toString(log.data.NewProcessName) AS process,
+       toString(log.data.CommandLine) AS command_line
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND toString(log.eventCode) = '4688'
+  AND match(lower(toString(log.data.ParentProcessName)), '(winword|excel|powerpnt|outlook)\\.exe$')
+  AND match(lower(toString(log.data.NewProcessName)), '(cmd|powershell|wscript|cscript|mshta)\\.exe$')
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+ORDER BY `@timestamp` DESC
+LIMIT 100
+```
+
+## Your alerts
+
+These read the `alerts` table. `parentId = ''` keeps top-level alerts and leaves out echoes. See **Alert Fields Reference** for every alert field.
+
+**Alerts per day and severity, last 14 days**:
+
+```sql
+SELECT toDate(`@timestamp`) AS day, severity, count() AS alert_count
+FROM alerts
+WHERE parentId = ''
+  AND `@timestamp` > now() - INTERVAL 14 DAY
+GROUP BY day, severity
+ORDER BY day, severity
+```
+
+**Adversaries that reached more than one target in the last 7 days**:
+
+```sql
+SELECT toString(adversary.ip) AS adversary_ip,
+       uniqExact(toString(target.host)) AS hosts_hit,
+       count() AS alert_count
+FROM alerts
+WHERE adversary.ip IS NOT NULL
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY adversary_ip
+HAVING hosts_hit > 1
+ORDER BY hosts_hit DESC
+LIMIT 20
+```
+
+**Open alerts nobody has picked up**:
+
+```sql
+SELECT name, severity, count() AS alert_count, min(`@timestamp`) AS oldest
+FROM alerts
+WHERE parentId = ''
+  AND status = 'Open'
+  AND assignee = ''
+  AND NOT has(tags, 'False positive')
+GROUP BY name, severity
+ORDER BY oldest
+LIMIT 50
+```
+
+**The Windows event codes behind your alerts**, from the event that completed each match:
+
+```sql
+SELECT name, toString(lastEvent.log.eventCode) AS event_code, count() AS alert_count
+FROM alerts
+WHERE parentId = ''
+  AND dataType = 'wineventlog'
+  AND `@timestamp` > now() - INTERVAL 30 DAY
+GROUP BY name, event_code
+ORDER BY alert_count DESC
+LIMIT 20
+```
+
+## Your data sources
+
+**Sources that went quiet**: sources that sent data in the last 7 days but nothing in the last hour.
+
+```sql
+SELECT dataType, dataSource, max(`@timestamp`) AS last_seen
+FROM logs
+WHERE `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY dataType, dataSource
+HAVING last_seen < now() - INTERVAL 1 HOUR
+ORDER BY last_seen
+```
+
+**Events with processing errors**, by data type (a sign that a pipeline does not fit the logs):
+
+```sql
+SELECT dataType, count() AS events_with_errors, any(arrayStringConcat(errors, ' | ')) AS example
+FROM logs
+WHERE notEmpty(errors)
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY dataType
+ORDER BY events_with_errors DESC
+```
+
+**Events where a standard field was left empty**, for example `actionResult` on Windows events:
+
+```sql
+SELECT toString(log.eventCode) AS event_code, count() AS events
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND actionResult = ''
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY event_code
+ORDER BY events DESC
+LIMIT 20
+```
+
+## Follow a lead from one event
+
+| From | Click | You get |
+|---|---|---|
+| An event in Log Explorer | **Surrounding events** | Events from the same source, 15 minutes before and after. It replaces your filters and time range. |
+| A value in **Parsed fields** | **Filter for** or **Filter out** | An **is** or **is not** filter on that value |
+| A field in the sidebar (with one data type selected) | **Filter for value** (+) or **Filter out value** (−) next to a top value | The same, from the field's 5 most frequent values |
+| An alert, **Events** tab | **View all related logs** | Up to 1,000 logs behind the alert and its echoes, last 30 days |
+| An account in **User Auditor** | **View events in Log Explorer** | The account's events, last 30 days |
+| A chart element on a dashboard | The bar, slice or row | The records behind it, with the widget's conditions |
+
+## Time ranges and limits
+
+| Item | Value |
+|---|---|
+| Time range (search box and filters) | **Quick ranges** from Last 15 minutes to Last 30 days, **Relative** (last N minutes to months) or **Absolute**. New tabs start with Last 24 hours. |
+| Time range in a link | `@timestamp=` with `15m`, `1h`, `6h`, `24h`, `7d` or `30d`, or `from=` and `to=`. Without one, the last 30 days. |
+| Rows on screen | 50 at a time as you scroll |
+| CSV export (search box and filters) | Up to 10,000 rows, newest first, with the table's columns |
+| SQL run time | 30 seconds |
+| SQL rows | 500 at most from the server, first 50 shown |
+| SQL export | Keep results under 500 rows; see **Log Explorer SQL Mode** |
+| How far back you can search | As long as logs are kept, 730 days by default. See **Data Retention and Cold Storage**. |
+
+To keep a recipe for your team, run it with filters (not SQL) and click **Saved** > **Save current search**. SQL statements cannot be saved; keep them in your own notes.
+
+## When a recipe returns nothing
+
+| Check | How |
+|---|---|
+| The data type name | Open the data type selector; the list shows the data types your tenant really has. |
+| The field names | Open one event and read **Parsed fields**. Copy names exactly, letter case included. |
+| The time window | SQL ignores the time picker: is the `WHERE` window long enough? |
+| Text versus number | Wrap the field in `toString()` and compare with a quoted value, as in the recipes. |
+| Letter case | `=` and **is** compare exactly. Use `lower()`, `positionCaseInsensitive()` or **contains** to ignore case. |
+| A refused word | The message says which word, for example `"url" is not allowed here`. Rename the alias or use filters instead. |

@@ -1,0 +1,469 @@
+Use these endpoints to read and change the application settings of UTMStack v12 (email server, notification recipients, language, time zone and date format), test the email settings, manage white-label branding, and read or install the licence. On a multi-tenant installation, settings and branding are kept per tenant, and a tenant that has not set a value uses the default tenant's value.
+
+## Permissions and Licence
+
+| Action | Permission | Extra condition |
+|---|---|---|
+| Read settings | `config.read` (all built-in roles) | |
+| Change settings, send a test email | `config.write` (Administrator) | |
+| Read the display format (`GET /date-format`) and public branding (`GET /branding/public`) | None (no sign-in) | |
+| Read branding | `config.read` | |
+| Change branding, upload branding images | `config.write` | Enterprise licence |
+| Read version and licence | Any signed-in user | |
+| Install a licence | None | Administrator role in the default tenant |
+| Change email settings or branding in many tenants | `config.write` | Administrator role in the default tenant; branding also needs the Enterprise licence |
+
+For the screens, see **Settings Overview**, **Email Configuration**, **Date, Time Zone and Language**, **Branding** and **License and Editions**.
+
+## Settings
+
+Settings are stored as keys with text values. You can change the value of a key that exists; you cannot create new keys.
+
+### Setting Keys
+
+| Key | Default | Value |
+|---|---|---|
+| `utmstack.mail.host` | (empty) | SMTP server host, for example `smtp.example.com` |
+| `utmstack.mail.port` | `587` | SMTP server port |
+| `utmstack.mail.username` | (empty) | SMTP user name |
+| `utmstack.mail.password` | (empty) | SMTP password. Secret: stored encrypted and never returned. |
+| `utmstack.mail.from` | (empty) | Sender address of every email |
+| `utmstack.mail.baseUrl` | (empty) | Base URL of this installation, used in email links, for example `https://siem.example.com` |
+| `utmstack.mail.organization` | (empty) | Organization name shown in alert and incident emails |
+| `utmstack.mail.properties.mail.smtp.auth` | `TLS` | Encryption used by the SMTP server: `TLS`, `SSL` or `NONE`. Any value other than `NONE` also turns on sign-in to the SMTP server when a user name is set. |
+| `utmstack.alerts.notification_to` | (empty) | Comma-separated addresses that get new-alert emails. Empty means alerts are not emailed. |
+| `utmstack.alerts.notification_cc` | (empty) | Comma-separated addresses copied on new-alert emails |
+| `utmstack.incidents.notification_to` | (empty) | Comma-separated addresses that get incident emails. Empty means incidents are not emailed. |
+| `utmstack.incidents.notification_cc` | (empty) | Comma-separated addresses copied on incident emails |
+| `utmstack.system.language` | `en` | Default interface language: `en`, `es`, `pt`, `fr` or `de` |
+| `utmstack.time.zone` | `UTC` | Time zone used to show times, as an IANA name such as `America/New_York`. Records stay stored in UTC. |
+| `utmstack.time.dateformat` | `medium` | How dates and times are shown: `short`, `medium`, `long` or `full` |
+| `branding` | (empty) | White-label branding as JSON. Change it with the branding endpoints below, not here. |
+
+The server stores the value you send without checking it against these lists. Check your values before saving.
+
+### Setting Object
+
+| Field | Type | Description |
+|---|---|---|
+| `key` | string | Setting key |
+| `value` | string | Current value. Left out when the setting is a secret or empty. |
+| `is_secret` | boolean | `true` when the value is stored encrypted and never returned |
+| `is_set` | boolean | `true` when the setting has a value (use it to check a secret) |
+| `label` | string | Short name shown in the web console |
+| `description` | string | Explanation |
+| `updated_at` | string | Time of the last change |
+| `updated_by` | string | Email address of the user who changed it last, or `system` |
+
+### List Settings
+
+**Endpoint:** `GET /api/v1/config` (permission `config.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/config" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** an array of setting objects sorted by key, with no paging.
+
+```json
+[
+  {
+    "key": "utmstack.mail.host",
+    "value": "smtp.example.com",
+    "is_secret": false,
+    "is_set": true,
+    "label": "Mail Server Host",
+    "description": "SMTP server host. For instance, smtp.example.com.",
+    "updated_at": "2026-11-04T10:20:00Z",
+    "updated_by": "admin@example.com"
+  },
+  {
+    "key": "utmstack.mail.password",
+    "is_secret": true,
+    "is_set": true,
+    "label": "Mail Server Password",
+    "description": "Login password of the SMTP server",
+    "updated_at": "2026-11-04T10:20:00Z",
+    "updated_by": "admin@example.com"
+  }
+]
+```
+
+On a multi-tenant installation, a key that the tenant has not set uses the default tenant's value.
+
+### Get One Setting
+
+**Endpoint:** `GET /api/v1/config/{key}` (permission `config.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/config/utmstack.time.zone" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one setting object. An unknown key returns 404 `not found`.
+
+### Change a Setting
+
+**Endpoint:** `PUT /api/v1/config/{key}` (permission `config.write`)
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| value | string | Yes | New value. An empty string clears the setting. |
+| is_secret | boolean | No | `true` stores this and later values encrypted. A secret setting cannot be turned back into a normal one. |
+| label | string | No | New label (empty keeps the current one) |
+| description | string | No | New description (empty keeps the current one) |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/config/utmstack.alerts.notification_to" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"value": "soc@example.com,oncall@example.com"}'
+```
+
+**Response (HTTP 200):** the updated setting object. An unknown key returns 404 `config parameter not found`. Every change is recorded in the audit log as `config.updated`.
+
+On a multi-tenant installation, a change made inside a tenant creates that tenant's own copy of the key. From then on the tenant no longer follows the default tenant's value for that key.
+
+### Example: Set Up Email in One Script
+
+```bash
+for kv in \
+  "utmstack.mail.host=smtp.example.com" \
+  "utmstack.mail.port=587" \
+  "utmstack.mail.username=utmstack@example.com" \
+  "utmstack.mail.from=utmstack@example.com" \
+  "utmstack.mail.baseUrl=https://siem.example.com" \
+  "utmstack.mail.properties.mail.smtp.auth=TLS"; do
+  key="${kv%%=*}"; value="${kv#*=}"
+  curl -sk -X PUT "{{baseUrl}}/api/v1/config/$key" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d "{\"value\": \"$value\"}"
+done
+
+curl -sk -X PUT "{{baseUrl}}/api/v1/config/utmstack.mail.password" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"value": "<smtp-password>"}'
+```
+
+### Send a Test Email
+
+**Endpoint:** `POST /api/v1/config/checkEmailConfiguration` (permission `config.write`)
+
+Sends a test message with the SMTP settings in the request to **your own** account's email address. Nothing is saved. The body is a JSON **array** of one or more settings to try:
+
+| Field | Type | Description |
+|---|---|---|
+| host | string | SMTP server host |
+| port | integer | SMTP server port, for example `587` |
+| username | string | SMTP user name |
+| password | string | SMTP password |
+| authType | string | `TLS`, `SSL` or `NONE`. Empty, `none` or `false` means no sign-in to the SMTP server. |
+| from | string | Sender address. Required. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/config/checkEmailConfiguration" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '[{"host": "smtp.example.com", "port": 587, "username": "utmstack@example.com",
+        "password": "<smtp-password>", "authType": "TLS", "from": "utmstack@example.com"}]'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"success": true, "message": "test email sent"}
+```
+
+On failure the answer is HTTP 400 with `"success": false` and the reason in `message`, for example `config[0]: from address is required to send a test message`, or `config[0] (smtp.example.com:587): ` followed by the SMTP server's error.
+
+### Display Format (No Sign-In)
+
+**Endpoint:** `GET /api/v1/date-format`
+
+Returns how the tenant shows times. It works before sign-in.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/date-format"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"timezone": "UTC", "dateFormat": "medium"}
+```
+
+## Branding
+
+White-label branding replaces the UTMStack name, logos, icon and accent color in the web console and in report PDFs. Changing it needs the Enterprise licence. On a multi-tenant installation each tenant has its own branding.
+
+### Branding Object
+
+| Field | Type | Description |
+|---|---|---|
+| `enabled` | boolean | Use the branding below. When `false`, the shipped UTMStack look is shown. |
+| `productName` | string | Product name shown instead of UTMStack. Empty means `UTMStack`. |
+| `accentColor` | string | Main color, as a CSS color such as `#8b5cf6` |
+| `logoUrl` | string | Logo for the light theme |
+| `logoDarkUrl` | string | Logo for the dark theme |
+| `faviconUrl` | string | Browser tab icon |
+| `reportLogoUrl` | string | Logo printed in report PDFs |
+| `reportCoverUrl` | string | Cover image of report PDFs |
+| `updatedAt`, `updatedBy` | string | Last change (answers only) |
+
+### Read Branding
+
+**Endpoint:** `GET /api/v1/branding` (permission `config.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/branding" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "enabled": true,
+  "productName": "Example SOC",
+  "accentColor": "#8b5cf6",
+  "logoUrl": "/uploads/branding/logo-<random>.png",
+  "logoDarkUrl": "/uploads/branding/logoDark-<random>.png",
+  "faviconUrl": "/uploads/branding/favicon-<random>.ico",
+  "reportLogoUrl": "",
+  "reportCoverUrl": "",
+  "updatedAt": "2026-11-06T12:00:00Z",
+  "updatedBy": "admin@example.com"
+}
+```
+
+### Change Branding
+
+**Endpoint:** `PUT /api/v1/branding` (permission `config.write`, Enterprise)
+
+The body has the fields of the branding object (without `updatedAt` and `updatedBy`). It **replaces** the whole branding: a field you leave out is saved empty. Read the current branding first and send it back with your changes. Upload images with the next endpoint; it fills in the image addresses for you.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/branding" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "productName": "Example SOC",
+    "accentColor": "#8b5cf6",
+    "logoUrl": "/uploads/branding/logo-<random>.png",
+    "logoDarkUrl": "/uploads/branding/logoDark-<random>.png",
+    "faviconUrl": "/uploads/branding/favicon-<random>.ico",
+    "reportLogoUrl": "",
+    "reportCoverUrl": ""
+  }'
+```
+
+**Response (HTTP 200):** the saved branding object. Without the Enterprise licence the answer is 403 `This feature requires an Enterprise license`.
+
+### Upload a Branding Image
+
+**Endpoint:** `POST /api/v1/branding/assets/{slot}` (permission `config.write`, Enterprise; multipart form, field `file`)
+
+| Slot | Sets |
+|---|---|
+| `logo` | `logoUrl` |
+| `logoDark` | `logoDarkUrl` |
+| `favicon` | `faviconUrl` |
+| `reportLogo` | `reportLogoUrl` |
+| `reportCover` | `reportCoverUrl` |
+
+The image must be PNG, JPEG, GIF, WebP, ICO or SVG, and at most 5 MB. The server checks the file content.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/branding/assets/logo" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -F "file=@example-logo.png"
+```
+
+**Response (HTTP 200):** the whole branding object with the new address in the slot. The previous image file is removed when nothing else uses it.
+
+| HTTP code | Error |
+|---|---|
+| 400 | `unknown asset slot` |
+| 400 | `missing file field` |
+| 413 | `image is too large (max 5MB)` |
+| 415 | `image "<slot>" must be png/jpeg/webp/gif/svg/ico` |
+
+Uploading an image does not switch branding on. Set `"enabled": true` with `PUT /branding` when everything is ready.
+
+### Public Branding (No Sign-In)
+
+**Endpoint:** `GET /api/v1/branding/public`
+
+What the sign-in page uses. It works before sign-in.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/branding/public"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "enabled": true,
+  "productName": "Example SOC",
+  "accentColor": "#8b5cf6",
+  "logoUrl": "/uploads/branding/logo-<random>.png",
+  "logoDarkUrl": "/uploads/branding/logoDark-<random>.png",
+  "faviconUrl": "/uploads/branding/favicon-<random>.ico",
+  "language": "en"
+}
+```
+
+When branding is off, or the installation has no Enterprise licence, the answer has `"enabled": false`, `"productName": "UTMStack"` and empty images. `language` is the value of `utmstack.system.language`.
+
+## Version and Licence
+
+### Version
+
+**Endpoint:** `GET /api/v1/billing/version` (any signed-in user)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/billing/version" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "version": "<version>",
+  "edition": "enterprise",
+  "changelog": "<release notes>",
+  "server": "<server-name>",
+  "instanceId": "<instance-id>"
+}
+```
+
+`edition` is `community` or `enterprise`. `changelog` is left out when empty.
+
+### Read the Licence
+
+**Endpoint:** `GET /api/v1/billing/license` (any signed-in user)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/billing/license" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200)** for a user of the default tenant:
+
+```json
+{
+  "edition": "enterprise",
+  "mssp": true,
+  "ingestGbPerMonth": 0,
+  "type": "online",
+  "expiresAt": "2027-11-30T00:00:00Z"
+}
+```
+
+| Field | Description |
+|---|---|
+| `edition` | `community` or `enterprise` |
+| `mssp` | `true` when the multi-tenant licence is installed |
+| `ingestGbPerMonth` | Contracted volume per month; `0` means no limit |
+| `type` | `online` or `offline`; empty on Community |
+| `expiresAt` | End date of the licence; left out when there is none |
+
+Users of other tenants get only `edition` and `mssp`. When a licence expires, the installation falls back to Community.
+
+### Install a Licence
+
+**Endpoint:** `POST /api/v1/billing/license` (Administrator role in the default tenant; multipart form, field `file`)
+
+Installs the licence file you received from UTMStack. The file is checked against this installation's instance id. It takes effect at once.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/billing/license" \
+  -H "Authorization: Bearer <access-token>" \
+  -F "file=@LICENSE"
+```
+
+**Response (HTTP 200):** the new licence, in the same form as above.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `license file is required (multipart field 'file')` | No file sent |
+| 400 | Message starting with `invalid license` | The file is not for this installation, cannot be read, or has expired |
+| 403 | `this operation is limited to administrators of the default tenant` | Wrong caller |
+| 500 | `failed to install license` | The file could not be saved on the server |
+
+> [!NOTE]
+> API keys need the Enterprise licence. On a Community installation, install the first licence with a bearer token from signing in (see **Authentication and API Keys**).
+
+## Apply Settings to Many Tenants
+
+On an installation with the multi-tenant licence, an Administrator of the default tenant can change email settings or branding in several tenants with one call. Each tenant is handled on its own: failures are listed in `failed` and are not rolled back in the others.
+
+`selector` is either `{"tenantIds": ["<tenant-id>", ...]}` or `{"allTenants": true}`. With `allTenants`, every active tenant except the default tenant is changed.
+
+**Response (HTTP 200) for every endpoint below:**
+
+```json
+{
+  "succeeded": ["<tenant-id>", "<tenant-id>"],
+  "failed": [{"tenantId": "<tenant-id>", "error": "<reason>"}]
+}
+```
+
+### Email Settings
+
+**Endpoint:** `POST /api/v1/platform/config/smtp/bulk/update` (permission `config.write`)
+
+`fields` is a list of setting keys and values (at least one). Any setting key can be sent, not only email keys.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/platform/config/smtp/bulk/update" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "selector": {"allTenants": true},
+    "fields": [
+      {"key": "utmstack.mail.host", "value": "smtp.example.com"},
+      {"key": "utmstack.mail.port", "value": "587"},
+      {"key": "utmstack.mail.from", "value": "soc@example.com"}
+    ]
+  }'
+```
+
+> [!NOTE]
+> In UTMStack v12.0.2 a key that does not exist is skipped without an error, and the tenant is still listed in `succeeded`. Check the key names before you send them.
+
+### Branding
+
+**Endpoint:** `POST /api/v1/platform/branding/bulk/update` (permission `config.write`, Enterprise)
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/platform/branding/bulk/update" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "selector": {"tenantIds": ["<tenant-id>"]},
+    "branding": {"enabled": true, "productName": "Acme SOC", "accentColor": "#0ea5e9",
+                 "logoUrl": "", "logoDarkUrl": "", "faviconUrl": "", "reportLogoUrl": "", "reportCoverUrl": ""}
+  }'
+```
+
+`branding` replaces each selected tenant's whole branding, as `PUT /branding` does. The default tenant is always skipped.
+
+**Endpoint:** `POST /api/v1/platform/branding/bulk/upload-asset/{slot}` (permission `config.write`, Enterprise; multipart form)
+
+Uploads one image and sets it in the slot of every selected tenant. Send the selector as a JSON text in the form field `selector` and the image in the field `file`.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/platform/branding/bulk/upload-asset/logo" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -F 'selector={"allTenants": true}' \
+  -F "file=@partner-logo.png"
+```
+
+A missing selector returns 400 `missing selector field`; a selector that is not valid JSON returns 400 starting with `invalid selector JSON`.

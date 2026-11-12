@@ -1,24 +1,37 @@
-UTMStack v12 sends email through your own mail server (SMTP server). It uses it for alert and incident notifications, scheduled compliance reports, user invitations, password resets, email sign-in codes and the **Send email** step of automated response flows. This page explains every field on the **Email configuration** page and how to set the correct **Base URL**.
+UTMStack v12 sends email through your own mail server (SMTP server). This page explains every field on the **Email configuration** page, how UTMStack connects to the mail server, ready-made settings for Microsoft 365, Google, Amazon SES and an internal relay, and what each error message means.
+
+## What UTMStack sends by email
+
+| Email | Sent to | Needs |
+|---|---|---|
+| New alert | **Alert recipients** | **To** filled in |
+| New incident | **Incident recipients** | **To** filled in |
+| Scheduled compliance report, with the PDF attached | The schedule's recipients | See **Scheduled Compliance Reports** |
+| Invitation and password reset links | The user | A correct **Base URL** |
+| Two-step sign-in codes | The user | |
+| **Send email** step of an automated response flow | The flow's recipients | See **Automated Response Overview** |
+
+Alert emails have the subject `<organization name> [<first 8 characters of the alert ID>] <alert name>`. Incident emails have the subject `New incident: <incident name>`.
 
 ## Before you start
 
-- You need the **Administrator** role. Viewing the page needs the `config.read` permission and saving needs `config.write`.
-- Have your mail server details ready: host name, port, encryption type, and a user name and password if the server requires them.
-- Make sure the UTMStack server can reach your mail server on its port.
+- You need the **Administrator** role. Viewing the page needs `config.read` and saving or testing needs `config.write`.
+- Your own user needs a real email address: **Send test** sends to it.
+- The UTMStack server must reach the mail server on its port. Many cloud providers block outgoing port 25 (see **Cloud servers and port 25**).
 
 ## Open the page
 
-Go to **Configure > Settings > Email Configuration**. The page title is **Email configuration**.
+Go to **Configure > Settings > Email Configuration**. The page title is **Email configuration**. Right after the first sign-in, UTMStack opens this page for you once you have set the administrator's email address.
 
-Right after the first sign-in, UTMStack opens this page for you once you have set the administrator's email address.
+![The Email configuration page with the SMTP server section (host, port, encryption TLS, SSL or None, username, password), the Sender section (from address, organization name, Base URL) and the start of Alert recipients](/assets/f4f0ad53-42da-4b5c-8665-3aa3d5b5f0b5)
 
 ## SMTP server
 
 | Field | What to enter | Default |
 |---|---|---|
-| Host | Host name of your SMTP server, for example `smtp.example.com` | Empty |
-| Port | The port your mail server accepts mail on | `587` |
-| Encryption | **TLS**, **SSL** or **None** | **TLS** |
+| Host | Host name of your SMTP server, for example `smtp.example.com`. Use the name on the server's certificate, not its IP address. | Empty |
+| Port | The port your mail server accepts mail on: usually `587`, or `25` for a relay | `587` |
+| Encryption | **TLS**, **SSL** or **None**. See **How UTMStack connects** below. | **TLS** |
 | Username | The account used to sign in to the mail server | Empty |
 | Password | The password of that account. Once saved, it is not shown again: leave the field blank to keep it, or type a new one to change it. | Empty |
 
@@ -26,8 +39,8 @@ Right after the first sign-in, UTMStack opens this page for you once you have se
 
 | Field | What to enter |
 |---|---|
-| From address | The address emails are sent from. **Send test** needs it. |
-| Organization name | Your organization's name. It appears in alert and incident notification emails. |
+| From address | The address emails are sent from. **Send test** needs it. If empty, UTMStack uses the **Username**. Your mail server must allow the account to send as this address. |
+| Organization name | Your organization's name. It appears at the start of the subject of alert emails. |
 | Base URL | The public address of this UTMStack server, used for links in emails. See **Set the Base URL** below. |
 
 ## Recipients
@@ -39,11 +52,100 @@ Right after the first sign-in, UTMStack opens this page for you once you have se
 
 Type an address and click **Add** to add it to a list.
 
+## How UTMStack connects
+
+UTMStack always opens a plain connection to the host and port first, then:
+
+1. If the server offers STARTTLS (an upgrade to an encrypted connection), UTMStack switches to encryption, whatever you chose under **Encryption**. It checks the server's certificate: it must be valid, issued by a public certificate authority, and match the **Host** name.
+2. If **Encryption** is **TLS** or **SSL** and a **Username** is set, UTMStack signs in with the username and password, using the PLAIN method. It signs in only over an encrypted connection.
+3. If **Encryption** is **None**, or the **Username** is empty, UTMStack does not sign in. Use this for a relay that accepts mail from the UTMStack server's address.
+
+In practice, **TLS** and **SSL** behave the same: both mean "sign in, over STARTTLS". Servers that expect encryption from the very first byte, usually on port 465, do not work with UTMStack. Use port 587 (or 25) with STARTTLS instead.
+
 ## Save and test
 
-1. Fill in the fields and click **Save changes**.
-2. Click **Send test**. UTMStack sends a test email to the email address of the user who is signed in.
-3. Check that the email arrives. If it does not, check the host, port, encryption and credentials, and that the server can reach the mail server.
+1. Fill in the fields.
+2. Click **Send test**. UTMStack sends "Mail configuration test" to your own email address, using the values on the screen. If the password field is blank, it uses the saved password.
+3. If you see "Test email sent to" your address, check that the email arrived, including the spam folder.
+4. Click **Save changes**. You see "Email configuration saved".
+
+**Send test** does not save anything. Save the page after a successful test.
+
+## Settings for common mail services
+
+### Microsoft 365
+
+UTMStack signs in with the PLAIN method only. Microsoft 365's authenticated submission service (`smtp.office365.com`) does not offer that method and answers "504 5.7.4 Unrecognized authentication type". Microsoft is also retiring password sign-in for that service. Send through a Microsoft 365 connector (SMTP relay) instead:
+
+<Steps>
+
+<Step title="Create a connector in Exchange Online">
+
+In the Exchange admin center, go to **Mail flow > Connectors > Add a connector**. Choose **From: Your organization's email server** and **To: Office 365**. Name it `UTMStack`, and choose **By verifying that the IP address of the sending server matches one of the following IP addresses**. Enter the UTMStack server's public IP address. Save.
+
+</Step>
+
+<Step title="Find your MX endpoint">
+
+In the Microsoft 365 admin center, open **Settings > Domains**, select your domain and look at the MX record. Its value has the form `contoso-com.mail.protection.outlook.com`.
+
+</Step>
+
+<Step title="Fill in UTMStack">
+
+| Field | Value |
+|---|---|
+| Host | Your MX endpoint, for example `contoso-com.mail.protection.outlook.com` |
+| Port | `25` |
+| Encryption | **None** (no sign-in; the connector recognizes the server's IP address, and STARTTLS is still used) |
+| Username, Password | Empty |
+| From address | An address in one of your Microsoft 365 domains, for example `utmstack@contoso.com` |
+
+</Step>
+
+</Steps>
+
+The server needs a fixed public IP address and must be able to send on port 25.
+
+### Gmail and Google Workspace
+
+| Field | Value |
+|---|---|
+| Host | `smtp.gmail.com` |
+| Port | `587` |
+| Encryption | **TLS** |
+| Username | The full Google address, for example `alerts@example.com` |
+| Password | An app password for that account (a 16-character password created under **Google Account > Security > 2-Step Verification > App passwords**). The account needs 2-Step Verification turned on. Your normal password does not work. |
+| From address | The same address, or an alias configured in that Gmail account under **Send mail as** |
+
+For Google Workspace organizations, the SMTP relay service is an alternative: in the Google Admin console, go to **Apps > Google Workspace > Gmail > Routing > SMTP relay service**, allow your domain's senders, tick **Require SMTP Authentication** and **Require TLS encryption**, and use host `smtp-relay.gmail.com`, port `587`, **TLS**, with a Workspace user and its app password.
+
+### Amazon SES
+
+| Field | Value |
+|---|---|
+| Host | `email-smtp.<region>.amazonaws.com`, for example `email-smtp.eu-west-1.amazonaws.com` |
+| Port | `587` |
+| Encryption | **TLS** |
+| Username, Password | SES SMTP credentials, created in the Amazon SES console under **SMTP settings > Create SMTP credentials**. They are not your AWS access keys, and they work only in the region they were created in. |
+| From address | An address or domain verified in Amazon SES in the same region |
+
+While your SES account is in the sandbox, it can only send to verified addresses. Request production access in the SES console before you rely on it for alerts.
+
+### An internal relay (Postfix, Exchange Server, or another mail server)
+
+| Field | Value |
+|---|---|
+| Host | The relay's host name |
+| Port | `25`, or `587` if the relay requires sign-in |
+| Encryption | **None** if the relay accepts mail from the UTMStack server's IP address without sign-in; **TLS** if it requires a username and password |
+| From address | An address the relay accepts as sender |
+
+If the relay offers STARTTLS, its certificate must come from a public certificate authority and match the **Host** name. If it uses a certificate from your own certificate authority, sending fails; either install a publicly trusted certificate on the relay, or turn off STARTTLS for connections from the UTMStack server on a network you trust.
+
+### Cloud servers and port 25
+
+Many cloud providers block or limit outgoing connections on port 25, including Amazon EC2, Microsoft Azure and Google Cloud. If UTMStack runs in the cloud, use a service on port 587 (such as Amazon SES or Google's SMTP relay with sign-in), or, where your provider allows it, ask them to lift the limit (Google Cloud does not).
 
 ## Set the Base URL
 
@@ -83,11 +185,37 @@ Click **Save changes**.
 
 </Steps>
 
+## Troubleshooting
+
+When **Send test** fails, the message has the form `config[0] (<host>:<port>): <reason>`. The reason comes from the connection or from your mail server.
+
+| Reason contains | Cause | Fix |
+|---|---|---|
+| "Set a From address before testing" | **From address** is empty | Fill it in. |
+| `mail configuration is incomplete` | **Host** is empty | Fill it in. |
+| `connection refused`, `i/o timeout`, `connection timed out`, `no such host` | The server cannot reach the host and port: wrong host or port, a firewall, or a cloud provider blocking port 25 | From the UTMStack server, run `nc -vz <host> <port>`. Fix the network path or use another port. |
+| The test waits a long time and then fails, often with `EOF`; usually on port 465 | The server expects encryption from the first byte | Use port 587 or 25. |
+| `x509:` or `certificate` | The mail server's certificate is not publicly trusted, expired, or does not match the **Host** | Use the host name on the certificate, or fix the certificate. |
+| `unencrypted connection` | **Encryption** is **TLS** or **SSL**, but the server does not offer STARTTLS, so UTMStack will not send the password | Use a port where the server offers STARTTLS, or choose **None** for a relay that needs no sign-in. |
+| `server doesn't support AUTH` | The server does not accept sign-in on this port | Choose **None** if it is a relay, or use the server's submission port (usually 587). |
+| `504 5.7.4 Unrecognized authentication type` | The server does not accept the PLAIN sign-in method (for example `smtp.office365.com`) | Use a relay without sign-in. For Microsoft 365, see above. |
+| `535` (for example "Username and Password not accepted") | Wrong username or password; for Google, an app password is needed | Check the credentials; create an app password. |
+| `530` with "Authentication required" or "Client was not authenticated" | **Encryption** is **None** but the server requires sign-in | Choose **TLS** and enter the username and password. |
+| `550` or `554` about the sender, "not verified" or "send as" | The account may not send as the **From address**, or the address is not verified (Amazon SES) | Use an allowed sender, or verify it. |
+
+If the test works but alert emails do not arrive:
+
+- Check that **Alert recipients > To** is not empty.
+- Check the spam folder and your mail server's logs.
+- On the server, look for mail errors with `docker service logs --since 1h utmstack_backend 2>&1 | grep -i mail`.
+
+If invitations or reset emails do not arrive, check the **Base URL** first: without it, UTMStack does not send them and only writes the failure to the backend log.
+
 ## Email settings and tenants
 
-On a multi-tenant licence, each tenant has its own email settings. A field that a tenant has never saved uses the value of the default tenant, so tenants can send mail through the operator's mail server without setting up their own.
+On a multi-tenant licence, each tenant has its own email settings. A mail server field that a tenant has never saved uses the value of the default tenant, so tenants can send mail through the operator's mail server without setting up their own. See **Multi-Tenancy Overview**.
 
 Each tenant administrator should open **Email Configuration** in their own tenant and set:
 
-- **Base URL** to the tenant's own address, for example `https://customer-a.example.com`. Users of a tenant sign in on the tenant's address (see **Tenants**).
+- **Base URL** to the tenant's own address, for example `https://customer-a.example.com`.
 - Their own **Alert recipients** and **Incident recipients**.

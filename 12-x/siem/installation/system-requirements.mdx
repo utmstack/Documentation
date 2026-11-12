@@ -1,4 +1,4 @@
-This page lists what a server needs before you install UTMStack v12: the operating system, the hardware the installer checks, sizing guidance, network access, and the changes the installer makes to the server.
+This page lists what a server needs before you install UTMStack v12: the operating system, the hardware the installer checks, sizing, network access, and the changes the installer makes to the server. For a step-by-step checklist, see **Prepare the Server**; for cloud servers, see **Install on AWS, Azure or Google Cloud**.
 
 ## Use a dedicated server
 
@@ -30,74 +30,24 @@ The installer stops if the server is below these limits:
 | Memory | 13,360 MB in total | `insufficient memory`, with the amount available and the amount required |
 | Free disk space on `/` | About 30 GB | `your system does not have the minimum required free disk space: 30 GB` |
 
-These are the limits below which the installer refuses to run, not sizing for production. The installer reserves 1,000 MB of memory for the operating system and gives every service its minimum share of the rest. Memory above the minimums is shared out by priority, with the largest share going to the event processor and ClickHouse. See **Installer reference** for the service limits.
+These are the limits below which the installer refuses to run, not sizing for production. The installer reserves 1,000 MB of memory for the operating system and gives every service its minimum share of the rest. Memory above the minimums is shared out by priority, with the largest share going to the event processor and ClickHouse. See **Installer Reference** for the service limits.
 
 ## Sizing
 
-The UTMStack project publishes these starting points for one month of logs kept on the server's own disk. They assume that 60 data sources produce about 100 GB of logs a month.
+How much CPU, memory and disk you need depends on how many logs you collect and how long you keep them on the server. **Sizing and Capacity Planning** explains how the installer shares memory between the services, how much each service gets on 16, 32, 64 and 128 GB servers, and how to estimate disk space from your own log volume.
 
-<Columns columnCount={2}>
-  <Column>
-    <Card title="Small" icon="pi pi-building">
+In short:
 
-    **50 data sources (120 GB a month)**
+- **Memory.** Above the installer's minimum, almost all extra memory goes to ClickHouse (log storage) and the event processor (parsing and correlation). The installer uses up to about 134,000 MB; memory beyond that is not given to any service.
+- **CPU.** There are no CPU limits. The event processor and ClickHouse use all cores.
+- **Disk.** Logs and alerts are kept for **730 days** by default, and ingestion statistics for 1,095 days. Size the disk for the period you need, or change the periods in **Configure > Settings > Data Retention** after installation, where you can also move older data to cold storage (an S3-compatible bucket, Azure Blob Storage or an NFS share). See **Data Retention and Cold Storage**.
 
-    - CPU: 4 cores
-    - RAM: 16 GB
-    - Disk: 150 GB
-
-    </Card>
-    <Card title="Large" icon="pi pi-building-columns">
-
-    **240 data sources (500 GB a month)**
-
-    - CPU: 16 cores
-    - RAM: 32 GB
-    - Disk: 500 GB
-
-    </Card>
-  </Column>
-  <Column>
-    <Card title="Medium" icon="pi pi-server">
-
-    **120 data sources (250 GB a month)**
-
-    - CPU: 8 cores
-    - RAM: 16 GB
-    - Disk: 250 GB
-
-    </Card>
-    <Card title="Very large" icon="pi pi-globe">
-
-    **500 data sources (1,000 GB a month)**
-
-    - CPU: 32 cores
-    - RAM: 64 GB
-    - Disk: 1,000 GB
-
-    </Card>
-  </Column>
-</Columns>
-
-A data source is any single source of logs: a device, an agent, a cloud or SaaS integration, a network appliance, a server or an application.
-
-Adjust the disk for how long you keep data:
-
-- **Data on the server (hot storage).** Logs and alerts on the server's own disk, under `/utmstack`.
-- **Cold storage.** Logs and alerts that UTMStack moves, after a number of days you choose, to an S3-compatible bucket, Azure Blob Storage, or a local or NFS folder. Cold data stays searchable from the same pages; nothing has to be restored.
-
-<Warning>
-
-By default UTMStack v12 keeps logs and alerts for **730 days** and ingestion statistics for 1,095 days. Size the disk for the period you need, or change the periods in **Configure > Settings > Data Retention** after installation. See **Data retention and cold storage**.
-
-</Warning>
-
-After you go live, watch CPU, memory and disk use, and add resources when needed. When you add memory, run `utmstack_installer --recalculate-memory` so the services can use it. See **Installer reference**.
+After you go live, watch CPU, memory and disk use, and add resources when needed. When you add memory, run `utmstack_installer --recalculate-memory` so the services can use it. See **Installer Reference**.
 
 ## Storage
 
 - Use SSD storage for the UTMStack data folder.
-- UTMStack keeps its data under `/utmstack`. To put it on a separate disk, mount that disk at `/utmstack` before you install.
+- UTMStack keeps its data under `/utmstack`. To put it on a separate disk, mount that disk at `/utmstack` before you install. **Prepare the Server** shows how.
 - The operating system disk (`/`) also needs space: the installer checks free space there, and Docker keeps its images and the PostgreSQL database volume under `/var/lib/docker` by default.
 
 ## Network access
@@ -108,14 +58,15 @@ The server needs internet access during installation and afterwards, unless you 
 - During installation it must also reach the UTMStack update server, `cm.utmstack.com`. If it cannot reach it for about a minute, it prints `No Internet connection detected. Installation will continue offline.`
 - It downloads packages from your distribution's mirrors and from `download.docker.com`, and container images from `ghcr.io` and Docker Hub.
 
-For the full list of inbound and outbound ports, see **Network ports and firewall**.
+For the full list of inbound and outbound ports, see **Network Ports and Firewall**.
 
 Other network needs:
 
 - **IPv4.** The installer turns IPv6 off on the whole server. Make sure you can reach the server over IPv4, including for SSH.
 - **Address range 10.21.199.0/24.** The installer creates a network interface `vlan10` with the address `10.21.199.3/24`. Make sure this range is not used on your network.
 - **DNS name.** Give the server a DNS name if you want a trusted SSL certificate. On a multi-tenant licence, each tenant needs its own DNS name that points to the server.
-- **Time synchronisation.** Keep the server's clock synchronised with NTP or Chrony. Correct time matters for correlating events and for the time stamps of alerts.
+- **Fixed IP address.** The installer sets up Docker Swarm with the server's main IP address. Use a static address or a DHCP reservation.
+- **Time synchronisation.** Keep the server's clock synchronised with NTP or Chrony. Correct time matters for correlating events, for the time stamps of alerts and for authenticator-app sign-in codes.
 
 ## What the installer changes on the server
 
@@ -127,8 +78,8 @@ Other network needs:
 | Red Hat only | Sets SELinux to permissive (now and in `/etc/selinux/config`) and stops and disables firewalld. |
 | Docker | Installs Docker CE from `download.docker.com` and starts Docker Swarm, using the server's main IP address. |
 | nginx | Installs nginx from your distribution and writes its configuration: `/etc/nginx/sites-available/default` on Ubuntu and Debian, `/etc/nginx/nginx.conf` on Red Hat. It also writes a maintenance page, `/etc/nginx/html/custom_502.html`. |
-| Cockpit | Installs Cockpit, a web console for server management, on port 9090. |
-| Files | Creates `/root/utmstack.yml` and the `/utmstack` folder, and installs the update service. See **Installer reference**. |
+| Cockpit | Installs Cockpit, a web console for server management, on port 9090. On Red Hat Enterprise Linux it may have to be started with `systemctl enable --now cockpit.socket`. |
+| Files | Creates `/root/utmstack.yml` and the `/utmstack` folder, and installs the update service. See **Installer Reference**. |
 
 <Note>
 

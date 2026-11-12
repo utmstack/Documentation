@@ -11,6 +11,11 @@ Click your avatar in the top-right corner and choose **Profile**. Every user can
 
 Your email address is also the name you sign in with. Administrators cannot change these fields for you.
 
+Before you change your email address, check two things:
+
+- From the next sign-in, you sign in with the new address.
+- If you sign in through single sign-on, your identity provider must send the new address too, because UTMStack matches single sign-on accounts by email. Otherwise single sign-on no longer finds your account.
+
 ## Change your password
 
 1. Under **Password**, enter your **Current password**.
@@ -96,5 +101,20 @@ UTMStack has no recovery codes. Ask an administrator to reset your two-step sign
 
 - Users who sign in through a SAML 2.0 or OpenID Connect identity provider do not get the UTMStack code step. Set up multi-factor sign-in in your identity provider instead.
 - Users who sign in through an LDAP or Active Directory provider use the normal sign-in form and get the UTMStack code step if they turned it on.
+- Accounts created by single sign-on have no UTMStack password, so the **Password** section does not apply to them.
 
 See **Single Sign-On**.
+
+## Messages and what they mean
+
+| Message | Cause | Fix |
+|---|---|---|
+| "Current password is incorrect" | The current password you typed is wrong | Type it again. If you forgot it, sign out and use **Forgot?** (see **Users**). |
+| "Password must be at least 8 characters" or "Passwords do not match" | The new password is too short, or the two fields differ | Fix the new password. |
+| "That email is already in use" | Another account in your organization has that address | Use another address, or ask an administrator. |
+| "Image type not allowed (use PNG, JPEG, WEBP or GIF)" or "Image is too large (max 2MB)" | The avatar file is of the wrong type or too large | Use a PNG, JPEG, WEBP or GIF image of 2 MB or less. |
+| "Invalid or expired code" | The code is wrong, was already used, or has expired | For an authenticator app, check that the phone's clock is set automatically; codes depend on the time. For email, use the latest code within 5 minutes. |
+| "Please wait a moment before requesting a new code" | You asked for a new email code too soon | Wait about half a minute. |
+| "Two-factor by email needs a mail server…" | No mail server is set up | Ask an administrator to set up **Email Configuration**, or use an authenticator app. |
+| "This code has expired. Sign in again." | The two-step step took longer than 5 minutes | Go back and sign in again. |
+| At sign-in: "the second factor is sent by email, and no mail server is configured" | Your account uses email codes and mail stopped working | Ask an administrator to fix **Email Configuration**, or to reset your two-step sign-in. |

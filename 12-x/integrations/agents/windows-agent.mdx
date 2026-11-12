@@ -2,10 +2,12 @@ The UTMStack Windows agent is a service you install on each Windows host. It rea
 
 ## Before you begin
 
-- The host must reach your UTMStack server on **443/TCP**. No other port is needed.
+- The host must reach your UTMStack server directly on **443/TCP**. No other port is needed. The agent has no proxy setting: the install command opens a direct connection to the server and stops if it cannot.
 - You need a PowerShell window opened with **Run as administrator** on the host.
 - You need the install command from your own UTMStack instance. It contains your connection key, which only administrators can see. See **How Data Reaches UTMStack**.
 - Choose the build that matches the host's processor: **AMD64** (most PCs and servers) or **ARM64**.
+
+The product does not list supported Windows versions. The install command includes a download fallback for older systems such as Windows Server 2012, 2012 R2 and 2016, which may lack `curl.exe`.
 
 <Tip>
 
@@ -21,12 +23,16 @@ You do not need to install cURL first. The command uses `curl.exe` when Windows 
   </Step>
   <Step title="Choose the platform and options">
     Under **Install on Windows Agent**, choose the **Platform** (**AMD64** or **ARM64**) and set the **Options** (see the table below).
+
+    ![Windows Agent setup guide in UTMStack: the port 443 requirement, Platform AMD64 or ARM64, the install options and the PowerShell install command](/assets/dbff67c5-d426-4960-a50e-8851c92273b8)
+
+    This screenshot is from UTMStack v12.0.0, which shows the internal name `WINDOWS_AGENT` instead of **Windows Agent**.
   </Step>
   <Step title="Copy the command">
     Copy the command shown. It contains a sensitive enrollment token: do not share it.
   </Step>
   <Step title="Run it on the host">
-    Paste the command into the administrator PowerShell window and press Enter. Run it on every Windows host you want to monitor.
+    Paste the command into the administrator PowerShell window and press Enter. Run it on every Windows host you want to monitor. To install on many hosts at once, see **Deploying Agents at Scale**.
   </Step>
 </Steps>
 
@@ -36,7 +42,7 @@ The command looks like this (the product fills in your server address and key):
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12; [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; New-Item -ItemType Directory -Force -Path "C:\Program Files\UTMStack\UTMStack Agent" | Out-Null; if (Get-Command curl.exe -ErrorAction SilentlyContinue) { & curl.exe -k -o "C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe" "https://<server>/private/dependencies/agent/utmstack_agent_service_windows_amd64.exe" } else { (New-Object Net.WebClient).DownloadFile('https://<server>/private/dependencies/agent/utmstack_agent_service_windows_amd64.exe', 'C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe') }; Start-Process "C:\Program Files\UTMStack\UTMStack Agent\utmstack_agent_service_windows_amd64.exe" -ArgumentList 'install', '<server>', '<connection-key>', 'yes' -NoNewWindow -Wait
 ```
 
-The command downloads the agent into `C:\Program Files\UTMStack\UTMStack Agent`, checks that the server answers on 443, registers the agent and starts it as a Windows service.
+The command downloads the agent into `C:\Program Files\UTMStack\UTMStack Agent`, checks that the server answers on 443, registers the agent and starts it as a Windows service. A successful run ends with `UTMStackAgent service installed correctly`. If it stops with an error, see **Agent Troubleshooting**.
 
 ### Install options
 
@@ -45,41 +51,67 @@ The command downloads the agent into `C:\Program Files\UTMStack\UTMStack Agent`,
 | **Skip TLS certificate validation (self-signed server)** | On | The agent accepts the server's certificate without checking it. Leave it on if your UTMStack server uses its self-signed certificate. Turn it off if the server has a certificate your hosts trust. In the command this is the last argument, `'yes'` or `'no'`. |
 | **Disable remote command execution on this host** | Off | Adds `'--no-remote-control'`. The agent then refuses every remote command, from the Data Sources console and from SOAR. This can only be undone by reinstalling the agent on the host. |
 
+## What is installed
+
+| Item | Value |
+|---|---|
+| Folder | `C:\Program Files\UTMStack\UTMStack Agent` |
+| Services | `UTMStackAgent` (collects and sends logs, runs remote commands) and `UTMStackUpdater` (keeps the agent up to date), both started automatically |
+| Agent log file | `C:\Program Files\UTMStack\UTMStack Agent\logs\utmstack_agent.log` |
+| Local log store | `logs_process\logs.db` in the agent folder, 20 MB by default. See **Agent Command Line**. |
+| Read positions | `wineventlog_bookmarks.json`: where the agent stopped reading in each channel, so a restart neither loses nor repeats events |
+| Status snapshot | `agent_status.json`, shown by the agent's `status` command |
+
 ## What the agent collects
 
-The agent reads these Windows Event Log channels and sends them under the data type `wineventlog`:
+The agent reads these Windows Event Log channels and sends them under the data type `wineventlog`. The data source name is the host name.
 
-- Security, Application, System
-- Windows PowerShell and Microsoft-Windows-PowerShell/Operational
-- ForwardedEvents
-- Microsoft-Windows-WinLogon/Operational
-- Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
-- Microsoft-Windows-Windows Defender/Operational
-- Microsoft-Windows-TaskScheduler/Operational
-- Microsoft-Windows-TerminalServices-RDPClient/Operational, -LocalSessionManager/Operational and -RemoteConnectionManager/Operational
-- Microsoft-Windows-WinRM/Operational
-- Microsoft-Windows-NTLM/Operational
-- Microsoft-Windows-CodeIntegrity/Operational
-- Microsoft-Windows-WMI-Activity/Operational
-- Microsoft-Windows-GroupPolicy/Operational
-- Microsoft-Windows-SmbClient/Security
-- Microsoft-Windows-PrintService/Operational
-- Microsoft-Windows-Sysmon/Operational, when Sysmon is installed
+| Channel | Main use |
+|---|---|
+| Security | Logons, account and group changes, process creation, policy changes |
+| Application, System | Application and service errors, service installs, system events |
+| Windows PowerShell, Microsoft-Windows-PowerShell/Operational | PowerShell use and script blocks |
+| ForwardedEvents | Events forwarded from other hosts (see **Windows Event Forwarding**) |
+| Microsoft-Windows-WinLogon/Operational | Sign-in activity |
+| Microsoft-Windows-Windows Firewall With Advanced Security/Firewall | Firewall rule changes |
+| Microsoft-Windows-Windows Defender/Operational | Malware detections and Defender changes |
+| Microsoft-Windows-TaskScheduler/Operational | Scheduled tasks |
+| Microsoft-Windows-TerminalServices-RDPClient/Operational, -LocalSessionManager/Operational, -RemoteConnectionManager/Operational | Remote Desktop sessions |
+| Microsoft-Windows-WinRM/Operational | Remote management |
+| Microsoft-Windows-NTLM/Operational | NTLM authentication |
+| Microsoft-Windows-CodeIntegrity/Operational | Driver and code signing checks |
+| Microsoft-Windows-WMI-Activity/Operational | WMI activity |
+| Microsoft-Windows-GroupPolicy/Operational | Group Policy processing |
+| Microsoft-Windows-SmbClient/Security | SMB client connections |
+| Microsoft-Windows-PrintService/Operational | Printing |
+| Microsoft-Windows-Sysmon/Operational | Sysmon events, when Sysmon is installed |
+
+A channel that does not exist on the host (for example Sysmon when it is not installed) is skipped and noted in the agent log.
+
+### Change what is collected
+
+The list of channels is built into the agent; you cannot add or remove channels. You control what ends up in UTMStack in three ways:
+
+- **Change what Windows writes to those channels.** The Security channel only contains what the audit policy records. Use Group Policy (**Computer Configuration > Policies > Windows Settings > Security Settings > Advanced Audit Policy Configuration**) to audit more or less.
+- **Install Sysmon** (Microsoft Sysinternals System Monitor) with a configuration of your choice. The agent then also collects the Sysmon channel, which adds process, network and file events the built-in logs do not have.
+- **Drop events you do not want** in UTMStack with a pipeline that has a `drop` step for the `wineventlog` data type. See **Pipelines**. Dropped events are still read and sent by the agent, so this saves storage, not network.
+
+To collect channels from other Windows hosts without an agent on each, forward them to one collector host. See **Windows Event Forwarding**.
 
 ## What the agent changes on the host
 
-Windows leaves many useful audit events turned off by default. When it installs, the agent turns them on so the channels above contain the events the detection rules need:
+Windows leaves many useful audit events turned off by default. When it starts, the agent turns them on so the channels above contain the events the detection rules need:
 
 - **Audit policy**: success and failure auditing for Process Creation, Process Termination, Logon, Logoff, Account Lockout, Special Logon, Other Logon/Logoff Events, Security Group Management, User Account Management, Audit Policy Change and Sensitive Privilege Use.
 - **Command lines in process events**: sets `ProcessCreationIncludeCmdLine_Enabled` to 1 under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit`.
 - **PowerShell logging**: turns on Script Block Logging and Module Logging (for all modules) under `HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell`.
 - **Event channels**: enables the TaskScheduler/Operational and PrintService/Operational channels, which Windows ships disabled.
 
-The agent only turns settings on. It never turns off or narrows an audit setting you already have.
+The agent only turns settings on. It never turns off or narrows an audit setting you already have. If some settings cannot be applied, the agent log shows `auditpolicy: some settings could not be applied (continuing with the rest)`.
 
 <Note>
 
-On domain-joined hosts, a Group Policy Object that manages the same audit settings can overwrite these values at its next refresh. Your Group Policy then decides what is audited.
+On domain-joined hosts, a Group Policy Object that manages the same audit settings can overwrite these values at its next refresh. Your Group Policy then decides what is audited. To keep the detection rules working, set at least the subcategories above in your Group Policy too.
 
 </Note>
 
@@ -89,19 +121,46 @@ Uninstalling the agent does not turn these settings back off. If you need the pr
 
 </Warning>
 
-## After you install
+## Check that events arrive
 
-- The host appears on the **Data Sources** page, under **Agents**, within about a minute of the agent starting.
-- Its events appear in Log Explorer under the data type `wineventlog`. Use **View logs** in the Windows Agent drawer to open them.
-- The **Agents** dashboard shows activity across all your agents.
-- The agent keeps itself up to date. See **Updates and Status**.
+1. Open the **Windows Agent** card and click **View logs**. Log Explorer opens with the data type `wineventlog` for the last 24 hours.
+2. Filter on `dataSource` with the host name. Events normally appear within a minute of the install.
+3. Expand an event. The event ID is in `log.eventCode`, the computer in `target.host`, and the `errors` field is empty.
+4. On **Configure > Data Sources**, the host appears under **Agents** within about a minute, with the status **Live**.
 
-To check the agent on the host, see **Agent Command Line**.
+To see which event IDs a host sends, use Log Explorer's SQL mode:
+
+```sql
+SELECT toString(log.eventCode) AS event_code, count() AS events
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND dataSource = 'FIN-SRV-02'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+GROUP BY event_code
+ORDER BY events DESC
+LIMIT 50
+```
+
+Replace `FIN-SRV-02` with the host name as it appears on the Data Sources page.
 
 ## Uninstall the agent
 
 Open the **Windows Agent** card, choose the same **Platform**, and expand **Uninstall the agent** at the bottom of the guide. Run the command in an administrator PowerShell window. It:
 
-1. runs the agent's own `uninstall` command, which also removes the updater service,
-2. stops and deletes the agent services,
+1. runs the agent's own `uninstall` command, which removes the updater service and the agent's registration on the UTMStack server,
+2. stops and deletes the agent services (and the older `UTMStackWindowsLogsCollector` and `UTMStackModulesLogsCollector` services if a previous version left them),
 3. waits 10 seconds and deletes `C:\Program Files\UTMStack\UTMStack Agent`.
+
+The host's row stays on the **Data Sources** page and turns **Idle**, then **Offline**. Delete it there if you no longer need it. To reinstall, or to move the host to another UTMStack server or tenant, see **Reinstall, Move or Remove an Agent**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Error trying to connect to server:  cannot connect to <server> on port 443` | No direct route to the server on 443, or a proxy-only network. | Open 443 from the host to the server. |
+| `Error registering agent:` … `invalid connection key` | The key in the command is wrong or was regenerated, or the command was copied by a non-administrator (`*******`). | Copy the command again as an administrator. |
+| `UTMStackAgent service is already installed` | An agent is already on the host. | Uninstall it first, or keep it. |
+| No Security events with logon or process details | Audit policy overwritten by Group Policy, or events are not audited. | Check with `auditpol /get /category:*` and fix your Group Policy. |
+| The host shows **Offline** | The service is stopped, or the host cannot reach UTMStack. | `Get-Service UTMStackAgent,UTMStackUpdater`, then read `logs\utmstack_agent.log`. |
+
+For more, see **Agent Troubleshooting**.

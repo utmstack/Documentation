@@ -1,0 +1,248 @@
+On a server with a multi-tenant licence, UTMStack v12 decides which tenant a request belongs to from the host name in the address. Each tenant therefore needs its own domain name that points at the server and is covered by the server's SSL certificate. This page explains how the tenant is chosen and gives the full setup: DNS records, the certificate, the Base URL for email links, and how sign-in works on each address.
+
+## How UTMStack picks the tenant
+
+Every request to the web interface's API is matched against the domains of all tenants, including the default tenant:
+
+- The host name is compared exactly, in lower case. A port number in the address is ignored.
+- If the host name is the domain of a tenant, the request lands in that tenant's data.
+- If it matches no tenant, the request is refused with "unknown tenant" (HTTP status 404). The web page itself still loads, because the same web application answers on every name, but signing in fails with the message "unknown tenant".
+- Without the multi-tenant licence, the host name does not matter: every request goes to the default tenant.
+
+Example for a provider whose own address is `siem.example.com`:
+
+| Address typed in the browser | Lands in |
+|---|---|
+| `https://siem.example.com` | The default tenant (the instance operator's) |
+| `https://acme.siem.example.com` | The tenant whose domain is `acme.siem.example.com` |
+| `https://ACME.siem.example.com:443` | The same tenant: case and port do not matter |
+| `https://www.acme.siem.example.com` | Nobody: "unknown tenant", unless a tenant has exactly this domain |
+| `https://203.0.113.10` (the server's IP address) | Nobody, unless the default tenant was bound to that address (see "The default tenant's address" below) |
+
+Agents and Forwarders are not matched by host name. They belong to the tenant whose connection key they were installed with. The address in their install command only has to reach the server. See **Connection Key**.
+
+## Plan your domain names
+
+The simplest plan is one parent name for the server and one sub-domain per customer:
+
+| Tenant | Domain |
+|---|---|
+| Default tenant (you) | `siem.example.com` |
+| Acme | `acme.siem.example.com` |
+| Globex | `globex.siem.example.com` |
+
+With this plan, one wildcard DNS record and one wildcard certificate cover every customer you add later.
+
+You can also give a customer a name under their own domain, for example `siem.acme.com`. The customer then creates the DNS record in their own zone, and your certificate must list that name explicitly: a wildcard certificate for your own domain does not cover it.
+
+The **Domain** field of a tenant accepts a host name only:
+
+- letters, digits and dashes, in at least two parts separated by dots, for example `acme.siem.example.com`;
+- no `https://`, no path, no port and no underscore; a part cannot start or end with a dash;
+- at most 253 characters, and at most 63 characters per part;
+- each domain can belong to one tenant only.
+
+## Step 1: Create the DNS records
+
+Each tenant domain must resolve to the public IP address of your UTMStack server, from wherever the tenant's users and machines connect.
+
+In your DNS provider's console, add either one record per tenant or one wildcard record. For example, in zone file notation:
+
+```text
+; Your own address (default tenant)
+siem.example.com.          3600  IN  A      203.0.113.10
+
+; Option A: one record per customer
+acme.siem.example.com.     3600  IN  CNAME  siem.example.com.
+globex.siem.example.com.   3600  IN  CNAME  siem.example.com.
+
+; Option B: one wildcard record for every customer, present and future
+*.siem.example.com.        3600  IN  CNAME  siem.example.com.
+```
+
+A wildcard record is safe: names that belong to no tenant reach the server but get "unknown tenant".
+
+Check the record from a machine outside the server:
+
+```bash
+dig +short acme.siem.example.com
+# or, on Windows
+nslookup acme.siem.example.com
+```
+
+The answer must end with your server's IP address.
+
+## Step 2: Make the certificate cover every tenant domain
+
+The web server on the UTMStack host (nginx) presents one certificate, `/utmstack/cert/utm.crt`, for every host name. Browsers trust a tenant's address only if that certificate lists the name. You have two choices.
+
+| Choice | Covers | When you add a tenant |
+|---|---|---|
+| Wildcard certificate for `*.siem.example.com`, plus `siem.example.com` itself | Every name exactly one level below `siem.example.com` | Nothing to do |
+| Certificate with a list of names (subject alternative names, SAN) | Exactly the names listed | Get a new certificate that adds the new name |
+
+A wildcard covers one level only: `*.siem.example.com` covers `acme.siem.example.com` but not `siem.example.com` and not `eu.acme.siem.example.com`. Always include the parent name as well.
+
+To get a free wildcard certificate from Let's Encrypt, use the DNS challenge. For example, with the Cloudflare plugin for certbot (other DNS providers have their own plugins):
+
+```bash
+sudo certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
+  -d "siem.example.com" -d "*.siem.example.com"
+```
+
+To add a tenant name to an existing Let's Encrypt certificate with a list of names, repeat every name the certificate already has and add the new one:
+
+```bash
+sudo certbot certonly --standalone --expand \
+  --cert-name siem.example.com \
+  -d siem.example.com -d acme.siem.example.com -d globex.siem.example.com \
+  --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx"
+```
+
+Then copy the files into `/utmstack/cert` and reload nginx exactly as described in **SSL Certificate**.
+
+Check which names the installed certificate covers, and what a browser receives for a tenant's name:
+
+```bash
+openssl x509 -in /utmstack/cert/utm.crt -noout -ext subjectAltName
+
+echo | openssl s_client -servername acme.siem.example.com \
+  -connect acme.siem.example.com:443 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
+```
+
+<Note>
+
+Agents and Forwarders are installed by default with certificate validation switched off, so they connect even when the certificate does not list the name in their install command. Browsers and API clients do check it.
+
+</Note>
+
+## Step 3: Give the tenant its domain in UTMStack
+
+Enter the domain when you create the tenant on **Tenants** (**New tenant**), or change it later with **Edit**. See **Tenants** and **Onboarding a Customer**.
+
+If you place a load balancer or another reverse proxy in front of UTMStack, it must pass the original host name (the `Host` header) through unchanged. Otherwise every request reaches UTMStack with the proxy's own name and gets "unknown tenant".
+
+## Step 4: Set the Base URL in each tenant
+
+Links in invitation and password-reset emails are built from the **Base URL** in **Configure > Settings > Email Configuration** of the tenant that sends the email. A new tenant has no Base URL of its own and uses the default tenant's, so its first emails link to your address, not to the tenant's.
+
+As soon as the tenant administrator can sign in, they should set **Base URL** to `https://` followed by the tenant's domain, for example `https://acme.siem.example.com`, and click **Save changes**. You can also do it for them in a support session with **Full access**. See **Email Configuration**.
+
+<Warning>
+
+In UTMStack v12.0.2, invitation and reset emails link to `/reset/finish?key=...`. That address opens the plain sign-in page instead of the **Set your password** form. The form opens at `/auth/login?key=...` with the same key. See **Onboarding a Customer** for the exact steps.
+
+</Warning>
+
+## Step 5: Check the address
+
+From any machine, ask the tenant's address for its public branding. A known tenant answers with a small JSON document; an unknown name answers "unknown tenant":
+
+```bash
+curl -s https://acme.siem.example.com/api/v1/branding/public
+# {"enabled":false,"productName":"UTMStack",...}
+
+curl -s https://typo.siem.example.com/api/v1/branding/public
+# {"error":"unknown tenant"}
+```
+
+Then open `https://acme.siem.example.com` in a browser. You should see the sign-in page with no certificate warning, with the tenant's branding and sign-in providers once the tenant has set them up.
+
+## How sign-in works on each address
+
+- **An account exists in one tenant only.** Users sign in on their own tenant's address. The same email address on another tenant's address is a different account, or none: there, the sign-in fails with "Invalid credentials."
+- **The sign-in page belongs to the tenant.** It shows the tenant's branding (Enterprise licence) and the buttons of the tenant's own identity providers ("Continue with ..."). The default language comes from the tenant's settings.
+- **Single sign-on uses the tenant's address.** In the identity provider, register the addresses that use the tenant's domain, for example `https://acme.siem.example.com/api/v1/sso/<name>/callback` for OpenID Connect or `https://acme.siem.example.com/api/v1/sso/<name>/acs` for SAML. After sign-in, the provider sends the user back to the same address. See **Single Sign-On**.
+- **Sessions and API keys stay in their tenant.** A session or API key used on another tenant's address is refused with "credential does not belong to this tenant". Programs and AI assistants (MCP) must use the address of the tenant they work in. See **API Keys**.
+- **The instance operator signs in on the default tenant's address only.** The operator has no account on customer addresses. To work in a customer's tenant, the operator signs in at their own address and enters the tenant. See **Working Inside a Tenant**.
+
+## The default tenant's address
+
+The default tenant also has a domain. UTMStack records it once, from the first address used to reach the server after installation: a host name such as `siem.example.com`, or an IP address if that is what you used. Single-word names such as `localhost` are ignored. It never changes by itself after that.
+
+On a multi-tenant licence, the default tenant answers only on that recorded address.
+
+<Warning>
+
+Open UTMStack for the first time with the host name you want to keep for yourself, not with the server's IP address. This matters as soon as a multi-tenant licence is installed.
+
+</Warning>
+
+If the default tenant was bound to the wrong address (for example the IP address), you can still reach it on that address, and correct it through the API. The **Tenants** page does not list the default tenant, so there is no button for this.
+
+<Steps>
+
+<Step title="Create an API key in the default tenant">
+
+Sign in on the address the default tenant answers on today, go to **Configure > Settings > API Keys** and create a key. See **API Keys**.
+
+</Step>
+
+<Step title="Make sure the new name is ready">
+
+Create the DNS record for the new name and make sure the certificate covers it (steps 1 and 2 above).
+
+</Step>
+
+<Step title="Change the domain">
+
+Send the new domain for the default tenant, whose ID is always `ce66672c-e36d-4761-a8c8-90058fee1a24`. Use the address that works today; `-k` is needed only while that address has no trusted certificate.
+
+```bash
+curl -k -X PUT "https://203.0.113.10/api/v1/tenants/ce66672c-e36d-4761-a8c8-90058fee1a24" \
+  -H "Utm-Api-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "siem.example.com"}'
+```
+
+From that moment the default tenant answers only on the new name.
+
+</Step>
+
+<Step title="Update the Base URL">
+
+Sign in at the new address and set **Base URL** in **Email Configuration** to it.
+
+</Step>
+
+</Steps>
+
+<Warning>
+
+Send only the `domain` field for the default tenant. Never send a `status` for it: a default tenant that is not active locks every operator out.
+
+</Warning>
+
+## Change a tenant's domain
+
+<Steps>
+
+<Step title="Prepare the new name">
+
+Create the DNS record for the new domain and make sure the certificate covers it.
+
+</Step>
+
+<Step title="Change the domain in UTMStack">
+
+On **Tenants**, click **Edit** on the tenant's card, change **Domain** and click **Save changes**. From that moment the old domain answers "unknown tenant" and the new one serves the tenant.
+
+</Step>
+
+<Step title="Update everything that uses the old address">
+
+- The tenant's **Base URL** in **Email Configuration**.
+- The redirect and sign-in addresses registered at the tenant's identity providers.
+- Scripts, API clients and AI assistants that call the API, and users' bookmarks.
+
+</Step>
+
+<Step title="Keep agents connected">
+
+Agents and Forwarders keep the address they were installed with. They keep working as long as that name still reaches the server, because their tenant comes from the connection key, not from the name. Keep the old DNS record pointing at the server, or reinstall them with the new command.
+
+</Step>
+
+</Steps>

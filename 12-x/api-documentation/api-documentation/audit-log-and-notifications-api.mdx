@@ -1,0 +1,289 @@
+Use these endpoints to read the UTMStack v12 audit log (who did what, from where, and whether it worked) and to work with in-app notifications (the messages UTMStack shows in the bell menu, for example when an integration fails or a rule is switched off). Both work on every edition and are kept per tenant.
+
+## Permissions
+
+| Action | Permission | Built-in roles that have it |
+|---|---|---|
+| List and read audit log entries | `audit.read` | Administrator, Analyst, Viewer |
+| List and read notifications, count unread ones | `notifications.read` | Administrator, Analyst, Viewer |
+| Mark notifications read, change their status, delete them | `notifications.write` | Administrator, Analyst |
+
+For the screens, see **App Audit Logs** and **Notifications**.
+
+## Audit Log
+
+UTMStack writes an entry for sign-ins and account changes; user changes and role assignments; API key creation and deletion; identity provider, tenant, settings, branding and licence changes; changes to alerts, incidents, response flows, rules, pipelines, compliance, dashboards, retention and data sources; and every MCP tool call. Entries are kept for 365 days by default.
+
+### Audit Entry Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | integer | Entry id |
+| `timestamp` | string | When it happened (RFC 3339, UTC) |
+| `user_id` | string (UUID) | User who acted (left out when unknown) |
+| `user_email` | string | Email address of that user |
+| `ip` | string | Client address |
+| `user_agent` | string | Browser or tool that made the request |
+| `session_id` | string (UUID) | Sign-in session, when the user used a bearer token |
+| `action` | string | What was done, for example `auth.login`, `user.create`, `alert.status`, `soar.flow.trigger`, `mcp.tools.call` |
+| `status` | string | `success` or `failure` |
+| `error_message` | string | Reason of a failure |
+| `resource_type` | string | Kind of object, for example `user`, `tenant`, `config` or, for MCP calls, the tool name |
+| `resource_id` | string | Id or name of the object |
+| `metadata` | object | Extra details of the action, when there are any |
+
+Empty fields are left out of the answer.
+
+### List Audit Entries
+
+**Endpoint:** `GET /api/v1/audit` (permission `audit.read`)
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page_number | integer | Page number, starting at `1` |
+| page_size | integer | Default 50, maximum 500 |
+| search_query | string | Filters, written `field.operator.value` and joined with `&` |
+| sort_by | string | `field.asc` or `field.desc`, several joined with `&`. Default: newest entry first. |
+
+**Fields you can filter and sort on:** `user_id`, `user_email`, `action`, `status`, `resource_type`, `resource_id`, `event_type`, `ip`, `timestamp`. Unknown fields and operators are dropped without an error.
+
+| Operator | Meaning |
+|---|---|
+| `eq`, `neq` | Equal, not equal |
+| `like` (or `contains`), `nlike` | Contains, does not contain (upper and lower case ignored) |
+| `in`, `nin` | One of, none of (comma-separated values) |
+| `gt`, `gte`, `lt`, `lte` | Greater than, at least, less than, at most |
+| `null`, `nnull` | Has no value, has a value (no value part) |
+
+`event_type` is an internal category (for example `AUTH_FAILURE`, `CONFIG_CHANGED` or `USER_CREATION_SUCCESS`). You can filter on it, but it is not returned in the answer.
+
+> [!TIP]
+> The `&` that joins filters must be URL-encoded inside `search_query`, or it starts a new query parameter. Let curl encode the parameters with `--get --data-urlencode`, as in the examples.
+
+**Failed sign-ins in a time range:**
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/audit" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "page_number=1" \
+  --data-urlencode "page_size=100" \
+  --data-urlencode "search_query=action.eq.auth.login&status.eq.failure&timestamp.gte.2026-11-01T00:00:00Z" \
+  --data-urlencode "sort_by=timestamp.desc"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "items": [
+    {
+      "id": 48211,
+      "timestamp": "2026-11-09T22:14:03Z",
+      "user_email": "analyst@example.com",
+      "ip": "198.51.100.23",
+      "user_agent": "Mozilla/5.0 ...",
+      "action": "auth.login",
+      "status": "failure",
+      "error_message": "invalid credentials"
+    }
+  ],
+  "page_number": 1,
+  "page_size": 100,
+  "total_items": 1,
+  "total_pages": 1
+}
+```
+
+**Everything one user changed:**
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/audit" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=user_email.eq.analyst@example.com&status.eq.success"
+```
+
+**All actions in one area** (here, every tenant action):
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/audit" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=action.like.tenant."
+```
+
+**Calls made by AI assistants through the MCP server:**
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/audit" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=action.eq.mcp.tools.call"
+```
+
+An invalid query (for example a value that does not fit the field) returns HTTP 400 with the reason.
+
+### Get One Audit Entry
+
+**Endpoint:** `GET /api/v1/audit/{id}` (permission `audit.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/audit/48211" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one audit entry object. An id that is not a number returns 400 `invalid id`; an unknown one returns 404 `not found`.
+
+## Notifications
+
+Notifications belong to the tenant, not to one user: every user of the tenant sees the same list, and marking one as read marks it for everyone. Read notifications are removed after 30 days and all notifications after 365 days (server defaults).
+
+### Notification Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | integer | Notification id |
+| `source` | string | Where it came from: `AS400`, `BIT_DEFENDER`, `AWS`, `AZURE`, `OFFICE_365`, `SOPHOS`, `GOOGLE`, `EMAIL_SETTING`, `ALERTS` or `SYSTEM` |
+| `type` | string | `INFO`, `WARNING` or `ERROR` |
+| `message` | string | Text of the notification |
+| `createdAt` | string | When it was created |
+| `updatedAt` | string | Last change (left out when never changed) |
+| `read` | boolean | Whether it was marked as read |
+| `status` | string | `ACTIVE`, `HIDDEN` or `DELETED` |
+
+### List Notifications
+
+**Endpoint:** `GET /api/v1/notifications` (permission `notifications.read`)
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| source | string | One source value from the table above |
+| type | string | `INFO`, `WARNING` or `ERROR` |
+| status | string | `ACTIVE`, `HIDDEN` or `DELETED` |
+| message | string | Exact message text |
+| read | boolean | `true` or `false` |
+| from, to | string | Creation time range, RFC 3339 (for example `2026-11-01T00:00:00Z`) |
+| sort | string | `field,asc` or `field,desc`. Fields: `id`, `created_at`, `updated_at`, `source`, `type`, `status`, `read`. Default: newest first. |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 20, maximum 200 |
+
+A filter value that is not valid is ignored, not refused.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/notifications" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "status=ACTIVE" \
+  --data-urlencode "read=false" \
+  --data-urlencode "type=WARNING" \
+  --data-urlencode "size=50"
+```
+
+**Response (HTTP 200):** an array. The total is in the `X-Total-Count` header, and a `Link` header gives the next and previous pages.
+
+```json
+[
+  {
+    "id": 3120,
+    "source": "SYSTEM",
+    "type": "WARNING",
+    "message": "<text of the notification>",
+    "createdAt": "2026-11-10T07:45:00Z",
+    "read": false,
+    "status": "ACTIVE"
+  }
+]
+```
+
+### List Notifications Grouped by Message
+
+**Endpoint:** `GET /api/v1/notifications/grouped` (permission `notifications.read`)
+
+Groups notifications that have the same source, type and message, newest group first. It takes the same filters as the list, except `message` and `sort`, and the same `page` and `size`.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/notifications/grouped" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "status=ACTIVE"
+```
+
+**Response (HTTP 200):** an array; the number of groups is in `X-Total-Count`.
+
+```json
+[
+  {
+    "source": "AWS",
+    "type": "ERROR",
+    "message": "<text of the notification>",
+    "count": 14,
+    "lastCreated": "2026-11-10T07:45:00Z",
+    "unreadCount": 3
+  }
+]
+```
+
+### Count Unread Notifications
+
+**Endpoint:** `GET /api/v1/notifications/unread-count` (permission `notifications.read`)
+
+Counts notifications that are unread and `ACTIVE`.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/notifications/unread-count" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** a plain number, for example `3`.
+
+### Get One Notification
+
+**Endpoint:** `GET /api/v1/notifications/{id}` (permission `notifications.read`)
+
+**Response (HTTP 200):** one notification object. An unknown id returns 404 `notification not found`; an id that is not a positive number returns 400 `invalid id`.
+
+### Mark Notifications as Read
+
+| Method | Endpoint | Result |
+|---|---|---|
+| PUT | `/api/v1/notifications/read-all` | Marks every unread notification of the tenant as read. HTTP 204. |
+| PUT | `/api/v1/notifications/{id}/read?read=true` | Marks one as read (`read=false` marks it unread again). HTTP 200 with the notification. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/notifications/3120/read?read=true" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+A missing or invalid `read` value returns 400 `missing read query param` or `invalid read query param`.
+
+### Change the Status of a Notification
+
+**Endpoint:** `PUT /api/v1/notifications/{id}/status?status=<status>` (permission `notifications.write`)
+
+Sets `ACTIVE`, `HIDDEN` or `DELETED`. Changing the status also marks the notification as read. `DELETED` only hides it from lists that filter on `status=ACTIVE`; the notification is still stored.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/notifications/3120/status?status=HIDDEN" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** the updated notification. A missing status returns 400 `missing status query param`; an unknown one returns 400 `invalid enum value`.
+
+### Delete a Notification
+
+**Endpoint:** `DELETE /api/v1/notifications/{id}` (permission `notifications.write`)
+
+Removes the notification for good, for every user of the tenant.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/notifications/3120" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204, or 404 `notification not found`.
+
+## Paging
+
+| Endpoint | Page parameter | First page | Size parameter | Default | Largest | Total |
+|---|---|---|---|---|---|---|
+| `GET /audit` | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` and `total_pages` in the answer |
+| `GET /notifications`, `GET /notifications/grouped` | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header (and a `Link` header) |

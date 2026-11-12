@@ -1,0 +1,377 @@
+Use these endpoints to list, create and change dashboards, their widgets (visualizations) and their filter chips, and to run the query behind a widget without saving it. They do the same work as **Dashboards** in the web console, so you can build dashboards from a script, copy them between installations or pull chart numbers into another tool.
+
+The screens are described in **Dashboards** and **Dashboard Widgets**; operators and field names in **Filter Operators Reference**.
+
+## Permissions
+
+| Action | Permission | Built-in roles |
+|---|---|---|
+| List and read dashboards, visualizations and filter chips; run a widget query | `dashboards.read` | All |
+| Create, change and delete dashboards, visualizations and filter chips | `dashboards.write` | Administrator, Analyst |
+
+Dashboards belong to your tenant. Shipped dashboards (`"systemOwner": true`) are shared by every tenant and are read-only.
+
+## How a Dashboard Is Stored
+
+| Object | What it holds |
+|---|---|
+| **Dashboard** | Name, description and a free `config` text (the web console leaves it empty) |
+| **Visualization** | One widget of one dashboard: `spec` (the question it asks), `config` (how the console draws it) and `layout` (its place on the grid). A visualization cannot be moved to another dashboard. |
+| **Dashboard filter** | One filter chip shown above the widgets |
+
+`spec`, `config` and `layout` are **JSON written as text**: you send a string that contains JSON, not a JSON object. For example `"spec": "{\"dataset\":\"alerts\",\"chart\":\"metric\",\"metric\":{\"agg\":\"count\"}}"`. The examples below build these strings with `jq`.
+
+## Paging
+
+The three list endpoints use the same paging:
+
+| Parameter | Description |
+|---|---|
+| page | Page number, starting at `0` |
+| size | Default 20, maximum 200. Larger values are reduced to 200. |
+
+The answer is a JSON array; the total number of items is in the `X-Total-Count` header.
+
+## Dashboards
+
+### List Dashboards
+
+**Endpoint:** `GET /api/v1/dashboards`
+
+| Parameter | Description |
+|---|---|
+| name | Part of the name, upper and lower case ignored |
+| dismissed | `true` lists only shipped dashboards that were removed (hidden); leave it out for the normal list |
+| page, size | See **Paging** above |
+
+Sorted by name.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/dashboards" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "name=pfsense" \
+  -D -
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<dashboard-id>",
+    "name": "pfSense Firewall",
+    "description": "What the pfSense firewall allows and blocks.",
+    "config": "",
+    "systemOwner": true,
+    "createdDate": "2026-11-09T08:00:15Z",
+    "modifiedDate": "2026-11-09T08:00:15Z"
+  }
+]
+```
+
+A removed shipped dashboard also has `dismissedAt`.
+
+### Get One Dashboard
+
+**Endpoint:** `GET /api/v1/dashboards/{id}`
+
+**Response (HTTP 200):** one dashboard. Errors: 400 `invalid id` (not a UUID), 404 `dashboard not found`. The widgets are listed separately with `GET /visualizations?dashboardId=<dashboard-id>`.
+
+### Create a Dashboard
+
+**Endpoint:** `POST /api/v1/dashboards`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Up to 100 characters, unique in your tenant |
+| description | string | No | Up to 255 characters |
+| config | string | No | Free text; the web console sends `""` |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/dashboards" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "SOC weekly", "description": "Alert volume for the weekly SOC meeting", "config": ""}'
+```
+
+**Response (HTTP 201):** the new dashboard with its `id`.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `name is required` | Empty name |
+| 400 | `id must be absent on create` | The body has an `id` |
+| 500 | A database message about a duplicate key | A dashboard with this name already exists in your tenant |
+
+### Update a Dashboard
+
+**Endpoint:** `PUT /api/v1/dashboards`
+
+Send `id`, `name`, `description` and `config`. Every field is replaced. The API can rename a dashboard and change its description, which the web console in UTMStack v12.0.2 cannot do.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/dashboards" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<dashboard-id>", "name": "SOC weekly review", "description": "Alert volume for the weekly SOC meeting", "config": ""}'
+```
+
+**Response (HTTP 200):** the stored dashboard. Errors: 400 `id is required for update`, 404 `not found`, 403 `system-owned and cannot be modified` (shipped dashboard).
+
+### Delete a Dashboard
+
+**Endpoint:** `DELETE /api/v1/dashboards/{id}`
+
+- A **custom** dashboard is deleted together with its visualizations. Its filter chips are not deleted with it.
+- A **shipped** dashboard is not deleted: it is hidden (dismissed) and stays hidden after restarts. It is still listed with `dismissed=true`, and you can copy its widgets into a new dashboard.
+
+**Response:** HTTP 200 with an empty body. Unknown id: 404 `not found`.
+
+## Visualizations
+
+A visualization is one widget. Its `spec` is the question it asks the event store; the server checks it when you save.
+
+### Spec Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `dataset` | string | Required. `logs` or `alerts`. |
+| `dataType` | string | Optional. Only records of this data type, for example `wineventlog`. |
+| `chart` | string | Required. `metric` (one number), `category` (top values of a field), `time` (counts over time) or `table` (records). This decides the shape of the answer, not how it is drawn. |
+| `metric` | object | `{"agg": "count"}`. Counting is the only measure the event store offers; any other `agg` is refused. |
+| `dimension` | string | Field to break down by. Required for `category`; optional for `time`, where it draws one line per top value. |
+| `filters` | array | Conditions, each `{"field": ..., "op": ..., "value": ...}` (operators below) |
+| `interval` | string | `time` charts: `1m`, `5m`, `15m`, `1h`, `1d` or `1w`. Empty or `auto` means one hour. |
+| `limit` | integer | Buckets, lines or rows to return. Default 50, maximum 10,000. |
+| `columns` | array | `table` charts: the columns the console shows. The server ignores it. |
+| `from`, `to` | string | RFC 3339 times. Usually left out of a stored spec: the dashboard's time range is applied when the widget is drawn. |
+
+**Filter operators in a spec:** `eq`, `not_eq`, `in`, `not_in`, `gt`, `gte`, `lt`, `lte`, `between`, `not_between`, `contains`, `not_contains`, `starts_with`, `not_starts_with`, `ends_with`, `not_ends_with`, `exists`, `not_exists`. `in` and `not_in` take a list; `between` and `not_between` take a pair `[low, high]`; `exists` and `not_exists` take no value. These are not the names used by Log Explorer filters (`IS`, `IS_ONE_OF_TERMS` and so on).
+
+> [!WARNING]
+> In UTMStack v12.0.2, range operators (`gt`, `gte`, `lt`, `lte`, `between`) on fields inside objects (`log.*`, `origin.*`, `target.*` and so on) usually match nothing. See **Filter Operators Reference**.
+
+### Config and Layout
+
+These two strings are for the web console; the server stores them without checking.
+
+- **`layout`**: the widget's place on a grid 12 columns wide, for example `{"x":0,"y":0,"w":6,"h":8}`. `x` is the column (0 to 11), `w` the width in columns, `y` and `h` the row and height.
+- **`config`**: drawing options. The console keeps the editor's choices under a `__builder` key: `chartType` (`bar`, `line`, `area`, `pie`, `metric`, `table`, `list`, `region_map` or `text`), `title`, `dataset`, `breakdown` (`time` or `field`), `dimension`, `interval`, `limit`, `filters`, `columns`. Without `__builder` the console cannot tell the chart type and draws a default chart.
+
+The simplest way to get a working `config` is to build one widget in the console, read it with `GET /visualizations?dashboardId=<dashboard-id>`, and reuse its `config` with your own `spec`.
+
+### List Visualizations
+
+**Endpoint:** `GET /api/v1/visualizations?dashboardId=<dashboard-id>`
+
+`dashboardId` is optional but almost always wanted. Paging as above. A `dashboardId` that is not a UUID returns 400 `dashboardId must be a uuid`.
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<visualization-id>",
+    "dashboardId": "<dashboard-id>",
+    "spec": "{\"dataset\":\"alerts\",\"chart\":\"category\",\"metric\":{\"agg\":\"count\"},\"dimension\":\"name\",\"limit\":10}",
+    "config": "{\n  \"__builder\": {\n    \"chartType\": \"bar\",\n ...",
+    "layout": "{\"x\":0,\"y\":0,\"w\":6,\"h\":8}",
+    "systemOwner": false,
+    "createdDate": "2026-11-10T09:12:44Z",
+    "modifiedDate": "2026-11-10T09:12:44Z"
+  }
+]
+```
+
+The `config` value is shortened here.
+
+### Get One Visualization
+
+**Endpoint:** `GET /api/v1/visualizations/{id}`
+
+**Response (HTTP 200):** one visualization. Unknown id: 404 `visualization not found`.
+
+### Create a Visualization
+
+**Endpoint:** `POST /api/v1/visualizations`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| dashboardId | string (UUID) | Yes | The dashboard the widget belongs to |
+| spec | string | Yes | Spec as JSON text |
+| config | string | No | Drawing options as JSON text |
+| layout | string | No | Grid position as JSON text |
+
+**Response (HTTP 201):** the new visualization.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `spec is required` | Empty `spec` |
+| 400 | `invalid spec: dataset is required` | No `dataset` |
+| 400 | `invalid spec: unknown dataset` | `dataset` other than `logs` or `alerts` |
+| 400 | `invalid spec: unknown chart` | Unknown `chart` |
+| 400 | `invalid spec: this chart needs a dimension` | `category` without `dimension` |
+| 400 | `invalid spec: the event store only counts records: agg must be count` | `agg` other than `count` |
+| 400 | `invalid spec: ...` | `spec` is not valid JSON |
+| 400 | `id must be absent on create` | The body has an `id` |
+| 500 | `dashboardId is required` | In UTMStack v12.0.2 a missing `dashboardId` is answered with 500 |
+
+Filter operators and field names inside the spec are checked only when the widget is queried, not when it is saved, and the server does not check that the dashboard exists. Run the spec with `POST /visualizations/query` first, and take `dashboardId` from the answer of the dashboard you created.
+
+### Update a Visualization
+
+**Endpoint:** `PUT /api/v1/visualizations`
+
+Send the full object with `id`. The spec is checked again. The widget stays on its dashboard whatever `dashboardId` you send.
+
+**Response (HTTP 200):** the stored visualization. Errors: as for create, plus 400 `id is required for update`, 404 `not found`, 403 `system-owned and cannot be modified` (widget of a shipped dashboard).
+
+### Delete a Visualization
+
+**Endpoint:** `DELETE /api/v1/visualizations/{id}`
+
+**Response:** HTTP 200 with an empty body. Errors: 404 `not found`, 403 `system-owned and cannot be modified`.
+
+## Run a Widget Query
+
+**Endpoint:** `POST /api/v1/visualizations/query`
+
+Answers a spec against your tenant's data without saving anything. This is what the console calls to draw each widget, and the easiest way to pull numbers into another tool.
+
+**Request Body:** a spec object (as JSON, not as text). Send `from` and `to`: without them the query reads everything stored, which is slow on a large installation.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/visualizations/query" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataset": "alerts",
+    "chart": "category",
+    "metric": {"agg": "count"},
+    "dimension": "name",
+    "limit": 5,
+    "filters": [{"field": "status", "op": "eq", "value": "Open"}],
+    "from": "2026-11-03T00:00:00Z",
+    "to": "2026-11-10T00:00:00Z"
+  }'
+```
+
+**Response (HTTP 200):** the answer has one field, which depends on `chart`:
+
+| `chart` | Answer |
+|---|---|
+| `metric` | `{"total": 1532}` |
+| `category` | `{"buckets": [{"key": "<value>", "count": 120}, ...]}`, the top `limit` values, largest first |
+| `time` without `dimension` | `{"points": [{"at": "2026-11-03T00:00:00Z", "count": 87}, ...]}` |
+| `time` with `dimension` | `{"series": [{"key": "<value>", "points": [...]}, ...]}`, one line for each of the top `limit` values |
+| `table` | `{"rows": [<record>, ...], "total": 1532}`, the newest `limit` records and the number of matching records |
+
+For example, the request above returns:
+
+```json
+{
+  "buckets": [
+    {"key": "Windows: Possible Brute Force Attack", "count": 120},
+    {"key": "Windows audit log was cleared", "count": 4}
+  ]
+}
+```
+
+Empty lists are left out of the answer: a `category` or `time` query with no matching data returns `{}`, and `metric` returns `{"total": 0}`.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `dataset is required`, `unknown dataset`, `unknown chart`, `this chart needs a dimension`, `the event store only counts records: agg must be count` | Invalid spec |
+| 400 | `unknown filter operator: <op>` | Operator not in the list above |
+| 400 | `invalid field name: ...` | Empty, too long (over 256 characters) or badly formed field name |
+| 500 | `the query could not be run` | The event store failed. In UTMStack v12.0.2 an unknown `interval` also gives this answer. |
+
+## Dashboard Filters (Filter Chips)
+
+**Endpoints:** `GET`, `POST`, `PUT /api/v1/dashboards/filters` and `DELETE /api/v1/dashboards/filters/{id}`
+
+A filter chip is a drop-down above a dashboard's widgets. The value a user picks is not stored; only the chip is.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Absent on create, required on update |
+| `dashboardId` | string (UUID) | Required on create. A chip cannot be moved to another dashboard. |
+| `data_set` | string | `logs` or `alerts`: where the chip reads its list of values |
+| `field` | string | The field to filter on |
+| `type` | string | `multiple` (users can pick several values) or `searchable` (one value) |
+| `label` | string | Name shown on the chip |
+| `place_holder` | string | Hint text |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/dashboards/filters" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dashboardId": "<dashboard-id>", "data_set": "alerts", "field": "dataSource", "type": "multiple", "label": "Host", "place_holder": "All hosts"}'
+```
+
+**Response (HTTP 201):** the new chip. List the chips of a dashboard with `GET /api/v1/dashboards/filters?dashboardId=<dashboard-id>` (paging as above). Update returns 200 and the stored chip; delete returns 200 with an empty body. The server does not check `data_set`, `field` or `type`. Errors: 400 `id must be absent on create`, 400 `id is required for update`, 404 `not found`, and 500 `dashboardId is required` when `dashboardId` is missing.
+
+## Worked Example: Build a Dashboard From a Script
+
+This creates a dashboard with one bar chart of the 10 most frequent open alerts.
+
+<Steps>
+  <Step title="Try the query">
+
+  ```bash
+  curl -sk -X POST "{{baseUrl}}/api/v1/visualizations/query" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d '{"dataset": "alerts", "chart": "category", "metric": {"agg": "count"}, "dimension": "name", "limit": 10,
+         "filters": [{"field": "status", "op": "eq", "value": "Open"}],
+         "from": "2026-11-03T00:00:00Z", "to": "2026-11-10T00:00:00Z"}'
+  ```
+
+  Check that `buckets` contains the alert names you expect.
+
+  </Step>
+  <Step title="Create the dashboard">
+
+  ```bash
+  DASH_ID=$(curl -sk -X POST "{{baseUrl}}/api/v1/dashboards" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d '{"name": "Open alerts by name", "description": "Built with the API", "config": ""}' | jq -r .id)
+  echo "$DASH_ID"
+  ```
+
+  </Step>
+  <Step title="Add the widget">
+
+  The spec is the query without `from` and `to`. `jq` turns the spec, config and layout into the text strings the API expects.
+
+  ```bash
+  jq -n --arg d "$DASH_ID" '
+    {
+      dashboardId: $d,
+      spec: ({dataset: "alerts", chart: "category", metric: {agg: "count"}, dimension: "name", limit: 10,
+              filters: [{field: "status", op: "eq", value: "Open"}]} | tojson),
+      config: ({"__builder": {chartType: "bar", title: "Open alerts by name", dataset: "alerts",
+                breakdown: "field", dimension: "name", interval: "", limit: 10,
+                filters: [], columns: [], configTouched: false}} | tojson),
+      layout: ({x: 0, y: 0, w: 6, h: 8} | tojson)
+    }' > widget.json
+
+  curl -sk -X POST "{{baseUrl}}/api/v1/visualizations" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d @widget.json
+  ```
+
+  </Step>
+  <Step title="Check it">
+
+  Open **Dashboards** in the web console and pick "Open alerts by name". The widget shows the same numbers as the query in step 1 for the same time range. If the widget shows no title or the wrong chart type, copy the `config` of a widget built in the console instead.
+
+  </Step>
+</Steps>
+
+To copy a dashboard to another installation, read the dashboard and its visualizations from the first one, create the dashboard on the second one, and create each visualization there with the same `spec`, `config` and `layout` and the new `dashboardId`. Do the same for its filter chips.
+
+## Audit
+
+Creating, changing and deleting dashboards, visualizations and filter chips are recorded in the audit log (see **App Audit Logs**). Deleting a filter chip is recorded with the action name of a visualization delete.

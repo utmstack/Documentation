@@ -79,7 +79,7 @@ Go to **Configure > Settings > ThreatWinds Integration**. The page is shown only
 | **Threat Intelligence > Indicators** | When someone opens the page: up to 1,000 of the most frequent IP addresses, host names, domains, file hashes, URLs and email addresses found in the tenant's alerts (both sides, internal values included), sent as a search so that ThreatWinds can say which it knows. Also any search or lookup you type. | Do not open the page. |
 | **Threat Intelligence > Triage** | The indicators you paste. | Do not use it. |
 | **Threat Intelligence > AI Analyst** | Your questions and the searches the agent runs. | Do not use it. |
-| **Threat Intelligence > Report** | The indicator and everything you enter with it. It is published to the shared ThreatWinds database and also queues a scan of the target. | Do not use it. |
+| **Threat Intelligence > Report** | The indicator and everything you enter with it. It is published to the shared ThreatWinds database; for an IP address, domain or host name it also queues a scan of the target. | Do not use it. |
 | SOC-AI with the ThreatWinds provider | The alerts and questions you send to SOC-AI. | Choose another provider on **Configure > Settings > SOC-AI**. See **AI providers**. |
 
 Everything except the list download goes through the UTMStack update server (`cm.utmstack.com`), which forwards it to ThreatWinds with your server's registration.
@@ -113,3 +113,54 @@ See **Network ports and firewall**.
 |---|---|---|
 | Use the **Threat Intelligence** screens | `threatintel.read` | Administrator, Analyst, Viewer |
 | See and change the **ThreatWinds Integration** switches | Administrator in the default tenant | Administrator (instance operator) |
+
+## Investigate an indicator alert
+
+<Steps>
+
+<Step title="See which value matched">
+
+Open the alert on **Threat Management > Alerts**. The **Description** names the value and its level, for example "The IP '203.0.113.45' was found in ThreatWinds intelligence feeds (Level 3)." The **Parties** tab shows it on the **Adversary** card; the other side of the event is on the **Source / target** card.
+
+</Step>
+
+<Step title="Check the direction">
+
+Decide which way the traffic went:
+
+- **Your system reached out to the listed value** (for example a workstation connecting to a listed domain): the more serious case. The machine may be infected or a user may have opened a malicious link.
+- **The listed value reached your system** (for example a scanner probing your firewall): common on internet-facing devices, and usually blocked. Check that the event's outcome was not a success.
+
+</Step>
+
+<Step title="Read the event">
+
+On the **Events** tab, expand the event and read its fields and original log line: which data source logged it, which port, which user, which action. Click **View all related logs** for the other events behind the alert.
+
+</Step>
+
+<Step title="Learn about the indicator">
+
+Go to **Threat Intelligence > Indicators**, set the lookup type to the kind of value (for example **ip**), paste it and press **Enter**. Its details show the reputation, the tags, when ThreatWinds last saw it and what it is linked to.
+
+</Step>
+
+<Step title="Decide">
+
+- Real contact with a malicious host: open an incident, contain the machine and follow **Alert Triage Workflow**.
+- Blocked probe or known harmless match: complete the alert. If such matches keep coming, add a tagging rule on **Alert name** and the specific **Adversary IP** or **Adversary domain** that adds **False positive**. See **Tagging Rules and False Positives**.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| No indicator alerts at all | **Enable feeds** is off, the server cannot reach `apis.threatwinds.com` on port 443, or no event contained a listed value. | Check the switch on **Configure > Settings > ThreatWinds Integration** and outbound HTTPS from the server. |
+| A known malicious domain does not raise an alert | Matching is exact and case-sensitive, and a sub-domain does not match a listed parent domain. The value must also be in `origin.domain`, `origin.host`, `target.domain` or `target.host`. | Check in **Log Explorer** which fields the data source fills. See **Standard Event Schema**. |
+| A data source never produces indicator alerts | Its pipeline does not fill the six checked fields, or every event has `actionResult` `denied`, `blocked` or `failed`. | Open a few of its events in **Log Explorer** and look at `origin.*`, `target.*` and `actionResult`. |
+| Internal addresses never match | Private, loopback and unspecified addresses, `localhost` and `.local` names are never checked. | Expected. |
+| The same indicator raises one alert, then nothing for days | Repeats with the same name, addresses, host names, domains and data source are dropped for 7 days. | Expected. Check the first alert. |
+| Too many indicator alerts from one perimeter device | Scanners on the internet keep probing you. Events the device blocked are already skipped when the pipeline marks them as `denied`. | Add a tagging rule for the harmless cases, scoped as narrowly as possible. |

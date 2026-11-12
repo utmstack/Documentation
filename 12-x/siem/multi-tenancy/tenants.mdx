@@ -1,122 +1,87 @@
-With a multi-tenant licence, one UTMStack v12 server can serve several customers. Each customer is a **tenant** with its own users, settings, data sources, integrations, alerts, incidents, response flows and audit log. This page is for the **instance operator**, the team that runs the server (for example a managed security service provider, MSSP).
-
-<Note>
-
-UTMStack v12 replaces the v11 approach based on data source groups. Data source groups, **Apply Group** and filtering alerts by group do not exist in v12. Each customer is now a real tenant.
-
-</Note>
+The **Tenants** page is where the instance operator creates and manages the customer tenants on a multi-tenant UTMStack v12 server. This page describes everything on it. For what a tenant is and what it owns, see **Multi-Tenancy Overview**; for the whole process of bringing a customer on board, see **Onboarding a Customer**.
 
 ## Requirements
 
-- An **Enterprise** licence with the **multi-tenant** option. Check **MSSP / multi-tenant** on the License page (see **License and Editions**).
-- You must be the instance operator: a user with the **Administrator** role in the default tenant (see **Settings Overview**). The Tenants page uses the `tenant.read` and `tenant.write` permissions.
-- A working mail server in **Email Configuration**, because the first administrator of each new tenant is invited by email.
+- A licence with the multi-tenant option. The **License** page shows it in the row **MSSP / multi-tenant**. See **License and Editions**.
+- You are the instance operator: a user with the **Administrator** role in the default tenant, working in your own tenant (not inside a customer's). The page needs the permissions `tenant.read` and `tenant.write`, which the Administrator role has.
+- Working product email in your own tenant, because a new tenant's first administrator is invited by email (see **Email Configuration**).
 
-## How tenants are kept apart
+Open **Tenants** in the main menu. Nobody else sees this menu item.
 
-UTMStack decides which tenant a request belongs to from the **host name** in the address. Each tenant has its own domain, for example `customer-a.siem.example.com`, and every request that arrives on that host name lands in that tenant's data.
+## What the page shows
 
-This means:
+![The Tenants page with the tenants, active and readable counters, the search box, tenant cards with status and access badges, Users, Sources, Open alerts and AI today dials, and the New tenant card](/assets/5973eac4-810f-41ae-b4fb-f306e87aa859)
 
-- Each tenant domain must point to the UTMStack server in DNS.
-- Users of a tenant sign in at `https://<tenant domain>`. Agents and collectors for that tenant are installed with that tenant's own connection key (see **Connection Key**).
-- A request on a host name that belongs to no tenant is refused with "unknown tenant".
-- The web server presents one SSL certificate for every host name. Use a certificate that covers all tenant domains, for example a wildcard certificate (see **SSL Certificate**).
+The header reads "Every customer running on this instance, what they hold and what they let you see." Below it:
 
-The default tenant, named **UTMStack**, is the operator's own tenant. Its domain is taken from the first address used to open UTMStack after installation.
+- Three counters: **tenants** (all customer tenants), **active** (status Active) and **readable** (tenants that granted you **Read only** or **Full access**).
+- A search box, "Search by name or domain…".
+- One card per customer tenant, and a **New tenant** card at the end ("Creates the tenant and invites its first administrator.").
 
-<Warning>
+Your own default tenant is not listed. The page shows up to 200 tenants.
 
-Open UTMStack for the first time with the host name you want to keep for the operator, not with the server's IP address. On a multi-tenant licence, the default tenant then answers only on that address.
+### The tenant card
 
-</Warning>
-
-## What tenants share and what they own
-
-| Item | Shared or per tenant |
+| Part of the card | What it shows |
 |---|---|
-| Users, roles, API keys, identity providers | Per tenant |
-| Email settings, recipients, date and time, language, branding | Per tenant. Email, date and language fall back to the default tenant's values until the tenant saves its own. |
-| Data sources, integration settings, connection key | Per tenant. The catalogue of integrations shipped with UTMStack is the same for every tenant. |
-| Alerts, incidents, logs, notifications, audit log | Per tenant |
-| Correlation rules, pipelines, response flows, compliance frameworks shipped with UTMStack | Shared: every tenant sees them. Turning a rule or pipeline on or off applies to one tenant. |
-| Rules, pipelines, flows and frameworks a tenant creates | Owned by that tenant |
-| Data retention and cold storage | One setting for the whole server |
-
-To install the same custom item in several tenants at once, see **Apply to All Tenants**.
-
-## The Tenants page
-
-Open **Tenants** in the main menu. The page lists every customer on the server, with counters for the number of tenants, how many are active and how many are readable (have granted you support access). Search by name or domain.
-
-Each tenant card shows the tenant's name, domain, status and the support access the tenant has granted you. If the tenant has granted access, the card also shows its **Users**, **Sources**, **Open alerts** and **AI today** (SOC-AI requests used today, and the cap if one is set). Otherwise it says "This tenant has not granted you access."
+| Name and domain | The tenant's display name and the address it is reached on. |
+| Status badge | **Active**, **Suspended** or **Terminated**. See **Tenant Lifecycle**. |
+| Access badge | The support access the tenant has granted you: **No access**, **Read access** or **Full access**. Hover over it: "Granted by the tenant, not by you. Only their administrator can change it." |
+| Pencil icon (**Edit**) | Change the name, domain or AI request cap. |
+| Power icon | **Deactivate** on an active tenant; **Activate** on any other. |
+| Trash icon (**Delete permanently**) | Erase a deactivated tenant. |
+| **Enter** | Work inside the tenant. Shown only when the tenant granted access and is not deactivated. Clicking the card itself does the same. See **Working Inside a Tenant**. |
+| **Users**, **Sources**, **Open alerts**, **AI today** | Number of user accounts, data sources, open alerts, and SOC-AI requests used today with the daily cap or **no cap**. Shown only when the tenant granted you access; otherwise the card says "This tenant has not granted you access." |
 
 ## Create a tenant
 
-<Steps>
+Prepare the domain first: the DNS record and the certificate (see **How Users Reach Their Tenant**).
 
-<Step title="Prepare DNS and the certificate">
+1. Click **New tenant** (or, in the tenant switcher in the top bar, **Create tenant**).
+2. Fill in the fields:
 
-Create a DNS record for the tenant's domain that points to the UTMStack server, and make sure your SSL certificate covers it.
+   | Field | What to enter | Rules |
+   |---|---|---|
+   | **Name** | The customer's name | At least 2 characters |
+   | **Domain** | The host name the tenant is reached on, for example `acme.siem.example.com` ("How this tenant is reached. Every request on this host lands in their data.") | Letters, digits, dashes and dots; at least two parts; no `https://`, path or port; unique across all tenants |
+   | **Administrator email** | The email address of the customer's first administrator ("They get an invitation to set their own password.") | A valid email address. It may also exist in other tenants: accounts in different tenants are separate. |
 
-</Step>
+   ![The New tenant dialog with the Name, Domain and Administrator email fields and the Create tenant button](/assets/277719fc-43eb-4a51-b651-b7bff55db321)
 
-<Step title="Open the form">
+3. Click **Create tenant**.
 
-Go to **Tenants** and click **New tenant** (or use **Create tenant** in the tenant switcher in the top bar).
+UTMStack creates the tenant with the status **Active** and support access **No access**, creates the first user with the **Administrator** role, and emails an invitation that is valid for 7 days. The page says "Tenant created". There is no password option and no way to resend the invitation. If the user cannot be created, the tenant is not created either.
 
-</Step>
+What the administrator must do with the invitation, and how to set up the rest of the tenant, is in **Onboarding a Customer**.
 
-<Step title="Fill in the fields">
+## Edit, deactivate, activate and delete
 
-| Field | What to enter |
+| Action | Where | Summary |
+|---|---|---|
+| **Edit** | Pencil icon | Change **Name**, **Domain** and **AI request cap** ("Cap this tenant", requests per day; `0` switches SOC-AI off for the tenant). Support access cannot be set here. |
+| **Deactivate** | Power icon on an active tenant | Type the tenant's name to confirm. The tenant becomes **Terminated**: its users and API keys are refused, its data is kept. |
+| **Activate** | Power icon on a deactivated tenant | Brings the tenant back with its data as it was. |
+| **Delete permanently** | Trash icon on a deactivated tenant | Type the tenant's name, then **Delete forever**. Erases the tenant and its data. Cannot be undone. |
+
+Details, the API-only **Suspended** status and the checklist before deleting are in **Tenant Lifecycle**.
+
+## The tenant switcher
+
+On a multi-tenant server, the top bar of the instance operator shows a tenant switcher next to the notification bell. It shows **Default tenant** while you are in your own tenant, or the name of the tenant you are working inside. Open it to:
+
+- choose **Default tenant** to go back to your own tenant;
+- choose a customer tenant to enter it (only tenants that granted **Read only** or **Full access** and are not deactivated are listed);
+- choose **Create tenant** to open the **New tenant** dialog.
+
+![The tenant switcher opened in the top bar, listing Default tenant, the customer tenants you can enter, and Create tenant](/assets/3ebb5bfe-4a33-49df-9fea-f7ac6b8a52c1)
+
+## Messages
+
+| Message | Meaning |
 |---|---|
-| Name | The customer's name |
-| Domain | The host name the tenant is reached on, for example `customer-a.siem.example.com`. Use letters, digits, dashes and dots only, with at least two parts, and no `https://` or port. It must be unique. |
-| Administrator email | The email address of the tenant's first administrator |
+| "Tenant created", "Tenant updated", "Tenant terminated", "Tenant reactivated", "Tenant permanently deleted" | The action worked. |
+| "That domain is already taken" | Another tenant has this domain. |
+| "You do not have permission to do that" | You are not an Administrator of the default tenant, or you are inside a support session. |
+| "Could not load tenants." | The list could not be read; click **Retry**. On a server without the multi-tenant option, the page is not available. |
 
-</Step>
-
-<Step title="Create">
-
-Click **Create tenant**. UTMStack creates the tenant and its first user, with the **Administrator** role, and sends an invitation email to that address.
-
-</Step>
-
-<Step title="Hand over to the tenant administrator">
-
-Tell the tenant administrator to sign in at `https://<tenant domain>`. In their tenant, they should:
-
-- Set **Base URL** in **Email Configuration** to `https://<tenant domain>`, and set their own alert and incident recipients (see **Email Configuration**).
-- Add their users (see **Users**).
-- Decide whether to give you **Support access** (see **Support Access**).
-
-</Step>
-
-</Steps>
-
-## Edit a tenant
-
-Click **Edit** on the tenant card. You can change:
-
-| Field | What it does |
-|---|---|
-| Name | The tenant's display name |
-| Domain | The host name the tenant is reached on. Update DNS and the certificate first. |
-| AI request cap | Switch on **Cap this tenant** to limit how many SOC-AI requests the tenant can make per day. `0` turns SOC-AI off for the tenant. Without a cap, the tenant uses the server's overall limit. |
-
-Support access is not set here: only the tenant can grant it.
-
-## Deactivate, activate and delete a tenant
-
-| Action | What happens |
-|---|---|
-| **Deactivate** | Takes the customer offline: nobody in the tenant can use it. All data is kept, so this can be undone. Type the tenant's name to confirm. The tenant's status becomes **Terminated**. |
-| **Activate** | Brings a deactivated tenant back with its data as it was. |
-| **Delete permanently** | Available only after the tenant is deactivated. Erases everything of the tenant: users, data sources, dashboards, alerts, integrations, logs and statistics. Type the tenant's name to confirm. This cannot be undone. |
-
-The default tenant cannot be deactivated or deleted.
-
-## Work inside a tenant
-
-If a tenant has granted you support access, click **Enter** on its card, or choose it in the tenant switcher in the top bar. See **Support Access**.
+Other refusals show the server's own message, for example "domain is not a valid hostname" or "tenant is not terminated". See **Tenant Lifecycle** and **Multi-Tenancy FAQ and Troubleshooting**.

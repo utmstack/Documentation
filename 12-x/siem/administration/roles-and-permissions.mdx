@@ -25,7 +25,7 @@ What this means in practice:
 
 - **Analysts** cannot change users, roles, settings, identity providers, correlation rules, pipelines, integrations, data sources, compliance or retention.
 - **Analysts** can run commands on agent hosts through the **Interactive Console**, because it uses `soar.write`. They cannot start a response flow by hand: that needs `soar.execute`, which only the Administrator role has.
-- **Viewers** can use the SOC-AI assistant (`socai.read`).
+- The SOC-AI assistant and its **Ask** buttons appear in the interface only for users who hold `socai.write`, which among the built-in roles only **Administrator** has. See **AI Providers**.
 
 ## Things that need the Administrator role itself
 
@@ -80,8 +80,8 @@ A check mark means the built-in role has the permission.
 | `threatintel.read` | Search threat intelligence and its feeds | ✓ | ✓ | ✓ |
 | `storage.read` | See retention settings and what the event store holds (instance operator only) | ✓ | ✓ | ✓ |
 | `storage.write` | Change retention and configure cold storage (instance operator only) | ✓ | | |
-| `socai.read` | Use the SOC-AI assistant | ✓ | ✓ | ✓ |
-| `socai.write` | Configure the SOC-AI provider | ✓ | | |
+| `socai.read` | Use the SOC-AI assistant through the API | ✓ | ✓ | ✓ |
+| `socai.write` | Configure the SOC-AI provider; also needed to see the SOC-AI assistant in the interface | ✓ | | |
 | `apikey.read` | List your own API keys | ✓ | ✓ | ✓ |
 | `apikey.write` | Create, rotate, edit and delete your own API keys | ✓ | | |
 
@@ -123,7 +123,86 @@ Click **Save role**, then give the role to users on the **Members** tab.
 
 To change a custom role, click **Edit** on it. To remove it, click **Delete**. Users who hold only that role are left without access to any module.
 
-Custom roles belong to the tenant they were created in.
+Custom roles belong to the tenant they were created in. You see "Role created", "Role updated" or "Role deleted"; "role name is already in use" means the identifier is taken, and "System roles cannot be modified" appears if you try to change a built-in role, and also when your own roles lack `roles.write`.
+
+## Which permissions each screen needs
+
+Apart from a few places (the SOC-AI assistant, identity alias actions in the User Auditor and some integration controls), the interface does not hide buttons by permission. A user who lacks a write permission usually still sees the button, and gets "You do not have permission to do that" or a similar error when using it. Use this table to give each role what its screens need.
+
+| Screen | To view | To change |
+|---|---|---|
+| Overview (home page) | `alerts.read` and `loganalyzer.read` for the alert cards; the other cards need `datasources.read`, `eventprocessing.read`, `incidents.read`, `soar.read` and `compliance.read` | |
+| Alerts, tags and tagging rules | `alerts.read` and `loganalyzer.read` | `alerts.write` |
+| Incidents | `incidents.read` | `incidents.write` |
+| Log Explorer | `loganalyzer.read` | `loganalyzer.write` for saved searches |
+| Dashboards | `dashboards.read` | `dashboards.write`; the widget editor also needs `loganalyzer.read` |
+| Automated response flows and execution history | `soar.read` | `soar.write`; `soar.execute` to run a flow by hand |
+| Interactive Console | `soar.write` | `soar.write` to run commands on agents |
+| Compliance | `compliance.read` | `compliance.write` |
+| Threat intelligence | `threatintel.read` | |
+| User Auditor | `adaudit.read` | `adaudit.write` |
+| Data Sources | `datasources.read` | `datasources.write` |
+| Integrations | `integrations.read` | `integrations.write` |
+| Alerting Rules, Pipelines, Data Processing | `eventprocessing.read` | `eventprocessing.write` |
+| Team | `users.read`, `roles.read` | `users.write`, `users.delete`, `roles.write` |
+| Notifications | `notifications.read` | `notifications.write` |
+| App Audit Logs | `audit.read` | |
+| Email Configuration, Date Format, Language, Branding | `config.read` | `config.write` |
+| Identity Providers | `idp.read` | `idp.write` |
+| API Keys (own keys only) | `apikey.read` | `apikey.write` |
+
+## Pages a custom role reaches by address
+
+Users without the **Administrator** role do not see the **Configure** menu, even when their role allows the pages in it. They can open those pages by typing the address, and the permissions in the table above still apply:
+
+| Page | Address |
+|---|---|
+| Data Sources | `https://siem.example.com/datasources` |
+| Integrations | `https://siem.example.com/integrations` |
+| Alerting Rules | `https://siem.example.com/alerting-rules` |
+| Pipelines | `https://siem.example.com/pipelines` |
+| Data Processing | `https://siem.example.com/data-processing` |
+| Team | `https://siem.example.com/team` |
+| App Audit Logs | `https://siem.example.com/settings/audit-logs` |
+| API Keys | `https://siem.example.com/settings/api-keys` |
+
+Replace `siem.example.com` with your UTMStack address. Bookmarks help these users.
+
+## Example custom roles
+
+These examples show how to combine permissions for common jobs. Adjust them to your organization.
+
+### SOC tier 1 analyst
+
+Triages alerts and works incidents, but cannot run commands on endpoints or change flows.
+
+`alerts.read`, `alerts.write`, `incidents.read`, `incidents.write`, `loganalyzer.read`, `loganalyzer.write`, `dashboards.read`, `notifications.read`, `notifications.write`, `soar.read`, `threatintel.read`, `adaudit.read`, `datasources.read`
+
+Compared with the built-in **Analyst**, this role cannot use the Interactive Console or edit dashboards.
+
+### Incident responder
+
+Everything a tier 1 analyst can do, plus containment.
+
+The tier 1 permissions, plus `soar.write` (create and change flows, run commands on agents through the Interactive Console) and `soar.execute` (run flows by hand).
+
+The Interactive Console asks for the user's own UTMStack password before it runs commands. Users whose accounts were created by single sign-on have no UTMStack password, so give responders accounts with a local password if they need the console.
+
+### Detection engineer
+
+Writes and tests correlation rules and parsing pipelines.
+
+`eventprocessing.read`, `eventprocessing.write`, `loganalyzer.read`, `loganalyzer.write`, `alerts.read`, `datasources.read`, `integrations.read`, `dashboards.read`, `dashboards.write`
+
+Users with this role open **Alerting Rules** and **Pipelines** by address (see above).
+
+### Compliance auditor
+
+Reads compliance results and the audit trail, changes nothing.
+
+`compliance.read`, `audit.read`, `dashboards.read`, `loganalyzer.read`, `alerts.read`, `incidents.read`
+
+Users with this role open **App Audit Logs** by address.
 
 ## Tips for designing roles
 

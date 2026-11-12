@@ -1,4 +1,4 @@
-UTMStack v12 collects VMware ESXi host logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the VMware integration on a Collector, then point the ESXi host's syslog at that Collector. Nothing is installed on the ESXi host.
+UTMStack v12 collects VMware ESXi host logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the VMware integration on a Collector, then point each ESXi host's syslog at that Collector. Nothing is installed on the ESXi host.
 
 ## Connection details
 
@@ -7,22 +7,34 @@ UTMStack v12 collects VMware ESXi host logs through the **UTMStack Forwarder**, 
 | Card on the Integrations page | **Vmware** (category Virtualization) |
 | Data type | `vmware-esxi` |
 | Default ports on the Collector | 7002/TCP (also used for TLS); 7002/UDP |
-| Included in UTMStack | A parsing filter and 14 detection rules |
+| Format UTMStack expects | ESXi's standard syslog output (a syslog header with an ISO 8601 time, the host name and the process name) |
+| Parsing pipeline | `vmware/vmware-esxi.yaml` (version 3.2.0). The **Filters** button in the drawer opens it. |
+| Detection rules | 14 rules for the `vmware-esxi` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
 - Each ESXi host must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
-- You need the `integrations.write` permission to enable the integration from the web interface.
+- You need the `integrations.write` permission to enable the integration from the web interface, and SSH or ESXi Shell access (or the vSphere Client) on each host.
+
+<Warning>
+
+The ESXi firewall's `syslog` rule set opens only the standard syslog ports: 514 (TCP and UDP) and 1514 (TLS). Broadcom documents that ESXi 7.0 Update 3q and ESXi 8.0 Update 2b and later add a firewall rule for a non-standard port such as 7002 by themselves. On older builds, ESXi cannot send to port 7002. In that case, move the Collector's VMware listener to TCP 514 (or 1514 for TLS) as described in "Use a port other than 7002" below, and use that port in step 2.
+
+</Warning>
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Vmware** card.
+
+    ![VMware ESXi setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/9a26a9bd-d556-4f7b-b597-33f58669ea02)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7002** below.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The guide selects **TCP** by default, because ESXi streams its logs over TCP.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The guide selects **TCP** by default, because ESXi streams its logs over TCP. The **Port** fills in with the default, 7002.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · tcp · port 7002`.
@@ -35,7 +47,22 @@ To do the same on the Collector host instead, run:
 sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration vmware-esxi 7002 tcp
 ```
 
-To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+To use TLS, load a certificate on the Collector first and enable the integration with `tls`. See **UTMStack Forwarder**.
+
+### Use a port other than 7002
+
+The Collector listens on the port stored on the Collector host: 7002 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port, for example TCP 514 for an older ESXi build:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port vmware-esxi tcp 514
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+Only one data type can listen on a given port and protocol on one Collector. If another program on the Collector host already listens on TCP 514 (for example a local syslog server), enabling the integration on that port fails with "port 514 is already in use by another process".
 
 ## Step 2: Point ESXi syslog at the Collector
 
@@ -54,6 +81,8 @@ Open an SSH or ESXi Shell session on the host, where the `esxcli` command is ava
     esxcli system syslog config set --loghost='tcp://<collector-ip>:7002'
     esxcli system syslog reload
     ```
+
+    Use `udp://` if you enabled UDP, or `ssl://<collector-name>:<port>` if you enabled TLS. To keep sending to another log server as well, list both, separated by a comma.
   </Step>
   <Step title="Open the ESXi firewall for syslog">
     Allow outbound syslog through the ESXi firewall so the host can reach the Collector:
@@ -80,11 +109,25 @@ The setup guide in UTMStack fills in your UTMStack server's address in this step
 
 </Note>
 
+For TLS (`ssl://`), ESXi checks the Collector's certificate. Load a certificate on the Collector that is issued for the name you use in `--loghost` by a certificate authority the ESXi host trusts. See VMware's documentation on sending syslog over TLS.
+
 ## Step 3: Check that logs arrive
 
-- In the **Vmware** drawer, click **View logs**. Log Explorer opens with the `vmware-esxi` data type for the last 24 hours.
-- Within about 10 minutes, each ESXi host appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+1. ESXi writes log messages all the time. Wait a minute after `esxcli system syslog reload`.
+2. In the **Vmware** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `vmware-esxi` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show the ESXi host name in `origin.hostname` and the process in `log.process`, and the `errors` field should be empty.
+4. Within about 20 minutes, each ESXi host appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'vmware-esxi'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Stop collecting
 
@@ -93,3 +136,16 @@ In the **Vmware** card, select the same Collector and click **Disable integratio
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration vmware-esxi tcp
 ```
+
+Disable with the same protocol you enabled (TLS uses `tcp`). Then remove the Collector from `Syslog.global.logHost` on each ESXi host.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| `nc -z` from the ESXi host fails, and nothing arrives | The ESXi firewall blocks the non-standard port (builds before 7.0 Update 3q or 8.0 Update 2b), or a firewall between the host and the Collector blocks it | Move the listener to TCP 514 or 1514 (step 1), or open the port on the network firewall. On the host, `esxcli network firewall ruleset rule list` shows which ports the firewall allows. |
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | On the Collector host, run `sudo systemctl status UTMStackForwarder` and read `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`. See **Forwarder Troubleshooting**. |
+| The ESXi host sends to the wrong place | `Syslog.global.logHost` points at the UTMStack server or another host, or uses a different protocol than the one you enabled | Run `esxcli system syslog config get` and check the address, `tcp://` or `udp://`, and port. Run `esxcli system syslog reload` after each change. |
+| **Enable integration** fails with "port 7002 is already in use by integration '…'" or "… by another process" | Another data type or another program already listens on that port and protocol | Use another port with `change-port` (see step 1), or stop the other listener. |
+| Events arrive but `errors` is not empty | The message format was changed on the host, or a relay rewrote the messages | Keep ESXi's default syslog format and send directly to the Collector. |
+| TLS does not connect | The Collector log shows "TLS handshake failed" (ESXi does not trust the certificate, or the name does not match) or "TLS connection rejected … TLS is disabled, only plain text connections accepted" (ESXi uses `ssl://` on a plain TCP listener) | Use `ssl://` only with a TLS listener, and load a certificate ESXi trusts for that name. |

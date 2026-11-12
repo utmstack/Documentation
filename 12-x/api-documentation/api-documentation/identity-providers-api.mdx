@@ -1,0 +1,369 @@
+Use these endpoints to manage the identity providers that let users sign in to UTMStack v12 with an outside account: SAML 2.0 and OpenID Connect (OIDC) single sign-on, and LDAP directories such as Active Directory. SAML and OIDC are standard ways for a sign-in service (for example Microsoft Entra ID, Okta or Google) to tell UTMStack who a user is; LDAP is the protocol directories use to check a user name and password. Creating and changing providers, and single sign-on through SAML or OIDC, need the Enterprise licence.
+
+## Permissions and Licence
+
+| Action | Permission | Licence |
+|---|---|---|
+| List and read providers and their group mappings | `idp.read` (all built-in roles) | Any |
+| Create or change a provider | `idp.write` (Administrator) | Enterprise |
+| Delete a provider | `idp.write` (Administrator) | Any |
+| List active providers for the sign-in page (`GET /idp-providers`) | None (no sign-in) | Any |
+| Sign in through SAML or OIDC (`/sso/{name}/...`) | None (browser sign-in) | Enterprise |
+| Apply a provider to many tenants (`/platform/identity-providers/bulk/...`) | `idp.write` and the Administrator role in the default tenant | Enterprise |
+
+Without the Enterprise licence, create, update and the sign-in addresses answer 403 `This feature requires an Enterprise license`. Providers belong to your tenant. For the screens, see **Single Sign-On**.
+
+## How Sign-In Through a Provider Works
+
+1. The user picks the provider on the UTMStack sign-in page (SAML or OIDC), or types their directory user name and password (LDAP).
+2. UTMStack reads the user's email address, name and groups from the provider.
+3. It looks for a local user with that email address in the tenant.
+   - **Found:** the account must be `active`. If `syncRolesOnLogin` is on, its roles are replaced by the roles the provider's groups map to.
+   - **Not found:** if `jitProvisioning` is on, UTMStack creates the account (`active`, linked to the provider) with the mapped roles. Otherwise sign-in is refused.
+4. Roles come from `groupMappings`: each group the user belongs to that matches a mapping (upper and lower case ignored) gives its role. If no group matches, the provider's `defaultRoleId` is used. If there is no default either, sign-in is refused.
+5. For SAML and OIDC, the browser is sent back to `/auth/login` on the UTMStack address with a sign-in token, or with `error=sso` if anything failed. The reason is written to the server log.
+
+Accounts linked to a provider have no UTMStack password: they cannot change or reset a password in UTMStack, and they cannot get the password confirmation token that the command console needs.
+
+## Provider Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Provider id. Leave it out on create; required on update. |
+| `name` | string | 1 to 64 characters: letters, digits, `.`, `_` and `-`, starting with a letter or digit. Unique in the tenant. It is part of the sign-in addresses, for example `/api/v1/sso/entra/login`. |
+| `providerType` | string | `saml`, `oidc` or `ldap` |
+| `active` | boolean | Only active providers can be used to sign in and appear on the sign-in page |
+| `settings` | object | Connection settings for the type (tables below). Secrets are never returned. |
+| `jitProvisioning` | boolean | Create unknown users at their first sign-in |
+| `defaultRoleId` | string (UUID) | Role given when none of the user's groups is mapped |
+| `groupsAttribute` | string | SAML: the assertion attribute that lists the groups. OIDC: the ID token claim that lists the groups (default `groups`). Not used for LDAP. |
+| `syncRolesOnLogin` | boolean | Replace an existing user's roles with the mapped roles at every sign-in |
+| `groupMappings` | array | Request only: `[{"group": "<group name>", "roleId": "<role-id>"}]`. Replaces all mappings on every create and update. Read them back with `GET /identity-providers/{id}/group-mappings`. |
+| `createdAt`, `updatedAt` | string | Times in RFC 3339 format (answers only) |
+
+Get role ids from `GET /api/v1/roles` (see **Users and Roles API**).
+
+### SAML Settings
+
+| Field | Required | Rules |
+|---|---|---|
+| `metadataUrl` | Yes | `http` or `https` address of the provider's metadata (federation metadata XML) |
+| `spEntityId` | Yes | The identifier UTMStack uses toward the provider: a `urn:` value or an `http`/`https` address |
+| `spAcsUrl` | Yes | Where the provider sends the signed answer: `https://<your-utmstack-address>/api/v1/sso/<name>/acs` |
+| `spCertificatePem` | Yes | UTMStack's certificate in PEM format (with the `BEGIN CERTIFICATE` and `END CERTIFICATE` lines) |
+| `spPrivateKeyPem` | On create | The private key of that certificate in PEM format. On update, leave it empty to keep the stored key. |
+
+### OIDC Settings
+
+| Field | Required | Rules |
+|---|---|---|
+| `issuer` | Yes | The provider's issuer address. Must be `https`. UTMStack reads its discovery document from there. |
+| `clientId` | Yes | The application (client) id registered at the provider |
+| `clientSecret` | On create | The client secret. On update, leave it empty to keep the stored secret. |
+| `redirectUrl` | Yes | `https://<your-utmstack-address>/api/v1/sso/<name>/callback`. Must be `https` (plain `http` is accepted only for `localhost`). |
+| `scopes` | No | Default `["openid", "profile", "email"]` |
+
+UTMStack reads the email address from the `email`, `preferred_username` or `upn` claim, and the name from `name` or `given_name`.
+
+### LDAP Settings
+
+| Field | Required | Rules |
+|---|---|---|
+| `host` | Yes | Host name or IP address of the directory server. An IPv6 address goes in brackets. |
+| `port` | No | 0 to 65535. `0` or empty means 389. |
+| `startTls` | No | Upgrade the connection to TLS (encryption) before sending the password |
+| `insecureTls` | No | Accept a certificate that cannot be verified. Use only for testing. |
+| `bindDn` | Yes | Account UTMStack uses to search the directory, for example `CN=utmstack-bind,OU=Service,DC=example,DC=com` |
+| `bindPassword` | On create | Password of that account. On update, leave it empty to keep the stored password. |
+| `baseDn` | Yes | Where to search for users, for example `DC=example,DC=com` |
+| `userFilter` | Yes | Search filter with `%s` where the typed user name goes, for example `(&(objectClass=user)(mail=%s))`. Parentheses must balance. |
+| `emailAttribute` | No | Default `mail` |
+| `nameAttribute` | No | Default `displayName` |
+| `groupAttribute` | No | Default `memberOf` |
+
+LDAP users sign in with `POST /api/v1/auth/login`. To use one directory out of several, add `"provider_id": "<provider-id>"` to the body (see **Authentication and API Keys**).
+
+## List Providers
+
+**Endpoint:** `GET /api/v1/identity-providers` (permission `idp.read`)
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| name | string | Part of the name (upper and lower case ignored) |
+| providerType | string | `saml`, `oidc` or `ldap` |
+| active | boolean | `true` or `false` |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 20, maximum 200 |
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/identity-providers" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "providerType=oidc"
+```
+
+**Response (HTTP 200):** an array sorted by name; the total is in the `X-Total-Count` header.
+
+```json
+[
+  {
+    "id": "<provider-id>",
+    "name": "entra",
+    "providerType": "oidc",
+    "active": true,
+    "settings": {
+      "issuer": "https://login.microsoftonline.com/<directory-id>/v2.0",
+      "clientId": "<client-id>",
+      "redirectUrl": "https://siem.example.com/api/v1/sso/entra/callback"
+    },
+    "jitProvisioning": true,
+    "defaultRoleId": "00000000-0000-0000-0000-00000000a003",
+    "groupsAttribute": "groups",
+    "syncRolesOnLogin": true,
+    "createdAt": "2026-11-02T10:00:00Z",
+    "updatedAt": "2026-11-02T10:00:00Z"
+  }
+]
+```
+
+`clientSecret`, `bindPassword` and `spPrivateKeyPem` are removed from every answer.
+
+## Get One Provider
+
+**Endpoint:** `GET /api/v1/identity-providers/{id}` (permission `idp.read`)
+
+Returns one provider object. An unknown id returns 404 `identity provider not found`; a value that is not a UUID returns 400 `invalid id`.
+
+## List Group Mappings
+
+**Endpoint:** `GET /api/v1/identity-providers/{id}/group-mappings` (permission `idp.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/identity-providers/<provider-id>/group-mappings" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<mapping-id>",
+    "identityProviderId": "<provider-id>",
+    "group": "SOC-Analysts",
+    "roleId": "00000000-0000-0000-0000-00000000a002"
+  }
+]
+```
+
+## Create a Provider
+
+**Endpoint:** `POST /api/v1/identity-providers` (permission `idp.write`, Enterprise)
+
+Example for OpenID Connect (Microsoft Entra ID):
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/identity-providers" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "entra",
+    "providerType": "oidc",
+    "active": true,
+    "settings": {
+      "issuer": "https://login.microsoftonline.com/<directory-id>/v2.0",
+      "clientId": "<client-id>",
+      "clientSecret": "<client-secret>",
+      "redirectUrl": "https://siem.example.com/api/v1/sso/entra/callback"
+    },
+    "jitProvisioning": true,
+    "defaultRoleId": "00000000-0000-0000-0000-00000000a003",
+    "groupsAttribute": "groups",
+    "syncRolesOnLogin": true,
+    "groupMappings": [
+      {"group": "<entra-group-object-id>", "roleId": "00000000-0000-0000-0000-00000000a002"}
+    ]
+  }'
+```
+
+The ids `...a001`, `...a002` and `...a003` are the built-in Administrator, Analyst and Viewer roles.
+
+Example for LDAP (Active Directory):
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/identity-providers" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "corp-ad",
+    "providerType": "ldap",
+    "active": true,
+    "settings": {
+      "host": "dc01.example.com",
+      "port": 389,
+      "startTls": true,
+      "bindDn": "CN=utmstack-bind,OU=Service,DC=example,DC=com",
+      "bindPassword": "<bind-password>",
+      "baseDn": "DC=example,DC=com",
+      "userFilter": "(&(objectClass=user)(mail=%s))"
+    },
+    "jitProvisioning": false,
+    "defaultRoleId": "00000000-0000-0000-0000-00000000a003",
+    "syncRolesOnLogin": false,
+    "groupMappings": [
+      {"group": "SOC-Analysts", "roleId": "00000000-0000-0000-0000-00000000a002"}
+    ]
+  }'
+```
+
+For LDAP, the group names to map are the first part (`CN`) of each group's distinguished name read from `memberOf`.
+
+**Response (HTTP 201):** the new provider object.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `id must be absent on create` | The body has an `id` |
+| 400 | `unsupported identity provider type` | `providerType` is not `saml`, `oidc` or `ldap` |
+| 400 | `name, provider type and the settings that type requires are missing or invalid` | The name is empty, too long or has characters that are not allowed |
+| 400 | `sp private key is required on create` | SAML without `spPrivateKeyPem` |
+| 403 | `This feature requires an Enterprise license` | No Enterprise licence |
+| 500 | `the settings this provider type requires are missing or invalid` | A required setting is missing or breaks a rule in the tables above. UTMStack v12.0.2 answers this case with 500. |
+| 500 | `role not found` | `defaultRoleId` or a mapping's `roleId` is unknown. UTMStack v12.0.2 answers this case with 500. |
+
+A name that is already used in your tenant is also refused with HTTP 500.
+
+## Update a Provider
+
+**Endpoint:** `PUT /api/v1/identity-providers` (permission `idp.write`, Enterprise)
+
+The id goes in the body, not in the address. Send the whole provider: every field is replaced, including `groupMappings` (leave it out and all mappings are removed). Leave `clientSecret`, `bindPassword` or `spPrivateKeyPem` empty to keep the stored secret.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/identity-providers" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "<provider-id>",
+    "name": "entra",
+    "providerType": "oidc",
+    "active": false,
+    "settings": {
+      "issuer": "https://login.microsoftonline.com/<directory-id>/v2.0",
+      "clientId": "<client-id>",
+      "redirectUrl": "https://siem.example.com/api/v1/sso/entra/callback"
+    },
+    "jitProvisioning": true,
+    "defaultRoleId": "00000000-0000-0000-0000-00000000a003",
+    "syncRolesOnLogin": true,
+    "groupMappings": [
+      {"group": "<entra-group-object-id>", "roleId": "00000000-0000-0000-0000-00000000a002"}
+    ]
+  }'
+```
+
+**Response (HTTP 200):** the updated provider. A missing `id` returns 400 `id is required for update`; an unknown one returns 404 `identity provider not found`. The other errors are the same as for create.
+
+> [!NOTE]
+> Renaming a SAML or OIDC provider changes its sign-in addresses. Update the ACS address or redirect address at the provider and in `settings` at the same time.
+
+## Delete a Provider
+
+**Endpoint:** `DELETE /api/v1/identity-providers/{id}` (permission `idp.write`)
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/identity-providers/<provider-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 200 with no body. An unknown id returns 404 `identity provider not found`. Users linked to the provider stay in UTMStack and stay linked to it. They have no UTMStack password, so they cannot sign in until a provider with the same users is set up again. Deactivate them if they no longer need access (see **Users and Roles API**).
+
+## Active Providers for the Sign-In Page
+
+**Endpoint:** `GET /api/v1/idp-providers` (no credential)
+
+Lists the active providers of the tenant that owns the address you call. The web console uses it to draw the sign-in buttons.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/idp-providers"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {"id": "<provider-id>", "name": "entra", "providerType": "oidc", "loginUrl": "/api/v1/sso/entra/login"},
+  {"id": "<provider-id>", "name": "corp-ad", "providerType": "ldap", "loginUrl": ""}
+]
+```
+
+LDAP providers have an empty `loginUrl` because they use the normal sign-in form.
+
+## Browser Sign-In Addresses
+
+These addresses are for web browsers and for the identity provider, not for scripts. They answer with redirects (HTTP 302), not JSON. All three need the Enterprise licence.
+
+| Method | Address | Who calls it | What it does |
+|---|---|---|---|
+| GET | `/api/v1/sso/{name}/login` | The user's browser | Starts the sign-in and redirects to the provider |
+| POST | `/api/v1/sso/{name}/acs` | The SAML provider, through the browser | Receives the signed SAML answer (the "Assertion Consumer Service") |
+| GET | `/api/v1/sso/{name}/callback` | The OIDC provider, through the browser | Receives the OIDC authorization code |
+
+After a successful sign-in the browser lands on `/auth/login?token=<access-token>`; after a failure on `/auth/login?error=sso`. The address used is the server setting `APP_BASE_URL` when it is set, otherwise the address the browser called. The sign-in must finish within 10 minutes of starting it.
+
+## Apply a Provider to Many Tenants
+
+On an installation with the multi-tenant licence, an Administrator of the default tenant can create, change or delete a provider in several tenants with one call. These endpoints need the Enterprise licence and `idp.write`.
+
+| Method | Endpoint | Body |
+|---|---|---|
+| POST | `/api/v1/platform/identity-providers/bulk/create` | `{"selector": {...}, "provider": {...}}` |
+| POST | `/api/v1/platform/identity-providers/bulk/update` | `{"selector": {...}, "provider": {...}}` (the provider includes `id`) |
+| POST | `/api/v1/platform/identity-providers/bulk/delete` | `{"selector": {...}, "providerId": "<provider-id>"}` |
+
+`selector` is either `{"tenantIds": ["<tenant-id>", "<tenant-id>"]}` or `{"allTenants": true}` (every active tenant, the default tenant included). `provider` has the same fields as a normal create or update.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/platform/identity-providers/bulk/create" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "selector": {"tenantIds": ["<tenant-id>", "<tenant-id>"]},
+    "provider": {
+      "name": "corp-ad",
+      "providerType": "ldap",
+      "active": true,
+      "settings": {
+        "host": "dc01.example.com",
+        "bindDn": "CN=utmstack-bind,OU=Service,DC=example,DC=com",
+        "bindPassword": "<bind-password>",
+        "baseDn": "DC=example,DC=com",
+        "userFilter": "(&(objectClass=user)(mail=%s))"
+      },
+      "defaultRoleId": "00000000-0000-0000-0000-00000000a003"
+    }
+  }'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "succeeded": ["<tenant-id>"],
+  "failed": [
+    {"tenantId": "<tenant-id>", "error": "the settings this provider type requires are missing or invalid"}
+  ]
+}
+```
+
+Each tenant is handled on its own. A failure in one tenant is reported in `failed` and is not rolled back in the others.
+
+> [!NOTE]
+> Each tenant's copy of a provider gets its own id. Bulk update and bulk delete look up the one id you send in every selected tenant, so they fail (`identity provider not found`) in tenants where that id does not exist.
+
+## Paging
+
+| Endpoint | Page parameter | First page | Size parameter | Default | Largest | Total |
+|---|---|---|---|---|---|---|
+| `GET /identity-providers` | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| `GET /identity-providers/{id}/group-mappings`, `GET /idp-providers` | No paging | | | | | |

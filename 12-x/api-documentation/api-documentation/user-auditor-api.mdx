@@ -1,0 +1,231 @@
+Use these endpoints to read the account inventory of the User Auditor in UTMStack v12: the Windows (Active Directory), Linux and cloud accounts (Office 365, Azure, Google Cloud, AWS) seen in your logs, with when they were created, last signed in and were deleted. You can also group the accounts of one person into an identity. See **User Auditor** for the screen.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| List accounts, read statistics, list and read identities | `adaudit.read` (all built-in roles) |
+| Create, rename, delete identities; assign accounts to them | `adaudit.write` (Administrator) |
+
+Every request sees only the accounts of your own tenant.
+
+## List Accounts
+
+**Endpoint:** `GET /api/v1/ad-audit/users`
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| search | string | Part of the account name, the SID (Windows security identifier) or the cloud user name, upper and lower case ignored |
+| source | string | `windows`, `linux`, `o365`, `azure`, `gcp` or `aws`. Leave out for all. |
+| status | string | `active`, `disabled`, `deleted`, `stale` or `service` (see below). Any other value is ignored. |
+| active | boolean | `true` or `false`. Ignored when `status` is set. |
+| identity | string | An identity id: only accounts in that identity. The word `none`: only accounts in no identity. |
+| sort | string | `name` (default, by account name) or `recent` (most recently seen first) |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 20. Values above 200 are reduced to 200. |
+
+The total number of matches is in the `X-Total-Count` response header.
+
+| `status` | Accounts it returns |
+|---|---|
+| `active` | Enabled and not deleted |
+| `disabled` | Disabled and not deleted |
+| `deleted` | Deleted |
+| `stale` | Enabled, not deleted, and last signed in more than 30 days ago |
+| `service` | Windows accounts that are not deleted and whose name starts with `svc` |
+
+### Find Stale Windows Accounts
+
+```bash
+curl -sk -i --get "{{baseUrl}}/api/v1/ad-audit/users" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "source=windows" \
+  --data-urlencode "status=stale" \
+  --data-urlencode "size=200"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<account-id>",
+    "tenantId": "<tenant-id>",
+    "source": "windows",
+    "sid": "S-1-5-21-<domain-id>-1104",
+    "samAccountName": "a.pereira",
+    "domain": "CORP",
+    "active": true,
+    "accountCreatedAt": "2025-03-02T08:15:00Z",
+    "lastLogon": "2026-09-01T07:58:00Z",
+    "lastSeen": "2026-11-11T22:10:00Z",
+    "identity": null
+  }
+]
+```
+
+**Account Fields:**
+
+| Field | Description |
+|---|---|
+| `id` | Account id, used to assign identities |
+| `source` | `windows`, `linux`, `o365`, `azure`, `gcp` or `aws` |
+| `sid`, `samAccountName`, `domain` | Windows accounts: SID, account name and domain |
+| `machineId`, `uidNumber`, `hostname`, `username` | Linux accounts: machine id, user id number, host and user name. Cloud accounts use `username`. |
+| `active` | `true` when the account is enabled |
+| `accountCreatedAt`, `lastLogon`, `accountDeletedAt`, `lastSeen` | When the account was created, last signed in, was deleted and was last seen in a log. Fields with no value are left out. |
+| `identity` | Name of the identity the account belongs to, or `null` |
+
+### Find Accounts Not Yet Grouped
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/ad-audit/users" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "identity=none" \
+  --data-urlencode "status=active"
+```
+
+| Error | Cause |
+|---|---|
+| 400 `source must be 'windows', 'linux', a cloud source, or omitted` | Unknown `source` |
+| 400 `identity must be a uuid or the literal 'none'` | Malformed `identity` |
+| 500 `could not list users` | Server problem |
+
+## Account Statistics
+
+**Endpoint:** `GET /api/v1/ad-audit/stats`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/ad-audit/stats" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "total": 412,
+  "active": 380,
+  "disabled": 20,
+  "deleted": 12,
+  "stale": 35,
+  "service": 9,
+  "seen_24h": 210,
+  "identities": 14,
+  "unassigned": 371,
+  "by_source": {"windows": 300, "linux": 40, "o365": 72, "azure": 0, "gcp": 0, "aws": 0},
+  "by_domain": [{"domain": "CORP", "count": 300}]
+}
+```
+
+`by_domain` lists the eight domains with the most accounts. The other counts use the same rules as the `status` filter above.
+
+## Identities
+
+An identity groups the accounts of one person, for example a Windows account, a Linux login and a Microsoft 365 account. An account belongs to one identity at most.
+
+### List Identities
+
+**Endpoint:** `GET /api/v1/ad-audit/identities`
+
+| Parameter | Type | Description |
+|---|---|---|
+| search | string | Part of the identity name, upper and lower case ignored |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/ad-audit/identities" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** all identities, sorted by name, with the number of accounts in each. There is no paging.
+
+```json
+[
+  {"id": "<identity-id>", "name": "Ana Pereira", "createdAt": "2026-10-02T09:00:00Z", "count": 3}
+]
+```
+
+### Read One Identity
+
+**Endpoint:** `GET /api/v1/ad-audit/identities/{id}`
+
+**Response (HTTP 200):** `id`, `name`, `createdAt` and `users`, the list of its accounts (same fields as in the account list). An unknown id returns 404 `identity not found`; a malformed id returns 400 `id is not a valid id`.
+
+### Create an Identity
+
+**Endpoint:** `POST /api/v1/ad-audit/identities`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | 2 to 64 characters, unique in your tenant (upper and lower case are not told apart) |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/ad-audit/identities" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Ana Pereira"}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"id": "<identity-id>", "name": "Ana Pereira", "createdAt": "2026-11-12T10:00:00Z"}
+```
+
+| Error | Cause |
+|---|---|
+| 400 `name must be 2 to 64 characters` | Name too short or too long (spaces at the ends do not count) |
+| 500 `could not create identity` | In UTMStack v12.0.2 a name already used in your tenant is refused this way. List the identities first to avoid it. |
+
+### Rename an Identity
+
+**Endpoint:** `PUT /api/v1/ad-audit/identities/{id}`
+
+Same body as create. **Response (HTTP 200):** the identity with its new name. An unknown id returns 404 `identity not found`; a name already in use returns 500 `could not update identity`.
+
+### Delete an Identity
+
+**Endpoint:** `DELETE /api/v1/ad-audit/identities/{id}`
+
+**Response (HTTP 200):** `{"deleted": 1}`.
+
+An identity that still has accounts is not deleted: the answer is 409 `identity still has assigned users`. Remove its accounts first (see below), then delete it.
+
+### Assign an Account to an Identity
+
+**Endpoint:** `PUT /api/v1/ad-audit/users/{id}/identity`
+
+`{id}` is the account id. If the account is already in another identity, it is moved.
+
+| Field | Type | Description |
+|---|---|---|
+| identityId | string | The identity id. An empty value, or no body, removes the account from its identity. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/ad-audit/users/<account-id>/identity" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"identityId": "<identity-id>"}'
+```
+
+**Response (HTTP 200):** `{"assigned": true}`.
+
+| Error | Cause |
+|---|---|
+| 400 `id is not a valid id` or `identityId is not a valid id` | Malformed id |
+| 400 `body must be a JSON object with an 'identityId' string` | Malformed body |
+| 400 `identity is not available in this tenant` | The account and the identity belong to different tenants |
+| 404 `user not found` or `identity not found` | Unknown account or identity |
+
+### Remove an Account from Its Identity
+
+**Endpoint:** `PATCH /api/v1/ad-audit/users/{id}/identity`
+
+```bash
+curl -sk -X PATCH "{{baseUrl}}/api/v1/ad-audit/users/<account-id>/identity" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** `{"assigned": false}`. It also succeeds when the account was in no identity. An unknown account returns 404 `user not found`.

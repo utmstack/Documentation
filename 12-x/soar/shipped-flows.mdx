@@ -2,7 +2,7 @@ UTMStack v12.0.2 ships 94 ready-made response flows. They all arrive switched of
 
 ## What you need to know first
 
-- Shipped flows (marked **System** on the **Flows** page) cannot be edited or deleted. To change one, copy it with **New flow > From an existing one**. The copy is saved switched off and is yours to edit.
+- Shipped flows (shown with a lock icon on the **Flows** page and listed on its **System** tab) cannot be edited or deleted. To change one, copy it with **New flow > From an existing one**. The copy is saved switched off and is yours to edit.
 - Each tenant switches shipped flows on separately.
 - Shipped flows act for real: they block addresses, disable or expire accounts, stop processes, isolate machines and shut them down. Read every command in the **Code** tab before you use a flow.
 - Many shipped commands put quotes around a placeholder, for example `remoteip="$(alert.adversary.ip)"`. With the automatic quoting of UTMStack v12.0.2 those values arrive with extra quote characters. Remove the quotes around placeholders in your copy. See **Placeholders**.

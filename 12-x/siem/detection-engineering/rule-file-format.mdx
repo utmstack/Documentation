@@ -26,6 +26,10 @@ groupBy:
   - target.user
 ```
 
+You can read the YAML of any rule in the **Code** tab of its panel on **Configure > Alerting Rules**:
+
+![The panel of a shipped rule in the Code tab, showing its YAML with dataTypes, name, impact, category, technique, adversary, references, description, where and groupBy](/assets/49531b08-cf52-4407-a771-9fec5a008a64)
+
 ## A rule that counts earlier events
 
 This shipped rule (its description and references shortened here) raises an alert when a user signs in to Microsoft Entra ID after at least 20 wrong-password failures for the same account in the hour before:
@@ -75,9 +79,11 @@ deduplicateBy:
 
 ## File rules
 
-- One rule per file, written as a plain YAML mapping (no leading `-`). Import also accepts the older UTMStack v11 form, a list with one rule.
+- One rule per file, written as a plain YAML mapping (no leading `-`). Import also accepts the older UTMStack v11 form, a list with one rule, and stores it as a mapping. The engine itself cannot read a list.
 - Rules have no `id`. A rule is identified by its file name without the extension; switching a rule on or off for a tenant uses this name. If two files have the same name, the engine skips the second.
-- When you save or import a rule, UTMStack names the file after the rule's `name` and your tenant id.
+- When you save or import a rule, UTMStack names the file after the rule's `name` and your tenant id, and writes the file itself: comments are removed, keys are put in a fixed order, and keys UTMStack v12 does not use, such as `id`, are dropped.
+
+**Rule Examples** has complete rules to copy, with sample events and the alerts they raise.
 
 ## Keys
 
@@ -101,12 +107,15 @@ deduplicateBy:
 
 A rule without `correlation` raises an alert for every event that meets `where`. A rule with `correlation` raises an alert only when, in addition, every step finds enough matching events among the events already stored.
 
+Use a single-event rule when one occurrence is worth an alert, and correlation steps when only many events, or events in a certain order, are suspicious. See **Single event or counting?** in **Rule Examples**.
+
 | Key | Description |
 |---|---|
 | `with` | The conditions a stored event must meet. Each has `field`, `operator` and `value`. |
-| `within` | The time window before now, as a duration: a number and a unit, for example `30s`, `15m`, `1h` or `24h`. Units are `h`, `m`, `s`, `ms`, `us` and `ns`; days are not accepted, so write `24h` or `168h`, not `1d`. Always set it. |
+| `within` | The time window before now, as a duration: a number and a unit, for example `30s`, `15m`, `1h` or `24h`. Units are `h`, `m`, `s`, `ms`, `us` and `ns`; days are not accepted, so write `24h` or `168h`, not `1d`. Always set it: without it, the step counts the whole stored history. |
 | `count` | How many matching stored events are needed. The step matches when at least this many are found. |
 | `or` | Optional. A list of alternative steps, each with its own `with`, `within` and `count`. If the step's own count is not reached, the alternatives are tried; the step matches if any of them does. |
+| `dataType` | Optional. Counts stored events of this data type instead of the data type of the event being checked, for example firewall events for a rule on VPN events. Rules added with **Import** or the **Rules and Pipelines API** keep it; the editor removes it when it saves. |
 
 ### Operators
 
@@ -128,7 +137,7 @@ A `value` written as `{{.field.path}}` is replaced by that field's value in the 
 
 ### What is counted
 
-- Only stored events of the same tenant and the same data type as the event being checked.
+- Only stored events of the same tenant, and of the same data type as the event being checked unless the step names another one in `dataType`.
 - Only events stored in the `within` window before now. Events are written in batches every 5 seconds or every 1,000 events, so the event being checked, and other events from the last few seconds, may not be counted yet.
 - Each search may take up to 30 seconds.
 
@@ -232,6 +241,8 @@ The field names are read from the alert, not from the event. Use:
 
 `origin.*` does not exist on an alert. A field that has no value on the alert is skipped, and if none of the fields has a value, the alert is never de-duplicated or grouped. See **How Alerts Are Created**.
 
+Most rules use one of the two keys. You can set both: a repeat that matches `deduplicateBy` is dropped first, and anything else is grouped by `groupBy`. Example 4 in **Rule Examples** compares the two.
+
 ## How the engine evaluates a rule
 
 1. For each event, the engine checks every rule that lists the event's data type, is switched on for the event's tenant and, for custom rules, belongs to that tenant.
@@ -248,12 +259,17 @@ In UTMStack v12.0.2, most stored events cannot be attached to the alert, so an a
 
 ## Errors and the circuit breaker
 
-These are rule errors:
+These are rule errors. The engine logs each one as "failed to evaluate rule", followed by the reason:
 
-- a condition that cannot be compiled;
-- a history search that fails;
-- a `{{.field}}` placeholder whose field is missing from the event;
-- an invalid `within` value.
+| Error | Reason in the engine log |
+|---|---|
+| A condition that cannot be compiled, for example a missing bracket, or `safe("origin.port", 0)` instead of `0.0` | "failed to compile expression", with the reason |
+| A `{{.field}}` placeholder whose field is missing from the event | "correlation: unresolved placeholder for" the field |
+| An invalid `within` value, such as `1d` | "correlation: invalid 'within'" |
+| An operator other than the four above (only possible in a file written by hand) | "correlation: unknown operator" |
+| A history search that fails or times out | "failed to execute correlation search" |
+
+A condition that compiles but names a field the event does not have is not an error: the condition is simply false.
 
 After 5 errors, the engine stops running the rule and raises a high-severity alert named `Circuit Breaker: <rule name>`. The rule runs again after the engine next reloads the rule files, which it does within a minute of a rule file changing, for example when you save the fixed rule.
 

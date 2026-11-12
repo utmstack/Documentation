@@ -7,12 +7,15 @@ UTMStack v12 collects pfSense firewall logs through the **UTMStack Forwarder**, 
 | Card on the Integrations page | **Pfsense** (category Firewall) |
 | Data type | `firewall-pfsense` |
 | Default ports on the Collector | 7017/UDP; 7017/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter, 3 detection rules and the **pfSense Firewall** dashboard |
+| Log format UTMStack reads | pfSense syslog in BSD (RFC 3164) or RFC 5424 format, including the comma-separated firewall (`filterlog`) entries |
+| Parsing pipeline | `pfsense/pfsense_fw.yaml`, version 3.2.0. **Filters** in the card's drawer opens it. |
+| Detection rules | 3. **Rules** in the card's drawer opens them. |
+| Dashboard | **pfSense Firewall** |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The firewall must reach the Collector host on the UDP port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
 
 ## Step 1: Enable the integration on a Collector
@@ -20,9 +23,13 @@ UTMStack v12 collects pfSense firewall logs through the **UTMStack Forwarder**, 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Pfsense** card.
+
+    ![pfSense setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/f72460ca-5154-4af5-832a-dbe8f0ec06d8)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** **UDP**. Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7017`.
@@ -32,22 +39,41 @@ UTMStack v12 collects pfSense firewall logs through the **UTMStack Forwarder**, 
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-pfsense 7017 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-pfsense udp
 ```
 
-To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+The command prints the port the Collector really listens on, for example `Integration "firewall-pfsense" enabled on udp port 7017`.
+
+<Note>
+
+Use UDP. According to Netgate's documentation, the pfSense syslog service sends remote logs over UDP only.
+
+</Note>
+
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port, for example:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-pfsense udp 7117
+   ```
+
+2. In the **Pfsense** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the remote log server in step 2.
 
 ## Step 2: Turn on remote logging in pfSense
 
 <Steps>
   <Step title="Open the log settings">
-    In the pfSense web interface, go to **Status → System Logs → Settings**.
+    In the pfSense web interface, go to **Status > System Logs** and open the **Settings** tab.
   </Step>
   <Step title="Add the Collector">
-    Under **Remote Logging Options**, check **Enable Remote Logging** and set a Remote log server to `<collector-ip>:7017`.
+    Under **Remote Logging Options**, check **Enable Remote Logging** (Send log messages to remote syslog server) and enter `<collector-ip>:7017` in one of the **Remote log servers** fields.
   </Step>
   <Step title="Choose what to send">
-    Choose which logs to send (or **Everything**) and click **Save**.
+    Under **Remote Syslog Contents**, choose which logs to send (or **Everything**) and click **Save**.
   </Step>
 </Steps>
 
@@ -57,12 +83,46 @@ The setup guide in UTMStack fills in your UTMStack server's address in this step
 
 </Note>
 
+Firewall rules only produce log entries when logging is turned on in the rule (**Log packets that are handled by this rule**) or through the default block and pass logging options on the same Settings tab.
+
 ## Step 3: Check that logs arrive
 
-- In the **Pfsense** drawer, click **View logs**. Log Explorer opens with the `firewall-pfsense` data type for the last 24 hours.
-- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
-- **Open dashboard** in the drawer finds the **pfSense Firewall** dashboard, which shows what the firewall allows and blocks.
+<Steps>
+  <Step title="Open the logs">
+    In the **Pfsense** drawer, click **View logs**. Log Explorer opens with the `firewall-pfsense` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-pfsense` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Firewall entries have standard fields such as `origin.ip`, `target.ip`, `target.port` and `action`, and pfSense fields under `log.`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, the firewall appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+  <Step title="Open the dashboard">
+    **Open dashboard** in the drawer finds the **pfSense Firewall** dashboard, which shows what the firewall allows and blocks.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-pfsense'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, or pfSense sends to the wrong address or port, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list, that the remote log server is `<collector-ip>:<port>`, and that the Collector host allows the UDP port in. See **Forwarder Troubleshooting**. |
+| Nothing arrives, and the Forwarder guide filled in the UTMStack server's address | pfSense sends to the UTMStack server, but the Collector runs on another host. | Use the Collector host's address in the remote log server. |
+| Nothing arrives, and the integration is enabled with TCP | pfSense sends over UDP only. | Disable the integration and enable it again with **UDP**. |
+| Nothing arrives from a pfSense with several interfaces | pfSense sends from an address without a route to the Collector. | Set **Source Address** under **Remote Logging Options** to an interface that reaches the Collector. |
+| No firewall events | Logging is off in the firewall rules. | Turn on logging in the rules you care about, or the default block and pass logging. |
+| pfSense logs appear under another data type | pfSense sends to the port of a different integration. | Send to the port that the pfSense integration listens on. |
 
 ## Stop collecting
 
@@ -71,3 +131,5 @@ In the **Pfsense** card, select the same Collector and click **Disable integrati
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-pfsense udp
 ```
+
+Then clear **Enable Remote Logging** in pfSense.

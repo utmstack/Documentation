@@ -14,7 +14,9 @@ A new installation uses **ThreatWinds** with no setup:
 
 ## The settings page
 
-The page is titled **SOC-AI Configuration** and has four sections.
+The page is titled **SOC-AI Configuration** and has the sections below. The **Authentication** section appears only for the Custom provider.
+
+![The SOC-AI Configuration page with ThreatWinds selected as the provider, showing the tenant configuration banner with Follow the instance default, AI allowance today, Model & connection, Usage, and Alert triage behavior with Auto-analyze alerts](/assets/79da268c-27e4-48ce-8fa2-e888f1e34279)
 
 ### Model & connection
 
@@ -28,7 +30,7 @@ The page is titled **SOC-AI Configuration** and has four sections.
 
 | Field | Notes |
 |---|---|
-| **API key** | The key from your provider. When a key is stored, the field reads "A key is stored. Leave blank to keep it." |
+| **API key** | The key from your provider. For every provider except Custom, this field sits in **Model & connection**; ThreatWinds and Ollama have none. When a key is stored, the field reads "A key is stored. Leave blank to keep it." |
 | **Authentication type** | Custom provider only: **API Key**, **Bearer**, **Custom Headers** or **None**. |
 | **Auth header name** | Custom provider with **API Key**: the header that carries the key. |
 | **Bearer token** | Custom provider with **Bearer**. |
@@ -62,6 +64,29 @@ The page is titled **SOC-AI Configuration** and has four sections.
 | **Azure OpenAI** | API URL, model, API key. | Free text (your deployment name). |
 | **Ollama (local)** | API URL, model. No key. | Free text. |
 | **Custom (OpenAI-compatible)** | API URL, model, authentication. | Free text. |
+
+### Where requests go
+
+The UTMStack server itself calls the provider, so the server needs outgoing HTTPS access (port 443) to the provider's address. Your browser never talks to the provider.
+
+| Provider | Address UTMStack calls |
+|---|---|
+| ThreatWinds | ThreatWinds' servers, through the instance registration |
+| OpenAI | `https://api.openai.com/v1/chat/completions` |
+| Anthropic (Claude) | `https://api.anthropic.com/v1/messages` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` |
+| Groq | `https://api.groq.com/openai/v1/chat/completions` |
+| Mistral | `https://api.mistral.ai/v1/chat/completions` |
+| DeepSeek | `https://api.deepseek.com/chat/completions` |
+| Azure OpenAI, Ollama, Custom | The **API URL** you enter |
+
+If your network only allows known destinations, allow the address of the provider you choose. Every provider except Anthropic is called with the OpenAI-compatible request format.
+
+### Choosing a model
+
+- **It must support tool calling** (also called function calling). The assistant works by calling UTMStack's tools, and **Save configuration** refuses a model that does not call a tool when asked to.
+- **Larger models investigate better.** The assistant plans several steps and reads search results. Small or very fast models are cheaper but more likely to stop early or misread results.
+- **Context length matters for long conversations.** UTMStack shortens a conversation ("Compacting context…") when it nears the model's limit. It knows the limits of Claude and GPT models by their names and assumes 128,000 tokens for other models.
 
 ### Azure OpenAI
 
@@ -97,7 +122,7 @@ Replace `localhost` with the address of your Ollama server as the UTMStack serve
   </Step>
   <Step title="Click Save configuration">
 
-    UTMStack tests the connection first ("Verifying & saving..."). If the test fails, the configuration is not saved. If the provider only answers that you are sending too many requests, the configuration is saved anyway, because the connection itself works.
+    UTMStack tests the connection first ("Verifying & saving...") whenever the provider, model, address, key or headers changed. If the test fails, the configuration is not saved. If the provider only answers that you are sending too many requests, the configuration is saved anyway, because the connection itself works.
 
   </Step>
   <Step title="Check the assistant">
@@ -108,6 +133,23 @@ Replace `localhost` with the address of your Ollama server as the UTMStack serve
 </Steps>
 
 Keys and header values are stored encrypted and are never shown again.
+
+### What the test checks
+
+**Save configuration** makes two calls to the provider before it saves: a normal request, and a request that asks the model to call a tool. Each may take up to 90 seconds. If either fails, the page shows the reason and nothing is saved:
+
+| Message contains | Cause | Fix |
+|---|---|---|
+| `authentication failed (401)` or `(403)` "check the API key / auth headers" | The key is wrong, expired or has no access to the model. | Create a new key at your provider and paste it. For Custom, check **Authentication type** and the header name. |
+| `url is required for provider` | Azure OpenAI and Custom need an **API URL**. (With an empty **API URL**, Ollama falls back to `http://localhost:11434/v1/chat/completions`.) | Fill in the full address, including the path (for example `/v1/chat/completions`). |
+| `endpoint unreachable` | The UTMStack server cannot reach the address: a wrong host name, a firewall, or `localhost` used for a server on another machine. | Test from the UTMStack server with `curl` to the same address. For Ollama, use the address of the Ollama machine as the server sees it. |
+| `LLM check failed (404)` | The address or the model name (Azure: the deployment name) is wrong. | Check both against your provider's console. |
+| `tool-calling not supported` or `model did not return a tool call` | The model cannot call tools. | Choose a model that supports tool calling. |
+| `instance not registered yet — cannot use the ThreatWinds provider` | The ThreatWinds provider needs the instance registration, which is not complete. | Wait for registration, or choose another provider. |
+
+If the provider only answers that too many requests were sent, the configuration is saved anyway, because the key and address work.
+
+
 
 ## Tenants
 

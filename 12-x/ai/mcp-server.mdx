@@ -33,42 +33,180 @@ The AI client acts as the user who owns the token or the key, with that user's p
 On a multi-tenant installation:
 
 - Use the tenant's own address (its domain) in the MCP address. An API key works only on its owner's tenant domain.
-- The instance operator, signed in with an access token, can add `X-Tenant-Id: <tenant id>` to act inside a tenant that has granted support access. An API key cannot switch tenant.
+- The instance operator, signed in with an access token, can add `X-Tenant-Id: <tenant id>` to act inside a tenant that has granted **Full access** support access. **Read only** support access does not work for MCP, because every MCP request is a POST and read-only support allows only reading requests. An API key cannot switch tenant.
 
 ## Connect an AI client
 
-UTMStack does not ship a guide for any particular AI client. Any client that supports remote MCP servers over Streamable HTTP with a custom header can connect:
+Any AI client that supports remote MCP servers over Streamable HTTP and lets you add a request header can connect. UTMStack signs clients in with a header (`Utm-Api-Key` or `Authorization`); it does not offer OAuth sign-in for MCP. There is no local (stdio) program to install on the UTMStack side.
 
-<Steps>
-  <Step title="Create an API key">
+### Step 1: Create a user and an API key
 
-    In **Configure > Settings > API Keys**, create a key for the user the AI client will act as. See **Authentication and API Keys**.
+1. In **Configure > Team**, create a user for the AI client, for example `ai-assistant@example.com`, with the narrowest role that does the job. A **Viewer** can only read; an **Analyst** can also change alerts, incidents, dashboards and flows. An API key is created by the user it belongs to, and creating one needs the `apikey.write` permission, which of the built-in roles only **Administrator** has. So give the user a custom role with the permissions the client needs plus `apikey.write`. See **Roles and Permissions**.
+2. Sign in as that user, go to **Configure > Settings > API Keys**, click **New API key**, fill in a **Name** (for example `claude-desktop`) and, if you can, the **Allowed IPs** of the computer that runs the client. Click **Create key** and copy the secret. See **Authentication and API Keys**.
 
-  </Step>
-  <Step title="Check that the server answers">
+API keys need the Enterprise licence. Without it, you can test with an access token from `POST /api/v1/auth/login` (header `Authorization: Bearer <token>`), but it expires after one hour.
 
-    ```bash
-    curl -H "Utm-Api-Key: <key>" https://<your UTMStack address>/api/v1/mcp/health
-    ```
+### Step 2: Check that the server answers
 
-  </Step>
-  <Step title="Add the server to your AI client">
+From the computer that will run the AI client:
 
-    Add a remote MCP server of type Streamable HTTP with the address `https://<your UTMStack address>/api/v1/mcp` and the header `Utm-Api-Key: <key>`. There is no local (stdio) bridge.
+```bash
+curl -s -H "Utm-Api-Key: <key>" https://<your UTMStack address>/api/v1/mcp/health
+```
 
-  </Step>
-  <Step title="Ask a read-only question first">
+You should get `{"enabled": true, "tools_registered": 141, ...}`. If you get an error, fix it first with the **Troubleshooting** table below; the AI client will fail the same way and usually with a less clear message.
 
-    For example, ask how many alerts are open. Check the call in **Configure > Settings > App Audit Logs**.
+### Step 3: Add UTMStack to your client
 
-  </Step>
-</Steps>
+In every example, replace `<your UTMStack address>` with your server's address (on a multi-tenant installation, your tenant's address) and keep the key out of shared files: use an environment variable or the client's secret prompt, as shown.
+
+<Accordion multiple={true}>
+<AccordionTab title="Claude Code" icon="pi pi-desktop">
+
+Add the server with one command. `--scope user` makes it available in all your projects; leave it out to add it to the current project only.
+
+```bash
+claude mcp add --transport http --scope user utmstack \
+  https://<your UTMStack address>/api/v1/mcp \
+  --header "Utm-Api-Key: <key>"
+```
+
+To share the set-up with your team without sharing the key, put this in `.mcp.json` at the root of your project, and let each person set `UTM_API_KEY` in their own environment:
+
+```json
+{
+  "mcpServers": {
+    "utmstack": {
+      "type": "http",
+      "url": "https://<your UTMStack address>/api/v1/mcp",
+      "headers": {
+        "Utm-Api-Key": "${UTM_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Check the connection with `claude mcp list`, or with `/mcp` inside a Claude Code session. The server should show as connected.
+
+</AccordionTab>
+<AccordionTab title="Claude Desktop" icon="pi pi-desktop">
+
+Claude Desktop connects to servers that need a custom header through `mcp-remote`, a small open-source bridge that runs on your computer, talks to UTMStack over HTTPS and adds the header. It needs Node.js on your computer.
+
+1. Open the configuration file. On macOS it is `~/Library/Application Support/Claude/claude_desktop_config.json`; on Windows it is `%APPDATA%\Claude\claude_desktop_config.json`. Create it if it does not exist.
+2. Add the server:
+
+```json
+{
+  "mcpServers": {
+    "utmstack": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://<your UTMStack address>/api/v1/mcp",
+        "--header",
+        "Utm-Api-Key:${UTM_API_KEY}"
+      ],
+      "env": {
+        "UTM_API_KEY": "<key>"
+      }
+    }
+  }
+}
+```
+
+3. Quit Claude Desktop completely and start it again. UTMStack's tools appear in the tools menu of a new conversation.
+
+Write the header without a space after the colon, as above. On Windows, Claude Desktop does not keep spaces inside `args` intact, and the header would be cut.
+
+</AccordionTab>
+<AccordionTab title="Cursor" icon="pi pi-desktop">
+
+Add the server to `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` in a project:
+
+```json
+{
+  "mcpServers": {
+    "utmstack": {
+      "url": "https://<your UTMStack address>/api/v1/mcp",
+      "headers": {
+        "Utm-Api-Key": "${env:UTM_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Set `UTM_API_KEY` in your shell profile or system environment, then restart Cursor. The server appears in Cursor's MCP settings with its tools.
+
+</AccordionTab>
+<AccordionTab title="Visual Studio Code (GitHub Copilot)" icon="pi pi-desktop">
+
+Add `.vscode/mcp.json` to your workspace. VS Code asks for the key the first time the server starts and stores it securely:
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "utm-api-key",
+      "description": "UTMStack API key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "utmstack": {
+      "type": "http",
+      "url": "https://<your UTMStack address>/api/v1/mcp",
+      "headers": {
+        "Utm-Api-Key": "${input:utm-api-key}"
+      }
+    }
+  }
+}
+```
+
+Start the server from VS Code's list of MCP servers, then use Copilot Chat in agent mode.
+
+</AccordionTab>
+<AccordionTab title="Other MCP clients" icon="pi pi-desktop">
+
+Look in your client's documentation for "remote MCP server", "Streamable HTTP" or "HTTP transport", and enter:
+
+| Setting | Value |
+|---|---|
+| Transport | Streamable HTTP (sometimes shown as "HTTP") |
+| URL | `https://<your UTMStack address>/api/v1/mcp` |
+| Header | `Utm-Api-Key: <key>` |
+
+If your client can only start local (stdio) servers, use the `mcp-remote` bridge as in the Claude Desktop example: run `npx -y mcp-remote https://<your UTMStack address>/api/v1/mcp --header "Utm-Api-Key:<key>"` as the server command.
+
+</AccordionTab>
+</Accordion>
+
+### Step 4: Try it
+
+Ask a read-only question first, for example "How many alerts are open in UTMStack, grouped by severity?". The client should call a tool such as `alerts.count_open` or `store.search`. Then open **Configure > Settings > App Audit Logs**: each tool call is listed with the user of your API key.
 
 <Warning>
 
-An AI client with write permissions changes UTMStack for real: it can close alerts, change correlation rules, or create and switch on response flows. Give its user only the permissions it needs, and review what it does.
+An AI client with write permissions changes UTMStack for real: it can close alerts, change correlation rules, or create and switch on response flows. Give its user only the permissions it needs, ask most clients to confirm each tool call before it runs, and review what it does.
 
 </Warning>
+
+### Certificates
+
+AI clients check the server's HTTPS certificate and refuse the self-signed certificate a new UTMStack server uses. The clean fix is a certificate from a public certificate authority, or from your company's own authority that your computers already trust. See **SSL Certificate**.
+
+If your certificate comes from your company's own authority and a client still refuses it, point the client to that authority's certificate. Clients built on Node.js, including Claude Code and the `mcp-remote` bridge, read the environment variable `NODE_EXTRA_CA_CERTS`:
+
+```bash
+export NODE_EXTRA_CA_CERTS=/path/to/company-ca.pem
+```
+
+In the Claude Desktop configuration, add it to `env` next to `UTM_API_KEY`. Do not switch certificate checking off: the key would then go to whoever answers on that address.
 
 ## Permissions and audit
 
@@ -293,9 +431,9 @@ Resources are read-only documents an AI client can read for background.
 | `mcp://utmstack/catalog/integrations` | Integrations catalog |
 | `mcp://utmstack/catalog/frameworks` | Compliance frameworks catalog |
 | `mcp://utmstack/catalog/alert-tags` | Alert tag catalog |
-| `mcp://utmstack/docs/filter-operators` | Filter operator reference |
-| `mcp://utmstack/docs/event-types` | Audit event types |
-| `mcp://utmstack/docs/soar-flow-guide` | Response flow building guide |
+| `mcp://utmstack/docs/filter-operators` | FilterType operator reference |
+| `mcp://utmstack/docs/event-types` | Audit event-type enum |
+| `mcp://utmstack/docs/soar-flow-guide` | SOAR flow building guide |
 | `mcp://utmstack/docs/catalog` | Full MCP tool catalog |
 
 <Note>
@@ -310,6 +448,25 @@ The "Full MCP tool catalog" resource also lists tools and prompts that UTMStack 
 |---|---|---|
 | `soc.draft-soar-rule` ("Draft SOAR rule") | `goal`: the goal in plain language, for example "isolate hosts on Mimikatz detections" | Guides the model through building a response flow: list existing flows to start from, list variables, propose trigger conditions, then create the flow when you confirm. |
 
+## Troubleshooting
+
+Check the health address with `curl` (Step 2 above) before you look at the client: it gives the clearest error.
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| 401 `missing Authorization header` | The client sent no credential. The header name is misspelled, or an environment variable in the configuration is empty. | Check the header name `Utm-Api-Key` and that the variable is set where the client runs. |
+| 401 `invalid api key` | The key is wrong, rotated or expired; the computer's address is not in the key's **Allowed IPs**; the key's owner was deactivated; or the installation has no Enterprise licence. | Check the key on **Configure > Settings > API Keys** and the licence on **License and Editions**. |
+| 401 `invalid token` | An access token expired (after one hour). | Use an API key for a client that stays connected. |
+| 401 `credential does not belong to this tenant` | Multi-tenant installation: the address is another tenant's. | Use the address of the key owner's tenant. |
+| 404 `unknown tenant` | Multi-tenant installation: the address belongs to no tenant. | Use your tenant's address. |
+| 404 on `/api/v1/mcp/health` with no JSON error | The MCP server is turned off on this installation. | Ask whoever runs the server. |
+| 403 from a tool that runs in a web browser | The server refuses requests from web pages on other sites. | Use a desktop client, or the `mcp-remote` bridge. |
+| Certificate errors such as "self signed certificate" or "unable to verify the first certificate" | The client does not trust the server's certificate. | See **Certificates** above. |
+| The client connects but a tool answers "permission denied: …" | The key's user lacks the permission the tool needs. | Give the user a role with that permission, or accept that the client cannot do this. The **Tools** tables list each tool's permission. |
+| A tool you expected is missing | The tool is not offered in UTMStack v12.0.2 (see **What the MCP server does not do**). | Use the web console or the REST API for that task. |
+| Searches stop with a time-out | SQL searches are stopped after 30 seconds. | Ask for a shorter time range or a narrower search. |
+| The client cannot work in another tenant | API keys always work inside their owner's tenant. | Create a key in each tenant you want to reach. |
+
 ## Turning it off
 
 The MCP server is on by default, and the web console has no switch for it. The built-in SOC-AI assistant works through it, so AI features need it.
@@ -318,4 +475,5 @@ The MCP server is on by default, and the web console has no switch for it. The b
 
 - **SOC-AI Assistant**
 - **Authentication and API Keys**
+- **API Quick Start**
 - **Building a Flow**

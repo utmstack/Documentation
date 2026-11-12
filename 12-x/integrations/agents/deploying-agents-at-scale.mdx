@@ -1,0 +1,176 @@
+You can install the UTMStack v12 agent on hundreds of machines with the tools you already use: Group Policy, Microsoft Intune or Configuration Manager for Windows, Ansible or a script for Linux, and a device management (MDM) tool for macOS. Every method runs the same install command the product shows, wrapped in a check so it runs only once per machine.
+
+## Before you begin
+
+- Copy the install commands as an administrator from **Configure > Integrations**, one per platform you need (for example Windows AMD64, Ubuntu / Debian AMD64, Fedora / RedHat AMD64, macOS). Choose the install options first; they are part of the command. See **Windows Agent**, **Linux Agent** and **macOS Agent**.
+- On a multi-tenant installation, copy the commands from inside the tenant the machines belong to.
+- Every target must reach the UTMStack server directly on 443/TCP.
+- Try the method on a few machines first, and check that they appear on **Configure > Data Sources** under **Agents**.
+
+<Warning>
+
+The install command contains your connection key. Anyone who has it can register machines in your UTMStack. Store deployment scripts where only administrators can read them, use your tool's secret storage where it has one, and regenerate the key under **Configure > Settings > Connection Key** if it leaks. Agents already installed keep working after the key changes.
+
+</Warning>
+
+## Make the install run only once
+
+The install command stops with `UTMStackAgent service is already installed` when an agent is already there. Deployment tools often run a script many times, so check first:
+
+| System | "Already installed" check |
+|---|---|
+| Windows | `Get-Service -Name UTMStackAgent -ErrorAction SilentlyContinue` returns a service |
+| Linux | `/etc/systemd/system/UTMStackAgent.service` exists |
+| macOS | `/Library/LaunchDaemons/UTMStackAgent.plist` exists |
+
+## Windows
+
+### The script
+
+Save this as `Install-UTMStackAgent.ps1`. Replace the line marked `PASTE` with the full command copied from the product (it is one long line):
+
+```powershell
+# Install-UTMStackAgent.ps1 - runs the UTMStack agent install once per machine
+if (Get-Service -Name UTMStackAgent -ErrorAction SilentlyContinue) {
+    Write-Output "UTMStack agent already installed"
+    exit 0
+}
+# PASTE the install command from Configure > Integrations > Windows Agent below this line
+
+if (Get-Service -Name UTMStackAgent -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }
+```
+
+The script must run with administrator or SYSTEM rights, in 64-bit PowerShell.
+
+### Group Policy (Active Directory)
+
+<Steps>
+  <Step title="Put the script on a share">
+    Copy the script to a share that the computer accounts can read, for example the `Scripts\Startup` folder of the Group Policy Object you create next. Limit who can read it, because it contains the connection key.
+  </Step>
+  <Step title="Create the Group Policy Object">
+    In **Group Policy Management**, create a GPO and link it to the organizational unit that holds the target computers.
+  </Step>
+  <Step title="Add a startup script">
+    Edit the GPO: **Computer Configuration > Policies > Windows Settings > Scripts (Startup/Shutdown) > Startup**, open the **PowerShell Scripts** tab, click **Add** and choose the script.
+  </Step>
+  <Step title="Apply it">
+    The script runs as SYSTEM at the next restart of each computer. To test on one computer, run `gpupdate /force` and restart it.
+  </Step>
+</Steps>
+
+### Microsoft Intune
+
+<Steps>
+  <Step title="Add a platform script">
+    In the Microsoft Intune admin center, go to **Devices > Scripts and remediations > Platform scripts**, click **Add** and choose **Windows 10 and later**.
+  </Step>
+  <Step title="Upload the script">
+    Upload `Install-UTMStackAgent.ps1`. Set **Run this script using the logged on credentials** to **No** (so it runs as SYSTEM), **Enforce script signature check** to **No** unless you sign it, and **Run script in 64 bit PowerShell Host** to **Yes**.
+  </Step>
+  <Step title="Assign it">
+    Assign the script to a device group. Intune runs it once per device and reports success or failure from the exit code.
+  </Step>
+</Steps>
+
+For more control (detection rules, retries, dependencies), package the script as a Win32 app instead, with a detection rule on the `UTMStackAgent` service.
+
+### Microsoft Configuration Manager (SCCM)
+
+Use either of these:
+
+- **Run Scripts**: in **Software Library > Scripts**, create a script from `Install-UTMStackAgent.ps1`, approve it, then run it on a device collection.
+- **Package or application**: create a package with the script and a program that runs `powershell.exe -ExecutionPolicy Bypass -File Install-UTMStackAgent.ps1` with administrative rights, and deploy it to a collection. For an application, use the `UTMStackAgent` service as the detection method.
+
+## Linux
+
+### Ansible
+
+This playbook copies nothing to the hosts except what the install command downloads. Keep the connection key in Ansible Vault:
+
+```yaml
+# utmstack-agent.yml
+- name: Install the UTMStack agent
+  hosts: linux_servers
+  become: true
+  vars:
+    utmstack_server: "utmstack.example.com"
+    # utmstack_connection_key comes from an Ansible Vault file
+    agent_file: "utmstack_agent_service_linux_amd64"
+  tasks:
+    - name: Install wget
+      ansible.builtin.package:
+        name: wget
+        state: present
+
+    - name: Create the agent folder
+      ansible.builtin.file:
+        path: /opt/utmstack-linux-agent
+        state: directory
+        mode: "0755"
+
+    - name: Download and install the agent
+      ansible.builtin.shell: >
+        wget --no-check-certificate -O /opt/utmstack-linux-agent/{{ agent_file }}
+        https://{{ utmstack_server }}/private/dependencies/agent/{{ agent_file }} &&
+        chmod 755 /opt/utmstack-linux-agent/{{ agent_file }} &&
+        /opt/utmstack-linux-agent/{{ agent_file }} install {{ utmstack_server }} {{ utmstack_connection_key }} yes
+      args:
+        creates: /etc/systemd/system/UTMStackAgent.service
+      no_log: true
+```
+
+- `creates:` skips the task on hosts that already have the agent.
+- Use `utmstack_agent_service_linux_arm64` for ARM64 hosts, for example with a group variable.
+- The last argument `yes` skips certificate validation, like the default option in the product. Use `no` if your server has a certificate the hosts trust. Add `--no-remote-control` after it to lock remote commands.
+- `no_log: true` keeps the connection key out of Ansible's output.
+
+Run it with `ansible-playbook -i inventory utmstack-agent.yml --ask-vault-pass`.
+
+### A simple loop over SSH
+
+For a handful of servers without Ansible, put the host names in `hosts.txt` and the install command in `install.sh` (the full `sudo bash -c "…"` command from the product), then:
+
+```bash
+CMD=$(cat install.sh)
+while read -r host <&3; do
+  echo "== $host"
+  ssh -t "admin@$host" "test -f /etc/systemd/system/UTMStackAgent.service && echo 'already installed' || $CMD"
+done 3< hosts.txt
+```
+
+Replace `admin` with an account that can use `sudo`; `ssh -t` lets `sudo` ask for its password on each host. Reading the host list through file descriptor 3 keeps `ssh` from consuming it. Delete `install.sh` when you are done, because it contains the connection key.
+
+## macOS
+
+Device management (MDM) tools run scripts as root, so use the inner part of the product's command, without `sudo bash -c`:
+
+```bash
+#!/bin/bash
+# UTMStack agent install for MDM - runs once per Mac
+if [ -f /Library/LaunchDaemons/UTMStackAgent.plist ]; then
+  echo "UTMStack agent already installed"
+  exit 0
+fi
+if [ "$(uname -m)" != "arm64" ]; then
+  echo "Only Apple Silicon Macs are supported"
+  exit 1
+fi
+mkdir -p /opt/utmstack-macos-agent && \
+curl -k -o /opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 \
+  https://<server>/private/dependencies/agent/utmstack_agent_service_darwin_arm64 && \
+chmod +x /opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 && \
+/opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 install <server> <connection-key> yes
+```
+
+Replace `<server>` and `<connection-key>` with the values from the command in the product. Then:
+
+- **Jamf Pro**: add the script under **Settings > Computer management > Scripts**, then create a policy with the script, scope it to your Macs, and set the policy to run once per computer.
+- **Microsoft Intune**: go to **Devices > macOS > Shell scripts** (or **Devices > Scripts and remediations > Platform scripts** for macOS), add the script, set **Run script as signed-in user** to **No**, and assign it to a device group.
+- Other MDM tools: run the script as root, once per Mac.
+
+## Check the rollout
+
+- **Configure > Data Sources**, tab **Agents**, shows every machine that registered, with **Live** status within about a minute of the install.
+- Compare that list with your inventory. Machines missing from it either did not run the script or cannot reach the server on 443.
+- On a machine that did not register, run the install command by hand to see its error, and see **Agent Troubleshooting**.

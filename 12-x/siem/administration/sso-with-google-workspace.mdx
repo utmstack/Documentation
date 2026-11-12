@@ -1,0 +1,155 @@
+This guide connects UTMStack v12 to Google Workspace so your users sign in with their Google work account. OpenID Connect (OIDC) is the quickest setup; SAML 2.0 is the option when you want UTMStack roles to follow Google groups.
+
+Read **Single Sign-On** first for how sign-in, accounts and roles work in UTMStack. Single sign-on needs an **Enterprise** licence.
+
+## Which protocol to use with Google
+
+| Need | Use |
+|---|---|
+| Sign-in with Google; everyone gets the same role, or you set roles by hand on the **Team** page | OpenID Connect (Setup A). Google's ID tokens carry no groups. |
+| Roles from Google groups | SAML 2.0 with group membership mapping (Setup B) |
+
+## What you need
+
+- A Google Workspace super administrator, and for Setup A a Google Cloud project in your Workspace organization.
+- In UTMStack: the **Administrator** role.
+- The address users open UTMStack with. This guide uses `https://siem.example.com` and the provider name `google`. On a multi-tenant server, use the tenant's own address.
+
+## Setup A: OpenID Connect
+
+### In Google Cloud
+
+<Steps>
+
+<Step title="Open the project">
+
+In the Google Cloud console, select (or create) a project that belongs to your Workspace organization, then open **Google Auth Platform** (the OAuth consent screen).
+
+</Step>
+
+<Step title="Set the audience to Internal">
+
+Under **Branding**, enter the app name `UTMStack` and a support email. Under **Audience**, choose user type **Internal**.
+
+**Internal** means only accounts of your Google Workspace organization can sign in. This matters: with **External**, any Google account could sign in, and with **Create the account on first sign-in** and a **Default role**, get access.
+
+</Step>
+
+<Step title="Create the client">
+
+Under **Clients**, click **Create client**:
+
+| Field | Value |
+|---|---|
+| Application type | **Web application** |
+| Name | `UTMStack` |
+| Authorized redirect URIs | `https://siem.example.com/api/v1/sso/google/callback` |
+
+Click **Create**. Copy the **Client ID** and the **Client secret** right away and keep them in your password manager.
+
+</Step>
+
+</Steps>
+
+The `openid`, `email` and `profile` scopes that UTMStack asks for need no extra configuration.
+
+### In UTMStack
+
+Add a provider named `google` of type **OpenID Connect**:
+
+| Field | Value |
+|---|---|
+| Issuer URL | `https://accounts.google.com` |
+| Client ID, Client secret | From Google Cloud |
+| Redirect URL | `https://siem.example.com/api/v1/sso/google/callback` |
+| Create the account on first sign-in | On |
+| Default role | The role everyone should get, for example **Viewer** |
+| Re-apply roles on every sign-in | **Off**. Google sends no groups, so with this option on every sign-in would reset each user to the default role. |
+
+Keep **Active (show on the login page)** on (the default), save, and test with `https://siem.example.com/api/v1/sso/google/login` in a private browser window. UTMStack refuses sign-ins through an inactive provider, even at its `/login` address. After a user's first sign-in, give them more roles on the **Team** page if needed.
+
+## Setup B: SAML 2.0 with Google groups
+
+The provider name in this example is `google-saml`.
+
+### In the Google Admin console
+
+<Steps>
+
+<Step title="Create the custom SAML app">
+
+Go to **Apps > Web and mobile apps**, click **Add app > Add custom SAML app**, name it `UTMStack`, and click **Continue**.
+
+</Step>
+
+<Step title="Download the metadata">
+
+On **Google Identity Provider details**, click **Download metadata** and keep the file. Click **Continue**.
+
+</Step>
+
+<Step title="Enter the service provider details">
+
+| Google field | Value |
+|---|---|
+| ACS URL | `https://siem.example.com/api/v1/sso/google-saml/acs` |
+| Entity ID | `https://siem.example.com/api/v1/sso/google-saml` |
+| Name ID format | **EMAIL** |
+| Name ID | **Basic Information > Primary email** |
+
+Leave **Signed response** off; Google signs the assertion. Click **Continue**.
+
+</Step>
+
+<Step title="Map the attributes and groups">
+
+Under **Attributes**, add **Primary email** with the app attribute `email`.
+
+Under **Group membership**, add the Google groups that should map to UTMStack roles (for example `UTMStack Admins`, `UTMStack Analysts`, `UTMStack Viewers`) and set the app attribute to `groups`. Google sends the names of the listed groups that the user belongs to. Click **Finish**.
+
+</Step>
+
+<Step title="Turn the app on">
+
+Open the app, click **User access**, and turn it **ON for everyone** or for the organizational units or groups that should use UTMStack.
+
+</Step>
+
+</Steps>
+
+### Publish the metadata
+
+UTMStack reads the identity provider's metadata from a URL, and downloads it at every sign-in. Google offers the metadata only as a file, so you need to publish it:
+
+1. Put the downloaded XML file on a web server or storage service that answers on a public HTTPS address without a redirect, for example `https://www.example.com/sso/google-idp-metadata.xml`. The file contains only public information: Google's sign-in address, entity ID and signing certificate.
+2. Check from the UTMStack server: `curl -sI https://www.example.com/sso/google-idp-metadata.xml` must answer `200`.
+3. When Google's SAML certificate is renewed, download the metadata again and replace the file.
+
+### In UTMStack
+
+Create the SP certificate and key as shown in **Single Sign-On**, then add a provider named `google-saml` of type **SAML 2.0**:
+
+| Field | Value |
+|---|---|
+| IdP metadata URL | The address where you published the metadata |
+| SP Entity ID | `https://siem.example.com/api/v1/sso/google-saml` |
+| SP ACS URL | `https://siem.example.com/api/v1/sso/google-saml/acs` |
+| SP certificate (PEM), SP private key | The files you created |
+| Groups attribute | `groups` |
+| Default role | **None**, so only mapped groups get in |
+| Re-apply roles on every sign-in | On |
+| Group to role | `UTMStack Admins` to Administrator, `UTMStack Analysts` to Analyst, `UTMStack Viewers` to Viewer |
+
+![The Add identity provider dialog with SAML 2.0 selected, showing the Name, Provider type, IdP metadata URL, SP Entity ID, SP ACS URL, SP certificate and SP private key fields](/assets/ac3039dd-009c-42b1-bcc4-e40c1c2437fb)
+
+Test with `https://siem.example.com/api/v1/sso/google-saml/login`. Users start from UTMStack; sign-ins started from the Google apps menu are refused.
+
+## Troubleshooting
+
+| What you see at Google | Cause | Fix |
+|---|---|---|
+| "Error 400: redirect_uri_mismatch" | The redirect URL in UTMStack is not in **Authorized redirect URIs** | Add exactly `https://siem.example.com/api/v1/sso/<name>/callback`. |
+| "Error 403: org_internal" | The account is outside your Workspace organization, and the app is **Internal** | Sign in with an account of your organization. |
+| "app_not_configured_for_user" (SAML) | The SAML app is not turned on for the user | Turn the app on for the user's organizational unit or group under **User access**. |
+
+If Google accepts the sign-in but UTMStack refuses it, see **Troubleshooting** in **Single Sign-On**.

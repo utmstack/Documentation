@@ -1,29 +1,44 @@
-On a server with a multi-tenant licence, the instance operator can install or change the same item in many tenants at once with **Apply to all tenants**. For example, you can roll out a new pipeline or response flow to every customer, or switch one off everywhere, without entering each tenant.
+On a server with a multi-tenant licence, the instance operator can repeat a change in many tenants at once with **Apply to all tenants**. For example, you can give every customer a new response flow, or switch a noisy shipped rule off everywhere, without entering each tenant. This page lists where the button appears, which actions work in UTMStack v12.0.2, how the dialog works and what to do when some tenants fail.
 
 ## Requirements
 
-- A multi-tenant licence (see **License and Editions**).
-- You must be the instance operator, working in your own tenant, not inside a customer's tenant (see **Settings Overview** and **Support Access**).
-- The permission for the item you are changing: `eventprocessing.write` for pipelines and correlation rules, `soar.write` for response flows. The **Administrator** role has both.
+- A licence with the multi-tenant option (see **License and Editions**).
+- You are an Administrator of the default tenant, working in your own tenant. The button is hidden inside a support session and for everyone else.
+- The permission for the item: `eventprocessing.write` for pipelines and correlation rules, `soar.write` for response flows, `config.write` for branding. The **Administrator** role has all of them.
 
-The button is not shown to anyone else.
+## How it works
 
-## Where you find it
+The button is a small icon next to **Save**, **Delete** or an on/off switch. Hover over it to see its name, **Apply to all tenants**.
 
-**Apply to all tenants** is a small icon button next to **Save** or **Delete**. Hover over it to see its name.
+- It sends what the editor holds at that moment. Your own tenant is changed only if you also click **Save** (or the switch), or if your own tenant is among the tenants you select in the dialog.
+- In each selected tenant, UTMStack makes the same change as if someone had made it inside that tenant.
+- A **create** gives each tenant its own copy. Afterwards each copy is independent: the tenant's administrator can change or delete it.
+- An **on/off** change switches the item for each selected tenant only.
 
-| Page | What you can apply to tenants |
-|---|---|
-| **Configure > Pipelines** | Create a pipeline, save changes to it, delete it, or switch it on or off |
-| **Configure > Alerting Rules** | Switch a correlation rule on or off, or delete it |
-| **SOAR > Flows** | Create a response flow, save changes to it, delete it, or switch it on or off |
+## Where the button appears and what works in v12.0.2
 
-When you create an item this way, each selected tenant gets its own copy. When you change or delete an item, the same item is changed or deleted in each selected tenant.
+| Page | Action | Works in v12.0.2 |
+|---|---|---|
+| **SOAR > Flows**, flow editor | Create a new flow in each tenant | Yes |
+| **SOAR > Flows**, flow editor | Save changes to a flow in each tenant that has a flow of the same name | Yes |
+| **SOAR > Flows**, flow editor, after clicking **Delete** | Delete the flow of the same name in each tenant | Yes |
+| **SOAR > Flows** list, next to the switch | Switch a shipped or custom flow on or off | Yes (see "On/off: which state is sent") |
+| **Configure > Pipelines**, new pipeline | Create the pipeline in each tenant | Yes |
+| **Configure > Pipelines** list, next to the **Active** switch | Switch a shipped pipeline on or off | Yes |
+| **Configure > Alerting Rules**, rule panel, next to the switch | Switch a shipped rule on or off | Yes |
+| **Configure > Pipelines** and **Configure > Alerting Rules** | Save changes to, delete or switch one of your own custom pipelines or rules | Only in your own tenant (see "Copies of custom pipelines and rules") |
+| **Configure > Settings > Branding**, next to an image's upload button | Use the uploaded logo, dark logo, favicon, report logo or report cover in each tenant | Yes. The default tenant is always skipped. |
+| **Configure > Alerting Rules**, new or edited rule | Create or change a correlation rule | No |
+| **Compliance**, framework and control editors | Create, change or delete a framework or control | No |
+| **Configure > Settings > Email Configuration** | Copy the mail server settings | No |
+| **Configure > Settings > Identity Providers** | Create, change or delete an identity provider | No |
+| **Configure > Settings > Branding**, next to **Save** | Copy the branding settings | No: do not use it (see the warning) |
 
-Switching on or off works differently depending on where you click the button:
+<Warning>
 
-- In the **Pipelines** list, the button next to a pipeline's switch gives the selected tenants the same state the pipeline has in your own tenant.
-- In the **Flows** list and in a correlation rule's details, the button gives the selected tenants the opposite of the state the item has in your own tenant. For example, if a flow is on in your tenant, it is switched off in the selected tenants.
+In UTMStack v12.0.2, the buttons marked "No" above do not pass the item to the tenants correctly, so the change fails in every tenant. The button next to **Save** on the **Branding** page is worse: it replaces the branding of every selected tenant with empty branding (white-label switched off, no product name, no logos). Set these items up inside each tenant instead, either as the tenant's administrator or in a support session with **Full access** (see **Working Inside a Tenant**).
+
+</Warning>
 
 ## Apply a change to tenants
 
@@ -31,39 +46,69 @@ Switching on or off works differently depending on where you click the button:
 
 <Step title="Prepare the item">
 
-Open the pipeline, rule or flow (or start a new pipeline or flow) and make your change. The dialog sends what the editor holds at that moment.
+Open the flow, pipeline or rule (or start a new flow or pipeline) and make your change. Do not close the editor.
 
 </Step>
 
 <Step title="Open the dialog">
 
-Click the **Apply to all tenants** button. The dialog warns: "This action will run on every selected tenant. Per-tenant failures are reported after the run and are not rolled back."
+Click the **Apply to all tenants** icon. The dialog's title names the action, for example "Broadcast SOAR flow create". It warns: "This action will run on every selected tenant. Per-tenant failures are reported after the run and are not rolled back."
 
 </Step>
 
 <Step title="Choose the tenants">
 
-Either tick **Apply to all tenants**, or search for and select the tenants you want. The default tenant is marked **platform** in the list. The dialog shows how many tenants will be changed ("Will target N tenant(s)").
+Either tick **Apply to all tenants**, or search for tenants ("Search tenants…") and tick the ones you want. Only active tenants are listed, and at most 25 of them. Your own default tenant is in the list, marked **platform**. The dialog shows how many tenants will be changed: "Will target N tenant(s)." With more than 25 active tenants, this number counts only the listed ones, although **Apply to all tenants** changes every active tenant.
 
 </Step>
 
 <Step title="Run">
 
-Click **Apply to N tenant(s)**.
+Click **Apply to N tenant(s)**. UTMStack makes the change in one tenant after another.
 
 </Step>
 
-<Step title="Check the result">
+<Step title="Read the result">
 
-The dialog lists the tenants where the change **Succeeded** and those where it **Failed**, with the reason. Fix the cause and apply again to the failed tenants only.
+The dialog lists the tenants under **Succeeded** and **Failed**, with the reason for each failure ("No failures." when all worked). Click **Close**.
 
 </Step>
 
 </Steps>
 
-<Warning>
+## Which tenants "Apply to all tenants" means
 
-- **Apply to all tenants** includes your own default tenant. Select tenants one by one if you want to leave it out.
-- Changes are not undone when some tenants fail. Tenants that succeeded keep the change.
+- Ticking **Apply to all tenants** selects every **active** tenant at the moment you click, including your own default tenant. Suspended and deactivated tenants are skipped.
+- For branding images, the default tenant is always skipped; the dialog then says "The platform-plane tenant is excluded from this action."
+- To leave your own tenant out, do not tick **Apply to all tenants**: select the customer tenants one by one.
 
-</Warning>
+## Failures are not rolled back
+
+Each tenant is changed on its own. If some tenants fail, the tenants that succeeded keep the change, and nothing is undone. Fix the cause, then run the dialog again and select only the tenants that failed.
+
+Common reasons for a failure:
+
+| Reason shown | What it means | What to do |
+|---|---|---|
+| "file already exists" or a similar "already exists" message | The tenant already has an item with that name, for example because you saved it in your own tenant before applying it to all tenants | Leave that tenant out, or change the item inside the tenant |
+| "not found" | The tenant has no item with that name, for example a flow that was never created there | Create it there first, or leave the tenant out |
+| A validation message | The item is not valid, for example a pipeline with a syntax error | Fix the item in the editor and try again |
+
+## On/off: which state is sent
+
+The on/off buttons do not all behave the same way:
+
+- In the **Pipelines** list, the button next to a pipeline's switch gives the selected tenants **the same state** the pipeline has in your own tenant. Switch it in your own tenant first, then apply.
+- In the **Flows** list and in a rule's panel on **Alerting Rules**, the button gives the selected tenants **the opposite** of the state the item has in your own tenant. For example, if a flow is on in your tenant, it is switched off in the selected tenants. Use it before you click the switch in your own tenant.
+
+## Copies of custom pipelines and rules
+
+A custom pipeline or rule is stored under a file name that includes the ID of the tenant that owns it, so every tenant's copy has a different name. Changing, deleting or switching a custom pipeline or rule with **Apply to all tenants** therefore reaches only your own tenant; the other tenants report **Failed** because they have no item with your copy's name. Change or delete those copies inside each tenant.
+
+Response flows do not have this limit: every tenant's copy of a flow keeps the flow's name, so later changes, deletes and on/off changes reach every tenant that has it.
+
+## Good practice
+
+- Try the change in your own tenant first, and check it there (for pipelines and rules, with the test function in the editor).
+- Apply to one or two customer tenants, check the result, then apply to the rest.
+- Keep a list of what you rolled out to which tenants: the dialog's result is not saved after you close it.

@@ -22,11 +22,14 @@ UTMStack reads these Microsoft Graph sources every 5 minutes:
 | Advanced hunting: `UrlClickEvents` | Link clicks from Microsoft Defender for Office 365 |
 | Purview audit log | Microsoft Purview audit records (Commercial and GCC clouds only) |
 
-Events are stored with the data type `o365-graph`. UTMStack v12 ships 20 detection rules for this data type; see **Microsoft 365 through Microsoft Graph** in the **Rules** tab.
+Events are stored with the data type `o365-graph` and parsed by the shipped pipeline `o365_graph/o365_graph.yaml` (version 2.0.0). UTMStack v12 ships 20 detection rules for this data type; see **Microsoft 365 through Microsoft Graph** in the **Rules** tab.
+
+- The first time a config group runs, UTMStack reads up to the last 24 hours of each source. After that it continues from where it stopped.
+- Each read stops a few minutes short of the current time, because Microsoft publishes some records late. Events therefore arrive with a short delay.
 
 <Note>
 
-Some sources need Microsoft licences in your tenant, for example Microsoft Defender or Microsoft Entra ID Protection. If Microsoft refuses a source because of a missing permission or licence, UTMStack cannot read that source, but it keeps reading the others.
+Some sources need Microsoft licences in your tenant, for example Microsoft Defender, Microsoft Entra ID P1 or P2 (sign-ins) or Microsoft Entra ID Protection (risk detections and risky users). If Microsoft refuses a source because of a missing permission or licence, UTMStack skips that source for one hour and then tries again. It keeps reading the other sources meanwhile.
 
 </Note>
 
@@ -153,9 +156,65 @@ The save checks that UTMStack can sign in. It does not stop you when a permissio
 | `GCCHigh` | `login.microsoftonline.us` | `graph.microsoft.us` | Not read |
 | `DoD` | `login.microsoftonline.us` | `dod-graph.microsoft.us` | Not read |
 
+### If the save fails
+
+The check signs in to Microsoft and then asks Microsoft Graph for one security alert. When sign-in fails, the config group is not saved and the message starts with "credential verification failed: o365_graph:".
+
+| Message | What to check |
+|---|---|
+| client ID, client secret and tenant ID are required | Fill in all three fields. |
+| token request failed with status 400 or 401, followed by Microsoft's explanation | Microsoft rejected the sign-in. Read the explanation: it names the problem, for example a wrong secret (paste the secret **Value**, not the **Secret ID**), an expired secret, or an app that does not exist in that tenant. |
+| token request failed, without a status | The UTMStack server cannot reach the Microsoft sign-in address on port 443, or the **Cloud Environment** value is wrong. |
+| alerts_v2 probe failed with status ... | Microsoft Graph answered with an unexpected error. Try again later. |
+
+When sign-in works but the alert request is refused because of a missing permission or licence, the config group is saved anyway. Check the permissions and licences if some sources stay empty.
+
 ## Check that events arrive
 
-Open the **O365 Graph** card again and click **View logs**. Log Explorer opens filtered to the `o365-graph` data type for the last 24 hours. UTMStack reads new events every 5 minutes, so allow a few minutes after you save.
+<Steps>
+<Step title="Open the logs in UTMStack">
+
+Open the **O365 Graph** card again and click **View logs**. Log Explorer opens with the `o365-graph` data type for the last 24 hours. UTMStack reads new events every 5 minutes, and the first read brings in up to 24 hours of earlier events, so sign-ins and directory changes from today usually appear within 10 minutes.
+
+</Step>
+<Step title="Check which sources arrive">
+
+The pipeline tags every event with the Graph source it came from, in the field `log.graphSource`. In Log Explorer, switch to **Chart** and chart that field to count events per source. The values are:
+
+| `log.graphSource` | Graph source |
+|---|---|
+| `security-alerts` | Security alerts |
+| `security-incidents` | Incidents |
+| `directory-audit` | Directory audit |
+| `sign-ins` | Sign-ins |
+| `risk-detections` | Risk detections |
+| `risky-user` | Risky users |
+| `hunting` | Advanced hunting, `EmailEvents` |
+| `url-click` | Advanced hunting, `UrlClickEvents` |
+| `purview-audit` | Purview audit log |
+
+A source you expected but do not see usually lacks a permission or a licence. Sources only produce events when there is activity: a tenant with no Defender alerts today shows no `security-alerts`.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 minutes.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example a refused source, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| No `o365-graph` events at all | Admin consent was not granted, or the secret is wrong or expired. | In **API permissions**, check that every permission shows as granted. Create a new secret if needed and update the config group. |
+| Directory audit arrives, but no sign-ins | Reading sign-ins needs a Microsoft Entra ID P1 or P2 licence. | Assign the licence, or accept that sign-ins are not collected. |
+| No risk detections or risky users | Microsoft Entra ID Protection is not licensed, or `IdentityRiskEvent.Read.All` / `IdentityRiskyUser.Read.All` is missing. | Add the permission and grant admin consent. Within an hour UTMStack tries the source again. |
+| No alerts, incidents or email events | Microsoft Defender is not licensed, or `SecurityAlert.Read.All`, `SecurityIncident.Read.All` or `ThreatHunting.Read.All` is missing. | Add the permission and grant admin consent. |
+| No Purview audit records | The **Cloud Environment** is `GCCHigh` or `DoD` (not read there), or `AuditLogsQuery.Read.All` is missing. | For Commercial and GCC tenants, add the permission and grant admin consent. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
 
 ## Manage config groups
 

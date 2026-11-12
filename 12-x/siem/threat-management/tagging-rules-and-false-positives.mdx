@@ -38,6 +38,10 @@ You can start a rule in three ways:
 - On **Threat Management > Alerts**, click the tag icon **Create a tag from this alert** on an alert row. The new rule is filled in with one **is** condition for each field of the alert that has a value. Remove the conditions you do not need.
 - In any tag menu on the **Alerts** page, click **Create tagging rule with this tag**. The new rule is filled in with that tag.
 
+The **New tagging rule** panel looks like this:
+
+![The New tagging rule panel with the Basics section (Rule name and Description), Tags to apply with the Add tag button, Conditions (ALL must match) with a field, operator and value row and the Add condition button, and the Create button](/assets/030ebe60-75be-451b-a6cf-9ae976fdf270)
+
 <Steps>
 
 <Step title="Name the rule">
@@ -120,6 +124,27 @@ The alert is set to **Completed** and gets the **False positive** tag. If you la
 
 ## Manage tagging rules
 
-Go to **Threat Management > Tagging Rules**. The list shows **Rule**, **Tags**, **Conditions**, **Modified by** and **Modified**, 20 rules per page. Use **Search by rule name…** and the **All tags** menu to find a rule. Click a rule to see it, then **Edit** or **Delete**.
+![The Tagging Rules page with the New rule button, the Search by rule name box, the All tags menu and the list of rules with their tags and number of conditions](/assets/5dc25dbc-2799-4202-9310-ff7b657d623a)
+
+Go to **Threat Management > Tagging Rules**. The list shows **Rule**, **Tags** and **Conditions** (the number of conditions). More rules load as you scroll. Use **Search by rule name…** and the **All tags** menu to find a rule. Click a rule to see it, then **Edit** or **Delete**.
 
 A tagging rule cannot be switched off. To stop a rule, delete it. UTMStack asks you to confirm: `Delete the rule "<name>"? Future alerts matching its conditions will stop being tagged.` Alerts that the rule already tagged keep their tags.
+
+## Check that a tagging rule works
+
+1. Wait at least a minute after you save the rule.
+2. Wait for, or cause, a new alert that should match.
+3. On **Threat Management > Alerts**, filter on the alert name and open the new alert. Its tags should include the rule's tags. If the rule adds **False positive**, look on the **Completed** tab: the alert's **Status note** reads `Status changed to completed because alert was tagged as False positive`.
+
+Existing alerts are never tagged again, so testing with an old alert shows nothing.
+
+## Troubleshooting
+
+| Symptom | Why | What to do |
+|---|---|---|
+| New alerts are not tagged | The rule was saved less than about a minute before the alert, or one of its conditions does not match. All conditions must match. | Open the alert and compare each condition with the alert's values. Remove conditions you do not need. |
+| An **is** condition does not match although the value looks the same | **is** and **is one of** compare letter case exactly. | Copy the value from the alert, or use **contains**. |
+| The rule tags far more alerts than intended | A negative condition (**is not**, **does not contain** and the others) also matches alerts that do not have the field at all. | Add an **exists** condition on the same field. |
+| An **is between** condition never matches | It needs numbers, and only the ASN fields hold numbers. | Use it only on **Adversary ASN** or **Target ASN**. |
+| Alerts closed as **False positive** still arrive by email | Every new top-level alert is emailed, whatever its status. | Expected in UTMStack v12.0.2. See **Alert and Incident Notifications**. |
+| A real attack was closed automatically | The rule's conditions are too broad. | Narrow or delete the rule. Search the **Completed** tab for alerts with the **False positive** tag and reopen the ones that matter: setting them back to **Open** removes the tag. |

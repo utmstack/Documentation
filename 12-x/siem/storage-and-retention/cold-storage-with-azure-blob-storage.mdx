@@ -1,0 +1,206 @@
+This guide sets up Azure Blob Storage, Microsoft Azure's object storage, as cold storage for UTMStack v12: the storage account, the container, the access key, the network rules and the UTMStack side. UTMStack signs in to Azure with the storage account name and one of its account keys.
+
+For what cold storage is and how it behaves, read **How UTMStack Stores Data** first.
+
+## Before you start
+
+- **In UTMStack:** you need to be the instance operator (a user with the **Administrator** role in the default tenant).
+- **In Azure:** you need permission to create a storage account and read its access keys (for example the **Contributor** role on the resource group).
+- **Network:** the UTMStack server must reach `https://<account>.blob.core.windows.net` on port 443.
+
+An account key gives full access to the whole storage account. Use a storage account created only for UTMStack cold storage, so the key cannot reach anything else.
+
+<Warning>
+
+Pick the storage account and container carefully. Once records have moved there, keep using them: if you point UTMStack at another account or container, the records already moved stay where they are and can no longer be read from UTMStack. You can change the account key at any time.
+
+</Warning>
+
+## Step 1: Create the storage account
+
+<Steps>
+
+<Step title="Start">
+
+In the Azure portal, open **Storage accounts** and click **Create**.
+
+</Step>
+
+<Step title="Basics">
+
+| Setting | Choose |
+|---|---|
+| Resource group | Any, for example the UTMStack server's group |
+| Storage account name | A unique name of 3 to 24 lowercase letters and numbers, for example `utmstackcold01` |
+| Region | The UTMStack server's region if it runs in Azure, otherwise the closest region |
+| Primary service | **Azure Blob Storage or Azure Data Lake Storage Gen 2** |
+| Performance | **Standard** |
+| Redundancy | As your policy requires. **Locally-redundant storage (LRS)** is the cheapest; zone- or geo-redundant options protect against a data centre or region failure. |
+
+</Step>
+
+<Step title="Advanced">
+
+| Setting | Choose |
+|---|---|
+| Require secure transfer for REST API operations | On |
+| Allow enabling anonymous access on individual containers | Off |
+| Enable storage account key access | **On**. UTMStack signs in with an account key. |
+| Minimum TLS version | TLS 1.2 |
+| Enable hierarchical namespace | Off |
+| Access tier | **Hot** |
+
+</Step>
+
+<Step title="Networking">
+
+Choose how the server reaches the account:
+
+- **UTMStack outside Azure:** enable public access from selected networks only, and add the UTMStack server's public IP address.
+- **UTMStack in an Azure virtual network:** use a private endpoint for the blob service, or allow the server's subnet. With a private endpoint, the account's normal host name resolves to the private address inside the network.
+
+</Step>
+
+<Step title="Data protection">
+
+| Setting | Choose |
+|---|---|
+| Enable soft delete for blobs | Off, or a short period. Soft-deleted blobs are billed until they are purged, and the event store deletes blobs regularly. |
+| Enable soft delete for containers | Optional; it protects against deleting the container by mistake |
+| Enable versioning for blobs | Off |
+| Enable point-in-time restore, version-level immutability | Off |
+
+</Step>
+
+<Step title="Encryption and create">
+
+Keep **Microsoft-managed keys**, or choose customer-managed keys if your policy requires them; this makes no difference to UTMStack. Click **Review + create**, then **Create**.
+
+</Step>
+
+</Steps>
+
+## Step 2: Create the container
+
+1. Open the storage account, then **Data storage > Containers**.
+2. Click **+ Container**, enter a name such as `utmstack-cold`, keep the anonymous access level **Private (no anonymous access)**, and click **Create**.
+
+## Step 3: Copy the account name and key
+
+1. Open **Security + networking > Access keys**.
+2. Copy the **Storage account name**.
+3. Next to **key1**, click **Show** and copy the **Key**.
+
+The same with the Azure CLI:
+
+```bash
+RG=rg-utmstack
+ACCOUNT=utmstackcold01
+
+az storage account create --name "$ACCOUNT" --resource-group "$RG" --location westeurope \
+  --sku Standard_LRS --kind StorageV2 --access-tier Hot \
+  --https-only true --min-tls-version TLS1_2 --allow-blob-public-access false
+
+az storage container create --name utmstack-cold --account-name "$ACCOUNT" --auth-mode key
+
+az storage account keys list --account-name "$ACCOUNT" --resource-group "$RG" \
+  --query "[0].value" --output tsv
+```
+
+## Step 4: Turn on cold storage in UTMStack
+
+<Steps>
+
+<Step title="Open the Cold storage card">
+
+Go to **Configure > Settings > Data Retention** and scroll to **Cold storage**.
+
+</Step>
+
+<Step title="Enter the details">
+
+Click **Azure Blob Storage** and fill in:
+
+| Field | What to enter | Example |
+|---|---|---|
+| Storage account URL | The blob endpoint of the account, without the container | `https://utmstackcold01.blob.core.windows.net` |
+| Container | The container name | `utmstack-cold` |
+| Account name | The storage account name | `utmstackcold01` |
+| Account key | key1 (or key2) of the account | |
+
+</Step>
+
+<Step title="Enable">
+
+Click **Enable cold storage**. The event store writes a small test file to the container, reads it back and deletes it. If it works, the card shows **In use**. If not, the error starts with "the event store could not use this bucket:" followed by Azure's reason, and nothing is changed.
+
+</Step>
+
+<Step title="Choose what moves">
+
+On the **Logs** card, and on **Alerts** if you want, set **Move to cold storage after** and click **Save**.
+
+</Step>
+
+</Steps>
+
+## Check that it works
+
+1. The **Cold storage** card shows **In use**, and **App Audit Logs** shows a successful `cold_storage.set` entry with the account URL and container.
+2. Once records older than **Move to cold storage after** exist, blobs with generated names appear in the container. Check in the portal under **Storage browser > Blob containers**, or with:
+
+   ```bash
+   az storage blob list --account-name utmstackcold01 --container-name utmstack-cold \
+     --auth-mode key --num-results 5 --output table
+   ```
+
+3. Run the event store query in **Check that it works** in **Cold Storage with Amazon S3**: records in Azure show the disk name `cold_disk`.
+4. In **Log Explorer**, search a time range older than **Move to cold storage after**.
+
+## Rotate the account key
+
+Azure gives every storage account two keys, so you can rotate without a gap.
+
+1. In UTMStack, on the **Cold storage** card, keep **Azure Blob Storage** selected.
+2. Check the **Storage account URL** field. The card fills it in with the account address followed by the container name, for example `https://utmstackcold01.blob.core.windows.net/utmstack-cold`. Remove the container part so that only `https://utmstackcold01.blob.core.windows.net` remains.
+3. Enter the **Container**, the **Account name** and **key2** as **Account key**, and click **Update credentials**.
+4. Check that searches on old data still work.
+5. In Azure, regenerate key1 so the old key stops working.
+
+<Warning>
+
+Do not save the card with the container name left in **Storage account URL**. The event store would then look for your records in a different place and could no longer read the records already moved.
+
+</Warning>
+
+## Rules that break cold storage
+
+The event store manages every blob in the container itself. It reads blobs directly and deletes them when retention says so.
+
+<Warning>
+
+- **Never add lifecycle management rules that delete blobs** in this container, or that move them to the **Archive** tier. Archived blobs must be rehydrated, which takes hours, before they can be read, so searches and retention fail.
+- **Do not set immutability policies** (time-based retention or legal hold) on the container. The event store must be able to delete blobs.
+- **Do not edit, move or delete blobs by hand,** and do not let another application or another UTMStack server write to the container.
+
+</Warning>
+
+The **Cool** and **Cold** tiers can be read directly, but they charge for reads and bill a minimum storage time, and the event store rewrites and deletes blobs as it merges blocks and applies retention. Keep the container's blobs in the **Hot** tier.
+
+## What it costs
+
+Azure charges for the data stored, for operations (writes when records move, reads when someone searches cold data, deletes), and for data leaving Azure when the UTMStack server is outside Azure and reads cold data.
+
+## Troubleshooting
+
+| The error mentions | Cause | Fix |
+|---|---|---|
+| `AuthenticationFailed` | Wrong account name or key, or the key was regenerated | Copy the account name and key again from **Access keys**. |
+| `KeyBasedAuthenticationNotPermitted` | **Allow storage account key access** is off on the account | Turn it on under **Settings > Configuration**. |
+| `ContainerNotFound` | The container name is wrong, or the container is in another account | Check the name under **Containers**. |
+| `AuthorizationFailure` | The storage account firewall does not allow the UTMStack server | Add the server's public IP or subnet under **Networking**. |
+| A host that cannot be found, or a timeout | Wrong account name in the URL, DNS for a private endpoint, or a firewall on the way | From the server, run `curl -sI https://<account>.blob.core.windows.net/`. Any HTTP answer means the network path works. |
+
+**Enable cold storage** stays greyed out until **Storage account URL**, **Container**, **Account name** and **Account key** are all filled in.
+
+For every UTMStack message, see **Troubleshooting Retention and Cold Storage**.

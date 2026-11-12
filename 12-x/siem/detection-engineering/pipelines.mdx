@@ -10,6 +10,8 @@ A pipeline tells UTMStack how to read one kind of raw log and turn it into a sta
 
 The page is titled **Pipelines**: "YAML pipelines applied to logs as they're parsed during ingestion."
 
+![The Pipelines page with the All, Active, Inactive, System and Custom tabs, the data type filter, the Test pipeline and New pipeline buttons, and the pipeline table with data types, type, Active switch, View and order arrows](/assets/366b63ad-1f99-4262-9d66-797e2706c3f3)
+
 | Control | What it does |
 |---|---|
 | Tabs **All**, **Active**, **Inactive**, **System**, **Custom** | Show all pipelines, only those switched on or off for your tenant, only shipped ones or only your own. |
@@ -75,7 +77,11 @@ Write a custom pipeline to parse a source that UTMStack does not cover, for exam
 
   **Add pipeline entry** adds another entry to the same file, for example for a second data type.
 
-  In **Code**, write the YAML directly. **Insert regex pattern** inserts one of the built-in named patterns at the cursor. See **Pipeline File Format and Step Reference** for the format.
+  In **Code**, write the YAML directly. **Insert regex pattern** inserts one of the built-in named patterns at the cursor. See **Pipeline File Format and Step Reference** for the format, and **Pipeline Examples** for complete pipelines to paste.
+
+  ![The New pipeline panel: Name, Content (pipeline YAML) with the Visual and Code switch, Data types, Steps with the Add step buttons, and Test and Save at the bottom](/assets/c81e10ca-2f82-4f1b-b383-d59f8925762f)
+
+  The picture is from UTMStack v12.0.0. In UTMStack v12.0.2 each pipeline entry is headed "Entry 1", "Entry 2" and so on, and also has the **Order** box and the **Add pipeline entry** button described above.
 
   </Step>
   <Step title="Test it">
@@ -103,6 +109,8 @@ When you save, UTMStack checks that:
 
 An entry with no `order`, or with `0`, gets order `100`.
 
+When it saves, UTMStack writes the file again with your tenant id in each entry. The result runs the same, but comments are removed and keys may change order. Keep your own commented copy of a pipeline if you need the comments.
+
 <Warning>
 
 Saving does **not** check conditions (`where`) or regular expressions. A condition with a missing bracket, or a pattern that does not compile, is saved as valid and then fails on every log of that data type: the step is skipped and an error is added to each event's `errors` field. Always test a pipeline before you save it, and check the `errors` field in Log Explorer afterwards.
@@ -115,4 +123,9 @@ Open the pipeline from the list. Custom pipelines can be edited, tested and dele
 
 ## Apply a pipeline to all tenants
 
-On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the pipeline panel. It repeats the create, update, delete or on/off change on every selected tenant. Failures on single tenants are listed after the run and are not rolled back. See **Apply to All Tenants**.
+On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the pipeline panel and the pipeline list. In UTMStack v12.0.2 it works for:
+
+- **creating** a new custom pipeline in the selected tenants (each tenant gets its own copy), and
+- switching a **shipped** pipeline on or off in the selected tenants.
+
+Changing, deleting or switching a custom pipeline reaches only your own tenant, because each tenant's copy is a separate file. To change the copies in other tenants, enter each tenant and edit its copy there. Failures on single tenants are listed after the run and are not rolled back. See **Apply to All Tenants**.

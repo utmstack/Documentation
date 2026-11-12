@@ -17,11 +17,16 @@ Examples:
 
 How it works:
 
-- Only enrichment steps expose an output. Shell, notification, incident, email and conditional steps do not.
+- Only enrichment steps expose an output. Notification, incident, email and conditional steps do not, and neither do shell steps unless you make them enrichment steps in the Code tab (see below).
 - A step sees the outputs of the enrichment steps above it on its own path (its parents and their parents).
 - The **Insert field** menu in the step editor lists the alert fields and the outputs of the enrichment steps above the step. If there are none, it shows "No enrichment ancestors yet — add an enrichment node upstream to expose its output here."
 - Outputs are quoted when inserted, the same way as alert values. See **Placeholders**.
 - A **Conditional** step can check an output directly, for example field `step_1.data.verdict`, operator **is**, value `malicious`.
+- In the **Insert field** menu, "whole output (edit the path)" inserts `$(<step id>.)`; complete the path by hand when the menu does not list the field you need.
+
+### Shell output as data (Code tab only)
+
+In the **Code** tab you can change a **Shell** step's `kind` from `executor` to `enrichment`. Its output then becomes data for later steps, like an HTTP answer. The command must print one JSON document; any other output fails the step with `soar shell enrichment: stdout is not JSON`. A command that prints nothing also fails, because the agent then reports the text "Command executed successfully but no output".
 
 ## Stored variables
 
@@ -38,6 +43,8 @@ ssh -i $[variables.FW_SSH_KEY] admin@$[variables.FW_HOST] sudo iptables -I FORWA
 ```
 
 Variables are filled in when the step runs and are quoted the same way as alert values (see **Placeholders**). Do not put quotes around them.
+
+A reference to a variable that does not exist (for example a typing mistake in the name) is left as written, and the command is sent with the literal text `$[variables.NAME]`. Names are case-sensitive. If a secret variable cannot be read, the Interactive Console refuses the command with "a variable in this command could not be resolved".
 
 ### Manage variables
 

@@ -1,0 +1,154 @@
+The **Overview** page is the first screen you see after you sign in, unless you were opening another page when UTMStack asked you to sign in. It sums up the state of your tenant on one page: recent alerts, open incidents, whether your data sources are sending logs, the health of the server, the attack techniques and machines that come up most often, and your compliance scores. Every card links to the screen where you can act on it.
+
+## Open the Overview page
+
+Click **Overview** at the top of the main menu, or click the UTMStack logo in the top bar. The server's main address, and any address in the web interface that UTMStack does not know, also lead here.
+
+Every user sees the page. All three built-in roles (Administrator, Analyst and Viewer) have the read permissions the cards need. Everything on the page belongs to the tenant you are working in; on a multi-tenant server, switch tenant to see another tenant's figures (see **Support Access**).
+
+The figures are loaded when you open the page and are reused for up to one minute. The page does not reload itself while you watch it: reload it, or come back to it, to see newer figures.
+
+## What each card shows
+
+The page is built from separate cards. If one of them cannot load its data, only that card is empty; the others still work.
+
+![The top of the Overview page with the SOC-AI question box and its four suggestions, the Alerts (24h), Open incidents, High severity (24h) and Active playbooks tiles, and the Datasources and System health cards](/assets/67eb660f-fc0b-4260-803e-116e0a88d911)
+
+### Key figures
+
+The four tiles across the top count alerts, incidents and response flows. Click a tile to open the screen behind it.
+
+| Tile | What it counts | Time window | Click opens |
+|---|---|---|---|
+| **Alerts (24h)** | Top-level alerts raised in the last 24 hours, whatever their status. Echoes (repeats grouped under an earlier alert) are not counted. Alerts that a tagging rule closed as **False positive** are counted. A small line chart shows the count per hour. | Last 24 hours | **Threat Management > Alerts** |
+| **Open incidents** | Incidents whose status is **Open**. Incidents **In review** are not counted. The line under the number reads "currently open". | Now | **Threat Management > Incidents** |
+| **High severity (24h)** | How many of the alerts in **Alerts (24h)** have the severity High. The line under it reads "of N alerts", where N is the **Alerts (24h)** figure. | Last 24 hours | **Threat Management > Alerts** |
+| **Active playbooks** | Automated response flows that are switched on, including shipped flows. The line under it reads "enabled". | Now | **SOAR > Flows** |
+
+<Note>
+
+The tiles link to the screens, not to a filtered view. **Threat Management > Alerts** opens on its own default view (the last 7 days, all statuses), so its numbers differ from the 24-hour tiles. Set the time range to **Last 24 hours** there to match them.
+
+</Note>
+
+Large numbers are shortened: 1.5k means about 1,500, 2.8M about 2,800,000 and 1.2B about 1,200,000,000.
+
+### Datasources
+
+| Figure | What it means |
+|---|---|
+| Large green number, "of N datasources sending data" | How many of your data sources sent at least one event in the last 24 hours, out of N data sources registered in your tenant. |
+| **Total events**, "last 1 day" | How many events UTMStack received in the last 24 hours, from every source. |
+| Chart | Events received per hour over the last 24 hours. "No ingestion data in this window" means nothing arrived. |
+
+**View all** opens the **Data Sources** page, where you can see which source is silent. See **Data Sources Page**.
+
+A gap between the two numbers is the first thing to look at each morning: a data source that stopped sending can hide an attack, and it also lowers your compliance scores.
+
+<Note>
+
+The figures come from the ingestion statistics, the same counters as on **Configure > Data Processing**. They count events as UTMStack received them, so **Total events** can differ from the number of events you find in **Log Explorer** for the same day. See **Data Processing**.
+
+</Note>
+
+### System health
+
+| Line | Shows | Status |
+|---|---|---|
+| **Backend API** | The UTMStack version, for example `12.0.2` | **Healthy** when the server answers; **Down** with "unreachable" when it does not. |
+| **SOC-AI engine** | "N tools" when the AI tool server is running, "disabled" when it is switched off | **Healthy** when it is running; **Unknown** when it is switched off or cannot be reached. |
+
+**Unknown** is not an error: it means the service is optional and not in use. **Details** opens **Configure > Settings > About**, which only the instance operator (the administrator of the default tenant) can open. See **SOC-AI Assistant** and **MCP Server**.
+
+### Top MITRE ATT&CK techniques
+
+The six attack techniques that appear most often in your alerts, with the number of alerts for each. MITRE ATT&CK is a public catalogue of attacker tactics and techniques; each technique has an id such as `T1110` (Brute Force). The technique comes from the rule that raised the alert.
+
+- It counts top-level alerts only, over every stored alert, not only recent ones.
+- Alerts whose rule names no technique are not counted. "No technique-tagged alerts yet" means none of your alerts has one.
+- **Explore** opens **Threat Management > Alerts**. To list the alerts of one technique there, use **Add filter** > **Technique** > **is**.
+
+### Top targeted assets
+
+The six hosts that appear most often as the affected side (the target) of your alerts, with the number of alerts for each. It counts top-level alerts only, over every stored alert, and reads the alert's target host name. Alerts without a target host are not counted. "No targeted assets in recent alerts" means none of your alerts names one.
+
+**View all** opens the **Data Sources** page. To list the alerts of one host, open **Threat Management > Alerts** and use **Add filter** > **Target host** > **is**.
+
+<Tip>
+
+A host that tops this list is a good candidate for a higher **Asset sensitivity** rating on the **Data Sources** page, which raises the severity of its future alerts. See **How Alerts Are Created**.
+
+</Tip>
+
+### Compliance score
+
+Up to six compliance frameworks, highest score first, each with the score of its last report. The bar color gives a quick reading:
+
+| Color | Score |
+|---|---|
+| Green | 90% and above |
+| Blue | 80% to 89% |
+| Amber | 50% to 79% |
+| Red | Below 50% |
+
+Only frameworks that have been evaluated at least once appear. "No compliance reports generated yet" means no framework has run in your tenant. **Reports** opens **Compliance**. The score is the share of a framework's requirements that are compliant; see **Compliance Overview** for how it is counted.
+
+## Ask SOC-AI from the Overview page
+
+When the SOC-AI assistant is set up, the top of the page shows the question "What would you like to know from your security data?", a text box, and four suggestions:
+
+| Suggestion | What it asks the assistant to do |
+|---|---|
+| **Threat hunt** | Search your logs and alerts for signs of an attack |
+| **Observable triage** | Check indicators such as IP addresses, domains or hashes |
+| **Write a rule** | Help you write a correlation rule |
+| **Current system status** | Summarize the state of your server and data |
+
+Type a question and press **Enter** (**Shift+Enter** starts a new line), or click a suggestion. The conversation then replaces the cards on the page, and the text box moves to the bottom of the screen. Reload the page to see the cards again.
+
+- The chat box is hidden until an AI provider is configured on **Configure > Settings > SOC-AI**. See **AI Providers**.
+- In UTMStack v12.0.2 the chat box is shown only to users who can open the SOC-AI settings, that is the **Administrator** role.
+- Each message counts towards your tenant's daily AI allowance. See **AI Usage and Limits**.
+
+See **SOC-AI Assistant** for what the assistant can do.
+
+## A daily check with the Overview page
+
+<Steps>
+
+<Step title="Check that data is flowing">
+
+On the **Datasources** card, compare the green number with the total. If some sources are not sending, click **View all** and look for sources that went quiet.
+
+</Step>
+
+<Step title="Check the alert load">
+
+Compare **Alerts (24h)** and **High severity (24h)** with a normal day. A sudden jump can mean an attack, or a noisy rule that needs tuning (see **Rule Flood Guard**).
+
+</Step>
+
+<Step title="Check the open work">
+
+**Open incidents** should go down over time. Click it to see who is assigned and what is waiting.
+
+</Step>
+
+<Step title="Work the queue">
+
+Open **Threat Management > Alerts**, choose the **Open** tab and follow **Alert Triage Workflow**.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| A card stays empty or shows only its title | That card's data could not be loaded, or your role lacks the read permission it needs. | Reload the page. If one card stays empty, check your role on **Roles and Permissions**. |
+| **Total events** shows 0 and the chart says "No ingestion data in this window" | No events reached the server in the last 24 hours. | Check **Data Sources** and the agent or integration of each source. |
+| The green number is lower than the total | Some registered data sources sent nothing in the last 24 hours. | Find them on **Data Sources** and check them. A source you removed for good can be deleted there. |
+| **SOC-AI engine** shows **Unknown** | The AI tool server is switched off or cannot be reached. | Nothing to do if you do not use SOC-AI. Otherwise see **MCP Server**. |
+| No chat box at the top | SOC-AI is not configured, or your role is not Administrator. | See **AI Providers** and **SOC-AI Assistant**. |
+| **Alerts (24h)** differs from the Alerts page | The Alerts page opens on the last 7 days. | Set **Last 24 hours** on the Alerts page. |

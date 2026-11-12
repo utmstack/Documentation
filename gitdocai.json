@@ -5645,13 +5645,32 @@
               "content_path": "12-x/siem/getting-started/introduction.mdx"
             },
             {
+              "id": "96f69cb1-4d63-4714-bde6-b72b968b9bf2",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "5241d49e-5f5b-4ef0-bce8-32151ebde2c7",
+              "title": "Navigating the Console",
+              "slug": "navigating-the-console",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/getting-started/navigating-the-console.mdx"
+            },
+            {
               "id": "b335d4f5-959c-4987-8047-1aa06e6d225d",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "5241d49e-5f5b-4ef0-bce8-32151ebde2c7",
               "title": "Community and Support",
               "slug": "community-and-support",
               "type": "page",
-              "order": 1,
+              "order": 2,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5720,13 +5739,51 @@
               "content_path": "12-x/siem/installation/system-requirements.mdx"
             },
             {
+              "id": "bb23a199-43b8-45cb-aa4d-e256ddd8a878",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Sizing and Capacity Planning",
+              "slug": "sizing-and-capacity-planning",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/sizing-and-capacity-planning.mdx"
+            },
+            {
+              "id": "1f696206-b29c-451c-9631-45030093f36b",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Prepare the Server",
+              "slug": "prepare-the-server",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/prepare-the-server.mdx"
+            },
+            {
               "id": "3377f342-1534-49eb-a7e6-feba6a0fd6dd",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
               "title": "Install UTMStack",
               "slug": "install-utmstack",
               "type": "page",
-              "order": 2,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5739,13 +5796,32 @@
               "content_path": "12-x/siem/installation/install-utmstack.mdx"
             },
             {
+              "id": "2637aa50-52fd-4eaa-9bca-708370376900",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
+              "title": "Install on AWS, Azure or Google Cloud",
+              "slug": "install-on-aws-azure-or-google-cloud",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/installation/install-on-aws-azure-or-google-cloud.mdx"
+            },
+            {
               "id": "24cffee7-8b5d-46a6-95bf-fe92e54b4e8d",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "fe169134-8322-4c80-a94e-e130c354a8a9",
               "title": "Network Ports and Firewall",
               "slug": "network-ports-and-firewall",
               "type": "page",
-              "order": 3,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5764,7 +5840,7 @@
               "title": "SSL Certificate",
               "slug": "ssl-certificate",
               "type": "page",
-              "order": 4,
+              "order": 7,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5783,7 +5859,7 @@
               "title": "Updates",
               "slug": "updates",
               "type": "page",
-              "order": 5,
+              "order": 8,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5802,7 +5878,7 @@
               "title": "Installer Reference",
               "slug": "installer-reference",
               "type": "page",
-              "order": 6,
+              "order": 9,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5821,7 +5897,7 @@
               "title": "Uninstall",
               "slug": "uninstall",
               "type": "page",
-              "order": 7,
+              "order": 10,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -5834,12 +5910,87 @@
               "content_path": "12-x/siem/installation/uninstall.mdx"
             },
             {
+              "id": "79689787-e119-468c-a7a6-d23b56ed3996",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Operations",
+              "slug": "operations",
+              "type": "folder",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/operations/index.mdx"
+            },
+            {
+              "id": "d931515e-924a-453a-b0aa-04007abb20a1",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "79689787-e119-468c-a7a6-d23b56ed3996",
+              "title": "Server Services and Files Reference",
+              "slug": "server-services-and-files-reference",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/operations/server-services-and-files-reference.mdx"
+            },
+            {
+              "id": "94fa584f-013f-4b2a-a302-f8a073ace1dc",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "79689787-e119-468c-a7a6-d23b56ed3996",
+              "title": "Health Checks and Troubleshooting",
+              "slug": "health-checks-and-troubleshooting",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/operations/health-checks-and-troubleshooting.mdx"
+            },
+            {
+              "id": "16746629-2df5-4c08-9b31-396e67f827b0",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "79689787-e119-468c-a7a6-d23b56ed3996",
+              "title": "Backups and Recovery",
+              "slug": "backups-and-recovery",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/operations/backups-and-recovery.mdx"
+            },
+            {
               "id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "title": "Administration",
               "slug": "administration",
               "type": "folder",
-              "order": 2,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6099,13 +6250,89 @@
               "content_path": "12-x/siem/administration/single-sign-on.mdx"
             },
             {
+              "id": "5f3f6e51-1eb0-4cff-a132-fb255f8da4fb",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "SSO with Microsoft Entra ID",
+              "slug": "sso-with-microsoft-entra-id",
+              "type": "page",
+              "order": 13,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/sso-with-microsoft-entra-id.mdx"
+            },
+            {
+              "id": "20c5bb19-9bdd-4ee1-a052-bec43d76fdfb",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "SSO with Okta",
+              "slug": "sso-with-okta",
+              "type": "page",
+              "order": 14,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/sso-with-okta.mdx"
+            },
+            {
+              "id": "c863943a-1c8c-4922-a9a2-217185932ed4",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "SSO with Google Workspace",
+              "slug": "sso-with-google-workspace",
+              "type": "page",
+              "order": 15,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/sso-with-google-workspace.mdx"
+            },
+            {
+              "id": "3f284eaf-6a23-4f2b-b34f-ec81668935fa",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
+              "title": "LDAP and Active Directory Sign-In",
+              "slug": "ldap-and-active-directory-sign-in",
+              "type": "page",
+              "order": 16,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/administration/ldap-and-active-directory-sign-in.mdx"
+            },
+            {
               "id": "d72859c4-39b2-4054-9de5-08bba87139a1",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "71624591-08b7-43c2-bf7b-d4c65fc809fa",
               "title": "API Keys",
               "slug": "api-keys",
               "type": "page",
-              "order": 13,
+              "order": 17,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6118,12 +6345,163 @@
               "content_path": "12-x/siem/administration/api-keys.mdx"
             },
             {
+              "id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Storage and Retention",
+              "slug": "storage-and-retention",
+              "type": "folder",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/index.mdx"
+            },
+            {
+              "id": "d7b5e807-7ae1-4c8f-aee9-f4078464406e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "How UTMStack Stores Data",
+              "slug": "how-utmstack-stores-data",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/how-utmstack-stores-data.mdx"
+            },
+            {
+              "id": "1e1b5b40-2655-4cd6-90dc-0df8799e9d92",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Planning Retention and Disk Space",
+              "slug": "planning-retention-and-disk-space",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/planning-retention-and-disk-space.mdx"
+            },
+            {
+              "id": "5c9b8bba-51af-4a3a-bad0-ef81641c19a1",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Cold Storage with Amazon S3",
+              "slug": "cold-storage-with-amazon-s3",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/cold-storage-with-amazon-s3.mdx"
+            },
+            {
+              "id": "441c11a5-4b40-42da-b0fc-6bef743c92a7",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Cold Storage with S3-Compatible Stores",
+              "slug": "cold-storage-with-s3-compatible-stores",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/cold-storage-with-s3-compatible-stores.mdx"
+            },
+            {
+              "id": "291989a2-8b7b-4a0a-aeb9-dc10449f230f",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Cold Storage with Azure Blob Storage",
+              "slug": "cold-storage-with-azure-blob-storage",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/cold-storage-with-azure-blob-storage.mdx"
+            },
+            {
+              "id": "fb98a314-254e-405e-a795-3e5e7a60618b",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Cold Storage on a Local Folder or NFS",
+              "slug": "cold-storage-on-a-local-folder-or-nfs",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/cold-storage-on-a-local-folder-or-nfs.mdx"
+            },
+            {
+              "id": "ebe52a6b-f298-4b2c-b515-787f250a1b33",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "fc0cca5f-8dc9-487e-a5f9-2d34bfae3b95",
+              "title": "Troubleshooting Retention and Cold Storage",
+              "slug": "troubleshooting-retention-and-cold-storage",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/storage-and-retention/troubleshooting-retention-and-cold-storage.mdx"
+            },
+            {
               "id": "e199c480-524b-4f9f-8564-7e899d9da474",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "title": "Multi-Tenancy",
               "slug": "multi-tenancy",
               "type": "folder",
-              "order": 3,
+              "order": 5,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6136,13 +6514,70 @@
               "content_path": "12-x/siem/multi-tenancy/index.mdx"
             },
             {
+              "id": "2e0f19b0-83bd-450f-adb6-fd9e2c5f0898",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Multi-Tenancy Overview",
+              "slug": "multi-tenancy-overview",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/multi-tenancy-overview.mdx"
+            },
+            {
+              "id": "2d3f32dc-ecae-4d18-be69-eb88bba1d5f7",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "How Users Reach Their Tenant",
+              "slug": "how-users-reach-their-tenant",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/how-users-reach-their-tenant.mdx"
+            },
+            {
+              "id": "aa4f678c-27f3-44ab-a8aa-40b22aa99ced",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Onboarding a Customer",
+              "slug": "onboarding-a-customer",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/onboarding-a-customer.mdx"
+            },
+            {
               "id": "95587f90-5cf8-498e-b71c-cf155dc976bf",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
               "title": "Tenants",
               "slug": "tenants",
               "type": "page",
-              "order": 0,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6161,7 +6596,7 @@
               "title": "Support Access",
               "slug": "support-access",
               "type": "page",
-              "order": 1,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6174,13 +6609,51 @@
               "content_path": "12-x/siem/multi-tenancy/support-access.mdx"
             },
             {
+              "id": "1af7bd14-d0fb-410d-bf1a-24901ae7049d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Working Inside a Tenant",
+              "slug": "working-inside-a-tenant",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/working-inside-a-tenant.mdx"
+            },
+            {
+              "id": "59a2ec34-0cca-40ce-a653-13caa59f8448",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Tenant Lifecycle",
+              "slug": "tenant-lifecycle",
+              "type": "page",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/tenant-lifecycle.mdx"
+            },
+            {
               "id": "bfa27b41-fbc0-4b21-8331-95dec432fc7c",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
               "title": "Apply to All Tenants",
               "slug": "apply-to-all-tenants",
               "type": "page",
-              "order": 2,
+              "order": 7,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6193,12 +6666,31 @@
               "content_path": "12-x/siem/multi-tenancy/apply-to-all-tenants.mdx"
             },
             {
+              "id": "1f98decc-c352-43ac-b360-d0f9bdca3fbc",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e199c480-524b-4f9f-8564-7e899d9da474",
+              "title": "Multi-Tenancy FAQ and Troubleshooting",
+              "slug": "multi-tenancy-faq",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/multi-tenancy/multi-tenancy-faq.mdx"
+            },
+            {
               "id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "title": "Detection Engineering",
               "slug": "detection-engineering",
               "type": "folder",
-              "order": 4,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6287,13 +6779,32 @@
               "content_path": "12-x/siem/detection-engineering/pipeline-file-format-and-step-reference.mdx"
             },
             {
+              "id": "39415bb3-ed56-41af-bcd8-bc59ec6bce1f",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Pipeline Examples",
+              "slug": "pipeline-examples",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/pipeline-examples.mdx"
+            },
+            {
               "id": "3ea2595f-e4ed-49b4-b214-97c274b55e44",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
               "title": "Alerting Rules",
               "slug": "alerting-rules",
               "type": "page",
-              "order": 4,
+              "order": 5,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6312,7 +6823,7 @@
               "title": "Rule File Format",
               "slug": "rule-file-format",
               "type": "page",
-              "order": 5,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6331,7 +6842,7 @@
               "title": "Condition Functions Reference",
               "slug": "condition-functions-reference",
               "type": "page",
-              "order": 6,
+              "order": 7,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6344,13 +6855,32 @@
               "content_path": "12-x/siem/detection-engineering/condition-functions-reference.mdx"
             },
             {
+              "id": "b944d4aa-c306-40f9-b7ee-b60c7a921a4e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Rule Examples",
+              "slug": "rule-examples",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/rule-examples.mdx"
+            },
+            {
               "id": "5c08f985-ccb7-4b9d-9256-a8936a2e3cab",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
               "title": "Testing Pipelines and Rules",
               "slug": "testing-pipelines-and-rules",
               "type": "page",
-              "order": 7,
+              "order": 9,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6369,7 +6899,7 @@
               "title": "Writing and Testing Rules and Pipelines",
               "slug": "writing-and-testing-rules-and-pipelines",
               "type": "page",
-              "order": 8,
+              "order": 10,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6382,13 +6912,70 @@
               "content_path": "12-x/siem/detection-engineering/writing-and-testing-rules-and-pipelines.mdx"
             },
             {
+              "id": "512cff41-001a-40b2-81e6-f86660e7a54e",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Tutorial: From a New Log Source to an Alert",
+              "slug": "tutorial-new-log-source-to-alert",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/tutorial-new-log-source-to-alert.mdx"
+            },
+            {
+              "id": "07d0fca7-17f2-4384-8a38-cf56bea87d12",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Tuning Rules and Reducing False Positives",
+              "slug": "tuning-rules-and-reducing-false-positives",
+              "type": "page",
+              "order": 12,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/tuning-rules-and-reducing-false-positives.mdx"
+            },
+            {
+              "id": "8edcdca2-a174-4c26-97cd-a2f44a60a5c0",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
+              "title": "Shipped and Custom Rules and Pipelines",
+              "slug": "shipped-and-custom-rules-and-pipelines",
+              "type": "page",
+              "order": 13,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/detection-engineering/shipped-and-custom-rules-and-pipelines.mdx"
+            },
+            {
               "id": "2f5c6ab2-9ebe-4385-ad19-8260992d47e2",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "8b2f87f4-9f8f-4f4c-9f49-bb397710c2e7",
               "title": "Data Processing",
               "slug": "data-processing",
               "type": "page",
-              "order": 9,
+              "order": 14,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6401,12 +6988,68 @@
               "content_path": "12-x/siem/detection-engineering/data-processing.mdx"
             },
             {
+              "id": "e4d46f28-8ce2-4922-acb9-ccc00ce337f3",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "title": "Overview and Live Operations",
+              "slug": "overview-and-live-operations",
+              "type": "folder",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/overview-and-live-operations/index.mdx"
+            },
+            {
+              "id": "575dae61-23f4-4c7f-8cdc-35efff8adf23",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e4d46f28-8ce2-4922-acb9-ccc00ce337f3",
+              "title": "Overview Page",
+              "slug": "overview-page",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/overview-and-live-operations/overview-page.mdx"
+            },
+            {
+              "id": "8d5262fa-141b-45a4-9c39-8194654798af",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e4d46f28-8ce2-4922-acb9-ccc00ce337f3",
+              "title": "Live Operations",
+              "slug": "live-operations",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/overview-and-live-operations/live-operations.mdx"
+            },
+            {
               "id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "title": "Threat Management",
               "slug": "threat-management",
               "type": "folder",
-              "order": 5,
+              "order": 8,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6438,13 +7081,51 @@
               "content_path": "12-x/siem/threat-management/alerts.mdx"
             },
             {
+              "id": "11e6f9d0-0805-4d53-baad-a847963feb33",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Alert Triage Workflow",
+              "slug": "alert-triage-workflow",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/alert-triage-workflow.mdx"
+            },
+            {
+              "id": "46830b4d-42b2-4012-8ebc-95f521c138d2",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
+              "title": "Alert Fields Reference",
+              "slug": "alert-fields-reference",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/threat-management/alert-fields-reference.mdx"
+            },
+            {
               "id": "8eb67f7f-c855-4719-a349-f1b61a49cc50",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "81df5ad2-995e-4dff-ab79-1f54bf13e1d8",
               "title": "How Alerts Are Created",
               "slug": "how-alerts-are-created",
               "type": "page",
-              "order": 1,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6463,7 +7144,7 @@
               "title": "Tagging Rules and False Positives",
               "slug": "tagging-rules-and-false-positives",
               "type": "page",
-              "order": 2,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6482,7 +7163,7 @@
               "title": "Rule Flood Guard",
               "slug": "rule-flood-guard",
               "type": "page",
-              "order": 3,
+              "order": 5,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6501,7 +7182,7 @@
               "title": "Incidents",
               "slug": "incidents",
               "type": "page",
-              "order": 4,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6520,7 +7201,7 @@
               "title": "Adversary View",
               "slug": "adversary-view",
               "type": "page",
-              "order": 5,
+              "order": 7,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6539,7 +7220,7 @@
               "title": "Alert and Incident Notifications",
               "slug": "alert-and-incident-notifications",
               "type": "page",
-              "order": 6,
+              "order": 8,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6557,7 +7238,7 @@
               "title": "Threat Intelligence and Enrichment",
               "slug": "threat-intelligence",
               "type": "folder",
-              "order": 6,
+              "order": 9,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6651,7 +7332,7 @@
               "title": "Log Explorer and Dashboards",
               "slug": "log-explorer-and-dashboards",
               "type": "folder",
-              "order": 7,
+              "order": 10,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6702,13 +7383,32 @@
               "content_path": "12-x/siem/log-explorer-and-dashboards/log-explorer-sql-mode.mdx"
             },
             {
+              "id": "778d8095-5010-4824-8034-8083e625f7cb",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Log Explorer Query Cookbook",
+              "slug": "log-explorer-query-cookbook",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/log-explorer-query-cookbook.mdx"
+            },
+            {
               "id": "7039aa49-2d37-4d6c-a5c5-c2ac239c4e45",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
               "title": "Filter Operators Reference",
               "slug": "filter-operators-reference",
               "type": "page",
-              "order": 2,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6727,7 +7427,7 @@
               "title": "Dashboards",
               "slug": "dashboards",
               "type": "page",
-              "order": 3,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6740,13 +7440,32 @@
               "content_path": "12-x/siem/log-explorer-and-dashboards/dashboards.mdx"
             },
             {
+              "id": "5d202bf9-6b80-4d95-bcbc-ca6e402241f6",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
+              "title": "Shipped Dashboards",
+              "slug": "shipped-dashboards",
+              "type": "page",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/log-explorer-and-dashboards/shipped-dashboards.mdx"
+            },
+            {
               "id": "e44b173b-97a5-4bbe-bd89-7cfedd014c95",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "1e69ad80-e33c-408f-baa3-56d5aee11960",
               "title": "Dashboard Widgets",
               "slug": "dashboard-widgets",
               "type": "page",
-              "order": 4,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6765,7 +7484,7 @@
               "title": "Dashboards with SOC-AI",
               "slug": "dashboards-with-soc-ai",
               "type": "page",
-              "order": 5,
+              "order": 7,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6783,7 +7502,7 @@
               "title": "Compliance",
               "slug": "compliance",
               "type": "folder",
-              "order": 8,
+              "order": 11,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6815,13 +7534,32 @@
               "content_path": "12-x/siem/compliance/compliance-overview.mdx"
             },
             {
+              "id": "4824ccbc-2783-4d19-9f2f-5eedfad7010d",
+              "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
+              "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
+              "title": "Shipped Compliance Frameworks",
+              "slug": "shipped-frameworks",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/siem/compliance/shipped-frameworks.mdx"
+            },
+            {
               "id": "97bb5d20-30fb-4c91-9d74-de86c9894155",
               "section_id": "5f457d0b-9470-4e2a-bfb3-d191c3201a08",
               "parent_id": "e8fd56a2-2008-45bb-abdd-36f3ee6a46ba",
               "title": "Compliance Reports",
               "slug": "compliance-reports",
               "type": "page",
-              "order": 1,
+              "order": 2,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6840,7 +7578,7 @@
               "title": "Scheduled Compliance Reports",
               "slug": "scheduled-compliance-reports",
               "type": "page",
-              "order": 2,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6859,7 +7597,7 @@
               "title": "Custom Frameworks and Controls",
               "slug": "custom-frameworks-and-controls",
               "type": "page",
-              "order": 3,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6921,13 +7659,32 @@
               "content_path": "12-x/api-documentation/api-documentation/introduction.mdx"
             },
             {
+              "id": "fccec467-4385-4d3f-ac07-c9f9a9a775dc",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "API Quick Start",
+              "slug": "api-quick-start",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/api-quick-start.mdx"
+            },
+            {
               "id": "46daadb9-6f25-4878-b921-ba93af42cb2a",
               "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
               "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
               "title": "Authentication and API Keys",
               "slug": "authentication-and-api-keys",
               "type": "page",
-              "order": 1,
+              "order": 2,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6946,7 +7703,7 @@
               "title": "Alerts API",
               "slug": "alerts-api",
               "type": "page",
-              "order": 2,
+              "order": 3,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6965,7 +7722,7 @@
               "title": "Log Search API",
               "slug": "log-search-api",
               "type": "page",
-              "order": 3,
+              "order": 4,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -6984,7 +7741,7 @@
               "title": "Incidents API",
               "slug": "incidents-api",
               "type": "page",
-              "order": 4,
+              "order": 5,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -7003,7 +7760,7 @@
               "title": "Data Sources API",
               "slug": "data-sources-api",
               "type": "page",
-              "order": 5,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -7016,13 +7773,89 @@
               "content_path": "12-x/api-documentation/api-documentation/data-sources-api.mdx"
             },
             {
+              "id": "b60644a6-e093-43ed-a461-1f872304f9d5",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Integrations API",
+              "slug": "integrations-api",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/integrations-api.mdx"
+            },
+            {
+              "id": "ec6eb6f6-22f6-4e84-9ab4-9b660af82c67",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Rules and Pipelines API",
+              "slug": "rules-and-pipelines-api",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/rules-and-pipelines-api.mdx"
+            },
+            {
+              "id": "72ba7e96-86a3-4974-af93-40b34ee86fcc",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Dashboards API",
+              "slug": "dashboards-api",
+              "type": "page",
+              "order": 9,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/dashboards-api.mdx"
+            },
+            {
+              "id": "3f67e261-c7d8-49f6-a15b-0fab87890414",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Compliance API",
+              "slug": "compliance-api",
+              "type": "page",
+              "order": 10,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/compliance-api.mdx"
+            },
+            {
               "id": "5ab5ffe1-bd49-4d6c-8fb2-dd06c9955e34",
               "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
               "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
               "title": "SOAR API",
               "slug": "soar-api",
               "type": "page",
-              "order": 6,
+              "order": 11,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -7041,7 +7874,7 @@
               "title": "SOC-AI API",
               "slug": "soc-ai-api",
               "type": "page",
-              "order": 7,
+              "order": 12,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -7054,13 +7887,165 @@
               "content_path": "12-x/api-documentation/api-documentation/soc-ai-api.mdx"
             },
             {
+              "id": "cd01b733-f742-43ac-8244-c6f27161606f",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Threat Intelligence API",
+              "slug": "threat-intelligence-api",
+              "type": "page",
+              "order": 13,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/threat-intelligence-api.mdx"
+            },
+            {
+              "id": "85d2c614-5c9d-40bf-a398-3315dfdb34b1",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "User Auditor API",
+              "slug": "user-auditor-api",
+              "type": "page",
+              "order": 14,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/user-auditor-api.mdx"
+            },
+            {
+              "id": "1f7fae00-14af-471a-b426-f3b2a3841b4b",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Users and Roles API",
+              "slug": "users-and-roles-api",
+              "type": "page",
+              "order": 15,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/users-and-roles-api.mdx"
+            },
+            {
+              "id": "976e8f6d-f27d-4f4a-99c4-e8a09ae26764",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Identity Providers API",
+              "slug": "identity-providers-api",
+              "type": "page",
+              "order": 16,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/identity-providers-api.mdx"
+            },
+            {
+              "id": "694b8a43-3639-46c0-994c-1fb741eb33ee",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Tenants API",
+              "slug": "tenants-api",
+              "type": "page",
+              "order": 17,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/tenants-api.mdx"
+            },
+            {
+              "id": "8c9f9cb4-c39e-4036-9008-40c76d9e65ce",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Settings, Branding and Licence API",
+              "slug": "settings-and-licence-api",
+              "type": "page",
+              "order": 18,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/settings-and-licence-api.mdx"
+            },
+            {
+              "id": "7cf0d09c-acd7-4e1c-a14e-74606532c84a",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Audit Log and Notifications API",
+              "slug": "audit-log-and-notifications-api",
+              "type": "page",
+              "order": 19,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/audit-log-and-notifications-api.mdx"
+            },
+            {
+              "id": "e8f845da-8c4e-4ed5-b2a9-4384c27570b7",
+              "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
+              "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
+              "title": "Storage and Retention API",
+              "slug": "storage-api",
+              "type": "page",
+              "order": 20,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/api-documentation/api-documentation/storage-api.mdx"
+            },
+            {
               "id": "103533eb-0b0b-4f6a-91f4-8fe817f1cfb8",
               "section_id": "0000be3b-7d58-4412-be0d-146b697fcce9",
               "parent_id": "12052bf9-9da6-4c80-bcb9-a6460c727485",
               "title": "Reference Tables",
               "slug": "reference-tables",
               "type": "page",
-              "order": 8,
+              "order": 21,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -7281,6 +8266,42 @@
                 "show_tags": true
               },
               "content_path": "12-x/soar/use-cases.mdx"
+            },
+            {
+              "id": "1aa2015d-42a5-4f57-8d3b-ff84001e3e73",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Worked Examples: Responding Through Other Systems",
+              "slug": "worked-examples-third-party-actions",
+              "type": "page",
+              "order": 11,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/worked-examples-third-party-actions.mdx"
+            },
+            {
+              "id": "7a3186b3-fbbb-41e0-8a12-fad73883577c",
+              "section_id": "c8f5bbcd-e464-402b-ba26-65cf61697b15",
+              "title": "Troubleshooting Flows",
+              "slug": "troubleshooting-flows",
+              "type": "page",
+              "order": 12,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/soar/troubleshooting-flows.mdx"
             }
           ]
         },
@@ -8350,6 +9371,25 @@
               "content_path": "12-x/integrations/getting-started/data-sources-page.mdx"
             },
             {
+              "id": "8d3a1564-a289-48b8-bfe5-ebf9ca3929f9",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ad1da724-d51e-494d-9501-ef5c679766b8",
+              "title": "Checking and Troubleshooting Data Collection",
+              "slug": "checking-and-troubleshooting-data-collection",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/getting-started/checking-and-troubleshooting-data-collection.mdx"
+            },
+            {
               "id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
               "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
               "title": "Agents",
@@ -8425,13 +9465,51 @@
               "content_path": "12-x/integrations/agents/macos-agent.mdx"
             },
             {
+              "id": "e60582c1-930a-4554-b2bb-fdddd8736f2b",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Windows Event Forwarding",
+              "slug": "windows-event-forwarding",
+              "type": "page",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/windows-event-forwarding.mdx"
+            },
+            {
+              "id": "c630819b-293d-4535-9395-2db348de17ba",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Deploying Agents at Scale",
+              "slug": "deploying-agents-at-scale",
+              "type": "page",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/deploying-agents-at-scale.mdx"
+            },
+            {
               "id": "c704aab4-bee1-468b-8bdf-a025089b12ad",
               "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
               "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
               "title": "Agent Command Line",
               "slug": "agent-command-line",
               "type": "page",
-              "order": 3,
+              "order": 5,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -8450,7 +9528,7 @@
               "title": "Updates and Status",
               "slug": "updates-and-status",
               "type": "page",
-              "order": 4,
+              "order": 6,
               "source_metadata": {},
               "metadata": {},
               "metadata_visibility": {
@@ -8461,6 +9539,44 @@
                 "show_tags": true
               },
               "content_path": "12-x/integrations/agents/updates-and-status.mdx"
+            },
+            {
+              "id": "cabf46e0-06a0-4afa-bc70-e77ac39b25a7",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Reinstall, Move or Remove an Agent",
+              "slug": "reinstall-move-or-remove-an-agent",
+              "type": "page",
+              "order": 7,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/reinstall-move-or-remove-an-agent.mdx"
+            },
+            {
+              "id": "b6a560fa-78e1-46fe-a886-914c32a50b26",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "b0ae552b-67d6-447f-9d43-5d7b932f3c9c",
+              "title": "Agent Troubleshooting",
+              "slug": "agent-troubleshooting",
+              "type": "page",
+              "order": 8,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/agents/agent-troubleshooting.mdx"
             },
             {
               "id": "fa4f0d1c-cca3-4569-9c95-00e3aae408ec",
@@ -8498,6 +9614,44 @@
                 "show_tags": true
               },
               "content_path": "12-x/integrations/utmstack-forwarder/utmstack-forwarder.mdx"
+            },
+            {
+              "id": "a1cf217d-feb7-4425-a333-b6ec898664a2",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "fa4f0d1c-cca3-4569-9c95-00e3aae408ec",
+              "title": "Forwarder Placement and Sizing",
+              "slug": "forwarder-placement-and-sizing",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/utmstack-forwarder/forwarder-placement-and-sizing.mdx"
+            },
+            {
+              "id": "9ae83464-0e38-4b4f-9bf0-493e4cd48488",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "fa4f0d1c-cca3-4569-9c95-00e3aae408ec",
+              "title": "Forwarder Troubleshooting",
+              "slug": "forwarder-troubleshooting",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/utmstack-forwarder/forwarder-troubleshooting.mdx"
             },
             {
               "id": "78c90b8c-e2fe-4458-abd4-11af078231b6",
@@ -9195,6 +10349,44 @@
                 "show_tags": true
               },
               "content_path": "12-x/integrations/custom/custom-integrations.mdx"
+            },
+            {
+              "id": "4de6cdec-e3d0-4235-8621-c122cc0d21de",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ddc8df50-cb53-495a-9ca5-bd29cca5c06a",
+              "title": "Generic Syslog, CEF and LEEF",
+              "slug": "generic-syslog-cef-leef",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/custom/generic-syslog-cef-leef.mdx"
+            },
+            {
+              "id": "5671edc1-124b-48ab-85cc-3b4180907cd1",
+              "section_id": "d7bf18b7-0b91-47a9-b942-f393466c9906",
+              "parent_id": "ddc8df50-cb53-495a-9ca5-bd29cca5c06a",
+              "title": "JSON Input",
+              "slug": "json-input",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "12-x/integrations/custom/json-input.mdx"
             }
           ]
         }

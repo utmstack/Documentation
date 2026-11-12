@@ -20,6 +20,8 @@ The figures are collected by the statistics plugin and written every 10 minutes,
 
 The page is titled **Data processing**: "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types."
 
+![The Data processing page with the time range buttons, the Ingestion pipeline funnel from Received to Stored with the drops between stages, the Received, Stored, Dropped and Throughput figures, the Throughput over time chart and the Drop composition chart](/assets/563aa3f3-0ffd-40d1-8d10-e621e90009d7)
+
 ### Ingestion pipeline
 
 A funnel with four stages: **Received**, **Parsed**, **Analyzed** and **Stored**. Each stage shows how many logs are left after the drops of the stage before it.
@@ -47,6 +49,12 @@ How the drops split between the stages:
 | **Dropped (analysis)** | Dropped at the analysis stage, where events are stored and checked against rules and threat intelligence. |
 | **Dropped (correlation)** | Dropped at the alert handling stage. |
 
+<Note>
+
+A drop here means the engine could not keep up: the waiting line of a stage was full and the log or alert was discarded. These figures do **not** include logs that a pipeline discards on purpose with a `drop` step, or events lost because a field had the wrong type ("failed to convert log to event" in the engine log). Those logs are counted as received, are not counted as dropped, and so are included in **Stored**, which is calculated from the other figures.
+
+</Note>
+
 ### Top sources & types
 
 The sources or data types with the most logs.
@@ -61,5 +69,6 @@ The sources or data types with the most logs.
 | What you see | What to check |
 |---|---|
 | A source has an old **Last seen** | The source, agent or collector stopped sending. See **Data Sources Page**. |
-| **Dropped (parsing)** is high for one data type | Choose **Dropped (parsing)** and **By data type** in **Top sources & types** to find it. Then test its pipeline with a real sample and look at the `errors` field of its events in Log Explorer. See **Testing Pipelines and Rules**. |
+| Any drop figure above zero | The server was short of capacity at that time. Check the time in **Throughput over time**, and the server's processor and memory use. Choose the drop figure and **By data source** in **Top sources & types** to see which sources were affected. |
+| A source's events are missing in Log Explorer, but it shows as received | The events were discarded by a `drop` step or lost because a field had the wrong type. Neither shows here. Test the source's pipeline with a real sample and read the engine log. See **Testing Pipelines and Rules** and **Writing and Testing Rules and Pipelines**. |
 | Received volume jumps | Group by data source to find the sender. A `drop` step in a custom pipeline can discard logs you never need. |

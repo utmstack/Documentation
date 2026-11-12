@@ -8,7 +8,12 @@ In UTMStack v12 the agent no longer receives syslog. Every integration that send
 | `utmstack_forwarder` | The program on the host, in `/opt/utmstack-forwarder` |
 | `UTMStackForwarder` | The service on the host |
 
-## What it receives
+## How it works
+
+1. A device sends its logs to the Forwarder host, on the port of its integration. Syslog (a standard way for devices to send log lines over the network) is the most common format.
+2. The Forwarder tags every log with the integration's **data type** (for example `firewall-fortigate-traffic`) and with the address of the device that sent it.
+3. It streams the logs to the UTMStack server over port 443, on an encrypted connection.
+4. UTMStack parses each log with the pipeline for that data type, runs the detection rules and stores the result. See **How Data Reaches UTMStack**.
 
 | Listener | Protocols | Typical use |
 |---|---|---|
@@ -16,11 +21,11 @@ In UTMStack v12 the agent no longer receives syslog. Every integration that send
 | NetFlow | UDP (NetFlow v5, v9 and IPFIX) | Network traffic records |
 | HTTP / HTTPS | HTTP, HTTPS | Webhooks and applications that post logs |
 
-The Forwarder sends what it receives straight to UTMStack over port 443. It does not store logs on disk.
+The Forwarder does not parse logs and does not store them on disk. It keeps up to 10,000 logs in memory while it sends them.
 
 <Warning>
 
-The Forwarder does not buffer logs. If the UTMStack server cannot be reached, logs that arrive during the outage are lost. Keep the connection between the Forwarder and UTMStack reliable.
+The Forwarder does not buffer logs on disk. If the UTMStack server cannot be reached, logs that arrive during the outage are lost. Keep the connection between the Forwarder and UTMStack reliable.
 
 </Warning>
 
@@ -28,9 +33,12 @@ The Forwarder does not buffer logs. If the UTMStack server cannot be reached, lo
 
 - A Linux host with an **x86-64 (AMD64)** processor. UTMStack v12 publishes the Forwarder for AMD64 only.
 - The install command in the product uses `apt`, so it is written for **Debian or Ubuntu**.
-- Outbound **443/TCP** from the host to your UTMStack server. The install command checks this first.
+- A direct connection from the host to your UTMStack server on **443/TCP**. The install command checks this first. The Forwarder has no proxy setting.
 - Inbound access from your devices on the ports of the integrations you enable. See **Ports and Network Requirements**.
 - Root rights (`sudo`) on the host.
+- Only one Forwarder can run on a host: the service name and the folder are fixed.
+
+UTMStack does not publish sizing figures for the Forwarder. For where to install it, how many to install and what to watch, see **Forwarder Placement and Sizing**.
 
 ### Where to install it
 
@@ -42,6 +50,10 @@ Several device guides in the product (for example FortiGate, Palo Alto, pfSense,
 
 </Note>
 
+### Multi-tenant installations
+
+With the multi-tenant licence, a Forwarder belongs to the tenant whose install command you used. UTMStack stores every log it receives in that tenant, whatever device sent it. To collect for several tenants, install one Forwarder per tenant, each on its own host, with the command copied inside that tenant. See **Forwarder Placement and Sizing** and **Multi-Tenancy Overview**.
+
 ## Install the Forwarder
 
 <Steps>
@@ -49,10 +61,13 @@ Several device guides in the product (for example FortiGate, Palo Alto, pfSense,
     In UTMStack, go to **Configure > Integrations** and open any card that uses the Collector, for example **Cisco**. Expand **Install the UTMStack Collector** near the bottom of the guide. If no Collector exists yet, you can also choose **Add Collector** in the **Collector** list, which opens the same section.
   </Step>
   <Step title="Copy the command">
-    The command contains your server address and connection key. Only administrators see the key; other users see `*******`.
+    The command contains your server address and connection key. Only administrators see the key; other users see `*******`, and a command copied with `*******` fails to register.
   </Step>
   <Step title="Run it on the Forwarder host">
     Paste the command into a terminal on the host and press Enter.
+  </Step>
+  <Step title="Check that it is online">
+    Open any device guide again. The new Collector appears in the **Collector** list with its host name and IP address, and the count of online Collectors goes up by one.
   </Step>
 </Steps>
 
@@ -71,11 +86,11 @@ sudo bash -c "
 
 The last argument is "skip TLS certificate validation": `yes` accepts the server's self-signed certificate, `no` requires a certificate the host trusts.
 
-The command checks that the server answers on 443, registers the Forwarder, saves its encrypted configuration and starts the `UTMStackForwarder` service. The new Collector then appears in the **Collector** list of every device guide, with its host name, IP address and whether it is online.
+A successful run prints `Checking server connection ... [OK]`, `Downloading version info ... [OK]`, `Configuring collector ... [OK]`, `Creating service ... [OK]` and `UTMStackForwarder service installed correctly`. If a step fails, see **Forwarder Troubleshooting**.
 
 ### Lock the Forwarder against remote changes (optional)
 
-If you add `--no-remote-control` at the end of the `install` line, the Forwarder ignores every configuration change sent from the web interface. You then manage it only with the command line on the host. In the **Collector** list such a Collector shows a lock, and the guide says: "This forwarder was installed with remote control disabled…". This can only be undone by reinstalling.
+If you add `--no-remote-control` at the end of the `install` line, the Forwarder ignores every configuration change sent from the web interface. You then manage it only with the command line on the host. The guide then says: "This forwarder was installed with remote control disabled…". This can only be undone by reinstalling.
 
 ## Enable an integration
 
@@ -87,52 +102,96 @@ Step 1 of every device guide is **Enable this integration remotely**: "Pick a Co
 
 | Field | What to enter |
 |---|---|
-| **Collector** | The Forwarder that should listen. The list shows how many Collectors are online, offline and in total, and ends with **Add Collector**. |
-| **Protocol** | **UDP**, **TCP** or **TLS** for syslog sources; **UDP** only for NetFlow; **HTTPS** for GitHub. |
-| **Port** | Filled in with the default port for the protocol. Change it only if you need to. |
+| **Collector** | The Forwarder that should listen. The list shows how many Collectors are online, offline and in total, and ends with **Add Collector**. It lists only the Collectors of your current tenant. |
+| **Protocol** | **UDP**, **TCP** or **TLS** for syslog sources; **UDP** only for NetFlow; **HTTP** or **HTTPS** for webhooks. |
+| **Port** | Filled in with the default port. For built-in integrations, leave it at the port the Forwarder uses (see "Use a different port" below). |
 | **Authentication**, **Path**, **Signature header** | Only for HTTP and HTTPS listeners. |
 | **TLS certificate** | Only for TLS and HTTPS. Shows whether a certificate is already loaded, and lets you upload **Certificate**, **Private key** and an optional **CA certificate** with **Upload certificate**. |
 
-Click **Enable integration**. The line under the fields shows the result, for example `Currently: enabled · udp · port 514`. To stop the listener, click **Disable integration**.
+Click **Enable integration**. The line under the fields shows the result, for example `Currently: enabled · udp · port 514`. To stop the listener, choose the **same protocol** you enabled and click **Disable integration**.
 
 - While an integration is enabled on the selected Collector, its protocol, port and other fields are locked. Disable it first to change them.
 - You need the `integrations.write` permission. Without it the panel says: "You don't have permission to manage remote integrations…".
 - An offline Collector cannot receive changes: "This Collector is offline and can't receive configuration changes right now."
+- If the Forwarder refuses the change, a message explains why, for example `port 514 is already in use by integration 'firewall-cisco-asa'`. See **Forwarder Troubleshooting**.
+
+<Note>
+
+The **Currently** line shows the last setting sent from the web interface, including the port typed in the panel. It is not read back from the Forwarder, so it does not show the port the Forwarder really listens on. Changes you make with the command line on the host do not appear there.
+
+</Note>
 
 ### From the command line
 
-Open **Optional — Enable via the command line instead** in any device guide to see the command for the protocol and port you selected. Run it on the Forwarder host:
+Run the commands on the Forwarder host with root rights. For a built-in integration you only need the data type and the protocol:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration <data-type> <port> <protocol>
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-fortigate-traffic udp
 ```
 
-All commands need root rights.
+The command prints the port it actually opened, for example `Integration "firewall-fortigate-traffic" enabled on udp port 7005`.
 
 | Command | What it does |
 |---|---|
-| `enable-integration <name> [port] <tcp\|udp\|tls\|http\|https> [--auth bearer\|hmac] [--signature-header <header>]` | Starts a listener. For built-in data types the port is optional and the default is used. A name that is not a built-in data type creates a new custom data type ("New data type … created."); then the port is required. |
-| `disable-integration <name> <protocol>` | Stops a listener. |
-| `change-port <name> <protocol> <port>` | Moves a listener to another port. Use this to change the port of a built-in data type from the command line. |
+| `enable-integration <name> [port] <tcp\|udp\|tls\|http\|https> [--auth bearer\|hmac] [--signature-header <header>]` | Starts a listener. For a built-in data type the port comes from the Forwarder's settings. A name that is not a built-in data type creates a new custom data type ("New data type … created."); then the port is required. |
+| `disable-integration <name> <protocol>` | Stops a listener. Use the protocol you enabled. |
+| `change-port <name> <protocol> <port>` | Changes the port a data type uses. |
 | `load-tls-certs <cert> <key> [ca]` | Loads the certificate used by TLS and HTTPS listeners. |
-| `list-datatypes` | Lists built-in and custom data types. |
+| `list-datatypes` | Lists built-in and custom data types (columns NAME, KIND and ORIGIN). |
 | `remove-datatype <name>` | Deletes a custom data type. Disable it first. Built-in types cannot be removed. |
 | `uninstall` | Stops and removes the service. |
+
+### Use a different port
+
+For built-in data types, the Forwarder always listens on the port saved in its own settings file. It is the default port unless you change it on the host. The port typed in the panel, or given to `enable-integration`, does not change it. To move a built-in integration to another port:
+
+<Steps>
+  <Step title="Change the port on the Forwarder host">
+
+  ```bash
+  sudo /opt/utmstack-forwarder/utmstack_forwarder change-port cisco-switch udp 5140
+  ```
+
+  The command prints `Port changed from 514 to 5140 for integration "cisco-switch" (udp)`.
+
+  </Step>
+  <Step title="Enable the integration">
+    Enable it in the panel and type the same port (5140), so the page shows the port that is really in use. Or run `enable-integration cisco-switch udp` on the host.
+  </Step>
+  <Step title="Point the device at the new port">
+    Change the device's syslog destination to the new port.
+  </Step>
+</Steps>
+
+You need this when two integrations share a default port. The four Cisco integrations all use 514/UDP and 1470/TCP, and only one data type can listen on a given port and protocol of one Forwarder.
 
 ## Use TLS
 
 TLS encrypts syslog between the device and the Forwarder. It uses the TCP port of the integration and accepts TLS 1.2 and 1.3 only.
 
-1. Load a certificate and private key on the Forwarder, once per Collector. Either upload them in the **TLS certificate** box of the web interface, or run:
+1. Get a certificate and private key for the Forwarder host, in PEM format. Use one your devices trust. For a test, you can make a self-signed one on the host:
 
    ```bash
-   sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key
+   sudo openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
+     -keyout /root/forwarder.key -out /root/forwarder.crt \
+     -subj "/CN=forwarder.example.com" \
+     -addext "subjectAltName=DNS:forwarder.example.com,IP:10.0.0.20"
    ```
 
-   You can add a CA certificate as a third argument. Without it, the certificate itself is used as the CA. The files are copied to `certs/integration.crt`, `certs/integration.key` and `certs/integration_ca.crt` in the Forwarder folder.
+   Replace the name and address with the Forwarder host's own. Devices that check certificates must trust it, so import `forwarder.crt` on them.
 
-2. Enable the integration with the protocol **TLS** (`tls` on the command line).
-3. Configure the device to send syslog over TLS to the Forwarder's TCP port.
+2. Load the certificate on the Forwarder, once per Collector. Either upload it in the **TLS certificate** box of the web interface, or run:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /root/forwarder.crt /root/forwarder.key
+   ```
+
+   You can add a CA certificate as a third argument. Without it, the certificate itself is used as the CA. The files are copied to `certs/integration.crt`, `certs/integration.key` and `certs/integration_ca.crt` in the Forwarder folder. The Forwarder sends exactly what is in the certificate file, so if your certificate comes from a certificate authority, put the full chain in that file.
+
+3. Enable the integration with the protocol **TLS** (`tls` on the command line).
+4. Configure the device to send syslog over TLS to the Forwarder's TCP port.
+
+A TCP listener without TLS refuses TLS connections, and a TLS listener refuses plain connections. Both are logged in the Forwarder's log file.
 
 ## HTTP and HTTPS listeners
 
@@ -149,7 +208,17 @@ HTTP and HTTPS listeners accept logs posted by applications and webhooks. The bo
 
 When you enable a listener with a bearer token or HMAC, the Forwarder creates a secret token and shows it once ("Store this token securely — it won't be shown again."). It is kept in `certs/integration-http-<name>.token` in the Forwarder folder.
 
-For sources outside the Forwarder host, use syslog (UDP, TCP or TLS) or the GitHub listener. For your own sources, see **Custom integrations**.
+For sources outside the Forwarder host, use syslog (UDP, TCP or TLS) or the GitHub listener. For your own sources, see **Custom Integrations**.
+
+## Message size and format
+
+| Path | What the Forwarder accepts |
+|---|---|
+| Syslog over UDP | One message per packet. The Forwarder reads at most 2,048 bytes of each message; the rest is cut off. Use TCP or TLS for sources that send long messages. |
+| Syslog over TCP or TLS, newline framing | One message per line. Lines normally start with the syslog priority, for example `<134>`. A line that starts with a digit is read as a length prefix (see the next row), so do not send plain lines that start with a date or an address. |
+| Syslog over TCP or TLS, octet counting | `<length> <message>`, as defined in RFC 5425. Messages up to 8,192 bytes. |
+| HTTP or HTTPS | One request body per log, up to 8 MB. |
+| NetFlow | NetFlow v5, v9 and IPFIX over UDP. v9 and IPFIX records are decoded once the exporter has sent its template. |
 
 ## Built-in data types and default ports
 
@@ -169,7 +238,7 @@ For sources outside the Forwarder host, use syslog (UDP, TCP or TLS) or the GitH
 | `firewall-sonicwall` | SonicWall | 7009 | 7009 |
 | `deceptive-bytes` | Deceptive Bytes | 7010 | 7010 |
 | `antivirus-sentinel-one` | SentinelOne | 7012 | 7012 |
-| `syslog` | Generic syslog (no card on the Integrations page) | 7014 | 7014 |
+| `syslog` | Any device that sends standard syslog, CEF or LEEF (no card of its own; see **Generic Syslog, CEF and LEEF**) | 7014 | 7014 |
 | `ibm-aix` | IBM AIX | 7016 | 7016 |
 | `firewall-pfsense` | pfSense | 7017 | 7017 |
 | `firewall-fortiweb` | Fortinet FortiWeb | 7018 | 7018 |
@@ -196,9 +265,21 @@ All files are in `/opt/utmstack-forwarder`.
 ```bash
 sudo systemctl status UTMStackForwarder
 sudo systemctl restart UTMStackForwarder
+sudo tail -f /opt/utmstack-forwarder/logs/utmstack_forwarder.log
 ```
 
-The Forwarder does not update itself.
+When a listener starts, the log file shows a line such as `Server firewall-fortigate-traffic listening in port: 7005 protocol: UDP`. When the connection to UTMStack is up, it shows `Log stream connected`.
+
+## Update or reinstall the Forwarder
+
+The Forwarder does not update itself. To install a newer build, reinstall it:
+
+1. Write down the integrations that are enabled on it, with their protocols and ports (`list-datatypes` lists the data types; the device guides show the **Currently** line for each).
+2. Keep a copy of your certificate and key if you use TLS or HTTPS.
+3. Run the uninstall command (below), then the install command from the product.
+4. Load the certificate again, and run `change-port` again for any port you had changed. When the reinstalled Forwarder keeps the same entry (see below), it applies the settings last sent from the web interface again as soon as it connects; settings you made on the command line must be made again. If a listener did not come back (for example a TLS or HTTPS one, which needs the certificate first), click **Disable integration** and then **Enable integration** in its guide.
+
+Reinstalling on the same host, with the same host name and IP address, keeps the same entry in the **Collector** list. See **Forwarder Troubleshooting** if the install stops with "hostname has already been registered".
 
 ## Uninstall the Forwarder
 
@@ -211,4 +292,11 @@ sudo bash -c "
 "
 ```
 
-This stops the service and deletes all its files, including certificates, tokens and integration settings.
+This stops the service and deletes all its files, including certificates, tokens and integration settings. The Forwarder's entry stays in the **Collector** list and shows as offline.
+
+## Related pages
+
+- **Forwarder Placement and Sizing**: where to install Forwarders, how many, and high availability.
+- **Forwarder Troubleshooting**: no data, wrong integration, parsing problems and error messages.
+- **Generic Syslog, CEF and LEEF**: devices without a card of their own.
+- **Ports and Network Requirements**: every port in one place.

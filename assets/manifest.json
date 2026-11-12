@@ -2223,5 +2223,1130 @@
     "size": 728707,
     "alt": "Documentation",
     "filename": "87b1718d-b282-49b7-bb54-df4d8174e2ac.png"
+  },
+  {
+    "id": "838b55fc-091c-4016-b050-28e3a739e78b",
+    "name": "v12-tenants-new-tenant.png",
+    "original_name": "v12-tenants-new-tenant.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 571543,
+    "filename": "838b55fc-091c-4016-b050-28e3a739e78b.png"
+  },
+  {
+    "id": "5448e75e-cc2f-41f2-9668-e27090e090e0",
+    "name": "v12-adversary-view.png",
+    "original_name": "v12-adversary-view.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 1054794,
+    "filename": "5448e75e-cc2f-41f2-9668-e27090e090e0.png"
+  },
+  {
+    "id": "15ab43cd-3118-4794-a87f-b1c69583aa03",
+    "name": "v12-alerting-rules.png",
+    "original_name": "v12-alerting-rules.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 512647,
+    "filename": "15ab43cd-3118-4794-a87f-b1c69583aa03.png"
+  },
+  {
+    "id": "adcfa6b4-5531-45ad-87fd-5cb331c7d6e9",
+    "name": "v12-alerting-rules-drawer.png",
+    "original_name": "v12-alerting-rules-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 602948,
+    "filename": "adcfa6b4-5531-45ad-87fd-5cb331c7d6e9.png"
+  },
+  {
+    "id": "95ebf75e-9dbc-4f9d-a4d2-108cdbc52eb6",
+    "name": "v12-alerting-rules-drawer-code.png",
+    "original_name": "v12-alerting-rules-drawer-code.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 671785,
+    "filename": "95ebf75e-9dbc-4f9d-a4d2-108cdbc52eb6.png"
+  },
+  {
+    "id": "743a3c18-c51b-4294-b7dc-ade4ec9ae2e5",
+    "name": "v12-alerting-rules-drawer-test.png",
+    "original_name": "v12-alerting-rules-drawer-test.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 159919,
+    "filename": "743a3c18-c51b-4294-b7dc-ade4ec9ae2e5.png"
+  },
+  {
+    "id": "13eceef8-079c-42cc-a19a-7604085ddcc7",
+    "name": "v12-alerting-rules-new.png",
+    "original_name": "v12-alerting-rules-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 484444,
+    "filename": "13eceef8-079c-42cc-a19a-7604085ddcc7.png"
+  },
+  {
+    "id": "8c9a239e-6de2-44a4-87f9-67f0dfccbd49",
+    "name": "v12-alerting-rules-new-code.png",
+    "original_name": "v12-alerting-rules-new-code.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 444178,
+    "filename": "8c9a239e-6de2-44a4-87f9-67f0dfccbd49.png"
+  },
+  {
+    "id": "09952374-a13f-42cf-a900-afd794f13c27",
+    "name": "v12-alerts-add-filter.png",
+    "original_name": "v12-alerts-add-filter.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 526530,
+    "filename": "09952374-a13f-42cf-a900-afd794f13c27.png"
+  },
+  {
+    "id": "20fd7142-51f6-4dd9-86c2-14fa88484a2b",
+    "name": "v12-alerts-drawer.png",
+    "original_name": "v12-alerts-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 684338,
+    "filename": "20fd7142-51f6-4dd9-86c2-14fa88484a2b.png"
+  },
+  {
+    "id": "bfa8042f-5abc-4ae9-87a0-e934c1e8644a",
+    "name": "v12-alerts-list.png",
+    "original_name": "v12-alerts-list.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 522112,
+    "filename": "bfa8042f-5abc-4ae9-87a0-e934c1e8644a.png"
+  },
+  {
+    "id": "72eaea1c-9506-424c-b1ca-e783dacf0496",
+    "name": "v12-compliance-new-framework.png",
+    "original_name": "v12-compliance-new-framework.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 448002,
+    "filename": "72eaea1c-9506-424c-b1ca-e783dacf0496.png"
+  },
+  {
+    "id": "14329826-e1b0-4f4c-8dd7-ecc9f5212a26",
+    "name": "v12-compliance-schedule.png",
+    "original_name": "v12-compliance-schedule.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 230848,
+    "filename": "14329826-e1b0-4f4c-8dd7-ecc9f5212a26.png"
+  },
+  {
+    "id": "d5da9cf2-4d02-4c76-ab5e-52aa9b24fd6b",
+    "name": "v12-console-overview.png",
+    "original_name": "v12-console-overview.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 319750,
+    "filename": "d5da9cf2-4d02-4c76-ab5e-52aa9b24fd6b.png"
+  },
+  {
+    "id": "92b5fabd-5b07-4eb5-8d13-28e9cf6087e2",
+    "name": "v12-console-tenant-switcher.png",
+    "original_name": "v12-console-tenant-switcher.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 348072,
+    "filename": "92b5fabd-5b07-4eb5-8d13-28e9cf6087e2.png"
+  },
+  {
+    "id": "c9da24f3-37c0-4056-b85b-1c7aa3b60618",
+    "name": "v12-dashboards-add-widget.png",
+    "original_name": "v12-dashboards-add-widget.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 275737,
+    "filename": "c9da24f3-37c0-4056-b85b-1c7aa3b60618.png"
+  },
+  {
+    "id": "be6e4710-4e85-48cd-9533-60fe858df35a",
+    "name": "v12-dashboards-edit.png",
+    "original_name": "v12-dashboards-edit.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 339107,
+    "filename": "be6e4710-4e85-48cd-9533-60fe858df35a.png"
+  },
+  {
+    "id": "dc2f5433-3702-4f32-abe1-0edb557ee9c8",
+    "name": "v12-dashboards-new.png",
+    "original_name": "v12-dashboards-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 531411,
+    "filename": "dc2f5433-3702-4f32-abe1-0edb557ee9c8.png"
+  },
+  {
+    "id": "674ebb6a-0a59-4f34-a3b3-d5843213b230",
+    "name": "v12-dashboards-view.png",
+    "original_name": "v12-dashboards-view.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 335096,
+    "filename": "674ebb6a-0a59-4f34-a3b3-d5843213b230.png"
+  },
+  {
+    "id": "8d550386-203f-4efc-b5ea-c68d52fbb212",
+    "name": "v12-data-processing.png",
+    "original_name": "v12-data-processing.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 302998,
+    "filename": "8d550386-203f-4efc-b5ea-c68d52fbb212.png"
+  },
+  {
+    "id": "03d40c49-5257-45aa-8a77-7c4ef8a07dc0",
+    "name": "v12-datasources.png",
+    "original_name": "v12-datasources.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 321998,
+    "filename": "03d40c49-5257-45aa-8a77-7c4ef8a07dc0.png"
+  },
+  {
+    "id": "953b84a6-292a-4703-a85e-1f7e5d551f45",
+    "name": "v12-datasources-detail.png",
+    "original_name": "v12-datasources-detail.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 506454,
+    "filename": "953b84a6-292a-4703-a85e-1f7e5d551f45.png"
+  },
+  {
+    "id": "88cd02a0-b258-44bd-b1e2-80341e6232e3",
+    "name": "v12-incidents-create.png",
+    "original_name": "v12-incidents-create.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 642084,
+    "filename": "88cd02a0-b258-44bd-b1e2-80341e6232e3.png"
+  },
+  {
+    "id": "bea3f28f-4215-4108-8750-3cfafd20efec",
+    "name": "v12-incidents-drawer.png",
+    "original_name": "v12-incidents-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 604705,
+    "filename": "bea3f28f-4215-4108-8750-3cfafd20efec.png"
+  },
+  {
+    "id": "717a291a-5dd3-42d8-aa03-b70eaf8e0bb9",
+    "name": "v12-incidents-list.png",
+    "original_name": "v12-incidents-list.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 569637,
+    "filename": "717a291a-5dd3-42d8-aa03-b70eaf8e0bb9.png"
+  },
+  {
+    "id": "0fa9a9d5-4567-493f-873d-b9a5c84b0880",
+    "name": "v12-int-aix.png",
+    "original_name": "v12-int-aix.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 170378,
+    "filename": "0fa9a9d5-4567-493f-873d-b9a5c84b0880.png"
+  },
+  {
+    "id": "d0ecb7eb-bc15-4d40-8a54-acdba7a75fa2",
+    "name": "v12-int-as-400.png",
+    "original_name": "v12-int-as-400.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 219867,
+    "filename": "d0ecb7eb-bc15-4d40-8a54-acdba7a75fa2.png"
+  },
+  {
+    "id": "9d3061ee-f244-4037-bd8c-b9e6fe72e776",
+    "name": "v12-int-azure.png",
+    "original_name": "v12-int-azure.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 215559,
+    "filename": "9d3061ee-f244-4037-bd8c-b9e6fe72e776.png"
+  },
+  {
+    "id": "739eaee4-328f-4e9a-b937-24ca2f2c5100",
+    "name": "v12-int-cisco.png",
+    "original_name": "v12-int-cisco.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 175041,
+    "filename": "739eaee4-328f-4e9a-b937-24ca2f2c5100.png"
+  },
+  {
+    "id": "0d780790-ac70-4324-a1bd-61790b8c2b9d",
+    "name": "v12-int-cisco-switch.png",
+    "original_name": "v12-int-cisco-switch.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 163528,
+    "filename": "0d780790-ac70-4324-a1bd-61790b8c2b9d.png"
+  },
+  {
+    "id": "4901f7bc-048d-40c8-96a0-62f2732ed214",
+    "name": "v12-int-crowdstrike.png",
+    "original_name": "v12-int-crowdstrike.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 284169,
+    "filename": "4901f7bc-048d-40c8-96a0-62f2732ed214.png"
+  },
+  {
+    "id": "1439a2d2-0626-4262-b786-afd81052ad3c",
+    "name": "v12-int-deceptive-bytes.png",
+    "original_name": "v12-int-deceptive-bytes.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 186019,
+    "filename": "1439a2d2-0626-4262-b786-afd81052ad3c.png"
+  },
+  {
+    "id": "7c61b338-7ff8-4097-b359-561574ff1c97",
+    "name": "v12-int-eset.png",
+    "original_name": "v12-int-eset.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 163713,
+    "filename": "7c61b338-7ff8-4097-b359-561574ff1c97.png"
+  },
+  {
+    "id": "2fbd446c-782f-4089-87e8-9d590db272cf",
+    "name": "v12-int-fire-power.png",
+    "original_name": "v12-int-fire-power.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 184388,
+    "filename": "2fbd446c-782f-4089-87e8-9d590db272cf.png"
+  },
+  {
+    "id": "a1dab0b7-6a94-4e29-867b-f22e8c28f48f",
+    "name": "v12-int-fortigate.png",
+    "original_name": "v12-int-fortigate.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 172352,
+    "filename": "a1dab0b7-6a94-4e29-867b-f22e8c28f48f.png"
+  },
+  {
+    "id": "618f33cf-1285-4bd4-ad98-d6d346f8ab9c",
+    "name": "v12-dark-adversary-view.png",
+    "original_name": "v12-dark-adversary-view.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 1047320,
+    "filename": "618f33cf-1285-4bd4-ad98-d6d346f8ab9c.png"
+  },
+  {
+    "id": "49531b08-cf52-4407-a771-9fec5a008a64",
+    "name": "v12-dark-alerting-rules-drawer-code.png",
+    "original_name": "v12-dark-alerting-rules-drawer-code.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 680253,
+    "filename": "49531b08-cf52-4407-a771-9fec5a008a64.png"
+  },
+  {
+    "id": "4861a0aa-0290-4400-ab56-ede1c5eee22c",
+    "name": "v12-dark-alerting-rules-drawer-test.png",
+    "original_name": "v12-dark-alerting-rules-drawer-test.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 154661,
+    "filename": "4861a0aa-0290-4400-ab56-ede1c5eee22c.png"
+  },
+  {
+    "id": "5d9e7f44-2f43-484c-b9b5-696b6dd65932",
+    "name": "v12-dark-alerting-rules-drawer.png",
+    "original_name": "v12-dark-alerting-rules-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 607261,
+    "filename": "5d9e7f44-2f43-484c-b9b5-696b6dd65932.png"
+  },
+  {
+    "id": "8773ede9-a6fd-4ab8-a1bc-3ba2ddc575eb",
+    "name": "v12-dark-alerting-rules-new-code.png",
+    "original_name": "v12-dark-alerting-rules-new-code.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 455469,
+    "filename": "8773ede9-a6fd-4ab8-a1bc-3ba2ddc575eb.png"
+  },
+  {
+    "id": "74a41cf4-b56d-49a9-98a6-d39d4af8d44d",
+    "name": "v12-dark-alerting-rules-new.png",
+    "original_name": "v12-dark-alerting-rules-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 492335,
+    "filename": "74a41cf4-b56d-49a9-98a6-d39d4af8d44d.png"
+  },
+  {
+    "id": "0382f76f-d6b9-4eb5-a949-da73637bd0a4",
+    "name": "v12-dark-alerting-rules.png",
+    "original_name": "v12-dark-alerting-rules.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 512039,
+    "filename": "0382f76f-d6b9-4eb5-a949-da73637bd0a4.png"
+  },
+  {
+    "id": "a2934cf8-f030-4678-bb52-abc3ddcc6d72",
+    "name": "v12-dark-alerts-add-filter.png",
+    "original_name": "v12-dark-alerts-add-filter.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 523569,
+    "filename": "a2934cf8-f030-4678-bb52-abc3ddcc6d72.png"
+  },
+  {
+    "id": "b49f580f-a595-427c-bbbf-925c7958a463",
+    "name": "v12-dark-alerts-drawer.png",
+    "original_name": "v12-dark-alerts-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 648533,
+    "filename": "b49f580f-a595-427c-bbbf-925c7958a463.png"
+  },
+  {
+    "id": "1904c3f8-0ddf-4939-83d0-88c5e2f65a7b",
+    "name": "v12-dark-alerts-list.png",
+    "original_name": "v12-dark-alerts-list.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 520946,
+    "filename": "1904c3f8-0ddf-4939-83d0-88c5e2f65a7b.png"
+  },
+  {
+    "id": "dba7cb7d-7c0a-4fe9-9639-d8ad3be3fcce",
+    "name": "v12-dark-compliance-new-framework.png",
+    "original_name": "v12-dark-compliance-new-framework.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 401863,
+    "filename": "dba7cb7d-7c0a-4fe9-9639-d8ad3be3fcce.png"
+  },
+  {
+    "id": "f2d31ed3-4bc6-4f0f-9eae-d177c524467e",
+    "name": "v12-dark-compliance-schedule.png",
+    "original_name": "v12-dark-compliance-schedule.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 227927,
+    "filename": "f2d31ed3-4bc6-4f0f-9eae-d177c524467e.png"
+  },
+  {
+    "id": "67eb660f-fc0b-4260-803e-116e0a88d911",
+    "name": "v12-dark-console-overview.png",
+    "original_name": "v12-dark-console-overview.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 317338,
+    "filename": "67eb660f-fc0b-4260-803e-116e0a88d911.png"
+  },
+  {
+    "id": "3ebb5bfe-4a33-49df-9fea-f7ac6b8a52c1",
+    "name": "v12-dark-console-tenant-switcher.png",
+    "original_name": "v12-dark-console-tenant-switcher.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 344633,
+    "filename": "3ebb5bfe-4a33-49df-9fea-f7ac6b8a52c1.png"
+  },
+  {
+    "id": "3e4a6c90-65dd-487f-9d3d-851265b46be8",
+    "name": "v12-dark-dashboards-add-widget.png",
+    "original_name": "v12-dark-dashboards-add-widget.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 256135,
+    "filename": "3e4a6c90-65dd-487f-9d3d-851265b46be8.png"
+  },
+  {
+    "id": "2c4917c4-be79-46e2-b26a-d1da8af32ac5",
+    "name": "v12-dark-dashboards-edit.png",
+    "original_name": "v12-dark-dashboards-edit.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 336527,
+    "filename": "2c4917c4-be79-46e2-b26a-d1da8af32ac5.png"
+  },
+  {
+    "id": "35d48459-d4e4-409f-90ac-e14cd7f9f085",
+    "name": "v12-dark-dashboards-new.png",
+    "original_name": "v12-dark-dashboards-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 494808,
+    "filename": "35d48459-d4e4-409f-90ac-e14cd7f9f085.png"
+  },
+  {
+    "id": "af829457-d629-41dd-9d56-e6a57399c245",
+    "name": "v12-dark-dashboards-view.png",
+    "original_name": "v12-dark-dashboards-view.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 334982,
+    "filename": "af829457-d629-41dd-9d56-e6a57399c245.png"
+  },
+  {
+    "id": "563aa3f3-0ffd-40d1-8d10-e621e90009d7",
+    "name": "v12-dark-data-processing.png",
+    "original_name": "v12-dark-data-processing.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 296697,
+    "filename": "563aa3f3-0ffd-40d1-8d10-e621e90009d7.png"
+  },
+  {
+    "id": "a2adf136-db00-4652-8ee5-932c373143f0",
+    "name": "v12-dark-datasources-detail.png",
+    "original_name": "v12-dark-datasources-detail.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 439953,
+    "filename": "a2adf136-db00-4652-8ee5-932c373143f0.png"
+  },
+  {
+    "id": "656f1e19-5c8a-4063-b215-a4919c985bb8",
+    "name": "v12-dark-datasources.png",
+    "original_name": "v12-dark-datasources.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 314308,
+    "filename": "656f1e19-5c8a-4063-b215-a4919c985bb8.png"
+  },
+  {
+    "id": "e1ebc60e-aa50-41aa-9c1d-56fb71c64c4c",
+    "name": "v12-dark-incidents-create.png",
+    "original_name": "v12-dark-incidents-create.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 574852,
+    "filename": "e1ebc60e-aa50-41aa-9c1d-56fb71c64c4c.png"
+  },
+  {
+    "id": "f636afa9-b520-44b6-8247-1767c3bbc6ab",
+    "name": "v12-dark-incidents-drawer.png",
+    "original_name": "v12-dark-incidents-drawer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 558376,
+    "filename": "f636afa9-b520-44b6-8247-1767c3bbc6ab.png"
+  },
+  {
+    "id": "cb40730e-ee06-43f1-b889-bff579d20f0e",
+    "name": "v12-dark-incidents-list.png",
+    "original_name": "v12-dark-incidents-list.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 570824,
+    "filename": "cb40730e-ee06-43f1-b889-bff579d20f0e.png"
+  },
+  {
+    "id": "4d537224-f481-47db-97ff-989bc6a60880",
+    "name": "v12-dark-int-aix.png",
+    "original_name": "v12-dark-int-aix.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 170189,
+    "filename": "4d537224-f481-47db-97ff-989bc6a60880.png"
+  },
+  {
+    "id": "86df3c3d-65b5-4f01-a6d0-ba3d00405aac",
+    "name": "v12-dark-int-as-400.png",
+    "original_name": "v12-dark-int-as-400.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 220003,
+    "filename": "86df3c3d-65b5-4f01-a6d0-ba3d00405aac.png"
+  },
+  {
+    "id": "29a4c7be-00dd-475c-8cb0-36b298b38f1a",
+    "name": "v12-dark-int-azure.png",
+    "original_name": "v12-dark-int-azure.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 219451,
+    "filename": "29a4c7be-00dd-475c-8cb0-36b298b38f1a.png"
+  },
+  {
+    "id": "23e31e55-d318-4aee-b290-9de2978fe7e3",
+    "name": "v12-dark-int-cisco-switch.png",
+    "original_name": "v12-dark-int-cisco-switch.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 162608,
+    "filename": "23e31e55-d318-4aee-b290-9de2978fe7e3.png"
+  },
+  {
+    "id": "36f5a873-e77b-4fa7-a079-8c44ac21a3a0",
+    "name": "v12-dark-int-cisco.png",
+    "original_name": "v12-dark-int-cisco.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 174397,
+    "filename": "36f5a873-e77b-4fa7-a079-8c44ac21a3a0.png"
+  },
+  {
+    "id": "9e619bd7-4857-4e9a-a0c7-7a967c1178ec",
+    "name": "v12-dark-int-crowdstrike.png",
+    "original_name": "v12-dark-int-crowdstrike.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 284105,
+    "filename": "9e619bd7-4857-4e9a-a0c7-7a967c1178ec.png"
+  },
+  {
+    "id": "e43ba1ba-0d85-42c0-88db-a43baf3cf553",
+    "name": "v12-dark-int-deceptive-bytes.png",
+    "original_name": "v12-dark-int-deceptive-bytes.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 186179,
+    "filename": "e43ba1ba-0d85-42c0-88db-a43baf3cf553.png"
+  },
+  {
+    "id": "0ff9c9aa-8e99-4a3a-a58c-a61c50d9c8ef",
+    "name": "v12-dark-int-eset.png",
+    "original_name": "v12-dark-int-eset.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 162630,
+    "filename": "0ff9c9aa-8e99-4a3a-a58c-a61c50d9c8ef.png"
+  },
+  {
+    "id": "6a00ec8c-5429-405b-b390-60c846de4bb9",
+    "name": "v12-dark-int-fire-power.png",
+    "original_name": "v12-dark-int-fire-power.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 183512,
+    "filename": "6a00ec8c-5429-405b-b390-60c846de4bb9.png"
+  },
+  {
+    "id": "aa1c4abe-7e62-41e0-8d34-42f28d639c66",
+    "name": "v12-dark-int-fortigate.png",
+    "original_name": "v12-dark-int-fortigate.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 171866,
+    "filename": "aa1c4abe-7e62-41e0-8d34-42f28d639c66.png"
+  },
+  {
+    "id": "9d192d08-35e7-4aa0-a55b-83e6cf28cf36",
+    "name": "v12-dark-int-fortiweb.png",
+    "original_name": "v12-dark-int-fortiweb.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 178558,
+    "filename": "9d192d08-35e7-4aa0-a55b-83e6cf28cf36.png"
+  },
+  {
+    "id": "1b4d7c31-eb3e-4a6d-aec9-cd93b3ecbab1",
+    "name": "v12-dark-int-gcp.png",
+    "original_name": "v12-dark-int-gcp.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 205908,
+    "filename": "1b4d7c31-eb3e-4a6d-aec9-cd93b3ecbab1.png"
+  },
+  {
+    "id": "01e79f61-8086-4421-b405-1f53bd5531cf",
+    "name": "v12-dark-int-github.png",
+    "original_name": "v12-dark-int-github.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 146588,
+    "filename": "01e79f61-8086-4421-b405-1f53bd5531cf.png"
+  },
+  {
+    "id": "ad76220f-5fdb-42a9-9fd5-6cd4857ac81d",
+    "name": "v12-dark-int-kaspersky.png",
+    "original_name": "v12-dark-int-kaspersky.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 178515,
+    "filename": "ad76220f-5fdb-42a9-9fd5-6cd4857ac81d.png"
+  },
+  {
+    "id": "0bac86e4-6d67-46e5-b99d-1a6449d74731",
+    "name": "v12-dark-int-linux-agent.png",
+    "original_name": "v12-dark-int-linux-agent.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 230779,
+    "filename": "0bac86e4-6d67-46e5-b99d-1a6449d74731.png"
+  },
+  {
+    "id": "40c087eb-aaf5-45e8-94c9-2aa6da10147d",
+    "name": "v12-dark-int-macos.png",
+    "original_name": "v12-dark-int-macos.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 193408,
+    "filename": "40c087eb-aaf5-45e8-94c9-2aa6da10147d.png"
+  },
+  {
+    "id": "359df8e6-a7f3-4c95-918d-3d755318c480",
+    "name": "v12-dark-int-meraki.png",
+    "original_name": "v12-dark-int-meraki.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 171887,
+    "filename": "359df8e6-a7f3-4c95-918d-3d755318c480.png"
+  },
+  {
+    "id": "8a9e3446-04d9-4c3f-bbc4-aa405a7aad23",
+    "name": "v12-dark-int-mikrotik.png",
+    "original_name": "v12-dark-int-mikrotik.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 175716,
+    "filename": "8a9e3446-04d9-4c3f-bbc4-aa405a7aad23.png"
+  },
+  {
+    "id": "4a4a4327-6a12-4f22-b36a-d49243aa1f3a",
+    "name": "v12-dark-int-netflow.png",
+    "original_name": "v12-dark-int-netflow.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 174245,
+    "filename": "4a4a4327-6a12-4f22-b36a-d49243aa1f3a.png"
+  },
+  {
+    "id": "de5baa6d-1458-4782-8e87-803e6d1b9010",
+    "name": "v12-dark-int-o365.png",
+    "original_name": "v12-dark-int-o365.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 179387,
+    "filename": "de5baa6d-1458-4782-8e87-803e6d1b9010.png"
+  },
+  {
+    "id": "4bef4140-ce28-4ee3-bc08-aa2e2b393fa0",
+    "name": "v12-dark-int-oracle.png",
+    "original_name": "v12-dark-int-oracle.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 154768,
+    "filename": "4bef4140-ce28-4ee3-bc08-aa2e2b393fa0.png"
+  },
+  {
+    "id": "6ef73f81-4395-4532-98b2-c6c243b3b719",
+    "name": "v12-dark-int-palo-alto.png",
+    "original_name": "v12-dark-int-palo-alto.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 173801,
+    "filename": "6ef73f81-4395-4532-98b2-c6c243b3b719.png"
+  },
+  {
+    "id": "f72460ca-5154-4af5-832a-dbe8f0ec06d8",
+    "name": "v12-dark-int-pfsense.png",
+    "original_name": "v12-dark-int-pfsense.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 186176,
+    "filename": "f72460ca-5154-4af5-832a-dbe8f0ec06d8.png"
+  },
+  {
+    "id": "5a03c7f0-a8b1-4ee0-80c1-e1c0a1f7d6a0",
+    "name": "v12-dark-int-sentinel-one.png",
+    "original_name": "v12-dark-int-sentinel-one.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 159148,
+    "filename": "5a03c7f0-a8b1-4ee0-80c1-e1c0a1f7d6a0.png"
+  },
+  {
+    "id": "3e368e87-e46e-439e-bd2f-123536aa878a",
+    "name": "v12-dark-int-sonic-wall.png",
+    "original_name": "v12-dark-int-sonic-wall.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 195975,
+    "filename": "3e368e87-e46e-439e-bd2f-123536aa878a.png"
+  },
+  {
+    "id": "019f1dd0-4037-4856-8935-c1b4ffbf8010",
+    "name": "v12-dark-int-sophos-xg.png",
+    "original_name": "v12-dark-int-sophos-xg.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 193169,
+    "filename": "019f1dd0-4037-4856-8935-c1b4ffbf8010.png"
+  },
+  {
+    "id": "33cde54d-1088-4c91-bf0f-0074044129b6",
+    "name": "v12-dark-int-sophos.png",
+    "original_name": "v12-dark-int-sophos.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 388179,
+    "filename": "33cde54d-1088-4c91-bf0f-0074044129b6.png"
+  },
+  {
+    "id": "f022c329-7a7a-472b-8810-56d17ce95e05",
+    "name": "v12-dark-int-suricata.png",
+    "original_name": "v12-dark-int-suricata.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 167600,
+    "filename": "f022c329-7a7a-472b-8810-56d17ce95e05.png"
+  },
+  {
+    "id": "63854b41-321e-4532-b52f-0c8cc690c7c0",
+    "name": "v12-dark-int-utmstack.png",
+    "original_name": "v12-dark-int-utmstack.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 212511,
+    "filename": "63854b41-321e-4532-b52f-0c8cc690c7c0.png"
+  },
+  {
+    "id": "9a26a9bd-d556-4f7b-b597-33f58669ea02",
+    "name": "v12-dark-int-vmware.png",
+    "original_name": "v12-dark-int-vmware.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 183756,
+    "filename": "9a26a9bd-d556-4f7b-b597-33f58669ea02.png"
+  },
+  {
+    "id": "dbff67c5-d426-4960-a50e-8851c92273b8",
+    "name": "v12-dark-int-windows-agent.png",
+    "original_name": "v12-dark-int-windows-agent.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 169876,
+    "filename": "dbff67c5-d426-4960-a50e-8851c92273b8.png"
+  },
+  {
+    "id": "c2f44659-cfbf-43cb-aa33-de6ab9844cf7",
+    "name": "v12-dark-integrations-custom-new.png",
+    "original_name": "v12-dark-integrations-custom-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 357492,
+    "filename": "c2f44659-cfbf-43cb-aa33-de6ab9844cf7.png"
+  },
+  {
+    "id": "b933797c-1c9a-4bc6-8260-ed9b6a72b157",
+    "name": "v12-dark-log-explorer-event-detail.png",
+    "original_name": "v12-dark-log-explorer-event-detail.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 382392,
+    "filename": "b933797c-1c9a-4bc6-8260-ed9b6a72b157.png"
+  },
+  {
+    "id": "bc2dc230-c491-461c-86a3-32c46dee1907",
+    "name": "v12-dark-log-explorer-sql-mode.png",
+    "original_name": "v12-dark-log-explorer-sql-mode.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 250912,
+    "filename": "bc2dc230-c491-461c-86a3-32c46dee1907.png"
+  },
+  {
+    "id": "99997e7f-f0ce-4cde-9317-9776e8e2e9af",
+    "name": "v12-dark-log-explorer.png",
+    "original_name": "v12-dark-log-explorer.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 635076,
+    "filename": "99997e7f-f0ce-4cde-9317-9776e8e2e9af.png"
+  },
+  {
+    "id": "c81e10ca-2f82-4f1b-b383-d59f8925762f",
+    "name": "v12-dark-pipelines-new.png",
+    "original_name": "v12-dark-pipelines-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 322249,
+    "filename": "c81e10ca-2f82-4f1b-b383-d59f8925762f.png"
+  },
+  {
+    "id": "6ed8d97a-42c1-4cab-af3e-31779156bfec",
+    "name": "v12-dark-pipelines-test.png",
+    "original_name": "v12-dark-pipelines-test.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 124773,
+    "filename": "6ed8d97a-42c1-4cab-af3e-31779156bfec.png"
+  },
+  {
+    "id": "366b63ad-1f99-4262-9d66-797e2706c3f3",
+    "name": "v12-dark-pipelines.png",
+    "original_name": "v12-dark-pipelines.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 362367,
+    "filename": "366b63ad-1f99-4262-9d66-797e2706c3f3.png"
+  },
+  {
+    "id": "e5032dc1-ef46-4da2-8ce5-aed4d6b1fe42",
+    "name": "v12-dark-settings-about.png",
+    "original_name": "v12-dark-settings-about.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 256929,
+    "filename": "e5032dc1-ef46-4da2-8ce5-aed4d6b1fe42.png"
+  },
+  {
+    "id": "c44bf08d-9958-4d53-8e00-9eb67198a68f",
+    "name": "v12-dark-settings-api-keys-new.png",
+    "original_name": "v12-dark-settings-api-keys-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 359688,
+    "filename": "c44bf08d-9958-4d53-8e00-9eb67198a68f.png"
+  },
+  {
+    "id": "0e285f93-e528-4dd0-a34d-b76ee83ef248",
+    "name": "v12-dark-settings-api-keys.png",
+    "original_name": "v12-dark-settings-api-keys.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 259149,
+    "filename": "0e285f93-e528-4dd0-a34d-b76ee83ef248.png"
+  },
+  {
+    "id": "527c6ec1-4e8f-40f8-af3e-cde265f9f039",
+    "name": "v12-dark-settings-audit-logs.png",
+    "original_name": "v12-dark-settings-audit-logs.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 424823,
+    "filename": "527c6ec1-4e8f-40f8-af3e-cde265f9f039.png"
+  },
+  {
+    "id": "cc4ef33f-2504-4c3c-8372-c0df7e468217",
+    "name": "v12-dark-settings-branding.png",
+    "original_name": "v12-dark-settings-branding.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 207597,
+    "filename": "cc4ef33f-2504-4c3c-8372-c0df7e468217.png"
+  },
+  {
+    "id": "a39b4a8c-394e-40de-b49f-13e25ba65fc9",
+    "name": "v12-dark-settings-connection-key.png",
+    "original_name": "v12-dark-settings-connection-key.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 232444,
+    "filename": "a39b4a8c-394e-40de-b49f-13e25ba65fc9.png"
+  },
+  {
+    "id": "afcceb0c-a54c-4ffd-a945-17c716a5de90",
+    "name": "v12-dark-settings-data-retention.png",
+    "original_name": "v12-dark-settings-data-retention.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 287812,
+    "filename": "afcceb0c-a54c-4ffd-a945-17c716a5de90.png"
+  },
+  {
+    "id": "6f31ab8b-53d3-4ba1-a8d9-4a43f4d9589d",
+    "name": "v12-dark-settings-date-format.png",
+    "original_name": "v12-dark-settings-date-format.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 169922,
+    "filename": "6f31ab8b-53d3-4ba1-a8d9-4a43f4d9589d.png"
+  },
+  {
+    "id": "f4f0ad53-42da-4b5c-8665-3aa3d5b5f0b5",
+    "name": "v12-dark-settings-email.png",
+    "original_name": "v12-dark-settings-email.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 228319,
+    "filename": "f4f0ad53-42da-4b5c-8665-3aa3d5b5f0b5.png"
+  },
+  {
+    "id": "ac3039dd-009c-42b1-bcc4-e40c1c2437fb",
+    "name": "v12-dark-settings-identity-providers-add.png",
+    "original_name": "v12-dark-settings-identity-providers-add.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 321315,
+    "filename": "ac3039dd-009c-42b1-bcc4-e40c1c2437fb.png"
+  },
+  {
+    "id": "ad799997-eeb9-4135-9238-6fe71dd87db8",
+    "name": "v12-dark-settings-identity-providers.png",
+    "original_name": "v12-dark-settings-identity-providers.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 256984,
+    "filename": "ad799997-eeb9-4135-9238-6fe71dd87db8.png"
+  },
+  {
+    "id": "b70a3765-65a6-4d67-9b65-a72778ec43e0",
+    "name": "v12-dark-settings-language.png",
+    "original_name": "v12-dark-settings-language.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 145830,
+    "filename": "b70a3765-65a6-4d67-9b65-a72778ec43e0.png"
+  },
+  {
+    "id": "d72a82c7-fdaa-405a-bfea-8b8b3648ab56",
+    "name": "v12-dark-settings-license.png",
+    "original_name": "v12-dark-settings-license.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 208890,
+    "filename": "d72a82c7-fdaa-405a-bfea-8b8b3648ab56.png"
+  },
+  {
+    "id": "79da268c-27e4-48ce-8fa2-e888f1e34279",
+    "name": "v12-dark-settings-soc-ai.png",
+    "original_name": "v12-dark-settings-soc-ai.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 223398,
+    "filename": "79da268c-27e4-48ce-8fa2-e888f1e34279.png"
+  },
+  {
+    "id": "acb09dcc-5184-4700-bf1e-10f82a6e4ec9",
+    "name": "v12-dark-soar-flow-editor.png",
+    "original_name": "v12-dark-soar-flow-editor.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 302152,
+    "filename": "acb09dcc-5184-4700-bf1e-10f82a6e4ec9.png"
+  },
+  {
+    "id": "7cf94060-ee1b-4bd9-930d-11b00408d574",
+    "name": "v12-dark-soar-flows.png",
+    "original_name": "v12-dark-soar-flows.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 490596,
+    "filename": "7cf94060-ee1b-4bd9-930d-11b00408d574.png"
+  },
+  {
+    "id": "24a106cf-01f0-4f3b-9f07-fdbab00e9aa7",
+    "name": "v12-dark-soar-interactive-console.png",
+    "original_name": "v12-dark-soar-interactive-console.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 234592,
+    "filename": "24a106cf-01f0-4f3b-9f07-fdbab00e9aa7.png"
+  },
+  {
+    "id": "d1b2497c-5516-40b0-8061-18c5790e4398",
+    "name": "v12-dark-soar-new-flow.png",
+    "original_name": "v12-dark-soar-new-flow.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 574363,
+    "filename": "d1b2497c-5516-40b0-8061-18c5790e4398.png"
+  },
+  {
+    "id": "030ebe60-75be-451b-a6cf-9ae976fdf270",
+    "name": "v12-dark-tagging-rules-new.png",
+    "original_name": "v12-dark-tagging-rules-new.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 384117,
+    "filename": "030ebe60-75be-451b-a6cf-9ae976fdf270.png"
+  },
+  {
+    "id": "5dc25dbc-2799-4202-9310-ff7b657d623a",
+    "name": "v12-dark-tagging-rules.png",
+    "original_name": "v12-dark-tagging-rules.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 328348,
+    "filename": "5dc25dbc-2799-4202-9310-ff7b657d623a.png"
+  },
+  {
+    "id": "ee8cb10b-6751-4cbd-9a98-cb6249e63fd6",
+    "name": "v12-dark-team.png",
+    "original_name": "v12-dark-team.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 378836,
+    "filename": "ee8cb10b-6751-4cbd-9a98-cb6249e63fd6.png"
+  },
+  {
+    "id": "e69066e5-90fb-40cf-a5fa-67c454f9a35e",
+    "name": "v12-dark-tenants-edit-tenant.png",
+    "original_name": "v12-dark-tenants-edit-tenant.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 540208,
+    "filename": "e69066e5-90fb-40cf-a5fa-67c454f9a35e.png"
+  },
+  {
+    "id": "7ba74663-15f3-4593-a37c-69b4b43c4411",
+    "name": "v12-dark-tenants-inside-banner.png",
+    "original_name": "v12-dark-tenants-inside-banner.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 333917,
+    "filename": "7ba74663-15f3-4593-a37c-69b4b43c4411.png"
+  },
+  {
+    "id": "277719fc-43eb-4a51-b651-b7bff55db321",
+    "name": "v12-dark-tenants-new-tenant.png",
+    "original_name": "v12-dark-tenants-new-tenant.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 537194,
+    "filename": "277719fc-43eb-4a51-b651-b7bff55db321.png"
+  },
+  {
+    "id": "5973eac4-810f-41ae-b4fb-f306e87aa859",
+    "name": "v12-dark-tenants.png",
+    "original_name": "v12-dark-tenants.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 424597,
+    "filename": "5973eac4-810f-41ae-b4fb-f306e87aa859.png"
+  },
+  {
+    "id": "f0f77a42-ab4e-4e2e-93d1-658a70794723",
+    "name": "v12-dark-threat-intel-indicator-detail.png",
+    "original_name": "v12-dark-threat-intel-indicator-detail.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 518776,
+    "filename": "f0f77a42-ab4e-4e2e-93d1-658a70794723.png"
+  },
+  {
+    "id": "a5e91ace-b9fb-46f0-b827-28201dcc415a",
+    "name": "v12-dark-threat-intel-indicators.png",
+    "original_name": "v12-dark-threat-intel-indicators.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 311527,
+    "filename": "a5e91ace-b9fb-46f0-b827-28201dcc415a.png"
+  },
+  {
+    "id": "ba12224b-67b2-4608-a70f-694fb39fcc8d",
+    "name": "v12-dark-user-auditor-account.png",
+    "original_name": "v12-dark-user-auditor-account.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 485642,
+    "filename": "ba12224b-67b2-4608-a70f-694fb39fcc8d.png"
   }
 ]

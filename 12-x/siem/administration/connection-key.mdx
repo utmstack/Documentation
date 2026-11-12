@@ -23,6 +23,8 @@ The key is not used to sign in to the web interface or the API. For the API, use
 2. Check **Status**. **Active** means agents can register with the key. **Agent-manager unavailable** means UTMStack could not reach the service that manages agents; click **Retry** after a moment.
 3. Click **Show key** to see it, or **Copy** to copy it.
 
+![The Connection key page with the Active status, the hidden key with its show and Copy buttons, the Regenerate connection key button and the security recommendations](/assets/a39b4a8c-394e-40de-b49f-13e25ba65fc9)
+
 <Warning>
 
 Treat the key as a password. Anyone who has it can register a machine with your server. Do not store it in source control; keep it in a secret manager and pass it to your installation scripts from there.
@@ -56,3 +58,14 @@ New installations need the new key. The install commands in **Integrations** sho
 </Steps>
 
 Agents that are already registered keep working after you regenerate the key. There is no undo: the old key cannot be restored.
+
+## Troubleshooting
+
+| What you see | Cause | Fix |
+|---|---|---|
+| Status **Agent-manager unavailable** | The backend cannot reach the agent manager service | Click **Retry**. If it stays, check the service on the server with `docker service ps utmstack_agentmanager` and `docker service logs --tail 100 utmstack_agentmanager`. |
+| New agent installations fail to register after you regenerated the key | The install command or script still contains the old key | Copy the install command again from **Integrations**, or update the key in your script. |
+| An agent registers in the wrong tenant | The install command was copied while working in another tenant | Copy the install command from the tenant the agent belongs to. |
+| You cannot see the page in the menu, or opening it by its address shows **Agent-manager unavailable** | You do not have the **Administrator** role: the key is shown only to that role, whatever permissions a custom role has | Ask an administrator. |
+
+On a multi-tenant server, see **Multi-Tenancy Overview** for how tenants and agents relate.

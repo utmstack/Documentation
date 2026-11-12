@@ -6,6 +6,8 @@ Go to **Threat Management > Adversary View**. You need the `alerts.read` permiss
 
 ## Read the chart
 
+![The Adversary View with the time range, refresh and Add filter controls above a chart that links adversary addresses on the left, alert names in the middle and victim systems on the right with bands](/assets/618f33cf-1285-4bd4-ad98-d6d346f8ab9c)
+
 The chart has three columns:
 
 | Column | Each box is |
@@ -34,3 +36,15 @@ Above the chart you find:
 - Only alerts that have a target are drawn. Alerts that name an adversary but no target (for example some Linux alerts) do not appear. When no alert in the range has both, the page says **No adversaries match.**
 
 To see every alert, including those without a target, use **Threat Management > Alerts**.
+
+## Use it in an investigation
+
+| Question | How to answer it on the chart |
+|---|---|
+| Which attackers are the busiest? | Look for the widest bands on the left. Adversary boxes colored for High severity come first in your review. |
+| Did one attacker reach several of my systems? | Follow the bands from one adversary through its alert names to the victims on the right. Several victims from one adversary is a reason to open an incident. |
+| Is one system attacked from many places? | Look for a victim box with many bands arriving. Add **Target host** **is** that host to see only its attackers. |
+| What is known about an attacker? | Hover over its box for country, network owner (ASO) and other details. Then look the address up on **Threat Intelligence > Indicators**. |
+| Which of these alerts are still open? | Add **Status** **is** `Open`. |
+
+When you have found what you need, go to **Threat Management > Alerts**, filter on the same adversary or victim, and select the alerts to **Add to incident**. See **Alert Triage Workflow** and **Incidents**.

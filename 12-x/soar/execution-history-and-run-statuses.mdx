@@ -17,14 +17,29 @@ Open it from **SOAR > Execution history**.
 | Column | What it shows |
 |---|---|
 | **Status** | The step's status, plus the cause when it could not run. |
-| **Flow** | The flow name. Console commands show "Interactive console". |
-| **Node** | The step identifier in the flow (for example `step_1`). |
+| **Flow** | The flow name, with the alert ID below it. Console commands show who ran them. |
+| **Node** | The step identifier in the flow, after the steps that lead to it (for example `step_0 -> step_1`). Console commands show "Interactive console". |
 | **Command / Action** | The command that was sent, or the action of a non-shell step. Secret variables show as `****`. |
 | **Agent** | The machine the step ran on. |
 | **Date** | When the step started. |
 | **Retries** | How many times the server retried the step. |
 
-The page does not show a step's output. Test commands in the **Interactive Console** to see their output.
+Point at a long command to see it in full.
+
+For steps that run no command, the **Command / Action** column shows a one-line summary of what the step was set to do:
+
+| Step type | Summary shown |
+|---|---|
+| HTTP call | Method and address, for example `POST https://hooks.slack.com/services/…` |
+| Send email | `mail to <recipients> — <subject>` |
+| LLM enrichment | `LLM: <prompt>` |
+| Send notification | `notify (<level>): <message>` |
+| Open incident | `open incident: <name>` |
+| Conditional | `if: <field> <operator> <value>`, plus "AND N more" when there are several conditions |
+
+The summary shows values after placeholders were filled in, so it is also the quickest way to check what an alert value turned into. Everyone who can open this page sees the full addresses, including secret parts of webhook addresses typed into an HTTP call step.
+
+The page does not show a step's result (the command output, the HTTP answer or the error text). Read it in the `result` field of `GET /api/v1/soar/rule-executions` (see **SOAR API**), or test commands in the **Interactive Console** to see their output.
 
 ## Statuses
 
@@ -32,7 +47,7 @@ The page does not show a step's output. Test commands in the **Interactive Conso
 |---|---|---|
 | `WAITING` | **Waiting** | The step was just created by an incoming wire and is being prepared. A step that stays Waiting could not be prepared (see **Placeholders** for one cause). |
 | `PENDING` | **Pending** | Ready and waiting for the server to pick it up. |
-| `EXECUTING` | **Executing** | Running now. A step stuck here for about 6 minutes is closed: AI and conditional steps are queued again, other steps are marked Failed. |
+| `EXECUTING` | **Executing** | Running now. A step is stopped and marked Failed after 5 minutes. A step left here by a server restart is closed after about 6 minutes: AI and conditional steps are queued again, other steps are marked Failed. |
 | `EXECUTED` | **Executed** | Finished successfully. Its green wires ran. |
 | `FAILED` | **Failed** | Finished with an error, or could not reach its machine. Its red wires ran. A **Conditional** step whose conditions did not match also shows Failed. |
 | `DEAD` | **Unreachable** | The step was on the wire that was not taken, so it did not run. |
@@ -47,8 +62,13 @@ When a step could not run, the status can show a cause:
 |---|---|---|
 | `AGENT_OFFLINE` | **Agent offline** | The machine's agent was not connected. |
 | `UNKNOWN` | **Unknown** | Another problem, for example the flow was deleted while it ran. |
+| `DISPATCHER_LOST` | no label; a text ending in `DISPATCHER_LOST` | The step was still **Executing** when the UTMStack server restarted, and was closed about 6 minutes later. Check on the machine whether the command ran. |
 
-A shell step whose host name matches no agent is marked **Failed** without a cause.
+A shell step whose host name matches no agent is marked **Failed** without a cause; its result reads `soar shell: agent not found`. The label **Agent not found** exists on the page but is not used in UTMStack v12.0.2.
+
+## Interactive Console rows
+
+Console commands have the origin **Manual**, show "Interactive console" in the **Node** column and the user who ran them in the **Flow** column. Their status reflects the connection, not the command: a console command that ended with an error is still recorded as **Executed**. Only a broken connection to the agent records **Failed**. Look at the output in the console itself.
 
 ## Keeping history
 
@@ -67,3 +87,4 @@ Nothing deletes old history rows in UTMStack v12.0.2.
 - **Flows Page**
 - **Building a Flow**
 - **Interactive Console**
+- **Troubleshooting Flows**

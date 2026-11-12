@@ -1,0 +1,189 @@
+Every alert in UTMStack v12 is a record with a fixed set of fields. This page lists each field, what it holds, where it comes from, where you see it on screen, and how to search on it in **Threat Management > Alerts**, in **Log Explorer** (dataset `alerts`) and in SQL mode. Use it when you filter alerts, write tagging rules, build dashboard widgets on alerts, or write a rule's `groupBy` and `deduplicateBy` lists.
+
+## Where alert fields come from
+
+An alert is built in three stages, and each field is filled at one of them:
+
+| Stage | Fields filled | See |
+|---|---|---|
+| The rule matches | Name, category, technique, description, solution, references, impact, the `groupBy` and `deduplicateBy` lists | **Rule File Format** |
+| The last matching event | Tenant, data source, data type, the adversary and target sides, the last event and a sample of events | **How Alerts Are Created** |
+| Your team works the alert | Status, status note, tags, notes, assignee, incident link, history | **Alerts** |
+
+Alerts are kept in the `alerts` table of the event store, for 730 days by default (see **Data Retention and Cold Storage**). Every search on alerts, on any screen and in SQL, only returns alerts of the tenant you are working in.
+
+## Three ways to search alerts
+
+| Where | How | Best for |
+|---|---|---|
+| **Threat Management > Alerts**, **Add filter** | Pick one of 34 fields by its label, then **contains**, **is**, **is not**, **exists** or **does not exist**. Only top-level alerts are listed. | Day-to-day triage |
+| **Log Explorer**, dataset `alerts` | Choose `alerts` in the dataset selector, then **Add filter** on any field by its stored name. Echoes are included. The search box is disabled for alerts. | Fields the Alerts page does not offer, such as `lastEvent.log.*` |
+| **Log Explorer**, SQL mode | `SELECT … FROM alerts WHERE …`. Echoes are included unless you add `parentId = ''`. | Counting, grouping, comparing |
+
+See **Alerts**, **Log Explorer**, **Log Explorer SQL Mode** and **Filter Operators Reference**.
+
+## Identity and time
+
+| Field | Label on screen | Type | What it holds |
+|---|---|---|---|
+| `id` | **Alert ID** (alert panel, Summary tab) | Text | The alert's unique id, a UUID such as `0f1c…`. Alert emails show its first 8 characters in the subject. |
+| `@timestamp` | **Time** column | Date and time (UTC) | When UTMStack raised the alert: the time the server processed the event that completed the match, not the time the event happened on the device. |
+| `lastUpdate` | Not shown | Date and time (UTC) | When the alert was last changed (status, notes, tags and so on). |
+| `parentId` | Not shown | Text | Empty for a top-level alert. For an echo, the `id` of the top-level alert it is grouped under. |
+| `tenantId`, `tenantName` | Not shown | Text | The tenant. UTMStack adds the tenant condition to every search for you. |
+
+**Search examples**
+
+- Log Explorer filter: `id` **is** `<alert id>`.
+- SQL, top-level alerts only: `WHERE parentId = ''`.
+- SQL, the echoes of one alert: `WHERE parentId = '<alert id>'`.
+
+## What was detected
+
+| Field | Label on screen | Type | What it holds |
+|---|---|---|---|
+| `name` | **Alert** column; **Alert name** in **Add filter** | Text | The name of the rule that raised the alert, for example `Windows: Possible Brute Force Attack`. Threat intelligence alerts use `Known Malicious IP Detected`, `Known Malicious Domain Detected` or `Known Malicious Host Detected`. |
+| `category` | **Category** | Text | The rule's category, usually a MITRE ATT&CK tactic such as `Credential Access` or `Defense Evasion`. Threat intelligence alerts use `Threat Intelligence`. |
+| `technique` | **Technique** | Text | The rule's technique, usually a MITRE ATT&CK id and name such as `T1110 - Brute Force`. The alert panel links ids to attack.mitre.org. Some vendor rules use a plain text such as `Vendor threat detection`. |
+| `description` | **Description** | Text | What the rule detects. |
+| `solution` | **Solution** | Text | What the rule suggests you do. When an incident is completed, the incident's solution is written to the linked alerts' status note, not to this field. |
+| `references` | **References** | List of text | Links from the rule, often MITRE ATT&CK pages. |
+| `dataType` | **Data type** | Text | The data type of the event that completed the match, for example `wineventlog`, `linux`, `o365` or `firewall-fortigate-traffic`. |
+| `dataSource` | **Sensor** in **Add filter** and in the alert details; under the alert name in the list | Text | The device or integration that sent the event, for example a host name. If it matches one of your assets, it shows the asset's name. |
+
+**Search examples**
+
+- Alerts page: **Add filter** > **Alert name** > **contains** > `brute force` (letter case is ignored).
+- Alerts page: **Add filter** > **Technique** > **is** > `T1110 - Brute Force` (exact text).
+- SQL, alerts per tactic: `SELECT category, count() AS alert_count FROM alerts WHERE parentId = '' GROUP BY category ORDER BY alert_count DESC`.
+
+## How serious it is
+
+| Field | Label on screen | Type | What it holds |
+|---|---|---|---|
+| `severity` | **Severity** | One of `low`, `medium`, `high` | Worked out from `impactScore`: 3 is high, 2 medium, 1 or 0 low. The Alerts page shows High, Medium and Low. |
+| `impact.confidentiality`, `impact.integrity`, `impact.availability` | **Confidentiality**, **Integrity**, **Availability** in **Add filter** | Whole number, 0 to 3 | The rule's impact values, adjusted by the asset sensitivity of the target host when that host is rated on the **Data Sources** page. |
+| `impactScore` | **Risk** | Whole number, 0 to 3 | The highest of the three impact values. |
+
+The alert's severity can therefore be lower or higher than the rule's own impact values suggest. See **How Alerts Are Created** for the adjustment and worked examples.
+
+<Note>
+
+The SOC-AI assessment shows a different number, a score from 0 to 100 written in the alert's notes (for example "72/100"). It is not stored in `impactScore`. See **SOC-AI Assistant**.
+
+</Note>
+
+**Search examples**
+
+- Alerts page: the severity menu, or **Add filter** > **Severity** > **is** > `high`.
+- SQL: `WHERE severity = 'high'`. Severity is stored as a ranked value, so `ORDER BY severity DESC` sorts High first.
+
+## Who attacked and what was hit
+
+Each alert has two sides, built from the two sides of the event that completed the match:
+
+- `adversary`: the side the rule treats as the attacker.
+- `target`: the affected side, shown as **Source / target** on the alert panel and in the **Source** column of the list.
+
+The rule's `adversary` setting decides which side is which. With `adversary: origin` (most rules), the event's `origin` becomes the alert's `adversary` and the event's `target` stays the `target`. With `adversary: target`, they are swapped. An alert therefore has no `origin` field: use `adversary.*` and `target.*`.
+
+Both sides can carry every field of an event side (see **Standard Event Schema**). These are the ones most often filled and searched:
+
+| Field | Label in **Add filter** | Shown on the alert panel | What it holds |
+|---|---|---|---|
+| `adversary.ip`, `target.ip` | **Adversary IP**, **Target IP** | **Parties** tab, **IP** | IP address |
+| `adversary.host`, `target.host` | **Adversary host**, **Target host** | **Parties** tab, **Host** | Host name |
+| `adversary.user`, `target.user` | **Adversary user**, **Target user** | **Parties** tab, **User** | Account name |
+| `adversary.domain`, `target.domain` | **Adversary domain**, **Target domain** | **Parties** tab, **Domain** | Domain |
+| `adversary.url`, `target.url` | **Adversary URL**, **Target URL** | Not shown | Full URL |
+| `adversary.port`, `target.port` | Not offered | Not shown | Network port (number) |
+| `adversary.geolocation.country`, `target.geolocation.country` | **Adversary country**, **Target country** | **Parties** tab, **Country** | Country name |
+| `adversary.geolocation.asn`, `target.geolocation.asn` | **Adversary ASN**, **Target ASN** | Not shown | Number of the network that owns the address |
+| `adversary.geolocation.aso`, `target.geolocation.aso` | **Adversary ASO**, **Target ASO** | Not shown | Name of that network's owner |
+
+Other fields such as `adversary.process`, `target.file`, `target.sha256` or `adversary.mac` are filled when the event's side had them. Find them in Log Explorer's field list for the `alerts` dataset.
+
+Country, ASN and ASO are filled only for public addresses of data sources whose pipeline geolocates them. See **Geolocation Enrichment**.
+
+**Search examples**
+
+- Alerts page: **Add filter** > **Adversary IP** > **is** > `203.0.113.45`.
+- Alerts page: **Add filter** > **Target host** > **is** > `dc01.corp.example.com`.
+- SQL, adversaries with the most alerts: `SELECT toString(adversary.ip) AS ip, count() AS alert_count FROM alerts WHERE adversary.ip IS NOT NULL GROUP BY ip ORDER BY alert_count DESC LIMIT 10`.
+
+In SQL, fields inside `adversary` and `target` can be stored as text in one alert and as a number in another. Wrap them in `toString()` when you compare or group them. See **Log Explorer SQL Mode**.
+
+## The events behind the alert
+
+| Field | Shown on screen | Type | What it holds |
+|---|---|---|---|
+| `lastEvent` | Not shown as such | Event | The last event that matched, complete: `lastEvent.log.*`, `lastEvent.origin.*`, `lastEvent.target.*`, `lastEvent.raw`, `lastEvent.deviceTime` and so on. |
+| `events` | **Events** tab | List of events | A sample of the events the rule stored on the alert, up to about 11. |
+| `echoes` | **Echoes** column | Number | How many echoes the alert has. It is counted when the list loads, for the time range you chose; it is not stored. |
+| `groupBy`, `deduplicateBy` | Not shown | List of text | The rule's grouping and de-duplication field lists, copied onto the alert. |
+| `errors` | Not shown | List of text | Processing errors, if any. |
+
+`lastEvent` is the field to use when you need a vendor field of the triggering event, for example the Windows event code or the process name:
+
+- Log Explorer, dataset `alerts`: **Add filter** > `lastEvent.log.eventCode` > **is** > `4625`.
+- SQL: `SELECT name, toString(lastEvent.log.eventCode) AS event_code, count() AS alert_count FROM alerts WHERE parentId = '' AND dataType = 'wineventlog' GROUP BY name, event_code ORDER BY alert_count DESC LIMIT 20`.
+- In a rule: `groupBy: [lastEvent.log.eventCode]` or `deduplicateBy: [adversary.ip, lastEvent.origin.user]`.
+
+The **Events** tab only shows a sample. Click **View all related logs** on that tab to open every log behind the alert in Log Explorer. See **Alerts**.
+
+## How the alert is being worked
+
+| Field | Label on screen | Type | What it holds |
+|---|---|---|---|
+| `status` | **Status** | Text | `Open`, `In review`, `Completed` or `Merged`. Older alerts can hold `Automatic review`. |
+| `statusObservation` | **Status note** | Text | The observation written when the alert was completed, the incident's solution when its incident was completed, or a note from the tagging rules: `This alert has been evaluated by the tag rules engine` or `Status changed to completed because alert was tagged as False positive`. |
+| `tags` | **Tags** | List of text | Tag names, for example `False positive`. Renaming a tag does not change alerts that already carry it. |
+| `tagRulesApplied` | Not shown | List of text | The ids of the tagging rules that matched when the alert was stored. |
+| `notes` | **Notes** / **Your notes** | Text | Your team's notes. A SOC-AI assessment is kept in the same field and starts with `[AI SOC Agent]`. |
+| `assignee` | **Assignee** | Text | The assigned user's name as shown in the user list (the email address when the account has no name), or empty. |
+| `isIncident` | **Is incident**; the **Incident** badge | True or false | Whether the alert is linked to an incident. |
+| `incidentDetail.incidentName`, `incidentDetail.incidentId`, `incidentDetail.createdBy`, `incidentDetail.creationDate` | **Incident name**, **Incident id**; **Part of an incident** box | Text | The linked incident's name and id, who linked the alert and when. |
+| `history` | **History** tab | List | Each change with the user, the kind of change (status, tags, notes, solution, incident) and the time. |
+
+**Search examples**
+
+- Alerts page, alerts assigned to you: **Add filter** > **Assignee** > **is** > your name as shown in the user list.
+- Alerts page, alerts with a SOC-AI assessment: **Add filter** > **Notes** > **contains** > `AI SOC Agent`.
+- Alerts page, alerts in a given incident: **Add filter** > **Incident id** > **is** > the incident's id.
+- SQL, unassigned open alerts, and alerts closed as false positives in the last 30 days:
+
+```sql
+SELECT name, severity, count() AS alert_count
+FROM alerts
+WHERE parentId = '' AND status = 'Open' AND assignee = ''
+GROUP BY name, severity
+ORDER BY alert_count DESC
+```
+
+```sql
+SELECT name, count() AS alert_count
+FROM alerts
+WHERE has(tags, 'False positive')
+  AND `@timestamp` > now() - INTERVAL 30 DAY
+GROUP BY name
+ORDER BY alert_count DESC
+```
+
+<Note>
+
+`status`, `assignee` and `notes` are top-level text fields that always exist, empty when not set. **exists** is therefore true for every alert on these fields and **does not exist** never matches. To find empty values, use SQL (`assignee = ''`).
+
+</Note>
+
+## Fields used by tagging rules
+
+Tagging rules offer a smaller set of fields: Alert name, Category, Technique, Datasource, Data type, and IP, host, user, domain, URL, country, ASN and ASO for both sides. They are checked when the alert is stored, before anyone works it. See **Tagging Rules and False Positives**.
+
+## Fields in exports and emails
+
+| Output | Fields |
+|---|---|
+| Alerts **Export CSV** | Timestamp, Name, Severity, Status, Category, Technique, Source (the data source, `dataSource`), Tags, Notes |
+| Alert email | Name and description, Severity, Category, Technique, Data source, Data type, time, and the adversary and target host names |
+
+See **Alerts** and **Alert and Incident Notifications**.

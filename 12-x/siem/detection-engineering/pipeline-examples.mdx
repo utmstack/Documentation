@@ -1,0 +1,809 @@
+This page is a cookbook of complete pipelines you can copy. Each example shows a sample raw log, the pipeline, and the fields the event has after parsing, and names the shipped pipeline that uses the same technique.
+
+All examples use UTMStack v12 syntax. For the meaning of every key and step, see **Pipeline File Format and Step Reference**. For the condition functions used in `where`, see **Condition Functions Reference**.
+
+## Before you use an example
+
+- Every example works on its own data type, such as `acme-webapp`. A data type like this comes from a custom integration: the integration named "Acme Web App" gives its logs the data type `acme-webapp`. See **Custom Integrations**. Replace the data type with the one your source really has.
+- To try an example, go to **Configure > Pipelines**, click **New pipeline**, enter a name, click **Code**, paste the YAML, and click **Test** with the sample log. See **Testing Pipelines and Rules**.
+- UTMStack rewrites the file when it saves it: it adds your tenant id, adds `order: 100` to entries that have no order, and removes the comments. Keep your own commented copy of a pipeline, for example in a version control system.
+- Values in the "Result" tables are what the UTMStack v12 parsing code produced for the sample log. Fields the test leaves out, such as `id`, `@timestamp` and `tenantId`, are not listed.
+
+![The Test pipeline dialog with the Data type list, the Raw log box, the Run button and the empty Parsed result panel](/assets/6ed8d97a-42c1-4cab-af3e-31779156bfec)
+
+| Example | Log format | Steps it shows | Shipped pipeline with the same technique |
+|---|---|---|---|
+| 1. JSON application log | JSON | `json`, `drop`, `rename`, `add`, `cast`, `delete` | `json/json-input.yaml`, `utmstack/utmstack.yaml` |
+| 2. Key=value firewall log | `key=value` pairs | `kv`, `rename`, `cast`, `add` | `fortinet/fortinet.yaml` |
+| 3. Syslog line cut with grok | Free text | `grok` (twice), `add`, `trim`, `cast`, `delete` | `pfsense/pfsense_fw.yaml`, `suricata/suricata.yaml` |
+| 4. CSV inside syslog | Comma-separated values | `grok`, `csv`, `cast`, `add`, `delete` | `pfsense/pfsense_fw.yaml` |
+| 5. CEF over syslog | CEF | `grok`, `trim`, `kv`, `rename`, `cast`, `add` | `syslog/syslog-cef-leef.yaml` |
+| 6. LEEF with tab separators | LEEF 1.0 | `grok`, `trim`, `kv` with a tab | `syslog/syslog-cef-leef.yaml` |
+| 7. Converting a vendor time | JSON with a vendor date format | `reformat`, conditional `rename`, `cast` to `bool` and `int` | `antivirus/esmc-eset.yaml` |
+| 8. Conditional steps | JSON or text | `where` patterns: either/or, fallback | `utmstack/utmstack.yaml`, `syslog/syslog-cef-leef.yaml` |
+| 9. Dropping noise | Any | `drop` | `ibm/ibm_as_400.yaml`, `suricata/suricata.yaml` |
+| 10. Geolocation | Any with IP addresses | `dynamic` | `syslog/syslog-cef-leef.yaml` |
+| 11. Cleanup | Any | `delete` | most shipped pipelines |
+
+The paths are relative to the `definitions/filters` folder of the UTMStack repository on GitHub.
+
+## 1. JSON application log
+
+A web application writes one JSON object per line. Only the login events matter, and a load balancer checks the `/healthz` page every few seconds.
+
+Sample logs:
+
+```json
+{"time":"2026-11-12T09:30:00Z","event":"login","user":"alice","src_ip":"203.0.113.7","src_port":"51234","result":"FAIL","app":"portal"}
+```
+
+```json
+{"time":"2026-11-12T09:31:00Z","event":"login","username":"alice","client":{"ip":"203.0.113.7"},"src_port":"51240","result":"OK","app":"portal"}
+```
+
+```json
+{"time":"2026-11-12T09:33:00Z","event":"request","path":"/healthz","userAgent":"ELB-HealthChecker/2.0","src_ip":"10.0.0.2"}
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-webapp]
+    steps:
+      # 1. Extract: every top-level JSON key becomes log.<key>
+      - json:
+          source: raw
+          where: 'startsWith("raw", "{")'
+
+      # 2. Discard load-balancer health checks before doing any more work
+      - drop:
+          where: 'equals("log.path", "/healthz") || startsWith("log.userAgent", "ELB-HealthChecker")'
+
+      # 3. Normalize: move vendor keys to standard fields
+      - rename:
+          from: [log.user, log.username]
+          to: origin.user
+      - rename:
+          from: [log.src_ip, log.client.ip]
+          to: origin.ip
+      - rename:
+          from: [log.src_port]
+          to: origin.port
+      - rename:
+          from: [log.event]
+          to: action
+      - rename:
+          from: [log.time]
+          to: deviceTime
+
+      # 4. Translate the vendor result into the three standard outcomes
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'oneOf("log.result", ["OK", "SUCCESS"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'oneOf("log.result", ["FAIL", "ERROR"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.result", "LOCKED")'
+
+      # 5. Ports are whole numbers in the standard schema
+      - cast:
+          fields: [origin.port]
+          to: int
+          where: 'exists("origin.port")'
+
+      # 6. Clean up: the outcome is now in actionResult
+      - delete:
+          fields: [log.result, log.client]
+```
+
+Result for the first sample:
+
+| Field | Value |
+|---|---|
+| `action` | `login` |
+| `actionResult` | `failed` |
+| `origin.user` | `alice` |
+| `origin.ip` | `203.0.113.7` |
+| `origin.port` | `51234` (a number) |
+| `deviceTime` | `2026-11-12T09:30:00Z` |
+| `log.app` | `portal` |
+
+The second sample gives the same fields with `actionResult` `success`: `rename` found the user under `log.username` and the address under the nested `log.client.ip`. The third sample is dropped: nothing is stored and no rule sees it. A line that is not JSON skips the `json` step and is stored with only its `raw` text.
+
+What to notice:
+
+- `json` writes each top-level key under `log.` and keeps nested objects, so `log.client.ip` can be read and renamed directly. After the rename, `log.client` is an empty object; the last `delete` removes it.
+- Underscores in key names are kept: `src_ip` becomes `log.src_ip`.
+- `rename` with several names in `from` takes whichever exists. If several exist, the last one in the list wins.
+- The vendor's `FAIL`, `OK` and `LOCKED` are translated with `add` steps, because `actionResult` takes only `success`, `failed` or `denied`. See **Standard Event Schema**.
+- The JSON value `"51234"` is text. `cast` turns it into a number, which `origin.port` requires.
+
+## 2. Key=value firewall log
+
+A firewall sends each connection as one line of `key=value` pairs. Values with spaces are in double quotes.
+
+Sample log:
+
+```text
+date=2026-11-12 time=09:30:00 devname="edge01" type="traffic" srcip=203.0.113.7 srcport=51234 dstip=10.0.0.5 dstport=443 proto=6 action="deny" policyid=7 sentbyte=0 rcvdbyte=0 msg="Denied by forward policy check"
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-edge]
+    steps:
+      # 1. The whole line is key=value pairs separated by spaces
+      - kv:
+          source: raw
+          fieldSplit: " "
+          valueSplit: "="
+
+      # 2. Map addresses, ports and byte counters to the standard schema
+      - rename:
+          from: [log.srcip]
+          to: origin.ip
+      - rename:
+          from: [log.srcport]
+          to: origin.port
+      - rename:
+          from: [log.dstip]
+          to: target.ip
+      - rename:
+          from: [log.dstport]
+          to: target.port
+      - rename:
+          from: [log.sentbyte]
+          to: origin.bytesSent
+      - rename:
+          from: [log.rcvdbyte]
+          to: origin.bytesReceived
+
+      # 3. Numbers arrive as text; the schema wants numbers
+      - cast:
+          fields: [origin.port, target.port, origin.bytesSent, origin.bytesReceived]
+          to: int
+
+      # 4. The firewall decision becomes actionResult; the original word becomes action
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'oneOf("log.action", ["accept", "allow", "close"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'oneOf("log.action", ["deny", "drop", "block"])'
+      - rename:
+          from: [log.action]
+          to: action
+```
+
+Result:
+
+| Field | Value |
+|---|---|
+| `origin.ip`, `origin.port` | `203.0.113.7`, `51234` |
+| `target.ip`, `target.port` | `10.0.0.5`, `443` |
+| `action`, `actionResult` | `deny`, `denied` |
+| `log.devname` | `edge01` (quotes removed) |
+| `log.msg` | `Denied by forward policy check` |
+| `log.date`, `log.time`, `log.type`, `log.proto`, `log.policyid` | `2026-11-12`, `09:30:00`, `traffic`, `6`, `7` |
+
+What to notice:
+
+- `kv` removes the double quotes around a value, and a quoted value can contain spaces. A value without quotes ends at the first space.
+- `cast` takes a list of fields, so one step converts all four counters. Fields that a log does not have are skipped.
+- The date and time stay under `log.` as text. No step joins two fields into one, so `deviceTime` is not set here and the engine copies `@timestamp` into it.
+
+## 3. Syslog line cut with grok
+
+A VPN gateway sends free-text syslog lines. Only login lines have the user and the address.
+
+Sample logs:
+
+```text
+<134>Nov 12 09:30:00 vpn01 acmevpn[812]: Login failed for user bob from 198.51.100.23 port 40022
+<134>Nov 12 09:31:00 vpn01 acmevpn[812]: Login succeeded for user admin from 198.51.100.23 port 40023
+<134>Nov 12 09:32:00 vpn01 acmevpn[812]: Tunnel established to 10.8.0.2
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-vpn]
+    steps:
+      # 1. Cut the syslog header; the rest of the line goes to log.message
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.syslogTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.program
+              pattern: '{{.word}}'
+            - fieldName: log.pid
+              pattern: '\[{{.integer}}\]:'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      # 2. Two message variants, each with its own pattern
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: log.outcome
+              pattern: 'Login (failed|succeeded)'
+            - fieldName: log.forUser
+              pattern: 'for user'
+            - fieldName: origin.user
+              pattern: '{{.notSpace}}'
+            - fieldName: log.fromWord
+              pattern: 'from'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: log.portWord
+              pattern: 'port'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+          where: 'startsWith("log.message", "Login ")'
+
+      # 3. Fixed values that depend on what the pattern found
+      - add:
+          function: string
+          params:
+            key: action
+            value: login
+          where: 'exists("log.outcome")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.outcome", "Login failed")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.outcome", "Login succeeded")'
+
+      # 4. Remove the brackets and colon the header pattern kept around the process id
+      - trim:
+          function: regex
+          substring: '[\[\]:]'
+          fields: [log.pid]
+
+      - cast:
+          fields: [origin.port]
+          to: int
+          where: 'exists("origin.port")'
+
+      # 5. Clean up the helper fields that only held fixed words
+      - delete:
+          fields: [log.forUser, log.fromWord, log.portWord]
+```
+
+Result for the first sample:
+
+| Field | Value |
+|---|---|
+| `log.priority` | `<134>` |
+| `log.syslogTime` | `Nov 12 09:30:00` |
+| `log.syslogHost`, `log.program`, `log.pid` | `vpn01`, `acmevpn`, `812` |
+| `log.message` | `Login failed for user bob from 198.51.100.23 port 40022` |
+| `log.outcome` | `Login failed` |
+| `action`, `actionResult` | `login`, `failed` |
+| `origin.user`, `origin.ip`, `origin.port` | `bob`, `198.51.100.23`, `40022` |
+
+The third sample keeps only the header fields and `log.message`: the second `grok` step does not run because its condition is false.
+
+What to notice:
+
+- Each `grok` pattern must match at the start of the text that is left, and the step writes its fields only if **every** pattern matched. That is why fixed words such as `for user` get their own pattern and a helper field, which the last step deletes.
+- `{{.integer}}`, `{{.hostname}}`, `{{.ipv4}}` and the other named patterns are listed in **Pipeline File Format and Step Reference**.
+- The syslog header time has no year. Keep it under `log.`; do not move it to `deviceTime`.
+
+## 4. CSV inside syslog
+
+A gateway sends a syslog header followed by comma-separated values in a fixed column order: time, rule action, direction, protocol, source address and port, destination address and port, packet length.
+
+Sample log:
+
+```text
+<134>Nov 12 09:30:00 gw01 filterlog: 2026-11-12T09:30:00Z,block,in,tcp,203.0.113.7,51234,10.0.0.5,22,60
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-gateway]
+    steps:
+      # 1. Split off the syslog header; the comma-separated part goes to log.csvMsg
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.syslogTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.program
+              pattern: 'filterlog:'
+            - fieldName: log.csvMsg
+              pattern: '{{.greedy}}'
+
+      # 2. One header per column, in order. Names are used exactly as written.
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - deviceTime
+            - log.ruleAction
+            - log.direction
+            - protocol
+            - origin.ip
+            - origin.port
+            - target.ip
+            - target.port
+            - log.length
+          where: 'exists("log.csvMsg")'
+
+      - cast:
+          fields: [origin.port, target.port]
+          to: int
+          where: 'exists("origin.port")'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.ruleAction", "block")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.ruleAction", "pass")'
+
+      - delete:
+          fields: [log.csvMsg, log.program]
+```
+
+Result:
+
+| Field | Value |
+|---|---|
+| `deviceTime` | `2026-11-12T09:30:00Z` |
+| `protocol` | `tcp` |
+| `origin.ip`, `origin.port` | `203.0.113.7`, `51234` |
+| `target.ip`, `target.port` | `10.0.0.5`, `22` |
+| `actionResult` | `denied` |
+| `log.ruleAction`, `log.direction`, `log.length` | `block`, `in`, `60` |
+
+What to notice:
+
+- `csv` can write straight into standard fields such as `origin.ip`, because it uses the header names exactly as written.
+- The first column is already an RFC 3339 time, so it can go straight to `deviceTime`.
+- If a line has **fewer** columns than headers, the step fills the columns it has and then stops with "column index out of range, number of headers should match the number of resulting columns" in the event's `errors` field. Extra columns are ignored.
+
+## 5. CEF over syslog
+
+A web application firewall sends CEF (Common Event Format) messages: a header of seven fields separated by `|`, followed by an extension of `key=value` pairs.
+
+<Note>
+
+If a device sends CEF through the standard syslog integration (data type `syslog`), the shipped CEF stage already parses it and you do not need this pipeline. Use this example when the device has its own custom integration and data type.
+
+</Note>
+
+Sample log:
+
+```text
+<134>Nov 12 09:30:00 waf01 CEF:0|Acme|WAF|2.1|1001|SQL injection blocked|8|src=203.0.113.7 spt=51234 dst=10.0.0.20 dpt=443 act=blocked request=https://shop.example.com/login cs1Label=rule cs1=942100
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-waf]
+    steps:
+      # 1. Cut the CEF header: seven fields separated by "|", then the extension
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.syslogHeader
+              pattern: '{{.data}}CEF:'
+            - fieldName: log.cefVersion
+              pattern: '[0-9.]+\|'
+            - fieldName: log.deviceVendor
+              pattern: '{{.data}}\|'
+            - fieldName: log.deviceProduct
+              pattern: '{{.data}}\|'
+            - fieldName: log.deviceVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.signatureId
+              pattern: '{{.data}}\|'
+            - fieldName: log.cefName
+              pattern: '{{.data}}\|'
+            - fieldName: log.cefSeverity
+              pattern: '{{.data}}\|'
+            - fieldName: log.cefExtension
+              pattern: '{{.greedy}}'
+
+      # 2. Each header value still ends with "|"
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.cefVersion
+            - log.deviceVendor
+            - log.deviceProduct
+            - log.deviceVersion
+            - log.signatureId
+            - log.cefName
+            - log.cefSeverity
+
+      # 3. The extension is key=value pairs separated by spaces
+      - kv:
+          source: log.cefExtension
+          fieldSplit: " "
+          valueSplit: "="
+          where: 'exists("log.cefExtension")'
+
+      # 4. Standard CEF keys to standard fields
+      - rename:
+          from: [log.src]
+          to: origin.ip
+      - rename:
+          from: [log.spt]
+          to: origin.port
+      - rename:
+          from: [log.dst]
+          to: target.ip
+      - rename:
+          from: [log.dpt]
+          to: target.port
+      - rename:
+          from: [log.request]
+          to: target.url
+      - cast:
+          fields: [origin.port, target.port]
+          to: int
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'oneOf("log.act", ["blocked", "block", "deny", "denied"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'oneOf("log.act", ["allowed", "allow", "pass"])'
+      - rename:
+          from: [log.act]
+          to: action
+
+      # 5. Clean up
+      - delete:
+          fields: [log.syslogHeader, log.cefExtension]
+```
+
+Result:
+
+| Field | Value |
+|---|---|
+| `log.cefVersion`, `log.deviceVendor`, `log.deviceProduct`, `log.deviceVersion` | `0`, `Acme`, `WAF`, `2.1` |
+| `log.signatureId`, `log.cefName`, `log.cefSeverity` | `1001`, `SQL injection blocked`, `8` |
+| `origin.ip`, `origin.port` | `203.0.113.7`, `51234` |
+| `target.ip`, `target.port`, `target.url` | `10.0.0.20`, `443`, `https://shop.example.com/login` |
+| `action`, `actionResult` | `blocked`, `denied` |
+| `log.cs1Label`, `log.cs1` | `rule`, `942100` |
+
+What to notice:
+
+- `{{.data}}` matches as little text as possible, so `{{.data}}\|` takes exactly one header field up to the next `|`. The pattern keeps the `|`, and the `trim` step removes it.
+- In saved pipelines every `grok` pattern needs a field name, so the syslog header before `CEF:` goes to a helper field that the last step deletes.
+- CEF does not quote values. A value that contains spaces, such as `msg=SQL injection attempt`, is cut at the first space and only `SQL` is kept. The shipped CEF stage has the same limit.
+
+## 6. LEEF with tab separators
+
+An intrusion detection system sends LEEF 1.0 (Log Event Extended Format): a header of five fields separated by `|`, followed by `key=value` pairs separated by tab characters.
+
+Sample log (the gaps between the pairs are tab characters):
+
+```text
+<134>Nov 12 09:30:00 ids01 LEEF:1.0|Acme|IDS|3.0|portscan|src=203.0.113.7	dst=10.0.0.5	dstPort=22	sev=7	usrName=scanner one
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-ids]
+    steps:
+      # LEEF 1.0: five header fields separated by "|", then tab-separated key=value pairs
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.syslogHeader
+              pattern: '{{.data}}LEEF:'
+            - fieldName: log.leefVersion
+              pattern: '[0-9.]+\|'
+            - fieldName: log.deviceVendor
+              pattern: '{{.data}}\|'
+            - fieldName: log.deviceProduct
+              pattern: '{{.data}}\|'
+            - fieldName: log.deviceVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventId
+              pattern: '{{.data}}\|'
+            - fieldName: log.leefExtension
+              pattern: '{{.greedy}}'
+      - trim:
+          function: suffix
+          substring: '|'
+          fields: [log.leefVersion, log.deviceVendor, log.deviceProduct, log.deviceVersion, log.eventId]
+      # A tab is written "\t" inside double quotes in YAML
+      - kv:
+          source: log.leefExtension
+          fieldSplit: "\t"
+          valueSplit: "="
+          where: 'exists("log.leefExtension")'
+      - rename:
+          from: [log.src]
+          to: origin.ip
+      - rename:
+          from: [log.dst]
+          to: target.ip
+      - rename:
+          from: [log.dstPort]
+          to: target.port
+      - cast:
+          fields: [target.port]
+          to: int
+      - delete:
+          fields: [log.syslogHeader, log.leefExtension]
+```
+
+Result:
+
+| Field | Value |
+|---|---|
+| `log.leefVersion`, `log.deviceVendor`, `log.deviceProduct`, `log.deviceVersion`, `log.eventId` | `1.0`, `Acme`, `IDS`, `3.0`, `portscan` |
+| `origin.ip` | `203.0.113.7` |
+| `target.ip`, `target.port` | `10.0.0.5`, `22` |
+| `log.sev`, `log.usrName` | `7`, `scanner one` |
+
+What to notice:
+
+- In YAML, `"\t"` in double quotes is a tab. In single quotes it would be the two characters `\` and `t`.
+- Because the pairs are separated by tabs, a value with spaces, such as `scanner one`, stays whole.
+- LEEF 2.0 can name its own separator in the header, and some devices use `^`. Set `fieldSplit` to the separator your device uses; the shipped LEEF stage handles `^` and spaces.
+
+## 7. Converting a vendor time
+
+A door badge system writes its time as `12-Nov-2026 09:30:00` (UTC) and its yes/no values as text.
+
+Sample logs:
+
+```json
+{"occurred":"12-Nov-2026 09:30:00","badge":"4411","holder":"bob","door":"DC-1","granted":"false","attempts":"3"}
+```
+
+```json
+{"occurred":"2026-11-12 09:30","badge":"4412","holder":"eve","door":"DC-1","granted":"true","attempts":"1"}
+```
+
+Pipeline:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-badge]
+    steps:
+      - json:
+          source: raw
+
+      # The vendor writes 12-Nov-2026 09:30:00 (UTC). Rewrite it as RFC 3339 first...
+      - reformat:
+          fields: [log.occurred]
+          function: time
+          fromFormat: '02-Jan-2006 15:04:05'
+          toFormat: '2006-01-02T15:04:05Z'
+          where: 'exists("log.occurred")'
+      # ...then move it to deviceTime, but only if the conversion worked
+      - rename:
+          from: [log.occurred]
+          to: deviceTime
+          where: 'regexMatch("log.occurred", "^[0-9]{4}-[0-9]{2}-[0-9]{2}T")'
+
+      - rename:
+          from: [log.holder]
+          to: origin.user
+
+      # "true"/"false" text becomes a real true/false value, "3" becomes 3
+      - cast:
+          fields: [log.granted]
+          to: bool
+      - cast:
+          fields: [log.attempts]
+          to: int
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.granted", false)'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.granted", true)'
+```
+
+Result for the first sample:
+
+| Field | Value |
+|---|---|
+| `deviceTime` | `2026-11-12T09:30:00Z` |
+| `origin.user` | `bob` |
+| `actionResult` | `denied` |
+| `log.granted` | `false` (a true/false value) |
+| `log.attempts` | `3` (a number) |
+| `log.badge`, `log.door` | `4411`, `DC-1` |
+
+The second sample is written in another format. The `reformat` step fails and adds "failed to parse time" to the event's `errors` field, and leaves the value unchanged. The condition on the `rename` step then keeps the unconverted text out of `deviceTime`, so the engine copies `@timestamp` into `deviceTime` and the original text stays in `log.occurred`.
+
+What to notice:
+
+- `fromFormat` and `toFormat` are Go time layouts: you write the reference moment `Mon Jan 2 15:04:05 MST 2006` the way your value is written. See **Pipeline File Format and Step Reference**.
+- A value that the database cannot read as a date in `deviceTime` loses the event, so only move a value there once it is converted.
+- After `cast` to `bool`, compare with `true` or `false` without quotes.
+
+## 8. Conditional steps
+
+Every step can have a `where` condition. These patterns cover most needs. All of them come from the examples above or from shipped pipelines.
+
+| Pattern | Condition | Use it when |
+|---|---|---|
+| Run only when a field exists | `where: 'exists("log.cefExtension")'` | A step would fail or do nothing without its source. |
+| Run only for one message type | `where: 'startsWith("log.message", "Login ")'` | One data type sends several kinds of message. |
+| Either/or | `where: 'startsWith("raw", "{")'` and `where: '!startsWith("raw", "{")'` | A source mixes JSON and plain text. |
+| Fallback | `where: '!exists("origin.ip")'` | A second source field should be used only when the first was missing. |
+| Translate a set of words | `where: 'oneOf("log.action", ["deny", "drop", "block"])'` | Several vendor words mean the same standard value. |
+
+This pipeline combines the either/or and fallback patterns:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-agent]
+    steps:
+      # JSON lines are parsed as JSON...
+      - json:
+          source: raw
+          where: 'startsWith("raw", "{")'
+      # ...anything else is kept whole in log.message
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          where: '!startsWith("raw", "{")'
+
+      # Prefer the address the client connected from...
+      - rename:
+          from: [log.client_ip]
+          to: origin.ip
+      # ...and fall back to the forwarded address only when there was none
+      - rename:
+          from: [log.forwarded_for]
+          to: origin.ip
+          where: '!exists("origin.ip")'
+```
+
+| Sample log | Result |
+|---|---|
+| `{"client_ip":"203.0.113.7","forwarded_for":"198.51.100.1"}` | `origin.ip` is `203.0.113.7`; `log.forwarded_for` stays. |
+| `{"forwarded_for":"198.51.100.1"}` | `origin.ip` is `198.51.100.1`. |
+| `service restarted` | `log.message` is `service restarted`. |
+
+Things to know about conditions:
+
+- A condition reads the log as it is at that step, including fields earlier steps wrote.
+- Put a condition in single quotes, with double quotes inside, or start it on its own line after `|`. Quoting is required when the condition starts with `!` or contains `: `.
+- A condition that cannot be compiled, for example with a missing bracket, skips its step on every log and adds "failed to evaluate where clause using CEL" to the `errors` field. Saving does not catch it, so test first.
+
+## 9. Dropping noise
+
+A `drop` step discards the log when its condition is true. Example 1 drops health checks:
+
+```yaml
+- drop:
+    where: 'equals("log.path", "/healthz") || startsWith("log.userAgent", "ELB-HealthChecker")'
+```
+
+The shipped IBM AS/400 pipeline drops collector messages with a check on the raw text:
+
+```yaml
+- drop:
+    where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
+```
+
+What to know before you drop:
+
+- A dropped log is not stored, no rule sees it, and it cannot be recovered. It is gone for every rule, dashboard and search, not just for one noisy rule.
+- `drop` stops the log at once: later steps and later pipelines for the same data type do not run.
+- Place `drop` as early as you can, right after the step that extracts the field it checks, so no work is wasted.
+- A `drop` without `where` drops nothing and adds an error to the event.
+- **Configure > Data Processing** does not count logs that a `drop` step discards. Its drop figures count logs the engine had to discard under load. To see what a `drop` removes, compare searches in Log Explorer before and after you add it, over the same period.
+
+## 10. Geolocation
+
+The `dynamic` step calls the geolocation plugin, which looks up an IP address and writes its country, city, coordinates and network owner. Add it after the addresses are mapped:
+
+```yaml
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params:
+      source: origin.ip
+      destination: origin.geolocation
+    where: 'exists("origin.ip")'
+- dynamic:
+    plugin: com.utmstack.geolocation
+    params:
+      source: target.ip
+      destination: target.geolocation
+    where: 'exists("target.ip")'
+```
+
+These steps are copied from the shipped CEF stage. Write `origin.geolocation` or `target.geolocation` as the destination; the fields it holds are listed in **Standard Event Schema**.
+
+The test dialog cannot run this plugin ("The geolocation plugin isn't available in this lite version of the filter and rule test."), so the geolocation fields stay empty in a test. Check them on live events in Log Explorer. See **Geolocation Enrichment**.
+
+## 11. Cleanup
+
+Remove helper fields once their values have been moved or are no longer needed:
+
+```yaml
+- delete:
+    fields: [log.syslogHeader, log.cefExtension]
+```
+
+- Fields that a log does not have are skipped without an error.
+- `raw` and `@timestamp` cannot be deleted: a `delete` step that names them fails with "field cannot be a reserved field" in the `errors` field, and the value stays.
+- Keep vendor fields that an analyst may need in an investigation. Delete only helpers, duplicates and values you have moved to standard fields.
+
+## Related pages
+
+- **Pipeline File Format and Step Reference**
+- **Pipelines**
+- **Testing Pipelines and Rules**
+- **Rule Examples**
+- **Tutorial: From a New Log Source to an Alert**

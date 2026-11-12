@@ -1,0 +1,135 @@
+This page helps you decide how long to keep logs and alerts in UTMStack v12, and how much local disk and cold storage that needs. It gives a method you can apply to your own numbers, a worked example, and what to do when the disk is getting full.
+
+## Decide how long to keep data
+
+Start from what you must keep, then add what you want to keep.
+
+1. **Rules you must follow.** Regulations and contracts often set a minimum. For example, PCI DSS asks for at least 12 months of audit log history, with the most recent 3 months immediately available for analysis. Check the rules that apply to you.
+2. **How far back your analysts look.** Most investigations look at the last few weeks. Data older than that is searched rarely and is a good candidate for cold storage.
+3. **What you can afford.** Local disk is the most expensive place to keep data. Cold storage costs less per gigabyte but makes old searches slower.
+
+Then map the answers to the two settings on each dataset card:
+
+| Setting | Set it to |
+|---|---|
+| Delete after | The total time you must or want to keep records |
+| Move to cold storage after | The time analysts need fast searches, for example 30 or 90 days. Use `0` to keep everything on the local disk. |
+
+Keep **Alerts** at least as long as **Logs**. An alert's evidence is the logs it points to, and an alert whose logs were deleted can no longer show them. Keep **Ingestion statistics** at its default unless you have a reason to change it: it is small, and it is the server's usage record. Leave its **Move to cold storage after** at `0`; moving such a small table to cold storage costs more in search speed than it saves in disk.
+
+## What uses disk space
+
+| What | Where | Grows with |
+|---|---|---|
+| Logs, alerts, statistics | `/utmstack/clickhouse/data` | Ingest volume and retention. This is almost all of the space. |
+| Cold storage on a local folder or NFS | `/utmstack/clickhouse/cold` | Ingest volume and the time between **Move to cold storage after** and **Delete after** |
+| Events waiting to be processed | `/utmstack/nats` | Only when processing falls behind ingestion |
+| PostgreSQL, Docker images | `/var/lib/docker` | Slowly: settings, incidents, users |
+| Event store server log | Inside the ClickHouse container | Capped at about 1 GB |
+
+The event store also needs free space to work. It merges small blocks of records into larger ones in the background, and a merge writes the new block before it removes the old ones. Keep at least 20% of the disk free.
+
+## Measure how fast your data grows
+
+The **Data retention** page shows, for each dataset, its size on disk and the date of its oldest record. Use the **Logs** card, which is by far the largest.
+
+<Steps>
+
+<Step title="Read the size twice">
+
+Open **Configure > Settings > Data Retention** and write down the size shown on the **Logs** card. Do the same again 7 days later, at about the same time of day.
+
+</Step>
+
+<Step title="Work out the daily growth">
+
+Subtract the first size from the second and divide by 7. This is your daily growth on disk, after compression.
+
+If your server has been running for less than your **Delete after** period and nothing has been deleted yet, you can also divide the current size by the number of days since the oldest record.
+
+</Step>
+
+<Step title="Repeat after big changes">
+
+Measure again whenever you add many data sources or a noisy integration. Growth changes with what you collect, not with the number of users.
+
+</Step>
+
+</Steps>
+
+<Note>
+
+The sizes on the page are compressed sizes on disk, so they are already the numbers you need. Do not use the raw log volume your sources send; it is several times larger than what ends up on disk.
+
+</Note>
+
+## Work out the space you need
+
+With a daily growth of `G` (in GB per day):
+
+| You need | Formula |
+|---|---|
+| Local disk without cold storage | `G × (Delete after + 31)`, plus 25% free space |
+| Local disk with cold storage | `G × (Move to cold storage after + 31)`, plus 25% free space |
+| Cold storage | `G × (Delete after − Move to cold storage after + 31)` |
+
+The extra 31 days cover the monthly blocks: data can stay up to about a month longer than the number of days you set, both on the local disk and in cold storage.
+
+### Worked example
+
+Your **Logs** card grows by 35 GB in 7 days, so `G` is 5 GB a day. You must keep logs for 365 days, and analysts need fast searches for 30 days.
+
+| Option | Local disk | Cold storage |
+|---|---|---|
+| No cold storage, **Delete after** 365 | 5 × (365 + 31) = 1,980 GB, plus 25% = about **2.5 TB** | none |
+| **Move to cold storage after** 30, **Delete after** 365 | 5 × (30 + 31) = 305 GB, plus 25% = about **380 GB** | 5 × (365 − 30 + 31) = about **1.8 TB** |
+
+Alerts and statistics are usually much smaller than logs. Check their cards and add their growth the same way if it is not negligible.
+
+For the starting hardware sizes, see **System Requirements**.
+
+## Change retention safely
+
+<Warning>
+
+Lowering **Delete after** deletes every record older than the new limit, in the background, with no way back. UTMStack has no built-in backup.
+
+</Warning>
+
+- **Lowering Delete after** frees space as whole monthly blocks pass the new limit. On a large table, the event store can stay busy for a while after the change as it re-checks stored data.
+- **Raising Delete after** keeps records longer from now on. Records already deleted do not come back.
+- **Turning on cold storage for a dataset** is permanent for that dataset: once a dataset uses cold storage, you cannot set **Move to cold storage after** back to `0` from the page. You can still change the number of days.
+- **Changing Move to cold storage after** moves records older than the new value in the background. A large first move can take hours and uses network bandwidth to the destination.
+
+Make retention changes outside your busiest hours, and change one dataset at a time.
+
+## Watch the disk
+
+UTMStack v12 does not delete data early when the disk fills up. Keep an eye on it:
+
+- The badge on the **Data retention** page turns amber when the event store's disk is more than 90% full.
+- On the server, `df -h /utmstack` shows the free space of the data folder.
+
+If the disk is getting full:
+
+1. **Add cold storage** and set **Move to cold storage after** on the **Logs** dataset. This frees the most space without deleting anything. Once a dataset uses cold storage, the event store also moves its largest blocks to cold storage early whenever less than 15% of the local disk is free.
+2. **Lower Delete after** if you keep more than you need.
+3. **Grow the disk.** If `/utmstack` is on a separate disk or an LVM volume, extend it with your operating system's tools. The event store sees the extra space without a restart.
+4. **Find noisy sources.** Large, low-value sources (for example debug logging) can be turned down at the source.
+
+If the disk fills completely, the event store cannot store new events, and the queue of waiting events (in `/utmstack/nats`, on the same disk) fills too. Free space first, then check that events arrive again in Log Explorer.
+
+## Plan for a lost server
+
+Neither retention nor cold storage is a backup:
+
+- Records in S3 or Azure cold storage cannot be read without the server's local disk, which holds the map of the stored objects.
+- Deleting by retention removes records from both places.
+
+If you must be able to recover data after losing the server, plan it with your own tools, for example snapshots of the server's disks taken by your virtualization or cloud platform, or a copy of the raw logs kept at the source. A snapshot of the server does not contain the objects in S3 or Azure cold storage. Test any recovery plan before you rely on it. See **Backups and Recovery**.
+
+## Related pages
+
+- **How UTMStack Stores Data**
+- **Data Retention and Cold Storage**
+- **Troubleshooting Retention and Cold Storage**

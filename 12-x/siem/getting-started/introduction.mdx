@@ -8,7 +8,7 @@ Correlation happens while logs are being processed, before they are stored. This
 
 <Tip>
 
-[See UTMStack in action in the online demo](https://utmstack.com/demo).
+[See UTMStack in action in the online demo](https://demo.utmstack.com/?explore). The demo shows the real v12 console with made-up sample data, and needs no sign-in.
 
 </Tip>
 
@@ -65,7 +65,7 @@ UTMStack v12 comes in two editions. A licence can also add the multi-tenant opti
 | Enterprise | A licence from UTMStack, installed in **Configure > Settings > License** | API keys, single sign-on (identity providers), white-label branding, all shipped compliance frameworks, and some tools of the built-in MCP server (the interface AI assistants use to work with UTMStack). |
 | Multi-tenant option | Part of an Enterprise licence for managed service providers (MSSPs) | Tenants on one server, support access to tenants, and **Apply to all tenants**. |
 
-A licence is issued for one server, identified by its instance ID. If a licence expires or cannot be verified, UTMStack falls back to Community. See **License and editions** for the details.
+A licence is issued for one server, identified by its instance ID. If a licence expires or cannot be verified, UTMStack falls back to Community. See **License and Editions** for the details.
 
 ## What's new in UTMStack v12
 
@@ -188,6 +188,8 @@ This release improves sign-in reliability and corrects the AWS integration.
 
 ## The main menu
 
+For every menu item, the top bar and how the menu changes with your role and licence, see **Navigating the Console**.
+
 | Menu | What you find there |
 |---|---|
 | Overview | A summary of your security data: data sources, top MITRE ATT&CK techniques, top targeted assets, compliance score and system health. |
@@ -206,26 +208,31 @@ This release improves sign-in reliability and corrects the AWS integration.
 
 <Columns columnCount={2}>
   <Column>
-    <Card title="Check the requirements" icon="pi pi-server">
+    <Card title="Prepare the server" icon="pi pi-server">
 
-    Prepare a dedicated server. See **System requirements** and **Network ports and firewall**.
+    Size and prepare a dedicated server. See **Prepare the Server**, **Sizing and Capacity Planning** and **Network Ports and Firewall**. In the cloud, see **Install on AWS, Azure or Google Cloud**.
 
     </Card>
     <Card title="Connect your data sources" icon="fa fa-plug">
 
-    Install agents and connect devices and cloud services. See **How data reaches UTMStack**.
+    Install agents and connect devices and cloud services. See **How Data Reaches UTMStack**.
 
     </Card>
   </Column>
   <Column>
     <Card title="Install UTMStack" icon="pi pi-download">
 
-    Download and run the installer, then sign in for the first time. See **Install UTMStack**.
+    Download and run the installer, sign in for the first time and work through the after-installation checklist. See **Install UTMStack**.
+
+    </Card>
+    <Card title="Run the server" icon="hi-wrenchScrewdriver-outline">
+
+    Keep the server healthy, updated and backed up. See **Health Checks and Troubleshooting**, **Updates** and **Backups and Recovery**.
 
     </Card>
     <Card title="Get help" icon="pi pi-comments">
 
-    Ask the community, report issues and contribute. See **Community and support**.
+    Ask the community, report issues and contribute. See **Community and Support**.
 
     </Card>
   </Column>

@@ -13,6 +13,8 @@ Every agent and collector talks to the UTMStack server on **443/TCP only**. This
 
 The install commands check that the server answers on 443 before they register anything. If the check fails, open 443 between the host and the server and run the command again.
 
+Agents and collectors need a **direct** connection: they have no proxy setting, and the install check opens a plain TCP connection to the server. If your hosts can only reach the internet through a proxy, allow direct traffic from them to the UTMStack server on 443.
+
 <Note>
 
 UTMStack v11 agents used ports 9000, 9001 and 50051. UTMStack v12 does not use or publish these ports. If your firewall rules still allow them for UTMStack, you can remove those rules.
@@ -39,6 +41,7 @@ Devices send their logs to the host where the UTMStack Forwarder runs, not to th
 | SonicWall | `firewall-sonicwall` | 7009/UDP, 7009/TCP |
 | Deceptive Bytes | `deceptive-bytes` | 7010/UDP, 7010/TCP |
 | SentinelOne | `antivirus-sentinel-one` | 7012/UDP, 7012/TCP |
+| Generic syslog, CEF and LEEF | `syslog` | 7014/UDP, 7014/TCP |
 | IBM AIX | `ibm-aix` | 7016/UDP, 7016/TCP |
 | pfSense | `firewall-pfsense` | 7017/UDP, 7017/TCP |
 | Fortinet FortiWeb | `firewall-fortiweb` | 7018/UDP, 7018/TCP |
@@ -47,9 +50,16 @@ Devices send their logs to the host where the UTMStack Forwarder runs, not to th
 | Oracle Database | `oracle` | 7021/UDP, 7021/TCP |
 | NetFlow exporters | `netflow` | 2055/UDP (UDP only) |
 
-- These are the default ports. You can choose another port when you enable an integration.
+- These are the default ports. To use another port for a built-in integration, change it on the Forwarder host with `change-port` first. See "Use a different port" in **UTMStack Forwarder**.
+- The four Cisco integrations share 514/UDP and 1470/TCP. Only one of them can use a port on one Forwarder, so give the others different ports.
 - TLS is available on every TCP syslog port once a certificate is loaded on the Forwarder. TLS uses the TCP port.
+- Custom integrations and **JSON Input** use the port you choose when you enable them.
 - GitHub sends from the internet, so port 7020 must be reachable from GitHub. See **GitHub**.
+- Cloud security consoles that send syslog from the internet (for example some SentinelOne and ESET deployments) need the Forwarder's port reachable from the vendor's addresses. Allow only those addresses.
+
+## Windows computers to a Windows event collector
+
+If you use **Windows Event Forwarding**, the source computers send events to your Windows event collector over WinRM: 5985/TCP (HTTP) or 5986/TCP (HTTPS). This traffic stays between your Windows computers; only the collector's agent talks to UTMStack, on 443.
 
 ## IBM AS/400 Collector to your AS/400 systems
 
@@ -70,7 +80,7 @@ Plugin integrations are pulled by the UTMStack server itself, so the server need
 
 ## Ports on the UTMStack server itself
 
-For the ports analysts and administrators use (80, 443, Cockpit on 9090) and the ports you must block from outside (for example 10001), see **Network ports and firewall**.
+For the ports analysts and administrators use (80, 443, Cockpit on 9090) and the ports you must block from outside (for example 10001), see **Network Ports and Firewall**.
 
 ## Multi-tenant installations
 

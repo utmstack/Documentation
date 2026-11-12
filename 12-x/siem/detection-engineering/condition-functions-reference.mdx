@@ -3,9 +3,11 @@ Rule conditions (`where`), conditions on pipeline steps and `drop` steps are wri
 ## How a condition is written
 
 - Each function takes the **field path as quoted text** as its first argument: `equals("origin.ip", "10.0.0.1")`, not `equals(origin.ip, "10.0.0.1")`. An unquoted path either fails to compile or silently never matches.
+- Text can be in double or single quotes: `equals("action", "login")` and `equals('action', 'login')` are the same.
 - Combine functions with `&&` (and), `||` (or), `!` (not) and brackets.
 - A function whose field is missing returns false; it does not raise an error. `safe` returns its default instead.
 - Standard CEL method calls such as `"text".contains()` are not used; use the functions below.
+- In a rule, a condition that cannot be compiled counts as a rule error, and 5 errors switch the rule off until the rule files are reloaded. In a pipeline step, it skips the step and adds an error to the event. See **Rule File Format**.
 
 ```yaml
 where: |
@@ -25,7 +27,7 @@ where: |
 | Function | True when | Visual editor label |
 |---|---|---|
 | `exists("f")` | The field is present. | exists |
-| `safe("f", default)` | Not a test: returns the field's value, or `default` when the field is missing or of another kind. `default` can be text, a number or `true`/`false`. | not offered |
+| `safe("f", default)` | Not a test: returns the field's value, or `default` when the field is missing or of another kind. `default` can be text, a number written with a decimal point (`0.0`, not `0`) or `true`/`false`. | not offered |
 | `equals("f", v)` | The field equals `v`. Numbers match whether stored as a number or as text, and `"true"` matches a true value. | equals |
 | `oneOf("f", [v1, v2, …])` | The field equals any value in the list, matched like `equals`. | is one of |
 | `equalsIgnoreCase("f", "v")` | The text field equals `v`, ignoring upper and lower case. | equals (no case) |
@@ -58,7 +60,9 @@ where: |
 
 - It works on text fields only.
 - An invalid regular expression makes it return false, with no error. Check every expression before you rely on it, for example with **Test** on the Alerting Rules page and a log that should match.
-- Inside the double quotes of a condition, write each backslash twice: `regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")` matches a date such as `2026-11-11`.
+- Inside the double quotes of a condition, write each backslash twice: `regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")` matches a date such as `2026-11-11`. A character class such as `[0-9]` needs no backslash.
+- The named patterns of the `grok` step work here too: `regexMatch("origin.ip", "^{{.ipv4}}$")` is true for an IPv4 address. See **Pipeline File Format and Step Reference**.
+- For a simple comparison that ignores upper and lower case, use `equalsIgnoreCase("status", "error")` rather than a regular expression. It is easier to read and cheaper to run.
 
 ### Number comparisons
 
@@ -73,7 +77,7 @@ where: |
 
 ### `safe`
 
-Use `safe` when you want to compare two fields, or a field with an operator, and the field may be missing:
+Use `safe` when you want to compare two fields, or a field with an operator, and the field may be missing. For numbers, write the default and the compared value with a decimal point: `safe("origin.port", 0.0) > 1024.0`. With `0` instead of `0.0` the condition does not compile ("found no matching overload for 'safe'").
 
 ```yaml
 where: exists("origin.ip") && exists("target.ip") && greaterThan("origin.bytesSent", 10000000) && safe("origin.geolocation.country", "") != safe("target.geolocation.country", "") && greaterThan("origin.port", 1024)
@@ -113,3 +117,5 @@ A pipeline step that only runs on JSON text:
     source: raw
     where: 'startsWith("raw", "{")'
 ```
+
+**Rule Examples** and **Pipeline Examples** have more conditions in complete rules and pipelines.

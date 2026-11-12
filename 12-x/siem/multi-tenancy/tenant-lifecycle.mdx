@@ -1,0 +1,160 @@
+This page explains everything the instance operator can do with a tenant after creating it: change its name, domain and AI request cap, take it offline, bring it back, suspend it through the API, and delete it for good. It also lists the special rules of the default tenant. All of this needs a multi-tenant licence and the **Administrator** role in the default tenant (permissions `tenant.read` and `tenant.write`).
+
+## Tenant statuses
+
+| Status (badge on the card) | How a tenant gets it | What it means |
+|---|---|---|
+| **Active** | Creating the tenant, or **Activate** | Normal operation. |
+| **Suspended** | Only through the API (see below) | The tenant's users and API keys are refused. Data is kept. The tenant can still be edited. |
+| **Terminated** | **Deactivate** on the Tenants page | The tenant's users and API keys are refused. Data is kept. The tenant cannot be edited until it is activated again. Required before **Delete permanently**. |
+
+While a tenant is **Suspended** or **Terminated**, every request of its users and every API call with its keys is refused with "this tenant has been suspended or terminated". A terminated tenant cannot be entered; a suspended one can, but every request inside it is refused. Neither is offered in **Apply to all tenants**.
+
+## Edit a tenant
+
+On **Tenants**, click the pencil icon (**Edit**) on the tenant's card. The dialog **Edit tenant** reminds you: "Support access is not here: only the tenant can grant it."
+
+![The Edit tenant dialog with the Name and Domain fields, the AI request cap with Cap this tenant switched on and a daily number, and the Save changes button](/assets/e69066e5-90fb-40cf-a5fa-67c454f9a35e)
+
+| Field | What it does |
+|---|---|
+| **Name** | The display name, at least two characters. |
+| **Domain** | The address the tenant is reached on ("How this tenant is reached. Every request on this host lands in their data."). Prepare DNS and the certificate first. See "Change a tenant's domain" in **How Users Reach Their Tenant**. |
+| **AI request cap** | See the next section. |
+
+Click **Save changes**. A deactivated tenant cannot be edited: saving fails with "tenant is terminated". Activate it first.
+
+### AI request cap
+
+The cap limits how many SOC-AI requests the tenant can make per day. The day resets at midnight UTC.
+
+- Switch on **Cap this tenant** and enter a whole number, `0` or more ("An operational cap, per day. Uncapped, they spend against the instance licence.").
+- `0` switches the AI off for the tenant.
+- Switch **Cap this tenant** off to remove the tenant's cap. The tenant then uses the server's overall limit, which by default is unlimited.
+- A tenant never gets more than the server's overall limit, even if its cap is higher.
+
+The card's **AI today** dial shows the requests used today, with the cap below it (for example `/ 1000`) or **no cap**. In v12.0.2 a tenant capped at `0` is also shown as **no cap**. See **AI Usage and Limits**.
+
+## Deactivate a tenant
+
+Deactivating takes a customer offline but keeps all their data, so you can undo it.
+
+<Steps>
+
+<Step title="Open the dialog">
+
+On **Tenants**, click the power icon (**Deactivate**) on an active tenant's card. The dialog asks "Deactivate this tenant?".
+
+</Step>
+
+<Step title="Confirm">
+
+Type the tenant's name exactly as shown and click **Deactivate**. The card now shows **Terminated**, and the **Enter** button disappears.
+
+</Step>
+
+</Steps>
+
+Deactivating does not uninstall anything on the customer's side. Agents, Forwarders and cloud integrations that are still set up keep sending data to the server, and it is stored for the tenant. If the customer is leaving, see "Before you delete a tenant" below.
+
+## Activate a tenant again
+
+On the card of a **Terminated** tenant, click the power icon (**Activate**). The dialog says the tenant "will be able to sign in again" and that its preserved data is restored as it was. Click **Activate**. The tenant's users, settings, data and support access level are as they were before.
+
+**Activate** works only for tenants that were deactivated. For a **Suspended** tenant it fails with "tenant is not terminated"; end the suspension through the API instead.
+
+## Suspend a tenant (API only)
+
+There is no button for suspending. Use the API, signed with an API key of an Administrator of the default tenant and sent to the default tenant's address. See **Authentication and API Keys**.
+
+1. Find the tenant's ID:
+
+   ```bash
+   curl -s "https://siem.example.com/api/v1/tenants?name=Acme" \
+     -H "Utm-Api-Key: YOUR_API_KEY"
+   ```
+
+   The answer lists matching tenants with their `id`, `name`, `domain` and `status`.
+
+2. Suspend it:
+
+   ```bash
+   curl -s -X PUT "https://siem.example.com/api/v1/tenants/TENANT_ID" \
+     -H "Utm-Api-Key: YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"status": "SUSPENDED"}'
+   ```
+
+3. To end the suspension, send `{"status": "ACTIVE"}` the same way.
+
+Allowed values are `ACTIVE`, `SUSPENDED` and `TERMINATED`; anything else is refused with "status must be ACTIVE, SUSPENDED or TERMINATED".
+
+<Warning>
+
+Never change the status of the default tenant. If the default tenant is not active, every operator is locked out.
+
+</Warning>
+
+## Delete a tenant permanently
+
+Deleting erases the tenant and its data from the server. It cannot be undone.
+
+### Before you delete a tenant
+
+1. Give the customer what they want to keep, for example compliance reports or exported alerts and logs.
+2. Uninstall the tenant's agents and Forwarders: run the uninstall command on each machine. An agent's uninstall also removes its registration from the server. See **Windows Agent**, **Linux Agent**, **macOS Agent** and **UTMStack Forwarder**.
+3. Inside the tenant, delete the config group of each cloud integration, so that collection stops and the customer's credentials are removed.
+4. Deactivate the tenant (see above).
+5. Afterwards, remove the tenant's DNS record and, at the next renewal, its name from the certificate.
+
+### Delete
+
+<Steps>
+
+<Step title="Open the dialog">
+
+On the card of a **Terminated** tenant, click the trash icon (**Delete permanently**). The dialog asks "Delete this tenant forever?". For a tenant that is not deactivated, the deletion is refused with "tenant is not terminated".
+
+</Step>
+
+<Step title="Confirm">
+
+Type the tenant's name exactly as shown and click **Delete forever**. The card disappears.
+
+</Step>
+
+</Steps>
+
+### What is removed
+
+- Every record in the database that belongs to the tenant: its users, sessions and API keys, the roles it created, its settings, branding and identity providers, data source records, incidents, dashboards, saved searches, tagging rules, notifications, response flow variables and run history, compliance reports and schedules, AI usage, and the tenant's own audit log.
+- The tenant's logs, alerts and ingestion statistics in the event store. This runs in the background: the records disappear as the event store works through the deletion, which can take a while on a server with a lot of data.
+- The tenant's custom correlation rules and pipelines.
+- The tenant itself. Its domain then answers "unknown tenant", and old sessions stop working.
+
+Nothing is changed on the customer's machines or in the customer's cloud accounts. If the clean-up of the event store fails, the tenant is kept and you can try again.
+
+Your own audit log keeps the entries `tenant.terminate` and `tenant.purge` with the tenant's ID.
+
+## The default tenant
+
+The default tenant, named **UTMStack**, is the instance operator's own tenant. Its ID is always `ce66672c-e36d-4761-a8c8-90058fee1a24`.
+
+- It is not listed on the **Tenants** page and cannot be deactivated, activated or deleted. Such requests are refused with "the default tenant holds the platform plane and cannot be changed this way".
+- Its administrators are the instance operators.
+- It has no **Support access** page: nobody needs to be granted access to it.
+- Its email settings, Base URL, alert recipients, date format and language are used by every tenant that has not saved its own.
+- Its domain is the first address used after installation. See "The default tenant's address" in **How Users Reach Their Tenant**.
+- **Apply to all tenants** includes it for pipelines, correlation rules and response flows. See **Apply to All Tenants**.
+
+## Error messages
+
+| Message | Meaning |
+|---|---|
+| "That domain is already taken" | Another tenant already has this domain. |
+| "domain is not a valid hostname" | The domain has characters other than letters, digits, dashes and dots, has only one part, or is too long. |
+| "name is required" | The name is empty. |
+| "tenant is terminated" | You tried to edit a deactivated tenant, or to change its support access. Activate it first. |
+| "tenant is not terminated" | You tried to delete a tenant that is not deactivated, or to activate one that is suspended. |
+| "a limit cannot be negative ..." | The AI request cap is below 0. |
+| "the default tenant holds the platform plane and cannot be changed this way" | The action is not allowed on the default tenant. |

@@ -1,0 +1,220 @@
+A rule that fires too often hides real attacks and wears out the people who read the alerts. This page shows how to find the noisy rules in UTMStack v12, decide what kind of noise you have, pick the right tool to reduce it, and check that the rule still catches what it should. It also explains how the rule flood guard reacts to noise, so you can tune before it switches a rule off.
+
+## Before you start
+
+- Changing rules needs the `eventprocessing.write` permission (Administrator). Tagging rules need `alerts.write` (Administrator or Analyst). See **Roles and Permissions**.
+- Rule changes apply to your tenant only. On a multi-tenant installation, the instance operator can switch a shipped rule on or off in many tenants with **Apply to all tenants**; a custom rule must be imported or changed in each tenant (see **Apply to All Tenants**).
+- Read **Rule File Format** for the keys `where`, `deduplicateBy` and `groupBy` used below.
+
+## Step 1: Find the noisy rules
+
+Start with numbers, not impressions. In **Log Explorer**, switch to **SQL** and run this query. It counts what the rule flood guard counts: open, top-level alerts not tagged False positive, per rule and data source, over the last 24 hours.
+
+```sql
+SELECT name, dataSource, count() AS open_alerts
+FROM alerts
+WHERE parentId = ''
+  AND status = 'Open'
+  AND NOT has(tags, 'False positive')
+  AND `@timestamp` > now() - INTERVAL 24 HOUR
+GROUP BY name, dataSource
+ORDER BY open_alerts DESC
+LIMIT 20
+```
+
+Any row near 50 is close to the flood guard limit. For the week's trend, replace `24 HOUR` with `7 DAY` and remove the `status` condition. See **Log Explorer SQL Mode** for the query rules.
+
+Then look at what one noisy rule actually catches. This query lists the attacker addresses behind one rule; replace the rule name:
+
+```sql
+SELECT toString(adversary.ip) AS source_ip, count() AS alert_count
+FROM alerts
+WHERE name = 'Acme Firewall: Blocked Connection to an Administration Port'
+  AND `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY source_ip
+ORDER BY alert_count DESC
+LIMIT 20
+```
+
+A handful of values behind most alerts (one scanner, one service account, one backup server) is the most common pattern, and the easiest to fix.
+
+<Tip>
+
+Log Explorer's SQL mode refuses some ordinary words anywhere in the query, for example `remote`, `file`, `input` and `url`, even inside a rule name. If a rule name contains one, filter with `startsWith(name, '...')` on the part before the word. See **Log Explorer SQL Mode**.
+
+</Tip>
+
+## Step 2: Decide what kind of noise it is
+
+Open a few of the alerts and their last event. Each alert is one of three kinds:
+
+| Kind | Example | What to do |
+|---|---|---|
+| **Real and worth acting on** | Password spraying from an unknown address | Nothing to tune. Respond, and consider a response flow (see **Automated Response Overview**). |
+| **Real but expected** | Your vulnerability scanner probing every port each night; a backup account that signs in at 03:00 | Keep the rule, remove the known, harmless cases. |
+| **Wrong** | The rule matches events that are not what it is meant to detect | Fix the condition, or the pipeline if a field is filled wrongly. |
+
+Also count how many alerts describe the **same** activity. Ten alerts for one brute-force attempt are not ten problems: that is a de-duplication or grouping problem, not a detection problem.
+
+## Step 3: Choose the tool
+
+| Tool | Use it when | What happens to matching alerts | Works on shipped rules? |
+|---|---|---|---|
+| **Tagging rule with False positive** (**Threat Management > Tagging Rules**) | A known, harmless value (address, account, host) sets the rule off | Still stored, but saved as **Completed** with the **False positive** tag. Not counted by the flood guard. Still emailed. | Yes, without changing the rule |
+| **`deduplicateBy`** | The same activity repeats and one alert is enough | Repeats with the same values within 7 days are dropped and never stored. | No: change a copy |
+| **`groupBy`** | The same activity repeats and you want to see each repeat | Repeats are stored as echoes under the first alert. Echoes are not counted by the flood guard. A repeat re-opens a Completed first alert. | No: change a copy |
+| **Narrow the condition** (`where`) | The rule matches cases it should not, or a harmless case should never raise an alert at all | No alert is raised. | No: change a copy |
+| **Switch the rule off** (**Active** switch) | The rule does not apply to your environment | No alert from this rule in your tenant. | Yes |
+| **Drop events in a pipeline** (`drop` step) | Events you never need at all, for example health-check noise | The events are not stored and no rule sees them. | Custom pipelines only |
+
+Prefer the narrowest tool that solves the problem. A tagging rule keeps a record of what was suppressed and needs no change to the rule. A narrower condition removes the alert completely, which also stops the alert emails.
+
+<Warning>
+
+A `drop` step removes events for every rule, every dashboard and every search, not just for the noisy rule, and dropped events cannot be recovered. Use it only for events you are sure you never need.
+
+</Warning>
+
+## Step 4: Apply the change
+
+### Add a tagging rule
+
+Use this for known, harmless values. On **Threat Management > Alerts**, find one of the noisy alerts and click its tag icon **Create a tag from this alert**. Enter a **Rule name** and a **Description** (both are required), keep only the conditions that identify the harmless case (usually the alert name and the adversary address or user), add the tag **False positive**, and click **Create**. It applies to new alerts from about a minute later. See **Tagging Rules and False Positives**.
+
+### Change a custom rule
+
+For a single-event rule, open it on **Configure > Alerting Rules**, click **Edit**, change `where`, **Deduplicate by** or **Group by**, click **Test** with a log that should still match, and **Save**.
+
+For a counting rule (one with correlation steps), do not edit it in the editor: saving there removes correlation steps that have no **Index pattern**. Edit the YAML file instead, delete the rule, and import the file again. Check afterwards that it is **Active**. See **Alerting Rules**.
+
+### Change a shipped rule
+
+Shipped rules are read-only. Replace one with your own copy:
+
+<Steps>
+<Step title="Export it">
+
+On **Configure > Alerting Rules**, tick the rule and click **Export (1)**. Use the list export, not the **Export** button in the rule panel: the list export gives the exact stored file, including all correlation steps.
+
+</Step>
+<Step title="Edit the copy">
+
+Open the YAML file from the zip:
+
+- Give it a new `name`, for example add "(tuned)". Alert names, de-duplication, grouping, tagging rules, response flow triggers and the flood guard all work by name. If your copy keeps the shipped name, the flood guard switches off both rules together, and response flows cannot tell them apart.
+- If the file uses `afterEvents`, rename that key to `correlation`, or its correlation steps are lost on import.
+- Make your change, for example an exclusion in `where` or a `deduplicateBy` list.
+
+</Step>
+<Step title="Import it and switch the shipped rule off">
+
+Click **Import** and choose the file. **Import results** should show it as **Approved**. Then switch the shipped rule off with its **Active** switch.
+
+</Step>
+<Step title="Update response flows and tagging rules">
+
+If a response flow or a tagging rule names the shipped rule, change it to the new name.
+
+</Step>
+</Steps>
+
+<Note>
+
+Your copy does not change when UTMStack is updated. When a new release improves the shipped rule, you keep your version until you compare the two and copy the improvement. See **Shipped and Custom Rules and Pipelines**.
+
+</Note>
+
+## Worked example: a vulnerability scanner
+
+The rule "Acme Firewall: Blocked Connection to an Administration Port" from **Tutorial: From a New Log Source to an Alert** raises an alert every night for the two external scanners of your security provider, `198.51.100.20` and `198.51.100.21`.
+
+**Option A: keep the alerts, close them automatically.** Create a tagging rule named `Security provider scanners`, with a description and the conditions **Alert name** is "Acme Firewall: Blocked Connection to an Administration Port" and **Adversary IP** **is one of** `198.51.100.20,198.51.100.21`, and the tag **False positive**. The alerts are still stored and searchable, but arrive as Completed and do not count towards the flood guard.
+
+**Option B: no alert at all.** Edit the custom rule and add one line to its condition:
+
+```yaml
+where: |
+  equals("actionResult", "denied") &&
+  oneOf("target.port", [22, 3389, 5985, 5986]) &&
+  exists("origin.ip") &&
+  !inCIDR("origin.ip", "10.0.0.0/8") &&
+  !inCIDR("origin.ip", "172.16.0.0/12") &&
+  !inCIDR("origin.ip", "192.168.0.0/16") &&
+  !oneOf("origin.ip", ["198.51.100.20", "198.51.100.21"])
+```
+
+For a whole range, use `!inCIDR("origin.ip", "198.51.100.16/28")` instead.
+
+Before you save, click **Test** and run two samples: a line from `198.51.100.20` must give no alert, and a line from another public address must still give one.
+
+## Write rules that stay quiet
+
+Most noise is cheaper to prevent than to tune away:
+
+1. **Always set `deduplicateBy` or `groupBy`.** Of the 721 shipped rules, 609 group and 101 de-duplicate. Use alert field names: `adversary.*`, `target.*`, `dataSource` or `lastEvent.log.<field>`. A rule whose fields do not exist on the alert is never de-duplicated or grouped.
+2. **Pick the fields that make an alert "the same".** `adversary.ip` alone means one alert per attacker; `adversary.ip` plus `target.ip` means one per attacker and target.
+3. **List only the data types the rule is written for.**
+4. **Exclude the obvious cases in `where`:** computer accounts (names ending in `$`), private ranges when you look for outside attackers, `actionResult` values that do not matter.
+5. **Count when one event is not enough.** A single failed sign-in is normal; 10 in 5 minutes from one address is not. See the correlation steps in **Rule File Format**.
+6. **Estimate the volume before you switch a rule on.** Search the events of the last week in Log Explorer with the same conditions. If they would give more than about 50 different alerts a day from one data source, refine the rule first.
+
+For example, to estimate the tutorial rule's volume before saving it:
+
+```sql
+SELECT toString(origin.ip) AS source_ip, toString(target.ip) AS target_ip, count() AS events
+FROM logs
+WHERE dataType = 'acme-firewall'
+  AND actionResult = 'denied'
+  AND toString(target.port) IN ('22', '3389', '5985', '5986')
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY source_ip, target_ip
+ORDER BY events DESC
+LIMIT 50
+```
+
+The number of rows (pairs of source and target outside your private ranges) is roughly the number of alerts a day the rule would raise with its `deduplicateBy`.
+
+## How the rule flood guard reacts to noise
+
+The rule flood guard is the safety net when tuning comes too late. Every 5 minutes it counts, per tenant, rule name and data source, the alerts of the last 24 hours that are **Open**, top-level (not echoes) and not tagged **False positive**. When one count goes above 50, it switches every active rule with that name off for that tenant, and posts a warning in the notification bell:
+
+```text
+Correlation rule '<rule name>' generated <n> open, un-deduplicated alerts from data source '<data source>' in the last 24h and was automatically disabled to prevent alert flooding. If this volume is expected, use an Alert Tag Rule to mark it 'False positive', or add deduplicateBy/groupBy to the rule, then re-enable it.
+```
+
+What this means when you tune:
+
+| Your action | Effect on the flood guard count |
+|---|---|
+| Close alerts (status **Completed** or **In review**) | They stop counting from the next check. |
+| Tag alerts **False positive** (by hand or with a tagging rule) | They stop counting. |
+| Add `groupBy` | Repeats become echoes and do not count. |
+| Add `deduplicateBy` | Repeats are never stored, so they never count. |
+| Narrow `where` | Fewer alerts are raised. |
+| Replace a shipped rule with a renamed copy | The copy is counted under its own name. |
+
+The limits are per tenant and per data source: one noisy firewall cannot switch a rule off for another tenant, but 51 alerts from that one firewall are enough to switch it off for all of your tenant's firewalls.
+
+After the guard has switched a rule off:
+
+1. Tune the rule, or close or tag the flood of alerts.
+2. Run the first query of this page again: the rule's count must be 50 or less.
+3. Switch the rule back on with its **Active** switch on **Configure > Alerting Rules**.
+
+If more than 50 counted alerts remain, the next check switches the rule off again within about 5 minutes. See **Rule Flood Guard** for its settings.
+
+## Step 5: Check the result
+
+1. Run the counting query of Step 1 again after a day. The rule's numbers should have dropped.
+2. Prove the rule still detects what it should: click **Test** on the rule with a log that must match, and expect an alert.
+3. Look at the **Completed** tab of **Threat Management > Alerts** for alerts your tagging rules closed. Skim them once a week: an attacker may hide behind a value you marked as harmless.
+4. Write down why you tuned the rule, for example in its `description`. Others can then follow the decision.
+
+## Related pages
+
+- **Tutorial: From a New Log Source to an Alert**
+- **Shipped and Custom Rules and Pipelines**
+- **Tagging Rules and False Positives**
+- **Rule Flood Guard**
+- **Rule File Format**
+- **Condition Functions Reference**

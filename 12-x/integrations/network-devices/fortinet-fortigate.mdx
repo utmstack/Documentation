@@ -5,14 +5,16 @@ UTMStack v12 collects Fortinet FortiGate firewall logs through the **UTMStack Fo
 | Setting | Value |
 |---|---|
 | Card on the Integrations page | **Fortigate** (category Firewall) |
-| Data type | `firewall-fortigate-traffic` |
+| Data type | `firewall-fortigate-traffic` (traffic, event and security logs all arrive under this one data type) |
 | Default ports on the Collector | 7005/UDP; 7005/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 7 detection rules |
+| Log format UTMStack reads | FortiOS key=value syslog (`set format default`); CEF is also read |
+| Parsing pipeline | `fortinet/fortinet.yaml`, version 3.4.0. **Filters** in the card's drawer opens it. |
+| Detection rules | 7. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The FortiGate must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The FortiGate must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
 
 ## Step 1: Enable the integration on a Collector
@@ -20,9 +22,13 @@ UTMStack v12 collects Fortinet FortiGate firewall logs through the **UTMStack Fo
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Fortigate** card.
+
+    ![FortiGate setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/aa1c4abe-7e62-41e0-8d34-42f28d639c66)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7005`.
@@ -32,14 +38,30 @@ UTMStack v12 collects Fortinet FortiGate firewall logs through the **UTMStack Fo
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-fortigate-traffic 7005 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-fortigate-traffic udp
 ```
+
+The command prints the port the Collector really listens on, for example `Integration "firewall-fortigate-traffic" enabled on udp port 7005`.
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port, for example:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-fortigate-traffic udp 7105
+   ```
+
+   Use `tcp` instead of `udp` for TCP and TLS.
+2. In the **Fortigate** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in `set port` in step 2.
+
 ## Step 2: Configure FortiGate to forward logs
 
-On the FortiGate, point syslog at the Collector host on port 7005. Run the following from the FortiOS CLI, or use **Log & Report → Log Settings → Syslog** in the web interface. Replace `<collector-ip>` with the address of the Collector host.
+On the FortiGate, point syslog at the Collector host. Run the following from the FortiOS CLI, or use **Log & Report > Log Settings** in the web interface (remote logging to syslog). Replace `<collector-ip>` with the address of the Collector host.
 
 ```text
 config log syslogd setting
@@ -57,18 +79,59 @@ The setup guide in UTMStack fills in your UTMStack server's address in this step
 
 </Note>
 
-For more than one syslog destination, use `syslogd2`, `syslogd3` or `syslogd4`.
+- Keep `set format default`. UTMStack reads FortiOS key=value logs (the default format) and CEF.
+- For more than one syslog destination, use `syslogd2`, `syslogd3` or `syslogd4`.
+- Firewall policies only log traffic if logging is turned on in each policy (for example **Log Allowed Traffic**). Check this on the policies you care about.
+
+### Send over TCP or TLS instead
+
+To send over TCP, enable the integration with **TCP** and set `set mode reliable` (syslog over TCP as described in RFC 6587). The Collector accepts the length-prefixed messages this mode sends, up to 8,192 bytes each.
+
+To encrypt the connection, enable the integration with **TLS**, keep `set mode reliable` and also set `set enc-algorithm high`. The FortiGate must be able to trust the certificate loaded on the Collector. See Fortinet's CLI reference for your FortiOS version.
 
 ## Step 3: Check that logs arrive
 
-- In the **Fortigate** drawer, click **View logs**. Log Explorer opens with the `firewall-fortigate-traffic` data type for the last 24 hours.
-- Within about 10 minutes, the FortiGate appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Fortigate** drawer, click **View logs**. Log Explorer opens with the `firewall-fortigate-traffic` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-fortigate-traffic` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip`, `target.port` and `action`, and FortiGate fields under `log.`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, the FortiGate appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-fortigate-traffic'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, or the FortiGate sends to the wrong address, port or mode, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list. Run `show log syslogd setting` on the FortiGate. Check that the Collector host allows the port in. See **Forwarder Troubleshooting**. |
+| Nothing arrives, and the Forwarder guide filled in the UTMStack server's address | The FortiGate sends to the UTMStack server, but the Collector runs on another host. | Set `set server` to the Collector host. |
+| Nothing arrives from a FortiGate with VDOMs | Syslog is set globally but a VDOM overrides it, or the FortiGate sends from an interface without a route to the Collector. | Check the VDOM's syslog override settings, and set `set source-ip` to an address that can reach the Collector. |
+| `set mode reliable` sends nothing | The integration is enabled with UDP only. | Enable it with **TCP** (or **TLS** with `enc-algorithm`). |
+| Events arrive but have almost no fields | The FortiGate sends another format, such as CSV. | Set `set format default`. |
+| Long messages are cut off | Over UDP, the Collector reads at most 2,048 bytes of each message. | Send over TCP or TLS (`set mode reliable`). |
+| Some traffic never shows up | Logging is off in those firewall policies. | Turn on traffic logging in each policy. |
 
 ## Stop collecting
 
-In the **Fortigate** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Fortigate** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`udp`, `tcp` or `tls`):
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-fortigate-traffic udp
 ```
+
+Then turn off the syslog destination on the FortiGate (`set status disable` under `config log syslogd setting`).

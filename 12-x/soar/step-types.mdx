@@ -1,4 +1,4 @@
-A flow is made of steps (the editor calls them *nodes*). This page lists every step type the flow editor offers in UTMStack v12, its fields, and how it behaves when it runs.
+A flow is made of steps (the editor calls them *nodes*). This page lists every step type the flow editor offers in UTMStack v12, its fields and defaults, how it behaves when it runs, and the messages it leaves when it fails.
 
 ## Two kinds of step
 
@@ -7,7 +7,7 @@ A flow is made of steps (the editor calls them *nodes*). This page lists every s
 | **Executor** | Does something: runs a command, sends a message, opens an incident, checks a condition. | None. |
 | **Enrichment** | Fetches data: an HTTP answer or an AI answer. | Yes. Later steps can insert parts of it. See **Step Outputs and Variables**. |
 
-The palette shows the kind next to each step type (EXECUTOR or ENRICHMENT).
+The palette shows the kind under each step type (EXECUTOR or ENRICHMENT).
 
 Every step ends in success or failure. On success the green wires run, on failure the red wires run. See **Building a Flow**.
 
@@ -23,23 +23,46 @@ Every step ends in success or failure. On success the green wires run, on failur
 | Send email | `mail` | Executor | Send an email. |
 | Conditional (if/else branch) | `conditional` | Executor | Choose the next steps based on alert values or earlier step outputs. |
 
+## Fields every step has
+
+When you select a step on the canvas, the inspector on the right shows its settings. Every step has an **ID** field at the top: the step identifier (for example `step_0`). Later steps use it to insert this step's output (`$(step_0.result)`), and **Execution history** shows it in the **Node** column. Give enrichment steps short, meaningful IDs such as `ticket` or `ai_check`.
+
+At the bottom of the inspector, **Save** keeps your changes to the step, **Cancel** drops them and **Delete node** removes the step. Nothing is stored on the server until you click **Save** for the whole flow.
+
 ## Shell (endpoint agent)
 
 Sends a command to a UTMStack agent and waits for the result.
 
 | Field | YAML key | Notes |
 |---|---|---|
-| **Platform** | `platform` | The platform the command is written for. It filters the host list and the shell list in the editor. |
-| **Shell** | `shell` | Windows: `cmd` or `powershell`. Other platforms: `bash` or `sh`. Default: cmd on Windows, bash elsewhere. |
+| **Platform** | `platform` | **any** (default for a new step), or a platform such as `windows`, `linux`, `ubuntu`, `centos`, `darwin` and the platforms of your agents. It filters the host list and the shell list. |
+| **Shell** | `shell` | **auto** (default for a new step), or `cmd` and `powershell` for Windows, `bash` and `sh` for other platforms. Choosing a platform sets `cmd` (Windows) or `bash` (others). |
+| **Command** | `command` | Required. The buttons above the box are **Templates** (ready-made commands, available once a platform is chosen: "First select target platform"), **Insert field** (alert values and outputs of earlier enrichment steps) and **Variables** (stored variables). |
 | **Run on** | `agent`, `excludedAgents` | **alert source** (default), **one host**, or **all except**. See **Running Steps on Another Host**. |
-| **Command** | `command` | Required. You can insert alert values and variables. See **Placeholders**. |
 
-How it behaves:
+<Warning>
 
-- A command that ends with a non-zero exit code is a failure and takes the red wire. This needs agents from UTMStack v12.0.2 or later; older agents report every command as executed.
-- The command's output is stored with the step. The **Execution history** page does not show it, so run a command in the **Interactive Console** when you need to see its output.
-- If the agent is offline, the step is marked **Failed** with the cause **Agent offline** and its red wire runs. If no agent has the host name, the step is marked **Failed** too.
+Always choose the shell. With **auto**, the agent uses `cmd.exe` on Windows and `sh` on Linux and macOS, while UTMStack quotes inserted values for `sh`. On Windows that adds stray single quotes to every inserted value. See **Placeholders**.
+
+</Warning>
+
+How the agent runs the command:
+
+| Shell | Started as |
+|---|---|
+| `cmd` (or auto on Windows) | `cmd.exe /C <command>` |
+| `powershell` | `powershell.exe -Command <command>` (Windows PowerShell) |
+| `bash` | `bash -c <command>` |
+| `sh` (or auto on Linux and macOS) | `sh -c <command>` |
+
+- The command runs with the agent's own rights: root on Linux, the Local System account on Windows.
+- A command that ends with a non-zero exit code is a failure and takes the red wire. This needs agents from UTMStack v12.0.2 or later; older agents report every finished command as a success.
+- The step keeps the command's output. When the command fails, the output holds what the command printed, its error text and a last line such as `exit status 1`. **Execution history** does not show the output; read it through the API (see **SOAR API**) or run the command in the **Interactive Console** to see it.
+- Agents from UTMStack v12.0.2 cut output longer than 65,536 bytes and add the line `... output truncated, showing first N of M bytes`.
+- If the agent is offline, the step is marked **Failed** with the cause **Agent offline** and its red wire runs. If no agent has the host name, the step is marked **Failed** with the result `soar shell: agent not found`.
+- An agent installed with remote control disabled answers `refused: this agent was installed with no-remote-control`, and the step fails.
 - Commands for one agent run one at a time, so a long command delays the next one on the same machine.
+- UTMStack stops waiting after 5 minutes and marks the step **Failed**. The command itself may still be running on the machine.
 
 <Warning>
 
@@ -53,22 +76,35 @@ Sends one web request. The request leaves from the **UTMStack server**, not from
 
 | Field | YAML key (inside `params`) | Notes |
 |---|---|---|
-| **Method** | `method` | GET, POST, PUT, PATCH, DELETE, HEAD or OPTIONS. If empty: POST when a body is set, otherwise GET. |
-| **URL** | `url` | Required. A full `https://` or `http://` address. |
-| **HTTP headers** | `headers` | Name and value rows. |
-| **Query params** | (added to the URL) | Name and value rows, merged into the address. |
-| **Body (JSON)** | `body` | Only for POST, PUT and PATCH. Must be valid JSON. |
-| (Code tab only) | `timeoutSec` | Seconds to wait. Default 30. |
+| **URL** | `url` | Required. Pick `https://` or `http://` in the list, then type the rest of the address. The full address is shown under the box. "Not a valid http(s) URL." marks a bad address. |
+| **Method** | `method` | GET (default in the editor), POST, PUT, PATCH, DELETE, HEAD or OPTIONS. If the key is missing in YAML: POST when a body is set, otherwise GET. |
+| **HTTP headers** tab | `headers` | Name and value rows (**Add header**). |
+| **Query params** tab | (added to the URL) | Name and value rows (**Add param**), joined to the address after `?`. |
+| **Body (JSON)** tab | `body` | Shown only for POST, PUT and PATCH. Must be valid JSON ("Invalid JSON" otherwise). |
+| (Code tab only) | `timeoutSec` | Seconds to wait for the answer. Default 30. |
 
 How it behaves:
 
-- A new HTTP step starts with four headers: `Content-Type: application/json`, `Accept: */*`, `Accept-Encoding: gzip, deflate, br` and `Connection: keep-alive`. Each header and query row has a tick box; rows you untick are not sent.
+- A new HTTP step starts with four headers: `Content-Type: application/json`, `Accept: */*`, `Accept-Encoding: gzip, deflate, br` and `Connection: keep-alive`. Each header and query row has a tick box; rows you untick are not saved.
 - When a body is set, `Content-Type: application/json` is sent.
-- Any answer outside the 200 to 299 range is a failure.
+- Any answer outside the 200 to 299 range is a failure. The result then holds the status line and the answer, for example `401 401 Unauthorized` followed by the text the service sent back.
 - The step stores the status line and the first 4,096 characters of the answer.
-- Because the step is an enrichment step, the answer must be JSON. Later steps can insert values from it. An answer that is not JSON makes the step fail.
-- Many services answer with plain text (a chat webhook may answer just `ok`). For those, open the **Code** tab and change the step's `kind` from `enrichment` to `executor`. The answer is then not read as JSON, and later steps cannot use it.
+- Because the step is an enrichment step, the answer must be JSON (an empty answer counts as `{}`). Later steps can insert values from it. An answer that is not JSON makes the step fail, even with a 200 status; the result still shows the status line and the answer.
+- Many services answer with plain text (a Slack webhook answers just `ok`). For those, open the **Code** tab and change the step's `kind` from `enrichment` to `executor`. The answer is then not read as JSON, and later steps cannot use it.
 - The server checks the certificate of an `https` address. There is no option to skip that check, so a device with a self-signed certificate is refused. For such devices, run the call from a shell step on a host that can reach them (see **Running Steps on Another Host**).
+- Redirects are followed.
+
+<Warning>
+
+**Remove the `Accept-Encoding` header from enrichment steps.** When that header is set by hand, the server receives the answer compressed and does not unpack it, so a JSON answer from services that compress (many cloud APIs do) fails: the result shows a 200 status line followed by unreadable compressed bytes. Without the header, UTMStack asks for compression itself and unpacks the answer.
+
+</Warning>
+
+<Warning>
+
+**Placeholders in the Query params tab are not filled in.** The editor encodes the rows into the address, which turns `$(alert.adversary.ip)` into `%24%28alert.adversary.ip%29`, and the value is never inserted. Put alert values in the address path or the body instead. In UTMStack v12.0.2 every inserted value also arrives in single quotes; see **Placeholders**.
+
+</Warning>
 
 ## LLM enrichment
 
@@ -76,13 +112,14 @@ Sends a prompt to the SOC-AI assistant (LLM stands for large language model, the
 
 | Field | YAML key (inside `params`) | Notes |
 |---|---|---|
-| **Prompt** | `prompt` | Required. You can insert alert values. |
+| **Prompt** | `prompt` | Required. You can insert alert values with **Insert field**. |
 
 How it behaves:
 
-- The model is told to answer with one JSON object that has a `result` property, and UTMStack enforces that shape even if the model does not. Later steps insert the answer with `$(<step id>.result)`, for example `$(step_2.result)`.
+- The editor hint reads: "The model is instructed to always answer with a single JSON object carrying a "result" property. The backend guarantees this shape even if the model deviates." Later steps insert the answer with `$(<step id>.result)`, for example `$(step_2.result)`. If the model answers in plain text, the whole text becomes `result`.
 - It needs a working AI provider. See **AI Providers**.
-- An AI step that is still running after 6 minutes is queued again.
+- Like every step, it is stopped after 5 minutes and marked **Failed**.
+- When the SOC-AI service cannot be reached or answers with an error, the result starts with `soar llm:`, for example `soar llm: upstream 503: …`. When the assistant started answering and then failed, the result holds the assistant's message stream instead, including an `event: error` entry.
 
 ## Send notification
 
@@ -90,8 +127,8 @@ Posts an in-app notification for the tenant, shown in the bell menu.
 
 | Field | YAML key (inside `params`) | Notes |
 |---|---|---|
-| **Level** | `type` | INFO, WARNING or ERROR. Any other value becomes INFO. |
-| **Message** | `message` | Required. You can insert alert values. |
+| **Level** | `type` | INFO (default), WARNING or ERROR. Any other value becomes INFO. |
+| **Message** | `message` | Required. "Notification text. Templates like $(alert.name) are interpolated." |
 
 ## Open incident
 
@@ -106,7 +143,7 @@ How it behaves:
 
 - The incident's severity is the alert's severity (low when the alert has none).
 - Incident names must be unique in a tenant. A fixed name works only once: the second run fails because an incident with that name already exists. Put a value that changes per alert into the name, for example `$(alert.id)`.
-- The step fails when the run has no alert, for example a manual run with raw JSON that has no alert `id`.
+- The step fails with `soar incident: no alert linked to this execution` when the run has no alert, for example a manual run with raw JSON that has no alert `id`.
 
 ## Send email
 
@@ -114,12 +151,12 @@ Sends an email through the tenant's mail settings (**Configure > Settings > Emai
 
 | Field | YAML key (inside `params`) | Notes |
 |---|---|---|
-| **To (comma-separated)** | `to` | Required. At least one valid address. |
+| **To (comma-separated)** | `to` | Required. At least one valid address ("Invalid email address: …" otherwise). |
 | **CC (comma-separated, optional)** | `cc` | |
-| **Subject** | `subject` | Required. |
-| **Body** | `body` | Required. Sent as HTML. |
+| **Subject** | `subject` | Required. Example from the editor: `Alert on $(alert.dataSource)`. |
+| **Body** | `body` | Required by the server when you save the flow. Sent as HTML. |
 
-The email has no attachments.
+The email has no attachments. A sending problem fails the step with a result that starts `soar mail: send:` followed by the mail server's answer.
 
 ## Conditional (if/else branch)
 
@@ -127,22 +164,42 @@ Checks one or more conditions against the run's data. If **all** conditions matc
 
 | Field | YAML key (inside `params`) | Notes |
 |---|---|---|
-| **Conditions** | `conditions` | Field, operator, value. Same 12 operators as the trigger (see **Building a Flow**). At least one. |
+| **Conditions** | `conditions` | Field, operator, value; **Add condition** adds a row. Same 12 operators as the trigger (see **Building a Flow**). At least one. |
 
 What you can check:
 
-- Alert values, with field paths that start with `alert.`, for example `alert.severity` or `alert.target.host`.
+- Alert values, with field paths that start with `alert.`, for example `alert.severity` or `alert.target.host`. The field box suggests the common ones.
 - Outputs of earlier enrichment steps, with the step identifier first, for example `step_2.result` or `step_1.data.verdict`.
 
-A conditional step whose conditions do not match is shown as **Failed** in **Execution history**. That only means the red branch was taken.
+Values are compared as text and are case-sensitive. A number is compared by its digits, so `alert.target.port` **is** `22` works.
+
+A conditional step whose conditions do not match is shown as **Failed** in **Execution history**, with the result `condition failed: <field> <operator> <value>`. That only means the red branch was taken.
+
+<Warning>
+
+**Enter "is one of" and "is not one of" lists in the Code tab.** In UTMStack v12.0.2 the Visual tab saves the comma-separated values of a Conditional step as one piece of text, not as a list. "is one of" then never matches and "is not one of" always matches. Write the values as a YAML list instead:
+
+```yaml
+conditions:
+  - field: alert.dataSource
+    operator: IS_NOT_ONE_OF
+    value:
+      - DC01
+      - SQL01
+```
+
+Trigger conditions are not affected: the editor splits their lists correctly.
+
+</Warning>
 
 ## Limits that apply to every step
 
 | Limit | Value |
 |---|---|
 | Steps running at the same time on the server | 5 |
-| Longest time one step may run | 5 minutes |
-| A step stuck in Executing is closed after | about 6 minutes (AI and conditional steps are queued again; others are marked Failed) |
+| Longest time one step may run | 5 minutes; the step is then marked **Failed** |
+| HTTP call default timeout | 30 seconds (`timeoutSec` in the Code tab) |
+| A step left in **Executing** after a server restart is closed after | about 6 minutes (AI and conditional steps are queued again; others are marked **Failed**) |
 | Check for waiting steps | immediately when new work arrives, and every 15 seconds |
 
 ## Related pages
@@ -151,3 +208,4 @@ A conditional step whose conditions do not match is shown as **Failed** in **Exe
 - **Placeholders**
 - **Step Outputs and Variables**
 - **Running Steps on Another Host**
+- **Troubleshooting Flows**

@@ -1,0 +1,145 @@
+This page explains how to choose CPU, memory and disk for a UTMStack v12 server, based on what the installer actually checks and how it shares memory between the services. It also gives a method to estimate disk space from your own log volume.
+
+UTMStack v12 runs on one server. To handle more data, you give that server more CPU, memory and disk. There is no option to add more servers.
+
+## What the installer checks
+
+| Resource | Minimum | Checked how |
+|---|---|---|
+| CPU | 2 logical cores | Counted at installation. |
+| Memory | 13,360 MB in total, as reported by the operating system | 1,000 MB for the operating system plus the minimum of every service (12,360 MB). |
+| Free disk space on `/` | About 30 GB | Free space on the root file system, not on `/utmstack`. |
+
+A server with "16 GB" of memory reports a little less than 16,384 MB to the operating system, but still passes. A server with 12 GB or less does not.
+
+These are the limits below which the installer stops. They are not a recommendation for production. Plan more, as explained below.
+
+## How memory is shared
+
+The installer gives every service a memory limit. It works like this:
+
+1. It takes the total memory the server reports and keeps 1,000 MB for the operating system.
+2. It gives every service its minimum.
+3. It shares the rest by priority. In each round, a priority 1 service gets 8 shares, priority 2 gets 3 shares and priority 3 gets 2 shares, until each service reaches its maximum.
+
+| Service | Priority | Minimum (MB) | Maximum (MB) |
+|---|---|---|---|
+| Event processor | 1 | 5,120 | 61,440 |
+| ClickHouse (log storage) | 1 | 5,120 | 61,440 |
+| Log intake (`log-input`) | 2 | 256 | 1,024 |
+| PostgreSQL (configuration database) | 2 | 500 | 2,048 |
+| NATS (queue) | 3 | 256 | 2,048 |
+| Valkey (cache) | 3 | 128 | 1,024 |
+| Backend (API) | 3 | 700 | 2,048 |
+| Agent manager | 3 | 200 | 1,024 |
+| Frontend (web interface) | 3 | 80 | 1,024 |
+
+The event processor runs as two services, a worker and a manager. Each of them gets the event processor limit.
+
+### What that means for common server sizes
+
+The table shows the limits the installer calculates for a server that reports exactly this much memory. Your server reports a slightly different total, so its values will differ a little.
+
+| Service | 16,000 MB | 32,000 MB | 64,000 MB | 128,000 MB |
+|---|---|---|---|---|
+| Event processor (each of the two) | 5,780 | 10,592 | 26,380 | 58,380 |
+| ClickHouse | 5,781 | 10,592 | 26,380 | 58,380 |
+| Log intake | 503 | 1,024 | 1,024 | 1,024 |
+| PostgreSQL | 747 | 2,048 | 2,048 | 2,048 |
+| NATS | 421 | 1,624 | 2,048 | 2,048 |
+| Valkey | 293 | 1,024 | 1,024 | 1,024 |
+| Backend | 865 | 2,048 | 2,048 | 2,048 |
+| Agent manager | 365 | 1,024 | 1,024 | 1,024 |
+| Frontend | 245 | 1,024 | 1,024 | 1,024 |
+
+What to take from this:
+
+- **Above the minimum, almost all extra memory goes to ClickHouse and the event processor.** These two do the heavy work: storing and searching logs, and parsing and correlating them.
+- **The small services reach their maximum at about 32 GB.** From there on, every extra gigabyte goes to ClickHouse and the event processor.
+- **Beyond about 134,000 MB, extra memory is not given to any service.** At that point ClickHouse and both event processor services have reached their 61,440 MB maximum.
+- **The limits are ceilings, not reservations.** Because the two event processor services each get the full event processor limit, the limits add up to more than the server's memory. A service only uses memory when it needs it.
+
+The result is saved in `/utmstack/updates/memory-allocation.json` and reused by every update. To change it, see **Installer Reference**.
+
+<Note>
+
+When you add memory to the server later, run `sudo /usr/local/bin/utmstack_installer --recalculate-memory`. Without it, the services keep their old limits and do not use the new memory.
+
+</Note>
+
+## CPU
+
+The installer does not set CPU limits. All services share all cores. The event processor and ClickHouse use every core they can get, so more cores let the server parse, correlate, store and search more logs at the same time.
+
+Two cores pass the installer's check. For production, plan more and watch the server under real load (see **Check whether the server is big enough** below).
+
+## Disk
+
+### What grows, and where
+
+| What | Where | How it grows |
+|---|---|---|
+| Logs, alerts and ingestion statistics | `/utmstack/clickhouse/data` | With every log stored, compressed. It shrinks only when data is deleted by retention or moved to cold storage. This is by far the largest item. |
+| Queue of logs not yet processed | `/utmstack/nats` | Small while the event processor keeps up. If processing stops, it can hold up to 24 hours of incoming logs, uncompressed. |
+| Cold storage in a local or NFS folder | `/utmstack/clickhouse/cold` | Only if you choose a local folder or NFS share as cold storage. |
+| Container images, the PostgreSQL database and container logs | `/var/lib/docker`, on the `/` disk unless you moved it | Images change with each update; unused images are deleted after updates. Each container keeps at most 50 MB of its own log. The PostgreSQL database holds configuration and stays comparatively small. |
+| Operating system and installer log | `/` | Small. |
+
+Put `/utmstack` on its own fast disk (SSD) and size it for your data. Keep the `/` disk larger than the 30 GB the installer checks, because Docker images and the PostgreSQL database live there. See **Prepare the Server**.
+
+### How long data is kept
+
+By default UTMStack keeps logs and alerts for 730 days and ingestion statistics for 1,095 days. You change this in **Configure > Settings > Data Retention**, where you can also move older data to cold storage (an S3-compatible bucket, Azure Blob Storage or an NFS share) so it no longer fills the server's disk. See **Data Retention and Cold Storage**.
+
+UTMStack stores data in monthly blocks and deletes a block only when all of its records have passed the retention period. Plan for the server to hold up to about one month more than the retention period you set.
+
+### Estimate the disk you need
+
+There is no fixed ratio between the size of your raw logs and the space they take in UTMStack: it depends on the kind of logs. The reliable way is to measure.
+
+<Steps>
+  <Step title="Run with real data for a while">
+
+    Connect your real data sources and let UTMStack run for at least a few days. A full week is better, because weekdays and weekends differ.
+
+  </Step>
+  <Step title="Read the stored size">
+
+    Open **Configure > Settings > Data Retention**. Each data set (**Logs**, **Alerts**, **Ingestion statistics**) shows its number of records, its size on disk and the date of its oldest record.
+
+    Divide the size of **Logs** by the number of days since its oldest record. This is your stored volume per day.
+
+  </Step>
+  <Step title="Multiply by the days you keep on the server">
+
+    Use the number of days data stays on the server's own disk: the **Delete after** value, or the **Move to cold storage after** value if you use cold storage. Add about 31 days for the monthly blocks.
+
+  </Step>
+  <Step title="Add headroom">
+
+    Add the alerts and statistics, room for one day of incoming logs in the queue, and enough free space so that the disk stays below 90% full. Watch it with `df -h /utmstack` and the disk badge on the **Data Retention** page.
+
+  </Step>
+</Steps>
+
+**Example with made-up numbers.** After 7 days, **Logs** shows 14 GB, so the stored volume is 2 GB per day. You keep logs on the server for 365 days, then move them to cold storage. 2 GB × (365 + 31) days = 792 GB. To keep the disk below 90%, plan at least 792 ÷ 0.9 = 880 GB for `/utmstack`, plus the alerts, the statistics and the queue room.
+
+## Check whether the server is big enough
+
+Watch the server during your busiest hours, especially in the first weeks.
+
+| Check | Command or place | Sign that the server needs more |
+|---|---|---|
+| CPU | `top` or `htop` | CPU is close to 100% for long periods. |
+| Memory of each service | `docker stats --no-stream` | ClickHouse or the event processor stays close to its limit, or a service is restarted because it ran out of memory. |
+| Disk | `df -h / /utmstack`, or the badge on **Data Retention** | The disk is more than 90% full. |
+| Processing delay | `du -sh /utmstack/nats` | The queue folder keeps growing: logs arrive faster than they are processed. |
+| Data flow | **Data Processing** and **Log Explorer** | New logs appear late in Log Explorer. |
+
+See **Health Checks and Troubleshooting** for these commands and what to do next.
+
+To grow the server:
+
+- **More memory or CPU.** Resize the server, then run `sudo /usr/local/bin/utmstack_installer --recalculate-memory`.
+- **More disk.** Grow the disk and its file system, or move older data to cold storage. See **Data Retention and Cold Storage**.
+- **Less data.** Shorten retention, or stop collecting sources you do not need.

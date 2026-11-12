@@ -1,0 +1,149 @@
+UTMStack v12 runs two kinds of rules and pipelines side by side: the **shipped** ones that come with each release, and the **custom** ones you write. This page explains how the two are kept apart, what each tenant controls, what happens to both when you update UTMStack, and how to export, import, back up and copy your own work.
+
+## The two layers
+
+| | Shipped (System) | Custom |
+|---|---|---|
+| Where they come from | Part of the UTMStack release: 721 rules and 37 pipeline files in UTMStack v12.0.2 | Written, imported or saved by you on **Configure > Alerting Rules** and **Configure > Pipelines**, or through the API |
+| Shown as | A lock icon and owner **System**; "System pipeline — read-only. You can only enable or disable it." | Owner **Custom** |
+| Can you edit or delete them? | No | Yes |
+| Can you switch them off? | Yes, for your tenant | Yes, for your tenant |
+| Who they run for | Every tenant, unless the tenant switched them off | Only the tenant that owns them |
+| Changed by an update | Yes: replaced by the new release's versions | No: kept as they are |
+| Source | The `definitions/` folder of the UTMStack repository on GitHub | Your server only |
+
+The engine reads both layers from its work folder on the server. Shipped files sit in a `system` folder; custom files sit in a `user` folder, in a sub-folder named after the tenant's id:
+
+| Item | Saved as |
+|---|---|
+| Custom rule | `rules/user/<tenant id>/<rule name in lower case with dashes>-<tenant id>.yaml` |
+| Custom pipeline | `pipeline/filters/user/<tenant id>/<pipeline name>-<tenant id>.yaml` |
+
+UTMStack also writes `tenantId: <tenant id>` into each custom file, so the engine runs it only on that tenant's events. You never write this line yourself: UTMStack sets it to your tenant every time you save or import.
+
+<Warning>
+
+Do not add, edit or delete rule and pipeline files on the server by hand. Use the web console or the API. UTMStack rewrites the shipped folders when its services start, and files changed by hand are not checked before the engine reads them.
+
+</Warning>
+
+## What each tenant controls
+
+Each tenant keeps its own choices about the shared, shipped items, and its own custom items:
+
+| Choice | Where you make it | Stored |
+|---|---|---|
+| Switch a shipped or custom rule on or off | **Active** switch on **Configure > Alerting Rules** | Per tenant |
+| Switch a shipped or custom pipeline on or off | **Active** switch on **Configure > Pipelines** | Per tenant |
+| Run order of pipelines for a data type | **Order** arrows on **Configure > Pipelines** | Per tenant |
+| Custom rules and pipelines | **New rule**, **Import**, **New pipeline** | Per tenant |
+
+A tenant never sees another tenant's custom items and cannot change another tenant's switches. On a single-tenant installation, everything belongs to the one default tenant.
+
+The rule flood guard also works per tenant: when it switches a rule off, it does so with the same switch, for the tenant that had the flood only. See **Rule Flood Guard**.
+
+## What happens when you update UTMStack
+
+Shipped rules and pipelines are built into the UTMStack release. There is no separate download for them and no version number on screen: they change when UTMStack is updated (see **Updates**).
+
+When the backend service starts after an update:
+
+1. The shipped folders are replaced with the new release's files. Shipped files that the new release no longer contains are removed.
+2. Your custom rules and pipelines are not touched.
+3. Each tenant's on and off switches and pipeline order are kept.
+4. Shipped rules that are new in the release are switched **on** in every tenant, because nobody switched them off yet.
+
+The engine picks up the new files within about a minute.
+
+<Note>
+
+Your on and off choices are stored against the file name of each rule or pipeline (without its folder). If a release renames a shipped file, it counts as a new item and starts switched on. After each update, look at the release notes and check the **Active** state of rules you had switched off.
+
+</Note>
+
+To see what a shipped rule looks like now, open it on **Configure > Alerting Rules**: the panel shows when it was **Updated**, and its **Code** tab shows the YAML. The same file is in the `definitions/rules` folder of the UTMStack repository on GitHub. The catalogue pages under the **Rules** tab list every shipped rule with a link to its file.
+
+### Custom copies of shipped rules
+
+If you replaced a shipped rule with your own copy (see **Tuning Rules and Reducing False Positives**), an update does not change your copy. When the release notes say a shipped rule was improved:
+
+1. Export the new shipped version (**Export (1)** from the list).
+2. Compare it with your copy, and carry the improvement over.
+3. Delete your custom copy and import the merged file, or edit it if it has no correlation steps.
+4. Check that the shipped version is still switched off.
+
+## Export and import
+
+| | Rules | Pipelines |
+|---|---|---|
+| Export from the web console | **Export All**, or tick rows and click **Export (N)**: a zip file of the stored rule files | No export button. Open the pipeline, click **Code** and copy the YAML. |
+| Import in the web console | **Import**: one or more `.yaml` or `.yml` files | No import button. Click **New pipeline**, click **Code** and paste the YAML. |
+| API | `POST /api/v1/eventprocessing/correlation-rule/export` and `/import` | `GET /api/v1/eventprocessing/pipelines/find` and `POST /api/v1/eventprocessing/pipelines` |
+| Name already used by one of your custom items | Rejected | Refused |
+| Correlation steps | Kept exactly as written, under the key `correlation` | Not applicable |
+| State after import | Switched on | Switched on |
+
+Things to know about rule export and import:
+
+- The list export gives the exact stored files. Shipped files keep their comments and any older `afterEvents` key; custom files include their `tenantId` line.
+- The **Export** button inside a rule's panel builds the file from the editor's view and leaves out correlation steps without an index pattern. Use the list export for backups and copies.
+- Import drops correlation steps written under the older key `afterEvents`. Rename the key to `correlation` before you import.
+- Import sets your tenant on every rule, whatever `tenantId` the file contains.
+
+See **Alerting Rules** and **Rules and Pipelines API** for the details.
+
+## Back up your custom work
+
+UTMStack has no built-in backup of rules and pipelines. Keep your own copy, ideally in a version control system such as Git, so you can see who changed what and go back to an earlier version:
+
+1. On **Configure > Alerting Rules**, choose the owner filter **Custom**, tick all rows and click **Export (N)**. Keep the zip file.
+2. For each custom pipeline on the **Custom** tab of **Configure > Pipelines**, open it, click **Code** and save the YAML as a file named after the pipeline.
+3. Note which shipped rules and pipelines you switched off, and your pipeline order.
+
+To automate this, export with the API on a schedule; see the backup example in **Rules and Pipelines API**. For backups of the whole server, see **Backups and Recovery**.
+
+## Copy rules and pipelines to another tenant or server
+
+The same steps work from a test server to production, or from one tenant to another:
+
+<Steps>
+<Step title="Export from the source">
+
+Export the custom rules (zip file) and copy the YAML of each custom pipeline, as in the backup steps above.
+
+</Step>
+<Step title="Create the pipelines first">
+
+On the target, click **New pipeline**, enter the same name, click **Code**, paste the YAML, test and save. Rules need the fields the pipelines produce.
+
+</Step>
+<Step title="Import the rules">
+
+Unzip the export and import the rule files with **Import**. **Import results** shows each file as **Approved** or **Rejected**. A rule is rejected if the target already has a custom rule with the same name.
+
+</Step>
+<Step title="Repeat your switches and order">
+
+Switch off the same shipped rules and pipelines, and set the same pipeline order.
+
+</Step>
+<Step title="Check">
+
+Send a test event, or use **Test** on each rule, and check **Threat Management > Alerts**.
+
+</Step>
+</Steps>
+
+On a multi-tenant installation, the instance operator can create a pipeline in many tenants at once, and switch a shipped rule or pipeline on or off in many tenants, with **Apply to all tenants**. Custom rules are imported in each tenant. See **Apply to All Tenants**.
+
+## Audit
+
+Creating, importing, updating, deleting and switching rules on or off, creating, updating and deleting pipelines, and every rule or pipeline test are recorded in the audit log. Switching a pipeline on or off and changing the pipeline order are not recorded. See **App Audit Logs**.
+
+## Related pages
+
+- **Alerting Rules**
+- **Pipelines**
+- **Tuning Rules and Reducing False Positives**
+- **Rules and Pipelines API**
+- **Detection Rules Overview**

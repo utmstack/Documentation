@@ -32,10 +32,10 @@ The pages appear in this order in the Settings menu.
 | License | License | Instance operator | **License and Editions** |
 | Notifications | Notifications | Everyone | **Notifications** |
 | Connection Key | Connection key | Administrators | **Connection Key** |
-| Data Retention | Data retention | Instance operator | **Data Retention and Cold Storage** |
+| Data Retention | Data retention | Instance operator | **Data Retention and Cold Storage**, and the **Storage and Retention** pages |
 | Branding | Branding | Administrators (Enterprise licence to change it) | **Branding** |
 | API Keys | API keys | Administrators (Enterprise licence to create keys) | **API Keys** |
-| Identity Providers | Identity Providers | Administrators (Enterprise licence to create providers) | **Single Sign-On** |
+| Identity Providers | Identity Providers | Administrators (Enterprise licence to create or edit providers) | **Single Sign-On** and its provider guides |
 | Support access | Support access | Administrator of a customer tenant, multi-tenant licence only | **Support Access** |
 | Email Configuration | Email configuration | Administrators | **Email Configuration** |
 | ThreatWinds Integration | ThreatWinds Integration | Instance operator | Threat intelligence pages |
@@ -46,6 +46,8 @@ The pages appear in this order in the Settings menu.
 | About | About this instance | Instance operator | **License and Editions** |
 
 The **Data Retention** page is also hidden when the server's retention feature is switched off.
+
+Users without the **Administrator** role do not see the **Configure** menu. If their role allows a settings page, they can open it by its address, for example `https://siem.example.com/settings/api-keys`. See **Roles and Permissions**.
 
 ## Other administration pages
 
@@ -61,9 +63,9 @@ These pages are not under Settings:
 
 On a multi-tenant licence, most settings belong to each tenant: email and recipients, date and time, language, branding, identity providers, users, roles, API keys and the connection key.
 
-For email, recipients, date and time, and language, a value that the tenant has never saved is taken from the default tenant. Branding is not taken from the default tenant: a tenant without its own branding shows the standard UTMStack look.
+For the mail server settings, date and time, and language, a value that the tenant has never saved is taken from the default tenant. Branding is not taken from the default tenant: a tenant without its own branding shows the standard UTMStack look.
 
-Settings that belong to the whole server are on the operator-only pages: the licence, data retention, the ThreatWinds switches and the About page.
+Settings that belong to the whole server are on the operator-only pages: the licence, data retention, the ThreatWinds switches and the About page. For how tenants work, see **Multi-Tenancy Overview**.
 
 ## First steps after installation
 
@@ -72,5 +74,5 @@ After you install UTMStack v12 and sign in for the first time:
 1. Set a real email address for the `admin` user when UTMStack asks for it. UTMStack then opens **Email Configuration**.
 2. In **Email Configuration**, set up your mail server and correct the **Base URL**. See **Email Configuration**.
 3. Install your licence if you have one. See **License and Editions**.
-4. Add the people who will use UTMStack. See **Users**.
-5. Check **Data Retention** and decide how long to keep logs and alerts. See **Data Retention and Cold Storage**.
+4. Add the people who will use UTMStack, or connect your identity provider. See **Users** and **Single Sign-On**.
+5. Decide how long to keep logs and alerts, and whether to use cold storage. See **Planning Retention and Disk Space**.

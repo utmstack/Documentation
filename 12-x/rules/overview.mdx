@@ -26,9 +26,27 @@ The rule files have no severity field. UTMStack takes the highest of the three i
 | 2 | Medium |
 | 1 or 0 | Low |
 
-Of the 721 built-in rules, 644 produce high, 57 medium and 20 low severity alerts by default.
+Of the 721 built-in rules, 644 produce high, 57 medium and 20 low severity alerts.
 
-You can tell UTMStack how important a host is. On the **Data Sources** page, open a data source and set its **Asset sensitivity** (Confidentiality, Integrity and Availability). Alerts that target that host or IP address are weighted by these values, so the same rule can give a lower severity for a less important host. See **Data Sources page**.
+You can also tell UTMStack how important a host is: on the **Data Sources** page, open a data source and set its **Asset sensitivity** (Confidentiality, Integrity and Availability). When an alert's target host or address matches that data source's name or IP address, each of the rule's impact values that is not 0 is replaced by the rounded average of the rule's value and the data source's value, and never more than the data source's value. The highest result then sets the severity, so the same rule can give a different severity on that host. SOC-AI also uses these values in the risk score it writes on alerts it assesses. See **Data Sources Page** and **SOC-AI Assistant**.
+
+## How to read a catalogue page
+
+Each page in this section covers one source and has the same parts:
+
+| Part | What it tells you |
+|---|---|
+| Opening lines | The data type the rules read (for example `firewall-cisco-asa`), the integration that sends it, and how many rules the page lists. If you do not collect this data type, none of these rules can fire. |
+| Rule table | One row per rule: **Rule** (the name, which is also the alert name), **Category** (MITRE ATT&CK tactic), **Technique** (MITRE ATT&CK technique) and **Impact (C/I/A)**. |
+| Rule Example | The full YAML file of one rule, so you can see how the rules for this source are written: the condition (`where`), any counting steps (`correlation` or the older `afterEvents`), and `deduplicateBy` or `groupBy`. |
+| Rule Details | On the larger pages: each rule's description, category, technique, impact, a link to its file on GitHub and its references. |
+
+How to read the values:
+
+- **Impact (C/I/A)**, for example `C:3 / I:2 / A:1`, are the confidentiality, integrity and availability values from 0 to 3. The highest one sets the alert severity (table above): `C:3 / I:2 / A:1` gives a high-severity alert.
+- **Category** can list several tactics, separated by commas.
+- **The rule name** is exactly what you see on **Threat Management > Alerts**, and what you type in a response flow trigger or a tagging rule. Names are case-sensitive there.
+- **The rule file** link opens the rule as it is in the UTMStack repository for version 12. To see the file exactly as it runs on your server, export it from **Configure > Alerting Rules** (see **Alerting Rules**).
 
 ## Supported data sources
 
@@ -92,13 +110,43 @@ Rules are organized by the data source they apply to. Each page in this section 
 
 All rules, built-in and your own, are listed in **Configure > Alerting Rules**. The Configure menu is shown to users with the Administrator role.
 
+![The Alerting Rules page with the search box, the data type, category, adversary, state and owner filters, the Import, Export All, Test and New rule buttons, and the rule table with an Active switch on each row](/assets/0382f76f-d6b9-4eb5-a949-da73637bd0a4)
+
 - The list shows the rule name (a lock marks built-in rules), data types, category, technique, adversary, impact and an **Active** switch. You can search by name and filter by category, adversary, state (Active or Inactive), owner (System or Custom) and data type.
 - To see the rules for one integration, open **Configure > Integrations**, open the integration's card and click **Rules**. Alerting Rules opens filtered to that data type.
-- To switch a rule off or on, use its **Active** switch in the list or in the rule's panel. The change applies to your tenant only. Switching rules needs the `eventprocessing.write` permission, which only the Administrator role has by default.
-- Built-in rules cannot be edited or deleted, but you can switch them off. They are updated with each UTMStack release, and your on and off choices are kept.
-- In a multi-tenant installation, the platform administrator can apply a custom rule, or a rule's on and off state, to all tenants at once.
+- Built-in rules cannot be edited or deleted, but you can switch them off. They are updated with each UTMStack release, and your on and off choices are kept. See **Shipped and Custom Rules and Pipelines**.
 
-See **Alerting Rules** for the full description of the screen.
+### Switch a rule on or off for your tenant
+
+All built-in rules are on when UTMStack is installed, and every tenant starts with all of them on.
+
+<Steps>
+<Step title="Find the rule">
+
+On **Configure > Alerting Rules**, type part of the name in **Search rules…**, or pick its data type in **All data types**.
+
+</Step>
+<Step title="Use the Active switch">
+
+Turn the **Active** switch in the rule's row off or on. You can also open the rule and use the switch in its panel. The page confirms "Rule deactivated" or "Rule activated".
+
+</Step>
+<Step title="Check">
+
+Choose **Inactive** in **All states** to list every rule switched off in your tenant. The change reaches the engine within about a minute.
+
+</Step>
+</Steps>
+
+What to know:
+
+- The switch applies to **your tenant only**. On a multi-tenant installation, each tenant has its own switches, and switching a rule off in one tenant does not affect the others.
+- Switching a rule needs the `eventprocessing.write` permission, which only the Administrator role has by default.
+- The rule flood guard uses the same switch: a rule it switched off shows as Inactive, and you switch it back on the same way (see below).
+- On a multi-tenant installation, the instance operator can switch a built-in rule on or off in many tenants at once with **Apply to all tenants** in the rule panel. See **Apply to All Tenants**.
+- Programs can do the same with `PUT /api/v1/eventprocessing/correlation-rule/activate-deactivate`. See **Rules and Pipelines API**.
+
+Before you switch off a rule because it is noisy, consider tuning it instead: see **Tuning Rules and Reducing False Positives**.
 
 ## Rule flood guard
 
@@ -107,7 +155,7 @@ The rule flood guard protects you from alert floods. When one rule creates too m
 How it decides:
 
 - Every 5 minutes it counts, for each tenant, rule name and data source, the alerts of the last 24 hours that are **Open**, are not grouped under another alert, and are not tagged **False positive**.
-- When one count is **more than 50**, the rule is switched off for that tenant only. Other tenants keep it. If several rules share that exact name, all of them are switched off.
+- When one count is **more than 50**, the rule is switched off for that tenant only. Other tenants keep it. If several rules share that name (capital and small letters are treated as the same), all of them are switched off.
 - The tenant gets a warning in the notification bell. No email is sent. The message names the rule, the number of alerts and the data source, and suggests what to do.
 
 <Steps>
@@ -165,7 +213,7 @@ Values of 0 or less are ignored. Changes apply without a restart. If the file is
 </AccordionTab>
 </Accordion>
 
-See **Rule flood guard** for more detail.
+See **Rule Flood Guard** for more detail.
 
 ## Rule source code
 
@@ -177,4 +225,4 @@ Browse the pages in this section to see every rule organized by source, with des
 
 ## Creating custom rules
 
-You can write your own rules in **Configure > Alerting Rules** with **New rule**, or import YAML files with **Import**. Custom rules belong to your tenant. For the rule format, the condition functions and how to test a rule before you rely on it, see **Alerting Rules**, **Rule file format**, **Condition functions (CEL) reference** and **Testing pipelines and rules**.
+You can write your own rules in **Configure > Alerting Rules** with **New rule**, or import YAML files with **Import**. Custom rules belong to your tenant. For the rule format, the condition functions and how to test a rule before you rely on it, see **Alerting Rules**, **Rule File Format**, **Condition Functions Reference** and **Testing Pipelines and Rules**. **Rule Examples** has complete rules to copy, and **Pipeline Examples** shows how to produce the fields a rule reads.

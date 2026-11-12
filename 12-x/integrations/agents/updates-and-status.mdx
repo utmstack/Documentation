@@ -52,6 +52,8 @@ Pausing is not the same as choosing a version. There is no way to install an old
 
 A newly installed agent appears on the Data Sources page within about a minute of starting.
 
+![Data Sources page with the Agents tab and the Status and Last seen columns of each source](/assets/656f1e19-5c8a-4063-b215-a4919c985bb8)
+
 ## Check an agent on the host
 
 If an agent shows **Idle** or **Offline**, check it on the host.
@@ -72,3 +74,16 @@ If an agent shows **Idle** or **Offline**, check it on the host.
 </Steps>
 
 While the connection is down, the agent keeps undelivered logs in its local store and sends them when the connection is back, within the limits described in **Agent Command Line**.
+
+For error messages and their fixes, see **Agent Troubleshooting**.
+
+## How status is measured
+
+| Signal | How often | Used for |
+|---|---|---|
+| Agent ping to the server | Every 15 seconds | The server counts an agent as disconnected after about a minute without a ping. |
+| Agent heartbeat | Every 30 seconds | Keeps the command channel open for remote commands. |
+| Host details (name, addresses, operating system) | Every 5 minutes | The **Metadata** shown on the Data Sources page. |
+| Data Sources update | Every 60 seconds | The server copies each agent's last contact time to the **Data Sources** page, which shows **Live**, **Idle** or **Offline** from it. |
+
+An agent can be **Live** while one of its sources sends nothing, for example when auditing is off on a Linux host. Check the agent's `status` output and its events in Log Explorer as well.

@@ -7,22 +7,28 @@ UTMStack v12 collects Kaspersky Security Center events through the **UTMStack Fo
 | Card on the Integrations page | **Kaspersky** (category Antivirus) |
 | Data type | `antivirus-kaspersky` |
 | Default ports on the Collector | 7004/UDP; 7004/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 19 detection rules |
+| Format UTMStack expects | CEF (Common Event Format), as sent with the **Splunk (CEF)** setting, or Kaspersky Security Center's own structured syslog format |
+| Parsing pipeline | `antivirus/kaspersky.yaml` (version 3.2.1). The **Filters** button in the drawer opens it. |
+| Detection rules | 19 rules for the `antivirus-kaspersky` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The Kaspersky Security Center server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
-- You need the `integrations.write` permission to enable the integration from the web interface.
+- The Kaspersky Security Center Administration Server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- You need the `integrations.write` permission to enable the integration from the web interface, and an account that can change the Administration Server settings in Kaspersky Security Center.
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Kaspersky** card.
+
+    ![Kaspersky Security Center setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/ad76220f-5fdb-42a9-9fd5-6cd4857ac81d)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7004** below.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The **Port** fills in with the default, 7004.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7004`.
@@ -37,7 +43,24 @@ sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration antivirus-kas
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a port other than 7004
+
+The Collector listens on the port stored on the Collector host: 7004 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port, for example to 7104 over UDP:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port antivirus-kaspersky udp 7104
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+Only one data type can listen on a given port and protocol on one Collector.
+
 ## Step 2: Turn on SIEM export in Kaspersky Security Center
+
+These are the steps in the Kaspersky Security Center Web Console, as shown in the UTMStack setup guide. Labels can differ slightly between Kaspersky versions; see Kaspersky's help topic "Configuring event export to SIEM systems" for your version.
 
 <Steps>
   <Step title="Open the integration settings">
@@ -47,15 +70,36 @@ To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder*
     Under **Integration**, select **SIEM** and click the **Settings** link.
   </Step>
   <Step title="Configure the export">
-    Enable export and set Kaspersky to send events in **Splunk (CEF)** format to the Collector host on port 7004 (UDP).
+    Enable export and set Kaspersky to send events in **Splunk (CEF)** format to the Collector host on port 7004. Choose the same protocol you enabled in step 1 (UDP, TCP, or TLS over TCP). If the console offers a button to test the connection, use it, then save.
+  </Step>
+  <Step title="Choose the events">
+    In Kaspersky Security Center, mark the events you want to send to the SIEM system. Kaspersky only exports the events that are selected for export.
   </Step>
 </Steps>
 
+<Note>
+
+With CEF, Kaspersky exports only general events. Kaspersky's documentation says that events of managed applications that you select in application policies can only be exported in syslog format. The UTMStack filter also reads Kaspersky Security Center's structured syslog format, so you can choose it instead of **Splunk (CEF)** if you need those events.
+
+</Note>
+
 ## Step 3: Check that logs arrive
 
-- In the **Kaspersky** drawer, click **View logs**. Log Explorer opens with the `antivirus-kaspersky` data type for the last 24 hours.
-- Within about 10 minutes, the Kaspersky Security Center server appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+1. Wait for a Kaspersky event, or create one (for example, run an EICAR test file on a managed computer).
+2. In the **Kaspersky** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `antivirus-kaspersky` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show the CEF or Kaspersky fields, and the `errors` field should be empty.
+4. Within about 20 minutes, the Administration Server appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'antivirus-kaspersky'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Stop collecting
 
@@ -64,3 +108,16 @@ In the **Kaspersky** card, select the same Collector and click **Disable integra
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration antivirus-kaspersky udp
 ```
+
+Disable with the same protocol you enabled. If you enabled TCP or TLS, use `tcp` in the command. Then turn off the SIEM export in Kaspersky Security Center.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | On the Collector host, run `sudo systemctl status UTMStackForwarder` and read `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`. See **Forwarder Troubleshooting**. |
+| The Collector is online but no events arrive | Kaspersky sends to the wrong address, port or protocol, a firewall blocks the port, or no events are selected for export | Check the SIEM settings against step 1, and check that events are marked for export. On the Collector host, `sudo ss -lntup` lists the open ports: look for 7004. |
+| **Enable integration** fails with "port 7004 is already in use by integration '…'" or "… by another process" | Another data type or another program already listens on that port and protocol | Use another port with `change-port` (see step 1), or stop the other listener. |
+| Events arrive but parsed fields are missing and `errors` is not empty | The export format is not CEF or Kaspersky's syslog format (for example LEEF) | Set the format to **Splunk (CEF)** or the syslog format. |
+| Long events are cut off | Over UDP the Collector reads at most 2,048 bytes of each message | Enable TCP or TLS on the Collector and choose the same protocol in Kaspersky. |
+| TLS does not connect | The Collector log shows "TLS handshake failed" (Kaspersky does not trust the certificate) or "TLS connection rejected … TLS is disabled, only plain text connections accepted" (Kaspersky uses TLS on a plain TCP listener) | Use the same choice on both sides. For TLS, load a certificate the Administration Server trusts. See **UTMStack Forwarder**. |

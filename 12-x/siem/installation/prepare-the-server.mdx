@@ -1,0 +1,171 @@
+Use this checklist to get a server ready before you run the UTMStack v12 installer. Each step says why it matters and how to do it. When every check at the end passes, continue with **Install UTMStack**.
+
+Installing on AWS, Microsoft Azure or Google Cloud? Read **Install on AWS, Azure or Google Cloud** as well: it covers the cloud-side settings.
+
+## 1. Choose the machine
+
+- A physical or virtual server that runs nothing else. The installer installs Docker and nginx, takes over ports 80 and 443, and after every update deletes all Docker images that no running container uses, including those of other applications.
+- 64-bit x86 processor (x86-64, also called AMD64).
+- At least 2 CPU cores and enough memory that the operating system reports 13,360 MB or more in total (a server with 16 GB passes). For production, plan more: see **Sizing and Capacity Planning**.
+
+## 2. Install the operating system
+
+- Install **Ubuntu**, **Debian** or **Red Hat Enterprise Linux** (RHEL). The installer refuses other distributions, including Rocky Linux, AlmaLinux, CentOS and Oracle Linux. Use a current, supported release.
+- A minimal server installation is enough. You do not need a desktop.
+- On RHEL, register the server with Red Hat so that `dnf` can install packages. The installer installs nginx, Cockpit and other packages from your distribution's repositories.
+- Install the latest updates and restart:
+
+<CodeGroup>
+
+```bash Ubuntu and Debian
+sudo apt update && sudo apt -y upgrade
+sudo reboot
+```
+
+```bash Red Hat Enterprise Linux
+sudo dnf -y update
+sudo reboot
+```
+
+</CodeGroup>
+
+## 3. Do not pre-install Docker or a web server
+
+The installer installs Docker CE from Docker's own repository and nginx from your distribution. Start from a server without them.
+
+- If your distribution's own Docker packages are installed (for example `docker.io` on Ubuntu, or Podman and runc on RHEL), remove them first, as Docker's installation guide describes.
+- Do not install another web server, and do not add a web application firewall module such as ModSecurity to nginx. Such a module holds the long-lived connections that agents use, so their logs stop arriving.
+
+## 4. Set the host name
+
+The installer reads the server's host name at every run. It uses it as the server name that UTMStack shows and sends to the UTMStack update server when the server registers. Set it before you install:
+
+```bash
+sudo hostnamectl set-hostname siem01
+hostname
+```
+
+## 5. Give the server a fixed IP address and a DNS name
+
+- **Fixed private address.** The installer sets up Docker Swarm (Docker's built-in service manager) with the server's main IP address. Docker recommends a fixed address for this, so use a static address or a DHCP reservation.
+- **Reachable over IPv4.** The installer turns IPv6 off on the whole server. Make sure you can still reach the server over IPv4, including over SSH.
+- **DNS name.** Create a DNS record (an `A` record) such as `siem.example.com` that points to the server's address. You need it for a trusted SSL certificate. On a multi-tenant licence, every tenant also needs its own name that points to the server. See **SSL Certificate** and **Tenants**.
+- **Free address range.** The installer creates a network interface `vlan10` with the address `10.21.199.3/24`. Make sure `10.21.199.0/24` is not used on your network.
+
+## 6. Add a separate disk for UTMStack data
+
+UTMStack keeps its data under `/utmstack`. Put that folder on its own fast disk (SSD), sized as described in **Sizing and Capacity Planning**. Mount the disk **before** you install. The `/` disk still needs about 30 GB free, because Docker images and the PostgreSQL database are stored there.
+
+<Steps>
+  <Step title="Find the new disk">
+
+    ```bash
+    lsblk
+    ```
+
+    The new disk has no partitions and no mount point, for example `/dev/sdb` or `/dev/nvme1n1`. The examples use `/dev/sdb`. Make sure you pick the right disk: the next step erases it.
+
+  </Step>
+  <Step title="Create a file system">
+
+    ```bash
+    sudo mkfs.ext4 -L utmstack-data /dev/sdb
+    ```
+
+  </Step>
+  <Step title="Mount it at /utmstack at every start">
+
+    ```bash
+    sudo mkdir -p /utmstack
+    echo 'LABEL=utmstack-data  /utmstack  ext4  defaults,nofail  0  2' | sudo tee -a /etc/fstab
+    sudo systemctl daemon-reload
+    sudo mount -a
+    ```
+
+  </Step>
+  <Step title="Check it">
+
+    ```bash
+    df -h /utmstack
+    ```
+
+    The output must show the new disk and its full size. If it shows the `/` disk, the mount failed: fix it before you install.
+
+  </Step>
+</Steps>
+
+<Warning>
+
+If the data disk is ever not mounted when the server starts, `/utmstack` is an empty folder on the `/` disk and UTMStack does not find its data. After any change to disks, check `df -h /utmstack` before you start using the server.
+
+</Warning>
+
+## 7. Synchronise the clock
+
+Correct time matters for the time stamps of logs and alerts, for correlation rules that count events over a time window, for sign-in codes from authenticator apps and for certificates.
+
+```bash
+timedatectl
+```
+
+The output must say `System clock synchronized: yes`. If it does not:
+
+<CodeGroup>
+
+```bash Ubuntu and Debian
+sudo timedatectl set-ntp true
+```
+
+```bash Red Hat Enterprise Linux
+sudo dnf -y install chrony
+sudo systemctl enable --now chronyd
+```
+
+</CodeGroup>
+
+If your network blocks public time servers, point the time service at your internal NTP server.
+
+## 8. Allow the network traffic
+
+- **Inbound:** 443/TCP from users, API clients and every network where agents and collectors run; 80/TCP if you want browsers redirected to HTTPS; 22/TCP (SSH) and 9090/TCP (Cockpit) from administrators only. Block 10001/TCP from outside the server.
+- **Outbound:** HTTPS to `cm.utmstack.com`, `github.com`, `ghcr.io`, Docker Hub and `download.docker.com`, and access to your distribution's package mirrors.
+
+See **Network Ports and Firewall** for the full list and firewall examples. For a server that cannot reach the internet at all, see the air-gapped section of **Install UTMStack**.
+
+## 9. Make sure you can work as root
+
+The installer must run as the root user, for example after `sudo su`. Keep a second way into the server, such as a cloud serial console or a hypervisor console, in case the network change during installation interrupts your SSH session.
+
+## 10. Run the pre-flight checks
+
+Run these commands on the server and compare the results with the right-hand column of the table below.
+
+```bash
+grep -E '^(ID|VERSION_ID)=' /etc/os-release
+uname -m
+nproc
+free -m
+df -h / /utmstack
+ip -4 addr show | grep -c '10\.21\.199\.'
+timedatectl | grep -i synchronized
+sudo ss -tlnp | grep -E ':(80|443|9090|10001) '
+curl -s -o /dev/null -w '%{http_code}\n' https://cm.utmstack.com/api/v1/health
+curl -s -o /dev/null -w '%{http_code}\n' https://github.com
+curl -s -o /dev/null -w '%{http_code}\n' https://ghcr.io/v2/
+```
+
+| Check | Expected result |
+|---|---|
+| Distribution | `ID=ubuntu`, `ID=debian` or `ID="rhel"` |
+| Architecture | `x86_64` |
+| CPU cores | 2 or more |
+| Memory | `total` of 13,360 or more on the `Mem:` line |
+| Disk | About 30 GB or more free on `/`; `/utmstack` on its own disk with the space you planned |
+| Address range | `0`: nothing uses `10.21.199.0/24` on this server |
+| Clock | `System clock synchronized: yes` |
+| Ports | No output: nothing listens on 80, 443, 9090 or 10001 yet |
+| UTMStack update server | `200` |
+| GitHub | `200` |
+| Container registry | `401` (the registry answers; it asks for sign-in only for this test address) |
+
+If a check fails, fix it before you install. Then continue with **Install UTMStack**.

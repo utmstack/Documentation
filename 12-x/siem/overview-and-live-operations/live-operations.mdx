@@ -1,0 +1,116 @@
+**Live Operations** shows your alerts as short animated scenes: who attacked, through which device, and what was hit. It is made for a wall screen in a security operations center (SOC) and for quick briefings. It reads the same alerts as **Threat Management > Alerts**; it does not raise or change any alert.
+
+## Open Live Operations
+
+Click **Live Operations** in the main menu. Every user sees the page; it needs no extra permission beyond reading alerts, which all built-in roles have. It shows the alerts of the tenant you are working in.
+
+## What the screen shows
+
+| Part | Where | What it does |
+|---|---|---|
+| Header | Top | **Live Operations**, a **LIVE** or **REPLAY** badge, a new-alert badge, and the figures **High**, **Open** and **Attackers** |
+| Stage | Centre | The animated scene of the alert being played |
+| **Alerts** list | Left | The alerts of the chosen time window, newest first |
+| **On stage** panel | Right | Details of the alert being played, the parties involved, the response button and SOC-AI questions |
+| Timeline | Bottom | Every alert of the window as a dot, the window buttons and the replay controls |
+
+The side panels fold away when the browser window is too narrow. Use the list icon (left) and the slider icon (right) to open them again, and the fold buttons (**Hide the list**, **Hide this panel**) to close them.
+
+### Header figures
+
+| Figure | What it counts |
+|---|---|
+| **High** | High-severity alerts among the alerts loaded for the chosen window |
+| **Open** | Top-level alerts that are **Open** and not tagged **False positive**, the same number as "open right now" on the Alerts page |
+| **Attackers** | Distinct adversaries in the chosen window, grouped the same way as on **Adversary View** (at most 100) |
+| **Total** | Shown only when the window holds more alerts than one batch (see **Limits** below) |
+
+### Which alerts are shown
+
+Live Operations shows top-level alerts raised in the chosen time window, newest first. Echoes (repeats grouped under an earlier alert) are not shown. Alerts of every status are included, so alerts you have already completed still appear.
+
+## The scenes
+
+Each alert is drawn as one of 29 scene types, picked from the alert's name and data type. Some examples:
+
+| Scene | Used for alerts such as |
+|---|---|
+| Brute force | Brute force, password spraying, repeated logon failures |
+| Lateral movement | Pass the hash, Kerberoasting, SMBv1 use |
+| Web attack | SQL injection, cross-site scripting, exploit attempts |
+| Impossible travel | Sign-ins from two distant places in a short time |
+| Connection to a malicious destination | Beaconing, connections to known malicious addresses |
+| Risky cloud change | AWS, Azure, Google Cloud, GitHub and Microsoft 365 changes, inbox and forwarding rules |
+| Threat intel IOC match | Known malicious IP, domain or host alerts |
+| Detection | Anything that matches no other scene |
+
+The other scene types are Malicious execution on a host, Port scan, Ransomware on a host, Persistence mechanism, Data exfiltration, Defense evasion, Privilege escalation, User opened a malicious file, Software pushed to a host, Phishing email opened, Code injected into a process, Credentials dumped, Data destroyed, Tool downloaded and executed, Tunneled command-and-control, Perimeter / IDS detection, Account or policy change, Kerberos ticket abuse, Scripting abuse, Reverse shell and VM / hypervisor escape.
+
+The left list shows the scene type of each alert under its name.
+
+<Warning>
+
+A scene is an illustration, not evidence. The alert's name, time, severity, adversary, target, data source and status are real. Some numbers in the captions (such as the number of attempts, minutes, bytes, files or hits) are made up to animate the story and do not come from your logs. Before you act or report, open the alert with **Open in Alerts** and read its events.
+
+</Warning>
+
+## Follow alerts live
+
+When the page opens, it loads the alerts of the **last 24 hours** and puts the earliest alert of that batch on stage. Click **LIVE** on the timeline to jump to the newest alert. The **LIVE** badge in the header is shown whenever no replay is running.
+
+The page checks for new alerts every 10 seconds. When there are new open alerts, a red badge such as "3 new alerts" appears next to **LIVE**. Click it to reload the list, then click **LIVE** on the timeline to play the newest alert. The page does not reload by itself: the badge tells you when to.
+
+## Play, replay and move between alerts
+
+| To | Do this |
+|---|---|
+| Play one alert | Click it in the **Alerts** list, or click its dot on the timeline. Click a selected alert again to play it again. |
+| Step through alerts | Use the **Previous alert** and **Next alert** arrows on the timeline. |
+| Play the whole window | Click **Replay window**. Every alert of the window plays in turn, oldest first. The badge changes to **REPLAY**. Click **Stop replay** to stop. |
+| Go back to the newest alert | Click **LIVE** on the timeline. |
+| Change the window | Click **1h**, **6h**, **24h** or **7d** on the timeline. The line next to it says how many alerts the window holds, for example "47 alerts in the last 6h". |
+
+Timeline dots are colored by severity. You can drag along the timeline to look at another part of the window.
+
+## Act on the alert on stage
+
+The **On stage** panel shows the alert's name, a one-line summary of the scene, the rule's description (**More** and **Less** fold it), the alert's status and category, and **In an incident** when the alert belongs to one.
+
+| Control | What it does | Who can use it |
+|---|---|---|
+| **Open in Alerts** | Opens **Threat Management > Alerts** showing only this alert, with a 30-day time range. Click the row there to open the full alert. | Everyone |
+| **Involved** | Lists the parties of the scene (attacker, perimeter device, cloud service, internal host), with country flag and network owner when they are known. | Everyone |
+| Response button | Shows the name of the shipped response flow that covers this alert, and runs it on the agent of the affected host when you click it. "No system flow covers this alert" means none applies; "Finding a response…" means UTMStack is still looking. UTMStack confirms with "Response triggered" or "Could not trigger the response". | Users with `soar.execute` (Administrator) |
+| **Ask SOC-AI** | Three ready-made questions: "Explain this attack and tell me what to do next", "Is this a false positive?" and "What else did this attacker do?". Each opens the SOC-AI assistant with the alert shared. | Shown to everyone, but works only when SOC-AI is set up and, in UTMStack v12.0.2, only for Administrators; see **SOC-AI Assistant** |
+
+<Warning>
+
+The response button runs a real response flow on a real host, for example to block an address or disable an account. Read what the flow does on **Shipped Flows** before you use it from a wall screen.
+
+</Warning>
+
+## Limits
+
+- One batch holds up to 300 alerts. When the window holds more, the timeline shows "Page 1/N" with **Previous page** and **Next page** buttons, and the header shows **Total**. Scrolling to the end of the **Alerts** list loads the next batch in place of the current one.
+- The **High** figure counts the alerts loaded so far, not every alert of the window.
+- Live Operations has no filters. To focus on one host, address or severity, use **Threat Management > Alerts** or **Adversary View**.
+- Scenes use the alert's adversary and target. An alert without them is drawn with placeholders such as "?".
+
+## Use it on a wall screen
+
+1. Sign in on the wall screen's browser with a **Viewer** account, so that nobody can change alerts or run responses from it.
+2. Open **Live Operations** and choose the window, usually **24h**.
+3. Click **Replay window** at the start of a shift to brief the team, then **LIVE** to follow new alerts.
+4. When the new-alert badge appears, click it to load the new alerts, then click **LIVE** to play the newest one.
+
+Work the alerts themselves on **Threat Management > Alerts**. See **Alert Triage Workflow**.
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| "No alerts in the store." | No top-level alert was raised in the chosen window. | Choose a longer window, such as **7d**. |
+| "Could not load alerts: …" | The alert list could not be read. | Reload the page. If it continues, check that **Threat Management > Alerts** loads. |
+| The scene does not match the attack | The scene type is picked from the alert's name, so an unusual rule name can get a generic or unexpected scene. | Read the alert itself with **Open in Alerts**. |
+| The response button is greyed out | No shipped flow covers this alert, or UTMStack is still looking. | See **Shipped Flows** and **Automated Response Overview**. |
+| New alerts do not appear | The page does not reload by itself. | Click the new-alert badge, then **LIVE**. |

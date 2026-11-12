@@ -1,0 +1,85 @@
+The instance operator can open a customer's tenant and work in it as if signed in there, provided the customer has granted support access. This is called a **support session**. This page explains how to enter and leave a tenant, what the banner and the tenant switcher show, what you can and cannot do at each access level, and what the customer sees in their audit log.
+
+## Who can enter a tenant
+
+All of these must be true:
+
+- The server has a licence with the multi-tenant option.
+- You are signed in at the default tenant's address with a user that has the **Administrator** role in the default tenant. Other roles in the default tenant cannot enter customer tenants.
+- The customer's administrator has set **Support access** to **Read only** or **Full access**. See **Support Access**.
+- The tenant is not deactivated.
+
+The **Tenants** page shows the level each customer has granted on its card: **No access**, **Read access** or **Full access**. Cards of tenants that granted nothing say "This tenant has not granted you access." and have no **Enter** button.
+
+## Enter a tenant
+
+Use either of these:
+
+- On **Tenants**, click **Enter** on the tenant's card, or click anywhere on the card.
+- In the top bar, open the tenant switcher (the button with the current tenant's name, **Default tenant** when you are in your own) and choose the tenant. The switcher lists only tenants that granted you **Read only** or **Full access** and are not deactivated.
+
+The page reloads: from the card it opens the tenant's **Overview**; from the switcher it reloads the page you are on. Everything you see from then on is the customer's: their alerts, logs, settings, branding and notifications.
+
+## What changes on screen
+
+![A support session inside a customer tenant: the banner across the top reads You are working inside, the tenant's name and full access — changes here are real, with the Leave button, and the tenant switcher shows the tenant's name](/assets/7ba74663-15f3-4593-a37c-69b4b43c4411)
+
+- A banner across the top of every page says **You are working inside**, followed by the tenant's name, and either **read only — writes are refused** or **full access — changes here are real**. It cannot be closed.
+- The tenant switcher shows the tenant's name.
+- Pages that belong to the server or to you are hidden: **Tenants**, and in **Settings** the pages **License**, **Data Retention**, **ThreatWinds Integration** and **About**. **Support access** is never shown to you: only the customer can set it.
+- The **Apply to all tenants** buttons are hidden.
+
+Your choice is kept in this browser. Tabs of the same browser that you open or reload afterwards also work inside the tenant, until you leave.
+
+## What you can do at each level
+
+| | Read only | Full access |
+|---|---|---|
+| Open pages and settings | Yes | Yes |
+| Alert list, Log Explorer searches, dashboard charts, SOC-AI questions | No in v12.0.2: the server refuses these searches in a read-only session (see the note below) | Yes |
+| Save, change, delete, run a flow, change users | No: refused with "this tenant has not granted the platform access" | Yes, with your own permissions (Administrator) |
+| Set up integrations and data sources | No: saving is refused | Yes |
+| Interactive Console on the tenant's agents | No | No: the console cannot reach a tenant's agents from a support session in v12.0.2 |
+| Recorded in the tenant's audit log | Changes are refused, so nothing is changed | Every change, under your email address |
+
+<Note>
+
+In UTMStack v12.0.2 a **Read only** session lets through only plain page reads. The alert list, Log Explorer, dashboard widgets and the SOC-AI assistant send their searches in a way the server treats like a change, so they are refused with "this tenant has not granted the platform access". If you need to investigate a customer's alerts or logs, ask the customer for **Full access** for the time you need it.
+
+</Note>
+
+With **Full access**, your changes are real changes in the customer's tenant. SOC-AI requests you make there count against the tenant's daily AI request cap. See **AI Usage and Limits**.
+
+## When the customer changes the level
+
+The customer can change or take back support access at any time, and the server applies the new level to your next request:
+
+- Raised from **Read only** to **Full access**: your changes are accepted at once.
+- Lowered to **Read only**: your changes are refused from now on.
+- Set to **No access**: every request is refused with "this tenant has not granted the platform access". Click **Leave**.
+
+The banner keeps showing the level that was granted when you entered. Leave and enter again to see the current one.
+
+If the tenant is suspended or deactivated while you are inside, every request is refused with "this tenant has been suspended or terminated".
+
+## Leave the tenant
+
+Click **Leave** in the banner. You go back to your own tenant's **Tenants** page. You can also choose **Default tenant** in the tenant switcher.
+
+Leave the tenant before you work on your own data again: the banner is the only sign that the data on screen is not yours.
+
+## What the customer sees in their audit log
+
+Every change you make inside a tenant is written to **that tenant's** App Audit Logs, not to yours. The entries look like those of the customer's own users, with your email address as the user. The customer can find them with the **User** filter on **Configure > Settings > App Audit Logs**. Simply opening pages is not recorded. See **App Audit Logs**.
+
+Changes to the tenant itself (creating, editing, deactivating, reactivating and deleting it) are recorded in your own tenant's audit log.
+
+## Work inside a tenant through the API
+
+Programs that act for the instance operator can work inside a tenant by adding the header `X-Tenant-Id` with the tenant's ID to each request. This works only with the access token of a signed-in operator session (header `Authorization: Bearer ...`), sent to the default tenant's address, and only for tenants that granted support access. API keys cannot enter another tenant. See **Authentication and API Keys**.
+
+## Good practice
+
+- Ask the customer for **Full access** only for the time you need it, and agree in writing what you will change.
+- Leave the tenant as soon as you are done.
+- Do not keep your own tenant open in another tab of the same browser while you work inside a customer's tenant.

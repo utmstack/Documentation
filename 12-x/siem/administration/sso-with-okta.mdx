@@ -1,0 +1,177 @@
+This guide connects UTMStack v12 to Okta so your users sign in with their Okta account. It covers OpenID Connect (OIDC) and SAML 2.0, and explains how to send Okta groups so UTMStack can give roles from them.
+
+Read **Single Sign-On** first for how sign-in, accounts and roles work in UTMStack. Single sign-on needs an **Enterprise** licence.
+
+## Which protocol to use with Okta
+
+| Need | Use |
+|---|---|
+| Sign-in only; everyone gets the same role, or you set roles by hand on the **Team** page | OpenID Connect with Okta's org authorization server (Setup A) |
+| Roles from Okta groups, and your Okta org has custom authorization servers (API Access Management) | OpenID Connect with a custom authorization server (Setup B) |
+| Roles from Okta groups, without custom authorization servers | SAML 2.0 (Setup C) |
+
+The reason: UTMStack asks Okta for the `openid`, `profile` and `email` scopes. Okta's org authorization server adds groups to the ID token only when the `groups` scope is requested, while a custom authorization server can be told to always include them.
+
+## What you need
+
+- In Okta: an administrator who can create app integrations and assign them (for example **Super Administrator** or **Application Administrator**).
+- In UTMStack: the **Administrator** role.
+- The address users open UTMStack with. This guide uses `https://siem.example.com`, the Okta domain `example.okta.com` and the provider name `okta`. On a multi-tenant server, use the tenant's own address.
+- Okta groups for UTMStack access, for example `UTMStack-Admins`, `UTMStack-Analysts` and `UTMStack-Viewers`.
+
+## Setup A: OpenID Connect, sign-in only
+
+### In Okta
+
+<Steps>
+
+<Step title="Create the app integration">
+
+In the Okta Admin Console, go to **Applications > Applications** and click **Create App Integration**. Choose **OIDC - OpenID Connect** and **Web Application**, then click **Next**.
+
+</Step>
+
+<Step title="Fill in the settings">
+
+| Okta field | Value |
+|---|---|
+| App integration name | `UTMStack` |
+| Grant type | **Authorization Code** (selected by default) |
+| Sign-in redirect URIs | `https://siem.example.com/api/v1/sso/okta/callback` |
+| Sign-out redirect URIs | Remove the default entry |
+| Assignments | **Limit access to selected groups**, and choose the UTMStack groups |
+
+Click **Save**.
+
+</Step>
+
+<Step title="Copy the client credentials">
+
+On the **General** tab, copy the **Client ID** and the **Client secret**.
+
+</Step>
+
+</Steps>
+
+### In UTMStack
+
+Add a provider named `okta` of type **OpenID Connect**:
+
+| Field | Value |
+|---|---|
+| Issuer URL | `https://example.okta.com` |
+| Client ID, Client secret | From Okta |
+| Redirect URL | `https://siem.example.com/api/v1/sso/okta/callback` |
+| Create the account on first sign-in | On |
+| Default role | The role everyone should get, for example **Viewer** |
+| Re-apply roles on every sign-in | Off, so roles you change by hand on the **Team** page stay |
+
+Keep **Active (show on the login page)** on (the default), save, and test with `https://siem.example.com/api/v1/sso/okta/login` in a private browser window. UTMStack refuses sign-ins through an inactive provider, even at its `/login` address.
+
+## Setup B: OpenID Connect with groups
+
+This needs a custom authorization server in Okta, such as the one named `default`, available with Okta API Access Management.
+
+1. Create the app integration as in Setup A.
+2. Go to **Security > API > Authorization Servers** and open the server you will use (for example `default`). Copy its **Issuer URI**, for example `https://example.okta.com/oauth2/default`.
+3. On the **Claims** tab, click **Add Claim**:
+
+   | Okta field | Value |
+   |---|---|
+   | Name | `groups` |
+   | Include in token type | **ID Token**, **Always** |
+   | Value type | **Groups** |
+   | Filter | **Starts with** `UTMStack-` (or **Matches regex** `.*` for all groups) |
+   | Include in | **Any scope** |
+
+4. On the **Access Policies** tab, make sure a policy and rule allow the UTMStack app integration to use this server.
+
+In UTMStack, set **Issuer URL** to the authorization server's issuer, `https://example.okta.com/oauth2/default`, and under **Accounts and roles**:
+
+| Field | Value |
+|---|---|
+| Groups attribute | `groups` |
+| Default role | **None**, so only mapped groups get in |
+| Re-apply roles on every sign-in | On |
+| Group to role | `UTMStack-Admins` to Administrator, `UTMStack-Analysts` to Analyst, `UTMStack-Viewers` to Viewer |
+
+Okta sends group names, so map the names exactly as they appear in Okta (upper and lower case do not matter).
+
+## Setup C: SAML 2.0 with groups
+
+The provider name in this example is `okta-saml`.
+
+### In Okta
+
+<Steps>
+
+<Step title="Create the app integration">
+
+Go to **Applications > Applications > Create App Integration**, choose **SAML 2.0** and click **Next**. Name it `UTMStack` and click **Next**.
+
+</Step>
+
+<Step title="Configure SAML">
+
+| Okta field | Value |
+|---|---|
+| Single sign-on URL | `https://siem.example.com/api/v1/sso/okta-saml/acs`, with **Use this for Recipient URL and Destination URL** ticked |
+| Audience URI (SP Entity ID) | `https://siem.example.com/api/v1/sso/okta-saml` |
+| Name ID format | **EmailAddress** |
+| Application username | **Email** |
+
+</Step>
+
+<Step title="Add attribute statements">
+
+| Name | Value |
+|---|---|
+| `email` | `user.email` |
+| `displayName` | `user.displayName` (or `user.firstName + " " + user.lastName`) |
+
+Under **Group Attribute Statements**, add the name `groups` with the filter **Starts with** `UTMStack-` (or **Matches regex** `.*`).
+
+Click **Next**, choose that this is an internal app, and click **Finish**.
+
+</Step>
+
+<Step title="Copy the metadata URL">
+
+On the **Sign On** tab, copy the **Metadata URL** (it ends in `/sso/saml/metadata`).
+
+</Step>
+
+<Step title="Assign and hide the tile">
+
+On the **Assignments** tab, assign the UTMStack groups. On the **General** tab, under **App Settings**, tick **Do not display application icon to users**: UTMStack refuses sign-ins started from the Okta dashboard, so the tile would only lead to an error. Users start from the UTMStack sign-in page.
+
+</Step>
+
+</Steps>
+
+### In UTMStack
+
+Create the SP certificate and key as shown in **Single Sign-On**, then add a provider named `okta-saml` of type **SAML 2.0**:
+
+| Field | Value |
+|---|---|
+| IdP metadata URL | The Okta **Metadata URL** |
+| SP Entity ID | `https://siem.example.com/api/v1/sso/okta-saml` |
+| SP ACS URL | `https://siem.example.com/api/v1/sso/okta-saml/acs` |
+| SP certificate (PEM), SP private key | The files you created |
+| Groups attribute | `groups` |
+| Group to role | The Okta group names and their UTMStack roles, as in Setup B |
+
+![The Add identity provider dialog with SAML 2.0 selected, showing the Name, Provider type, IdP metadata URL, SP Entity ID, SP ACS URL, SP certificate and SP private key fields](/assets/ac3039dd-009c-42b1-bcc4-e40c1c2437fb)
+
+Test with `https://siem.example.com/api/v1/sso/okta-saml/login`.
+
+## Troubleshooting
+
+| What you see in Okta | Cause | Fix |
+|---|---|---|
+| "The 'redirect_uri' parameter must be a Login redirect URI in the client app settings" | The redirect URL in UTMStack is not in **Sign-in redirect URIs** | Add exactly `https://siem.example.com/api/v1/sso/<name>/callback`. |
+| "User is not assigned to the client application" | The user is not in an assigned group | Assign the user or group to the app integration. |
+| "Policy evaluation failed for this request" (custom authorization server) | No access policy rule allows the app on that server | Add a policy and rule for the UTMStack app on the authorization server. |
+
+If Okta accepts the sign-in but UTMStack refuses it with "this identity maps to no role, and the provider has no default", the token or assertion carries no groups: check Setup B or C, or set a **Default role**. For other messages, see **Troubleshooting** in **Single Sign-On**.

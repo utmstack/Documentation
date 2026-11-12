@@ -3,16 +3,41 @@ A custom integration lets you bring logs from a source that the built-in integra
 ## How it works
 
 - When you create a custom integration, UTMStack derives an identifier from its name, for example `acme-firewall` for "Acme Firewall". This identifier is the **data type** of every event the integration receives.
-- The **UTMStack Collector** (the UTMStack Forwarder service on a Linux host in your network) listens for your source on the protocol and port you choose: syslog over UDP, TCP or TLS, or JSON over HTTP or HTTPS.
+- The **UTMStack Collector** (the UTMStack Forwarder service on a Linux host in your network) listens for your source on the protocol and port you choose: syslog over UDP, TCP or TLS, or HTTP or HTTPS requests.
 - The Collector sends the events to UTMStack on port 443. The events are stored under your integration's data type.
 - UTMStack has no parser or rules for a new data type. You add a pipeline to turn the raw logs into fields, and then you can write alerting rules for that data type.
 
 For how to install and run the Collector, see **UTMStack Forwarder**.
 
+### How the identifier is made
+
+UTMStack turns the name into the identifier like this: letters become lower case, accents are removed (é becomes e), and every run of other characters (spaces, dots, slashes and so on) becomes one hyphen. Hyphens at the start and end are dropped.
+
+| Integration name | Identifier and data type | Card title |
+|---|---|---|
+| `Acme Firewall` | `acme-firewall` | Acme Firewall |
+| `Billing API v2` | `billing-api-v2` | Billing Api V2 |
+| `JSON Input` | `json-input` | Json Input |
+| `Syslog` | `syslog` | Syslog |
+
+The card title is rebuilt from the identifier, so it may differ from what you typed in letter case.
+
+<Tip>
+
+Two names give data types that UTMStack already knows how to parse:
+
+- `JSON Input` gives `json-input`. The shipped pipeline `json/json-input.yaml` reads each event as one line of JSON, and 10 shipped rules use this data type. See **JSON Input**.
+- `Syslog` gives `syslog`. The shipped pipelines `syslog/syslog-generic.yaml` and `syslog/syslog-cef-leef.yaml` parse plain syslog, CEF and LEEF messages, and 3 shipped rules use this data type. See **Generic Syslog, CEF and LEEF**.
+
+Any other name gives a new data type with no pipeline.
+
+</Tip>
+
 ## Before you start
 
 - You need the Administrator role (the `integrations.write` permission) to create integrations and to enable listeners on a Collector. Integrations are created in the tenant you are working in.
 - You need a Linux host for the Collector that your source can reach on the port you choose. One Collector can serve many integrations, so you can reuse an existing one.
+- Choose a port that no other integration on that Collector uses, and that no other program on the host uses.
 
 ## Step 1: Create the custom integration
 
@@ -21,6 +46,8 @@ For how to install and run the Collector, see **UTMStack Forwarder**.
 
 Go to **Configure > Integrations**. On the **Add custom integration** card ("Create a new custom source"), click **Create**.
 
+![New custom integration drawer in UTMStack with the Integration name, Description and Icon fields and the Create integration button](/assets/c2f44659-cfbf-43cb-aa33-de6ab9844cf7)
+
 </Step>
 <Step title="Describe the integration">
 
@@ -28,11 +55,11 @@ In **New custom integration**, fill in:
 
 | Field | What to enter |
 |---|---|
-| **Integration name** | The name shown on the card, for example `Acme Firewall`. Below the field, UTMStack shows the identifier it will store, for example "Stored as “acme-firewall” (derived from the name)". |
+| **Integration name** | The name of your source, for example `Acme Firewall`. Below the field, UTMStack shows the identifier it will store, for example "Stored as “acme-firewall” (derived from the name)". |
 | **Description** | Optional. What this integration ingests and why. |
 | **Icon** | Optional. A PNG, SVG, JPEG, GIF or WEBP image of up to 3 MB, used as the integration logo. |
 
-If another integration already uses the same identifier, UTMStack does not accept the name; choose a different one.
+If another integration already has the same identifier, UTMStack shows "That integration name can’t be used — an integration with that identifier already exists." and you cannot create it. Choose a different name.
 
 </Step>
 <Step title="Create it">
@@ -44,7 +71,7 @@ Click **Create integration**. The new card appears on the Integrations page. Use
 
 <Note>
 
-The identifier, and so the data type, is fixed when you create the integration. Editing the integration later changes only its name, description and icon.
+The identifier, and so the data type, is fixed when you create the integration. Later you can change only the description and the icon.
 
 </Note>
 
@@ -60,14 +87,16 @@ In **Collector**, select the Collector that will receive the logs. The panel sho
 </Step>
 <Step title="Choose the protocol and port">
 
-In **Protocol**, choose how your source sends data: **UDP**, **TCP** or **TLS** for syslog, or **HTTP** or **HTTPS** for JSON. In **Port**, enter the port the Collector should listen on. The guide suggests port `7100`.
+In **Protocol**, choose how your source sends data: **UDP**, **TCP** or **TLS** for syslog, or **HTTP** or **HTTPS** for requests. In **Port**, enter the port the Collector should listen on. The guide suggests port `7100`.
+
+For a new data type, the Collector uses the port you enter the first time you enable it; to move it later, run `change-port` on the Collector host. If the identifier is a data type the Collector already knows (for example `syslog`), the Collector keeps that data type's own port and ignores the one you enter; see **Generic Syslog, CEF and LEEF**.
 
 </Step>
 <Step title="Set the HTTP options (HTTP and HTTPS only)">
 
 - **Authentication**: **None**, **Bearer token** or **HMAC signature**. With a token or signature, the Collector creates a secret and the panel shows it once ("Store this token securely — it won't be shown again."). Copy it then.
 - **Path**: the address path for incoming requests. If you leave it empty, the Collector uses `/logs`.
-- **Signature header**: for HMAC only, the header that carries the signature. The command-line default is `X-Hub-Signature-256`.
+- **Signature header**: for HMAC only, the header that carries the signature. If you leave it empty, the Collector uses `X-Hub-Signature-256`.
 
 </Step>
 <Step title="Load a certificate (TLS and HTTPS only)">
@@ -77,7 +106,7 @@ TLS and HTTPS need a certificate on the Collector. Under **TLS certificate**, ad
 </Step>
 <Step title="Enable the integration">
 
-Click **Enable integration**. The panel then shows the current state, for example "Currently: enabled · udp · port 7100".
+Click **Enable integration**. The panel then shows the current state, for example "Currently: enabled · udp · port 7100". If the Collector refuses the change, a message explains why (see **Troubleshooting** below).
 
 </Step>
 </Steps>
@@ -97,13 +126,15 @@ Connect to the Collector host with SSH and run the command for your protocol and
 sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration acme-firewall 7100 udp
 ```
 
-The protocol can be `udp`, `tcp`, `tls`, `http` or `https`. For HTTP and HTTPS, you can add `--auth bearer` (token) or `--auth hmac` (signature). The Collector prints the new token once and keeps it in `/opt/utmstack-forwarder/certs/integration-http-<identifier>.token`.
+The first time, the Collector prints `New data type "acme-firewall" created.` and then the port it listens on. The protocol can be `udp`, `tcp`, `tls`, `http` or `https`. For HTTP and HTTPS, you can add `--auth bearer` (token) or `--auth hmac` (signature). The Collector prints the new token once and keeps it in `/opt/utmstack-forwarder/certs/integration-http-<identifier>.token`.
 
 For TLS and HTTPS, load your certificate and key first (once per Collector). An optional CA certificate can be added as a third argument; without it, the certificate itself is used as the CA.
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key
 ```
+
+To list the data types the Collector knows, including yours, run `sudo /opt/utmstack-forwarder/utmstack_forwarder list-datatypes`.
 
 </AccordionTab>
 </Accordion>
@@ -112,7 +143,10 @@ sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt
 
 **Syslog (UDP, TCP or TLS):** configure your source to send syslog to the Collector's address and the port you chose, for example `<collector-ip>:7100`. Most devices have a remote syslog or log forwarding setting for this.
 
-**JSON over HTTP or HTTPS:** send each event as a JSON body in an HTTP POST request to the listener. For example, on the Collector host:
+- Over UDP, the Collector reads at most 2,048 bytes of each message; longer messages are cut. Use TCP or TLS for sources that send long messages.
+- Over TCP and TLS, send one event per line. A line that starts with a digit is read as a length prefix (the framing of RFC 5425), so start each plain line with a syslog header such as `<14>`, or with any other character that is not a digit.
+
+**HTTP or HTTPS:** send each event as the body of an HTTP POST request to the listener. The body can be JSON or any other text, up to 8 MB per request; one request becomes one event. For example, on the Collector host:
 
 ```bash
 curl -k -X POST "http://127.0.0.1:7100/logs" \
@@ -122,22 +156,112 @@ curl -k -X POST "http://127.0.0.1:7100/logs" \
 
 If you chose **Bearer token**, add the header `Authorization: Bearer <token>`. If you chose **HMAC signature**, your source must compute an HMAC-SHA256 of each request body with the secret and send it as hexadecimal in the signature header, optionally with a prefix such as `sha256=`.
 
+The listener answers each request with an HTTP status:
+
+| Status | Meaning |
+|---|---|
+| 204 | Accepted. |
+| 401 `unauthorized` | The bearer token or the HMAC signature is missing or wrong. |
+| 405 `method not allowed` | The request was not a POST. |
+| 413 `payload too large` | The body is over 8 MB. |
+| 503 `service unavailable` | The Collector's queue is full. Wait the number of seconds in the `Retry-After` header (5) and send again. |
+
 <Warning>
 
 An HTTP or HTTPS listener for a custom integration listens only on `127.0.0.1`, the Collector host itself. Post from an application on that host, or put a reverse proxy in front of it. For sources on other machines, use syslog over UDP, TCP or TLS.
 
 </Warning>
 
-## Step 4: Parse the logs and add rules
+## Step 4: Check that data arrives
 
-Incoming events are stored under your integration's data type, but they are not parsed yet.
+<Steps>
+<Step title="Send a test event">
 
-1. Check that logs arrive: open the integration's card and click **View logs**. Log Explorer opens filtered to your data type for the last 24 hours.
-2. Add a pipeline for the data type in **Configure > Pipelines** so the raw payload is mapped to the UTMStack standard event fields. The card's **Filters** button opens Pipelines filtered to your data type. See **Pipelines** and **Pipeline file format and step reference**.
-3. Write alerting rules for the data type in **Configure > Alerting Rules**. The card's **Rules** button opens the rules for your data type. See **Alerting Rules** and **Rule file format**.
+Send one event from your source, or a test line from the Collector host. For UDP:
+
+```bash
+logger --udp --server 127.0.0.1 --port 7100 "utmstack custom integration test"
+```
+
+For TCP, use `--tcp` instead of `--udp`. For HTTP, use the `curl` command above.
+
+</Step>
+<Step title="Open the logs">
+
+Open the integration's card and click **View logs**. Log Explorer opens with your data type for the last 24 hours. Events usually appear within a minute. Until you add a pipeline, the useful text is in the `raw` field.
+
+</Step>
+<Step title="Check the data source">
+
+Within about 20 minutes, the sender appears on **Configure > Data Sources** under **Direct**. For syslog, the data source is named after the sender's IP address (or the Collector's host name for messages sent from the Collector itself). For HTTP and HTTPS, it is named after the data type.
+
+</Step>
+</Steps>
+
+## Step 5: Parse the logs and add rules
+
+Incoming events are stored under your integration's data type, but they are not parsed yet (unless you used one of the names in the tip at the top).
+
+1. Add a pipeline for the data type in **Configure > Pipelines** so the raw payload is mapped to the UTMStack standard event fields. The card's **Filters** button opens Pipelines filtered to your data type. See **Pipelines** and **Pipeline File Format and Step Reference**.
+2. Test the pipeline with a real sample before you save it. See **Testing Pipelines and Rules**.
+3. Write alerting rules for the data type in **Configure > Alerting Rules**. The card's **Rules** button opens the rules for your data type. See **Alerting Rules** and **Rule File Format**.
+
+### Worked example: an application that sends JSON lines over TCP
+
+An in-house billing application writes one JSON object per line, for example:
+
+```json
+{"ts":"2026-11-12T09:30:00Z","user":"jdoe","src":"203.0.113.10","event":"login","result":"failed"}
+```
+
+1. Create a custom integration named `Billing App`. Its data type is `billing-app`.
+2. Enable it on your Collector with **Protocol** **TCP** and **Port** `7101`.
+3. Configure the application, or a log shipper on its host, to send each line to `<collector-ip>:7101` over TCP. The lines start with `{`, so they are read one per line.
+4. Create a pipeline for `billing-app` in **Configure > Pipelines** (Code mode):
+
+```yaml
+pipeline:
+  - dataTypes: [billing-app]
+    steps:
+      - json:
+          source: raw
+          where: 'startsWith("raw", "{")'
+      - rename:
+          from:
+            - log.user
+          to: origin.user
+      - rename:
+          from:
+            - log.src
+          to: origin.ip
+      - rename:
+          from:
+            - log.event
+          to: action
+```
+
+The `json` step writes each key as `log.<key>` (for example `log.user`), and the `rename` steps move the values to standard fields that rules, dashboards and threat intelligence read. See **Standard Event Schema** for the field names, and for how to write `actionResult` (it must be `success`, `failed` or `denied`).
+
+5. Test it with the sample line, save it, and check new events in Log Explorer: `origin.user` and `origin.ip` are filled in and the `errors` field is empty.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| "That integration name can’t be used — an integration with that identifier already exists." | Another integration, built-in or custom, has the same identifier. | Choose another name. Check the identifier shown under the field. |
+| Enabling fails with "port ... is already in use by integration '...'" | Another integration on that Collector already listens on the same port and protocol. | Choose another port, or disable the other integration. |
+| Enabling fails with "port ... is already in use by another process" | Another program on the Collector host uses the port, for example a syslog service on 514. | Choose another port, or stop that program. |
+| Enabling fails with "TLS certificates not found. Please load certificates first" | TLS or HTTPS was chosen but no certificate is loaded on the Collector. | Upload the certificate and key in **TLS certificate**, or run `load-tls-certs`. |
+| "This Collector is offline and can't receive configuration changes right now." | The Collector has no connection to UTMStack. | Check the `UTMStackForwarder` service on the host. See **UTMStack Forwarder**. |
+| No events, and the source is on another machine | A firewall blocks the port, the source sends to the wrong address or protocol, or the listener is HTTP or HTTPS (local only). | Open the port on the Collector host and in between. Match the protocol. Use syslog for remote sources. |
+| HTTP requests get 401 `unauthorized` | The token or signature is missing or wrong. | Send `Authorization: Bearer <token>`, or the HMAC of the exact body in the signature header. |
+| Long syslog messages arrive cut | UDP messages are limited to 2,048 bytes. | Switch the source and the listener to TCP or TLS. |
+| A TCP stream stops after some lines | A line started with a digit and was read as a length prefix. | Make each line start with a syslog header such as `<14>`. |
+| Events arrive but all text is in `raw` | No pipeline exists for the data type yet. | Add a pipeline (Step 5). |
+| Fields are missing after you added a pipeline | A step failed. Failed steps write a message to the event's `errors` field and the next steps still run. | Open an event in Log Explorer, read `errors`, and test the pipeline with that event. See **Testing Pipelines and Rules**. |
 
 ## Edit, disable or delete a custom integration
 
-- **Edit**: hover over the card and click the pencil icon. You can change the name, description and icon.
-- **Stop receiving logs**: open the card, select the Collector in **Enable this integration remotely** and click **Disable integration**.
-- **Delete**: hover over the card, click the bin icon and confirm. Built-in integrations cannot be edited or deleted.
+- **Edit**: hover over the card and click the pencil icon. You can change the description and the icon.
+- **Stop receiving logs**: open the card, select the Collector in **Enable this integration remotely** and click **Disable integration**. Do this on every Collector where it is enabled.
+- **Delete**: hover over the card, click the bin icon and confirm with **Delete**. Deleting the card does not close listeners on your Collectors, so disable the integration first. To remove the data type from a Collector after disabling it, run `sudo /opt/utmstack-forwarder/utmstack_forwarder remove-datatype <identifier>` on the host. Events already stored stay searchable. Built-in integrations cannot be edited or deleted.

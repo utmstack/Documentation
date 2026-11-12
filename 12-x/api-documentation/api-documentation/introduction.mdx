@@ -1,4 +1,4 @@
-UTMStack v12 has a REST API (a set of web addresses that programs call over HTTPS) for alerts, logs, incidents, data sources, automated response (SOAR) and the SOC-AI assistant. This page explains the base address, how requests and answers are shaped, how paging works and what the error codes mean. It does not apply to the old UTMStack Vulnerability Scanner, which is not part of UTMStack v12.
+UTMStack v12 has a REST API (a set of web addresses that programs call over HTTPS) for almost everything the web console does: alerts, logs, incidents, data sources, rules and pipelines, automated response (SOAR), the SOC-AI assistant, dashboards, compliance, integrations, users and roles, settings, storage and, on multi-tenant installations, tenants. This page explains the base address, how requests and answers are shaped, how paging works and what the error codes mean. It does not apply to the old UTMStack Vulnerability Scanner, which is not part of UTMStack v12.
 
 ## Base address
 
@@ -73,7 +73,7 @@ The server also publishes an interactive reference at `{{baseUrl}}/swagger/index
 
 ## Request conventions
 
-- **Authentication.** Every endpoint except `/health` needs a credential. See **Authentication and API Keys**.
+- **Authentication.** Every endpoint needs a credential, except `/health`, the sign-in and password-reset endpoints, and the few that the sign-in page reads before anyone signs in (branding, date format, the list of sign-in providers). See **Authentication and API Keys**.
 - **Request bodies** are JSON. Send `Content-Type: application/json`. The one exception is alert notes, which take plain text (see **Alerts API**).
 - **Times** are written in RFC 3339 format in UTC, for example `2026-11-10T14:30:00Z`.
 - **Self-signed certificates.** If your server uses a self-signed certificate, add `-k` to curl commands (the examples use `-sk`).
@@ -93,9 +93,20 @@ Paging is not the same for every group of endpoints. Each page in this section s
 | SOAR flows, executions and variables, saved queries | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
 | Data sources (`GET /datasources`) | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` and `total_pages` in the JSON answer |
 | API keys (`GET /api-keys`) | `page` | `1` | `page_size` | 20 | - | `page_info` in the JSON answer |
+| Users (`GET /users`) | `page` | `1` | `page_size` | 20 | 200 | `page_info` in the JSON answer |
+| Audit log (`GET /audit`) | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` and `total_pages` in the JSON answer |
+| Notifications, identity providers, integrations, User Auditor accounts | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| Tenants (`GET /tenants`) | `page` | `0` | `size` | 25 | - | `X-Total-Count` header |
+| Dashboards, widgets, dashboard filters | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| Correlation rules (`GET /eventprocessing/correlation-rule/search-by-filters`) | `page` | `0` | `size` | every rule when `size` is left out | - | `X-Total-Count` header |
+| Pipelines (`GET /eventprocessing/pipelines`) | `page` | `1` | `size` | 50 | - | `X-Total-Count` header |
+| Grok patterns (`GET /eventprocessing/regex-pattern`) | `page` | `0` | `size` | 20 | 200 | `X-Total-Count` header |
+| Compliance report schedules | `page` | `0` | `size` | 20 | - | `X-Total-Count` header |
+
+Compliance controls, frameworks and reports, roles, settings, configuration groups, identities, retention and storage use return the whole list without paging.
 
 > [!TIP]
-> For incident lists, a `size` larger than 200 is not reduced to 200: the server falls back to the default of 20. Ask for 200 or fewer.
+> For incident lists, users, grok patterns and some other lists, a `size` larger than the maximum is not reduced to the maximum: the server falls back to the default of 20. Ask for the maximum or less.
 
 ## Errors
 
@@ -122,9 +133,11 @@ The SOC-AI endpoints use a different shape:
 | 403 | Forbidden | Missing permission, missing Enterprise licence, read-only shipped item, or the tenant is suspended |
 | 404 | Not found | Unknown id, or (multi-tenant installations) an address that belongs to no tenant |
 | 409 | Conflict | Name already in use, or alerts already linked to an incident |
+| 410 | Gone | A password reset key that has expired |
+| 413, 415 | Too large, wrong type | An uploaded image or file that is too large or of a type that is not accepted (branding, profile picture) |
 | 429 | Too many requests | Too many failed sign-ins, or the daily AI allowance is used up |
 | 500 | Server error | See the message; in UTMStack v12.0.2 some invalid values are also answered with 500 (noted on each page) |
-| 502, 504 | Gateway error | The SOC-AI service could not be reached or timed out |
+| 502, 503, 504 | Service unavailable or gateway error | A service behind the API could not be reached or timed out: SOC-AI, the agent manager, ThreatWinds, the mail server, or a rule test that waited for the busy test engine |
 
 ## Roles and permissions
 
@@ -136,7 +149,7 @@ Each endpoint needs a permission. The pages in this section name it next to each
 | Analyst | Every `.read` permission, plus `alerts.write`, `incidents.write`, `soar.write`, `loganalyzer.write`, `dashboards.write` and `notifications.write` |
 | Viewer | Every `.read` permission |
 
-Some actions are limited further: starting a flow by hand (`soar.execute`) and creating API keys (`apikey.write`) are given to Administrator only.
+Some actions are limited further: starting a flow by hand (`soar.execute`) and creating API keys (`apikey.write`) are given to Administrator only. Some endpoints also need a licence (Enterprise or multi-tenant) or an Administrator of the default tenant (called "platform" on these pages). **API Quick Start** has a summary, and **Users and Roles API** lists every permission.
 
 ## Multi-tenant installations
 
@@ -152,11 +165,24 @@ On an installation with the multi-tenant licence, each tenant has its own addres
 
 | Page | What it covers |
 |---|---|
+| **API Quick Start** | First calls, paging and error handling in ten minutes |
 | **Authentication and API Keys** | Signing in with a token or an API key, creating and rotating keys |
 | **Alerts API** | Searching alerts, changing status, notes, tags, assignment, echoes, related logs |
 | **Log Search API** | Datasets, fields, search, SQL, top values, charts, saved queries |
 | **Incidents API** | Creating incidents, linking alerts, status, assignment, notes, history |
 | **Data Sources API** | Data sources and agents, data types, ingestion statistics |
+| **Integrations API** | Integration catalogue, cloud integration settings, Collector log types and certificates |
+| **Rules and Pipelines API** | Correlation rules, pipelines, grok patterns, import and export, rule and pipeline tests |
+| **Dashboards API** | Dashboards, widgets, filters and widget queries |
+| **Compliance API** | Controls, frameworks, evaluations, verdicts, PDF reports and schedules |
 | **SOAR API** | Response flows, starting a flow by hand, execution history, variables, the command console |
 | **SOC-AI API** | Assistant chat, alert analysis, AI provider configuration, daily usage |
+| **Threat Intelligence API** | Indicator search and lookup, reports, feeds, AI Analyst |
+| **User Auditor API** | Directory accounts, statistics and identities |
+| **Users and Roles API** | Users, roles, permissions, your own profile, sessions and two-step sign-in |
+| **Identity Providers API** | SAML, OpenID Connect and LDAP providers and group mappings |
+| **Tenants API** | Tenants and support access (multi-tenant licence) |
+| **Settings, Branding and Licence API** | Application settings, email test, branding, version and licence |
+| **Audit Log and Notifications API** | Audit log entries and in-app notifications |
+| **Storage and Retention API** | Retention periods, storage use and cold storage |
 | **Reference Tables** | Status values, filter operators, alert fields, endpoint list, v11-to-v12 path map |

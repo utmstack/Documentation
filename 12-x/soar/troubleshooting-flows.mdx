@@ -1,0 +1,108 @@
+This page helps you find out why a UTMStack v12 flow did not start, why a step failed, or why a run did something you did not expect. Each section lists what you see, the likely cause and the fix. The messages quoted are the ones UTMStack writes.
+
+## Start here: find the run and read the result
+
+1. Open **SOAR > Execution history** and search for the alert ID (**Search by alert ID…**). Every step of every run of that alert has a row. Check the **Status**, the cause under the command (for example **Agent offline**), the **Node** and the **Agent**.
+2. The **Command / Action** column shows what each step was set to do after the alert values were filled in (see **Execution History and Run Statuses**). Point at it to see the full text. This is the fastest way to spot a value that was not filled in, or a value with unexpected quotes.
+3. The page does not show the step's result: the command output, the HTTP answer or the error message. Read it in the `result` field of `GET /api/v1/soar/rule-executions?alertId=<alert-id>` (see **SOAR API**). Error messages from UTMStack start with `soar shell:`, `soar http:`, `soar llm:`, `soar mail:`, `soar incident:` or `soar notify:`.
+4. To try again, use **Trigger flow** on the **Flows** page with the same stored alert. It runs even when the flow is switched off and ignores the trigger conditions. You need the Administrator role.
+
+## The flow never starts
+
+**What you see:** the alert exists, but **Execution history** has no rows for its ID.
+
+| Cause | How to check | Fix |
+|---|---|---|
+| The flow is switched off. | The **Active** switch on **SOAR > Flows**. Flows copied from another flow, and all shipped flows, start switched off. | Switch it on. |
+| A condition does not match. Comparisons are exact and case-sensitive: `brute force` does not match `Brute Force`. | Compare each condition with the alert's values. The alert name must be the correlation rule's name, character for character. | Copy the name from the rule on **Alerting Rules**. Run **Trigger flow** with the stored alert: if the steps run, the conditions are the problem. |
+| The condition uses a field the alert does not have at the moment it is raised (for example the alert status) or an unknown operator. | Only the fields in the condition field list are sure to be there. A condition with an unknown operator never matches. | Use the listed fields. See **Building a Flow**. |
+| It is a shipped flow whose only condition is `TODO-set-the-correlation-rule-that-triggers-this`. | Open the flow. 81 of the 94 shipped flows have this placeholder trigger. | Copy the flow and set a real alert name. See **Shipped Flows**. |
+| The flow was saved or switched on moments ago. | | The engine picks up changes when the flow file changes, and in any case within about a minute. Wait and try again. |
+| The first step inserts a value that contains an apostrophe, a double quote, a backslash or a line break into an HTTP, AI, notification, email or incident field. | Look at the alert's values (for example a user name such as `o'brien` or `CORP\jdoe`). | Avoid that placeholder in the first step, or send the value from a shell step. See **Placeholders**. |
+| No alert was raised. | Search the **Alerts** page. A rule switched off by the flood guard raises nothing (see **Rule Flood Guard**). | Fix the rule or switch it back on. |
+
+## A shell step failed
+
+| What you see | Cause | Fix |
+|---|---|---|
+| **Failed** with the cause **Agent offline** | The agent was not connected when the step ran. The step is not retried later: the **Retries** column shows 1. | Check the machine on **Configure > Data Sources** (last seen) and the agent service on the machine. When it is back, run the flow again with **Trigger flow**. |
+| **Failed** with no cause; result `soar shell: agent not found` | No agent has that host name. The step runs on the host named in the alert's **Data source** unless you pinned a host, and alerts from firewalls, cloud services or network sensors name a device, not an agent. With **all except**, the host was on the exclusion list. | Pin the step to a host with an agent (**Run on > one host**). Use the host name exactly as shown on **Data Sources**. See **Running Steps on Another Host**. |
+| Result `refused: this agent was installed with no-remote-control` | The agent was installed with **Disable remote command execution on this host**. | Reinstall the agent without that option. See **Windows Agent**, **Linux Agent** or **macOS Agent**. |
+| Result ends with `exit status 1` (or another number) | The command ran and failed. The output above that line says why. | Run the same command in the **Interactive Console** with the same shell and fix it there first. |
+| Windows commands receive values in single quotes, for example `net user 'jdoe' /active:no`, and fail | **Shell** is set to **auto**: the agent uses `cmd` while UTMStack quotes values for `sh`. | Choose `cmd` or `powershell` in the step. |
+| `command not found` or `syntax error` with a text such as `$(alert.target.user)` in the command | The alert has no such field, so the placeholder was sent as written, and the shell tried to run it. | Open a recent alert of the rule and use a field it has. Check the field path's spelling. |
+| The command fails with a syntax error, or receives the text `$[variables.NAME]` instead of a value | No variable has that exact name (names are case-sensitive), so the reference was sent as written. | Fix the name, or create the variable. See **Step Outputs and Variables**. |
+| A value arrives with extra quotes, such as `"'jdoe'"` | You (or a ready-made template) put quotes around the placeholder. | Remove your quotes. See **Placeholders**. |
+| **Failed** after 5 minutes; result mentions `context deadline exceeded` | UTMStack stops waiting for a step after 5 minutes. | Make the command shorter or start long work in the background on the machine. The command may still be running there. |
+| A failing command is shown as **Executed** | The agent is older than UTMStack v12.0.2 and reports every finished command as a success. | Update the agent. |
+| The step waits, then runs late | Commands for one agent run one at a time; a long console command or another flow's step was running. | Avoid long commands on agents that flows use. |
+
+## An HTTP call step failed
+
+| Result | Cause | Fix |
+|---|---|---|
+| `401 401 Unauthorized` (or `403 403 Forbidden`) followed by the other system's answer | The other system refused the credentials. If you inserted a variable into a header, it arrived with single quotes (`Bearer 'token'`). | Type the credential into the header directly, or send the request from a shell step with secret variables. See **Worked Examples: Responding Through Other Systems**. |
+| `400 400 Bad Request` (or `422`) | The other system did not accept the body. Inserted alert values arrive in single quotes in UTMStack v12.0.2. | Check what the API expects. Send exact values from a shell step instead. |
+| `404 404 Not Found` | Wrong address, or a placeholder in the address. | Check the address shown in **Execution history**. |
+| **Failed** although the result starts with `200 200 OK` | The answer is not JSON: it is plain text (for example Slack's `ok`), or it arrived compressed because the step sends the `Accept-Encoding` header. | Delete the `Accept-Encoding` header. If the answer really is text, set the step's `kind` to `executor` in the Code tab. See **Step Types**. |
+| A message about the certificate, such as `x509: certificate signed by unknown authority` or `certificate is valid for …, not …` | The address uses a self-signed or mismatched certificate. HTTP call steps cannot skip the check. | Give the system a trusted certificate, or call it from a shell step on a jump host (`curl --cacert`). |
+| `Client.Timeout exceeded` or `context deadline exceeded` | No answer within 30 seconds. | Check the network path from the UTMStack server. Raise `timeoutSec` in the Code tab if the system is slow (no step can run longer than 5 minutes). |
+| `no such host`, `connection refused` or `i/o timeout` | The UTMStack server cannot resolve or reach the address. | Check DNS and outbound firewall rules for the UTMStack server. |
+| A value from the **Query params** tab arrives as `%24%28alert…%29` | Placeholders in the Query params tab are never filled in. | Put the value in the address path or the body. |
+
+## AI, notification, email and incident steps
+
+| What you see | Cause | Fix |
+|---|---|---|
+| A step stays **Waiting** and never runs | The value inserted into it contains an apostrophe, a double quote, a backslash or a line break, for example an AI answer over several lines. | Avoid that placeholder in this step. Let a Conditional step read the value instead, which involves no quoting. See **Placeholders**. |
+| Messages show values in single quotes, such as `Blocked '203.0.113.7'` | Expected in UTMStack v12.0.2. | None needed. |
+| AI step **Failed**, result starts `soar llm: upstream`, or holds the assistant's messages with an `event: error` entry | The SOC-AI service or the AI provider answered with an error. | Check that an AI provider is set up and that **Save configuration** succeeds on **Configure > Settings > SOC-AI**. See **AI Providers**. |
+| AI step **Failed** after 5 minutes | The AI did not finish in time. | Ask a narrower question. Wire the error branch to a safe action. |
+| A Conditional after an AI step always takes the red branch | The answer is not exactly the word you test for (for example `Block` instead of `block`). | Ask for one exact lower-case word in the prompt, and keep the safe action on the red branch. |
+| Incident step **Failed**, result starts `soar incident: create:` | An incident with that name already exists (names are unique per tenant), or the alert is already linked to an incident, for example after a second run for the same alert. | Put `$(alert.id)` into the incident name. An alert can belong to only one incident. |
+| Incident step **Failed**: `soar incident: no alert linked to this execution` | The run has no alert ID, for example a manual run with raw JSON without `id`. | Add an `id` to the raw alert JSON. |
+| Email step **Failed**, result starts `soar mail: send:` | The mail server refused the message or could not be reached. | Fix and test **Configure > Settings > Email Configuration**. |
+
+## The run does something unexpected
+
+| What you see | Cause | Fix |
+|---|---|---|
+| A step ran twice in one run | It has two incoming wires and both parents finished. A step runs once per incoming wire that fires. | Give the step a single incoming wire. See **Building a Flow**. |
+| A step shows **Unreachable** | It was on the wire that was not taken. | None: this shows which branch ran. |
+| A Conditional step shows **Failed** | Its conditions did not match, so the red branch ran. The result reads `condition failed: …`. | None, if that was intended. |
+| A Conditional with "is one of" never matches, or with "is not one of" always matches | The values were typed in the Visual tab, which saves them as one piece of text in UTMStack v12.0.2. | Write the values as a YAML list in the Code tab. See **Step Types**. |
+| Steps at the end of a long chain do not run, and have no row | The chain is longer than the flow's **Max depth**. | Raise **Max depth** in **Flow details** (default 50). |
+| A step stayed **Executing** and later shows **Failed** with a cause ending in `DISPATCHER_LOST` | The UTMStack server restarted while the step ran. | Check on the machine whether the command ran, then run the flow again if needed. |
+| The flow ran many times for one attack | Every matching alert starts a run. | Narrow the conditions, for example add a **Data source** or **Adversary IP** condition, or start the flow from a rule that fires less often. |
+| A manual run used another machine than the one you picked | A step pinned to a host (**Run on > one host**) always runs there. | Unpin the step for the test. |
+
+## The Interactive Console does not run commands
+
+| What you see | Cause | Fix |
+|---|---|---|
+| A lock and "Remote control disabled" | The agent was installed with remote control disabled. | Reinstall the agent without that option. |
+| "This agent appears offline — it may not respond to commands." | The agent is not connected. | Check the agent service on the machine and **Data Sources**. |
+| "invalid credentials", or "too many failed attempts; try again later" | Wrong password, or your account signs in through single sign-on or LDAP and has no UTMStack password. | Use an account with a UTMStack password. After 9 failures in 10 minutes, sign-in from your address is blocked for 10 minutes. |
+| Commands are refused after a few minutes | The password proof is valid for 5 minutes. | Close the console and open it again. |
+| "a variable in this command could not be resolved" | A secret variable in the command cannot be read. | Edit the variable and enter its value again. |
+| Output ends with `... output truncated` | The output was longer than 65,536 bytes. | Filter the output on the machine (for example with `head` or `Select-Object -First`). |
+| A failed command shows **Executed** in **Execution history** | Console rows record the connection, not the command's result. | Read the output in the console. |
+
+## Saving a flow fails
+
+| Message | Cause |
+|---|---|
+| "Name is required", "At least one condition with a field is required", "Add at least one node and connect it to the trigger." | Checked by the editor before saving. |
+| `HTTP node "…" has an invalid URL`, `body is not valid JSON`, `Incident node "…" needs a name.`, `Email node "…" needs at least one recipient.`, `needs a subject.` | Checked by the editor for each step. |
+| "operation failed" | The server refused the flow but, in UTMStack v12.0.2, does not say why. Check that every wire points to an existing step, every start step exists and is listed once, the step types are known, a notification has a message, an email has To, Subject and Body, an AI step has a prompt, a Conditional has a condition, and HTTP addresses start with `http://` or `https://`. |
+| "rule name already in use" | Another flow already uses the same file name. File names are made from the flow name with every character that is not a letter or digit turned into `-`, so names that differ only in punctuation or accents collide. Choose another name. |
+| "system alert response rule is read-only" | Shipped flows cannot be changed. Copy the flow and edit the copy. |
+
+## Related pages
+
+- **Execution History and Run Statuses**
+- **Step Types**
+- **Placeholders**
+- **Building a Flow**
+- **Interactive Console**
+- **Worked Examples: Responding Through Other Systems**

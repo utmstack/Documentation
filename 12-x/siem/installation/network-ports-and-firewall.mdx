@@ -1,4 +1,4 @@
-This page lists the ports the UTMStack v12 server uses, the ports you must block, and the connections the server makes to the internet. It also gives firewall examples. Ports that devices need on the UTMStack Forwarder are listed in **Ports and network requirements**.
+This page lists the ports the UTMStack v12 server uses, the ports you must block, and the connections the server makes to the internet. It also gives firewall examples for ufw, AWS, Azure and Google Cloud. Ports that devices need on the UTMStack Forwarder are listed in **Ports and Network Requirements**. The ports the services use inside the server are listed in **Server Services and Files Reference**.
 
 <Warning>
 
@@ -13,7 +13,7 @@ This page lists the ports the UTMStack v12 server uses, the ports you must block
 | 22/TCP | SSH, for server administration. The installer does not open or change it. | Administrator workstations only |
 | 80/TCP | Redirects web browsers to HTTPS (443). | Analyst and administrator workstations |
 | 443/TCP | The web interface, the API, agents, the UTMStack Forwarder, collectors and agent downloads. | Analyst and administrator workstations, API clients, and every network where agents, the Forwarder or collectors run |
-| 9090/TCP | Cockpit, the web console for server management that the installer adds. | Administrator workstations only |
+| 9090/TCP | Cockpit, the web console for server management that the installer adds. On Red Hat Enterprise Linux it may not be started; see **Health Checks and Troubleshooting**. | Administrator workstations only |
 | 10001/TCP | Internal: lets nginx on the server reach the web container. | **Nobody.** Block it from outside the server. |
 
 <Warning>
@@ -46,7 +46,7 @@ The installer starts Docker Swarm on the server. Docker Swarm listens on its own
 ## Ports for data sources
 
 - **Agents (Windows, Linux, macOS), the UTMStack Forwarder and collectors** connect to the UTMStack server on 443/TCP.
-- **Network devices** (firewalls, switches, hypervisors and others) send syslog or NetFlow to the UTMStack Forwarder, not to the UTMStack server. Open the Forwarder's ports on the machine where it runs. See **Ports and network requirements** and **UTMStack Forwarder**.
+- **Network devices** (firewalls, switches, hypervisors and others) send syslog or NetFlow to the UTMStack Forwarder, not to the UTMStack server. Open the Forwarder's ports on the machine where it runs. See **Ports and Network Requirements** and **UTMStack Forwarder**.
 - **Cloud integrations** (for example AWS, Microsoft Azure, Google Cloud, Microsoft 365, CrowdStrike and Sophos Central) need no inbound port. The UTMStack server connects out to them over HTTPS.
 
 ## Outbound connections from the UTMStack server
@@ -59,8 +59,10 @@ The installer starts Docker Swarm on the server. Docker Swarm listens on its own
 | `download.docker.com` and your distribution's package mirrors | 443/TCP or 80/TCP, depending on your mirrors | Installation of Docker, nginx, Cockpit and other packages. |
 | `8.8.8.8`, `1.1.1.1`, `google.com` | 443/TCP | The installer's internet check. If none answers, it switches to air-gapped mode. |
 | Your mail server | The SMTP port you configure | Alert, incident and account emails. |
-| Cloud services you connect | 443/TCP | Cloud integrations. See **Ports and network requirements**. |
+| Cloud services you connect | 443/TCP | Cloud integrations. See **Ports and Network Requirements**. |
 | ThreatWinds and AI services | 443/TCP | Threat intelligence feeds and SOC-AI, if you use them. |
+
+If your firewall filters outbound traffic by host name, also allow the hosts these services redirect downloads to: `*.githubusercontent.com` for GitHub and `ghcr.io`, and `registry-1.docker.io`, `auth.docker.io` and `production.cloudflare.docker.com` for Docker Hub.
 
 ## Firewall examples
 
@@ -158,7 +160,23 @@ az network nsg rule create \
   --access Allow
 ```
 
-Create similar rules for 80, 22 and 9090 with the sources from the table above. Do not create a rule for 10001.
+Create similar rules for 80, 22 and 9090 with the sources from the table above. Do not create a rule for 10001. Azure's default rule `AllowVnetInBound` still lets machines in the same virtual network reach every port; if that matters, add a rule that denies 10001/TCP with a lower priority number than 65000.
+
+### Google Cloud firewall rules
+
+```bash
+gcloud compute firewall-rules create utmstack-https \
+  --network=default --direction=INGRESS --action=ALLOW \
+  --rules=tcp:443 --source-ranges=ANALYST_AND_AGENT_NETWORKS --target-tags=utmstack
+
+gcloud compute firewall-rules create utmstack-admin \
+  --network=default --direction=INGRESS --action=ALLOW \
+  --rules=tcp:22,tcp:9090 --source-ranges=ADMIN_IP/32 --target-tags=utmstack
+```
+
+Give the server the network tag `utmstack`. Do not create a rule for 10001. In the `default` network, the rule `default-allow-internal` still lets machines in the same network reach every port; if that matters, add a deny rule for 10001/TCP with a higher priority (a lower number).
+
+For complete cloud setups (machine, disks, fixed addresses and DNS), see **Install on AWS, Azure or Google Cloud**.
 
 ## Test the ports
 
@@ -211,6 +229,8 @@ sudo ss -tlnp
     ```
 
     If this fails, open 443/TCP between that machine and the server. If you still allow 9000, 9001 or 50051 for agents, those rules are left over from v11 and are not used.
+
+    If the test works but agents still send nothing, a proxy, a TLS-inspecting firewall or a web application firewall on the path may be holding the agents' connections. See "Agents or collectors cannot connect" in **Health Checks and Troubleshooting**.
 
   </AccordionTab>
 

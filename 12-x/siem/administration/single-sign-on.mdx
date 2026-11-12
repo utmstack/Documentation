@@ -1,26 +1,62 @@
-Single sign-on (SSO) lets your users sign in to UTMStack v12 with the account they already have in your identity provider, such as Microsoft Entra ID, Okta or Google Workspace. UTMStack supports three kinds of provider: **SAML 2.0**, **OpenID Connect** and **LDAP / Active Directory**. Single sign-on needs an **Enterprise** licence.
+Single sign-on (SSO) lets your users sign in to UTMStack v12 with the account they already have in your identity provider, such as Microsoft Entra ID, Okta, Google Workspace or Active Directory. UTMStack supports three protocols: **OpenID Connect**, **SAML 2.0** and **LDAP / Active Directory**. Single sign-on needs an **Enterprise** licence.
+
+This page explains how single sign-on works in UTMStack and describes every field. Step-by-step setups for each identity provider are in the guides listed at the end.
+
+## Choose a protocol
+
+| Protocol | How the user signs in | Groups to roles | Use it for |
+|---|---|---|---|
+| **OpenID Connect** (OIDC) | Clicks **Continue with** the provider's name, signs in at the provider, comes back signed in | Yes, from a groups claim in the ID token | Microsoft Entra ID, Okta, Google Workspace and most cloud providers. The simplest to set up. |
+| **SAML 2.0** | Same as OpenID Connect | Yes, from a groups attribute in the assertion | Providers that offer only SAML, or when your policy requires it |
+| **LDAP / Active Directory** | Types their directory email and password on the UTMStack sign-in page | Yes, from the directory's group attribute (`memberOf`) | An on-premises directory without a cloud identity provider. See **LDAP and Active Directory Sign-In**. |
+
+OpenID Connect and SAML send the user's password only to the identity provider; UTMStack never sees it, and the identity provider's own multi-factor sign-in applies. With LDAP, UTMStack receives the password and checks it against the directory.
 
 ## Before you start
 
-- You need the **Administrator** role: `idp.read` to view providers and `idp.write` to create, change or delete them.
-- The server needs an Enterprise licence. On Community, the page shows "SSO is an Enterprise feature". See **License and Editions**.
-- Decide which UTMStack roles your users should get, and which groups in your directory map to them. See **Roles and Permissions**.
-- Know the address your users open UTMStack with, for example `https://siem.example.com`. Below, `<your-server>` stands for its host name (here `siem.example.com`) and `<name>` for the provider name you choose in UTMStack.
+- **Licence.** The server needs an Enterprise licence. On Community, the **Identity Providers** page shows "SSO is an Enterprise feature", and the sign-in addresses answer "This feature requires an Enterprise license". See **License and Editions**.
+- **Permissions.** You need the **Administrator** role: `idp.read` to view providers and `idp.write` to create, change or delete them.
+- **Address.** Know the address your users open UTMStack with, for example `https://siem.example.com`. It must use a certificate the browser trusts (see **SSL Certificate**). Below, `siem.example.com` stands for your address and `<name>` for the provider name you choose in UTMStack.
+- **Roles.** Decide which UTMStack roles your users should get, and which groups in your directory map to them. See **Roles and Permissions**.
 
-## How users sign in
+## The addresses UTMStack uses
 
-Each active provider adds a **Continue with** button, followed by the provider name, to the UTMStack sign-in page.
+The provider name you choose becomes part of these addresses, so choose it first (for example `entra`, `okta` or `google`).
 
-- **SAML 2.0 and OpenID Connect**: the button sends the user to the identity provider. After they sign in there, they come back to UTMStack signed in. These sessions last one hour; after that the user signs in again through the provider.
-- **LDAP / Active Directory**: the button selects the directory. The user then types their directory email and password into the normal sign-in form, and UTMStack checks them against the directory.
+| Address | Used for |
+|---|---|
+| `https://siem.example.com/auth/login` | The UTMStack sign-in page. Each active provider adds a **Continue with** button. |
+| `https://siem.example.com/api/v1/sso/<name>/login` | Starts a sign-in with an OpenID Connect or SAML provider. You can give it to users or put it in a portal. |
+| `https://siem.example.com/api/v1/sso/<name>/callback` | **OpenID Connect redirect URL.** Register it in the provider. |
+| `https://siem.example.com/api/v1/sso/<name>/acs` | **SAML ACS URL** (assertion consumer service, where the provider sends the signed answer). Register it in the provider. |
 
-You can also give users the direct sign-in address of a SAML 2.0 or OpenID Connect provider:
+<Note>
 
-```text
-https://<your-server>/api/v1/sso/<name>/login
-```
+In UTMStack v12.0.2, the **Login URL** shown on a provider's card contains an extra `saml/` (`/api/v1/sso/saml/<name>/login`) and does not work. Use the addresses in the table above.
 
-Accounts created through an identity provider cannot sign in with a local UTMStack password.
+</Note>
+
+On a multi-tenant licence, each tenant has its own providers. Use the tenant's own address in all of these addresses, for example `https://customer-a.example.com/api/v1/sso/entra/callback`. See **Multi-Tenancy Overview**.
+
+## How a sign-in works
+
+1. The user clicks **Continue with** a provider on the sign-in page (or opens the provider's `/login` address).
+2. UTMStack sends the browser to the identity provider, which asks for the password and any second factor.
+3. The provider sends the browser back to UTMStack with a signed answer: an ID token for OpenID Connect, an assertion for SAML.
+4. UTMStack checks the signature, reads the user's email, name and groups, and finds the UTMStack account with that email address.
+5. UTMStack decides the user's roles (see **How accounts and roles are decided** below), and the user lands on the UTMStack home page.
+
+UTMStack matches accounts **by email address only**, ignoring upper and lower case. The email the provider sends must be the same address as the UTMStack account.
+
+### Where UTMStack reads each value
+
+| Value | OpenID Connect (ID token claim) | SAML (assertion attribute) |
+|---|---|---|
+| Email | `email`, or else `preferred_username`, or else `upn` | An attribute named `email`, `mail` or `emailaddress`, or else the NameID |
+| Name | `name`, or else `given_name` | An attribute named `displayName`, `name` or `cn` |
+| Groups | The claim named in **Groups attribute**, or `groups` when empty | The attribute named in **Groups attribute** |
+
+For SAML, an attribute matches when its name, its friendly name, or the last part of a URI-style name equals the expected name. For example, `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress` counts as `emailaddress`. Names are compared without regard to case.
 
 ## Add an identity provider
 
@@ -34,14 +70,14 @@ Go to **Configure > Settings > Identity Providers** and click **Add provider**.
 
 <Step title="Name the provider and choose its type">
 
-- **Name**: unique, up to 64 characters, using letters, digits, dots, dashes or underscores, without spaces. It becomes part of the sign-in addresses and cannot be changed later.
-- **Provider type**: **SAML 2.0**, **OpenID Connect** or **LDAP / Active Directory**. It cannot be changed later either.
+- **Name**: unique, up to 64 characters, letters, digits, dots, dashes or underscores, no spaces. It becomes part of the sign-in addresses and appears on the **Continue with** button.
+- **Provider type**: **SAML 2.0**, **OpenID Connect** or **LDAP / Active Directory**. It cannot be changed later.
 
 </Step>
 
 <Step title="Fill in the connection fields">
 
-Use the table for your provider type in the sections below.
+Use the tables below, or the guide for your identity provider.
 
 </Step>
 
@@ -51,78 +87,158 @@ Fill in **Accounts and roles** (see below).
 
 </Step>
 
-<Step title="Activate and save">
+<Step title="Save">
 
-Switch on **Active (show on the login page)** when you are ready for users to see the provider, and click **Create provider**.
+**Active (show on the login page)** is on by default. Click **Create provider**.
 
 </Step>
 
 <Step title="Test">
 
-Sign out, or open a private browser window, and sign in with a test account through the new provider.
+Open the provider's `/login` address in a private browser window and sign in with a test account. If it fails, click the **Active** badge on the provider's card to disable it while you fix the settings, then click the **Disabled** badge to turn it back on.
 
 </Step>
 
 </Steps>
 
-### SAML 2.0 fields
+<Note>
 
-| Field | What to enter |
-|---|---|
-| IdP metadata URL | The metadata address published by your identity provider |
-| SP Entity ID | The identifier of UTMStack in your identity provider. It must be a URI, for example `https://<your-server>/sp`. Use the same value in your identity provider. |
-| SP ACS URL | Where the identity provider sends users back: `https://<your-server>/api/v1/sso/<name>/acs` |
-| SP certificate (PEM) | The certificate UTMStack uses for SAML, in PEM format |
-| SP private key (PEM) | The private key of that certificate. It is stored encrypted and never shown again; when you edit the provider, leave it empty to keep the stored key. |
+An inactive provider cannot be used at all, not even through its `/login` address. To test before users see the button, activate it outside working hours, or test with a second, temporary provider name.
 
-In your identity provider, set the user's email address as the NameID, or send it in an `email` or `mail` attribute.
+</Note>
 
 ### OpenID Connect fields
 
 | Field | What to enter |
 |---|---|
-| Issuer URL | The issuer address of your provider, for example `https://login.microsoftonline.com/<tenant>/v2.0`. It must serve `/.well-known/openid-configuration`. |
-| Client ID | The client (application) ID you registered in the provider |
-| Client secret | The secret of that client. It is stored encrypted and never shown again. |
-| Redirect URL | `https://<your-server>/api/v1/sso/<name>/callback`. Register this exact address in your provider. |
+| Issuer URL | The provider's issuer, starting with `https://`. It must serve `/.well-known/openid-configuration`, and the `issuer` value in that document must be exactly this URL. Examples: `https://login.microsoftonline.com/<tenant-id>/v2.0`, `https://<your-org>.okta.com`, `https://accounts.google.com`. |
+| Client ID | The client (application) ID registered in the provider |
+| Client secret | The secret of that client. Stored encrypted, never shown again. When you edit the provider, leave it blank to keep it. |
+| Redirect URL | `https://siem.example.com/api/v1/sso/<name>/callback`. Register this exact address in the provider. It must start with `https://`. |
 
-UTMStack asks the provider for the `openid`, `profile` and `email` scopes.
+UTMStack asks the provider for the `openid`, `profile` and `email` scopes and uses the authorization code flow with the client secret.
+
+### SAML 2.0 fields
+
+With **SAML 2.0** selected, the **Add identity provider** dialog looks like this:
+
+![The Add identity provider dialog with SAML 2.0 selected, showing the Name, Provider type, IdP metadata URL, SP Entity ID, SP ACS URL, SP certificate and SP private key fields and the start of Accounts and roles](/assets/ac3039dd-009c-42b1-bcc4-e40c1c2437fb)
+
+| Field | What to enter |
+|---|---|
+| IdP metadata URL | The address where the provider publishes its SAML metadata. UTMStack downloads it at every sign-in. |
+| SP Entity ID | The identifier of UTMStack in the provider (the "Identifier" or "Audience"). Any URI, for example `https://siem.example.com/api/v1/sso/<name>`. Use exactly the same value in the provider. |
+| SP ACS URL | `https://siem.example.com/api/v1/sso/<name>/acs`. Use exactly the same value in the provider. |
+| SP certificate (PEM) | A certificate for UTMStack as a SAML service provider, in PEM format |
+| SP private key | The private key of that certificate, in PEM format. Stored encrypted, never shown again. Required when you create the provider; leave it blank when editing to keep it. |
+
+Create the certificate and key on any computer with OpenSSL:
+
+```bash
+openssl req -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes \
+  -keyout utmstack-sp.key -out utmstack-sp.crt -subj "/CN=siem.example.com"
+```
+
+Paste the contents of `utmstack-sp.crt` into **SP certificate (PEM)** and of `utmstack-sp.key` into **SP private key**. UTMStack uses the key to decrypt assertions; give the certificate to your provider only if you turn on assertion encryption there.
+
+What the SAML provider must do:
+
+- Publish its metadata at a public address that resolves to a public IP address and answers directly, without a redirect. UTMStack refuses metadata addresses that point to private, loopback or link-local addresses ("the identity provider address is not allowed").
+- Sign the response or the assertion. All common providers do this by default.
+- Send the SP Entity ID as the audience and the ACS URL as the destination.
+- Answer a sign-in that UTMStack started. Sign-ins started from the provider's app portal (IdP-initiated sign-in) are refused; set the provider's "sign-on URL" to the `/login` address instead where it has one.
 
 ### LDAP / Active Directory fields
 
-| Field | What to enter | Default |
-|---|---|---|
-| Host | The directory server's host name or IP address, without `ldap://`, for example `ldap.example.com` | — |
-| Port | The directory port | `389` |
-| TLS | **Use StartTLS** encrypts the connection | On |
-| Bind DN | A service account that is allowed to search the directory | — |
-| Bind password | The password of that account. It is stored encrypted and never shown again. | — |
-| Base DN | Where in the directory to search for users | — |
-| User filter | The search filter. It must contain `%s`, which is replaced by the email the user types. | `(mail=%s)` |
-| Email attribute, Name attribute, Group attribute | The directory attributes that hold the user's email, name and groups | — |
+See **LDAP and Active Directory Sign-In** for the fields, filters and a complete Active Directory example.
 
-### Accounts and roles
+## Accounts and roles
 
 | Field | What it does |
 |---|---|
-| Create the account on first sign-in | Creates the UTMStack user the first time someone signs in through the provider. |
-| Default role | The role given when none of the user's groups matches a mapping. If you choose **None**, a sign-in that matches no group is refused. |
-| Groups attribute | Where the provider puts the user's group membership, for example `groups`, or `memberOf` in a directory. |
-| Re-apply roles on every sign-in | Updates the user's roles from the group mapping at every sign-in. Roles not in the mapping are removed, so a change in the directory reaches UTMStack. Without this option, removing someone from a group never lowers their rights in UTMStack. |
-| Group to role | Pairs of a directory group (for example `SOC Analysts`) and the UTMStack role it grants. Click **Add** for each pair. |
+| Create the account on first sign-in | When no UTMStack account has the user's email, creates one at the first sign-in. Without it, only people who already have an account can sign in. |
+| Default role | The role given when none of the user's groups matches a mapping. With **None**, a sign-in that matches no group is refused. |
+| Groups attribute | The claim (OpenID Connect) or attribute (SAML) that holds the user's groups, for example `groups`. For OpenID Connect, empty means `groups`. Not used by LDAP, which uses its own **Group attribute** field. |
+| Re-apply roles on every sign-in | At every sign-in, replaces the user's UTMStack roles with the roles from the mapping (or the default role). Roles given by hand on the **Team** page are removed. Without it, roles are set only when the account is created, and a demotion in the directory never reaches UTMStack. |
+| Group to role | Pairs of a directory group and the UTMStack role it grants. Click **Add** for each pair. A user in several mapped groups gets all their roles. Group names are compared without regard to case. |
+
+The group value must be what the provider actually sends: Microsoft Entra ID sends group object IDs (for example `5f1c2d3e-...`) unless you configure otherwise, Okta and most SAML providers send group names, and LDAP sends the group's common name (`CN`).
+
+### How accounts and roles are decided
+
+| Situation | Result |
+|---|---|
+| No UTMStack account with this email, **Create the account on first sign-in** on | An active account is created in this tenant, marked as signing in through an identity provider, with the mapped roles or the default role |
+| No UTMStack account with this email, option off | The sign-in is refused |
+| An active account exists | The user signs in. Roles are replaced only if **Re-apply roles on every sign-in** is on. |
+| The account exists but is waiting for its invitation to be accepted, or is deactivated | The sign-in is refused |
+| No mapped group matches and **Default role** is **None** | The sign-in is refused |
+
+Practical consequences:
+
+- **Do not invite users who will sign in through single sign-on.** An invited account stays "Pending invite" until the user sets a password, and single sign-on refuses it until then. Turn on **Create the account on first sign-in** instead.
+- **Accounts created by a provider cannot sign in with a password,** and "Forgot?" does not send them a reset link. They show an **SSO** badge on the **Team** page.
+- **Accounts you created yourself** (with **Create local user**) can sign in both ways if the email matches.
+- **Pick one way to manage roles.** Either manage roles in the directory (mappings plus **Re-apply roles on every sign-in**), or manage them by hand on the **Team** page (option off). Mixing both makes roles given by hand disappear at the next sign-in.
+
+<Warning>
+
+With **Create the account on first sign-in** on and a **Default role**, anyone your identity provider lets through gets that role in UTMStack. Limit who can use the UTMStack application in the provider (user or group assignment), or leave **Default role** at **None** and map only the groups that should have access.
+
+</Warning>
+
+## Sessions and two-step sign-in
+
+- A sign-in through OpenID Connect or SAML lasts one hour. After that, the user goes through the provider again; if the provider session is still valid, this is quick.
+- UTMStack's own two-step sign-in is not asked of OpenID Connect and SAML users. Turn on multi-factor sign-in in the identity provider instead.
+- LDAP users get the UTMStack two-step step if they turned it on. See **Profile and Two-Step Sign-In**.
+
+## Keep a way in without single sign-on
+
+Keep at least one administrator account with a local password, two-step sign-in and a strong password stored safely. If the identity provider is down or misconfigured, it is the only way to sign in and fix the provider.
 
 ## Manage providers
 
-Each provider is shown as a card with its main settings.
+Each provider is shown as a card.
 
-- **Disable** hides the provider from the sign-in page and stops sign-ins through it. **Enable** turns it back on.
-- **Edit** changes the settings. Secrets stay as they are unless you type new ones.
-- **Delete** removes the provider. Users can no longer sign in through it. This cannot be undone.
+![The Identity Providers page with three provider cards (LDAP, SAML and OpenID Connect), each with its status badge, main settings, Edit and Delete buttons, and the Add provider button](/assets/ad799997-eeb9-4135-9238-6fe71dd87db8)
 
-## Two-step sign-in and single sign-on
+| Action | What it does |
+|---|---|
+| The **Active** / **Disabled** badge (tooltip **Disable** / **Enable**) | Hides the provider and refuses sign-ins through it, or turns it back on |
+| **Edit** | Changes the settings. The name and the provider type cannot be changed. Secrets stay as they are unless you type new ones. |
+| **Delete** | Removes the provider. Users can no longer sign in through it. This cannot be undone. Accounts it created stay, but cannot sign in until you connect a new provider that sends the same email address. |
 
-UTMStack's own two-step sign-in is not asked of users who sign in through SAML 2.0 or OpenID Connect. Turn on multi-factor sign-in in your identity provider. Users who sign in through LDAP get the UTMStack code step if they have turned it on. See **Profile and Two-Step Sign-In**.
+Creating, changing and deleting providers is recorded in **App Audit Logs** (`idp.create`, `idp.update`, `idp.delete`), and every single sign-on attempt as `auth.sso`.
 
-## Identity providers and tenants
+## Troubleshooting
 
-On a multi-tenant licence, each tenant has its own identity providers. A tenant's providers appear on that tenant's sign-in page, at the tenant's address.
+When a single sign-on fails, UTMStack sends the user back to the sign-in page with "Single sign-on did not complete. Try again or use your password." The reason is not shown to the user. To find it:
+
+- In **App Audit Logs**, filter on the action `auth.sso` and **Failures only**, and open the entry.
+- On the server, run `docker service logs --since 30m utmstack_backend 2>&1 | grep -i sso`. Lines with "sso: cannot start sign-in" failed before the user reached the provider; lines with "sso: sign-in failed" failed when the user came back.
+
+| Reason in the log | Cause | Fix |
+|---|---|---|
+| "This feature requires an Enterprise license" (shown in the browser) | No valid Enterprise licence | Install the licence. |
+| "identity provider not found" | The name in the address is wrong, or the provider is inactive | Check the name (it is case-sensitive) and enable the provider. |
+| "oidc discovery" with "did not match the issuer URL returned by provider" | The **Issuer URL** is not exactly the provider's issuer, for example `common` instead of the tenant ID in Microsoft Entra ID, or a missing or extra `/` | Copy the `issuer` value from the provider's `/.well-known/openid-configuration` document. |
+| "exchange authorization code" | Wrong client secret, expired secret, or the redirect URL registered in the provider differs from the one in UTMStack | Create a new secret; compare both redirect URLs character by character. |
+| "verify id_token" | The token is for another client ID, from another issuer, or expired. A wrong server clock also causes this. | Check the **Client ID**, and that the server's clock is synchronized (NTP). |
+| "the sign-in did not come back with the state it left with" | The sign-in took longer than 10 minutes, was finished in another browser, or the browser blocked cookies | Start again from the UTMStack sign-in page in the same browser. |
+| "fetch idp metadata" | The metadata URL is wrong, unreachable from the server, redirects, or points to a private address | Open the metadata URL from the server with `curl -sI <url>`; it must answer `200`. Use the provider's public metadata address. |
+| "parse sp key" or "parse sp certificate" | The SP key or certificate is not valid PEM | Generate them again with the OpenSSL command above. |
+| "validate saml response" | Signature, audience, destination or validity check failed, or the sign-in was started from the provider's portal | Check that **SP Entity ID** and **SP ACS URL** match the provider exactly, that the server's clock is right, and start from UTMStack. |
+| "no local account matches this identity" | No email in the answer, or no account with that email and **Create the account on first sign-in** is off | Send the email claim or attribute; turn on the option or create the account. |
+| "this identity maps to no role, and the provider has no default" | The user's groups match no mapping and **Default role** is **None** | Check the group values the provider sends, or choose a default role. |
+| "account has not been activated" | The account was invited and the invitation was never accepted | Have the user accept the invitation and set a password (see **Users**); single sign-on works after that. In future, do not invite users who sign in through single sign-on. |
+| "account is inactive" or "account is suspended" | The account was deactivated | Reactivate it on the **Team** page. |
+
+Errors shown by the identity provider itself, before the user comes back (for example a redirect address that does not match, or a user not assigned to the application), are explained in the guide for that provider.
+
+## Provider guides
+
+- **SSO with Microsoft Entra ID**
+- **SSO with Okta**
+- **SSO with Google Workspace**
+- **LDAP and Active Directory Sign-In**

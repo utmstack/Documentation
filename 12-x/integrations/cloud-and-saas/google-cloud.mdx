@@ -2,9 +2,11 @@ The **Google Cloud** integration brings your Google Cloud project logs into UTMS
 
 ## How it works
 
+**Pub/Sub** is Google Cloud's messaging service: a **topic** receives messages, and a **subscription** keeps them until a reader collects and acknowledges them.
+
 - Cloud Logging sends your project logs through a **Logs Router sink** to a **Pub/Sub topic**.
-- UTMStack reads a **Pull subscription** on that topic, using the JSON key of a service account.
-- Events are stored with the data type `google`. UTMStack v12 ships 43 detection rules for this data type; see **Google Cloud** in the **Rules** tab.
+- UTMStack reads a **Pull subscription** on that topic, using the JSON key of a service account, and acknowledges each message once it has queued it. Messages that reached the subscription while UTMStack was not reading are collected when it reconnects, as long as Pub/Sub still keeps them.
+- Events are stored with the data type `google` and parsed by the shipped pipeline `google/gcp.yaml` (version 2.3.1). UTMStack v12 ships 43 detection rules for this data type; see **Google Cloud** in the **Rules** tab.
 
 ## Before you start
 
@@ -64,8 +66,22 @@ In **Sink destination**, select **Cloud Pub/Sub topic** and choose the topic you
 
 Use inclusion and exclusion filters to choose which log entries are sent. If you do not set a filter, all logs of the project are sent to the topic. Click **Create sink**.
 
+For example, this inclusion filter sends only Cloud Audit Logs, which most Google Cloud rules read:
+
+```text
+logName:"cloudaudit.googleapis.com"
+```
+
 </Step>
 </Steps>
+
+<Note>
+
+When you create the sink in the console and the topic is in the same project, Google gives the sink's writer identity permission to publish to the topic. If the topic is in another project, grant the sink's writer identity (shown on the sink's details) the **Pub/Sub Publisher** role on the topic.
+
+Admin Activity audit logs are always written. Data Access audit logs are off by default for most Google Cloud services; turn them on in **IAM & Admin > Audit Logs** if you want them in UTMStack.
+
+</Note>
 
 ## Step 3: Create a service account and key
 
@@ -80,6 +96,12 @@ Go to the [service accounts page](https://console.cloud.google.com/iam-admin/ser
 <Step title="Grant the Pub/Sub role">
 
 Fill in the form and give the service account the **Pub/Sub Editor** role so UTMStack can pull from the subscription.
+
+<Note>
+
+When you save, UTMStack checks that the subscription exists, which needs permission to read the subscription's details. The **Pub/Sub Subscriber** role alone does not include that permission, so the check fails with it. If you do not want to grant **Pub/Sub Editor** on the whole project, grant **Pub/Sub Subscriber** and **Pub/Sub Viewer** on the subscription instead.
+
+</Note>
 
 </Step>
 <Step title="Create a JSON key">
@@ -113,6 +135,8 @@ Each project connection is a **config group**. You can monitor more than one pro
 
 Go to **Configure > Integrations**, search for `GCP` and open the **Gcp** card. The form is at the end of the setup guide, under **Pub/Sub configuration**.
 
+![Google Cloud setup guide in UTMStack, showing How it works and the first steps: create a Pub/Sub topic and a subscription](/assets/1b4d7c31-eb3e-4a6d-aec9-cd93b3ecbab1)
+
 </Step>
 <Step title="Fill in the form">
 
@@ -135,17 +159,50 @@ Click **Add config group**. UTMStack checks the key, the project and the subscri
 
 ### If the save fails
 
+"Could not parse the file as JSON." appears as soon as you select a file that is not JSON. The other messages appear when you save; they start with "credential verification failed:" and the config group is not saved.
+
 | Message | What to check |
 |---|---|
-| Could not parse the file as JSON | The file you selected is not the JSON key file. |
-| Invalid JSON Key | The key was deleted or does not belong to a valid service account. |
+| Could not parse the file as JSON. | The file you selected is not the JSON key file. |
+| Invalid JSON Key format | The file is JSON but not a service account key. Download a new key of type JSON. |
+| Invalid JSON Key. GCP rejected authentication. | The key was deleted, or its service account was disabled or deleted. |
 | GCP Project ... was not found / Invalid Project ID | The project ID is wrong. Use the project ID, not the project name. |
-| The service account lacks Pub/Sub Subscriber permission in project ... | The service account does not have a role that lets it pull from the subscription, such as **Pub/Sub Editor**. |
-| Subscription ... not found in project ... | The subscription name is wrong, or it is in another project. |
+| Cannot connect to GCP Pub/Sub | The key and project do not work together, or the UTMStack server cannot reach Google Cloud on port 443. |
+| The service account lacks Pub/Sub Subscriber permission in project ... | The service account cannot read the subscription. Grant **Pub/Sub Editor**, or **Pub/Sub Subscriber** plus **Pub/Sub Viewer** (see Step 3). |
+| Subscription ... not found in project ... | The subscription name is wrong, or it is in another project. Enter the subscription ID only, not the full `projects/.../subscriptions/...` path. |
 
 ## Check that events arrive
 
-Open the **Gcp** card again and click **View logs**. Log Explorer opens filtered to the `google` data type for the last 24 hours.
+<Steps>
+<Step title="Check that the subscription receives messages">
+
+In the Google Cloud console, open **Pub/Sub > Subscriptions** and select your subscription. The **Metrics** tab shows unacknowledged messages. A growing number means the sink publishes but nothing reads yet; a number that drops to zero after you save means UTMStack is reading.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Open the **Gcp** card again and click **View logs**. Log Explorer opens with the `google` data type for the last 24 hours. UTMStack reads the subscription continuously, so events usually appear within a few minutes of being logged.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 minutes.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example a deleted key, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The subscription has no messages | The sink does not publish to the topic, or its filter matches nothing. | In **Logs Router**, check the sink's destination and filter. For a topic in another project, grant the sink's writer identity **Pub/Sub Publisher** on the topic. |
+| Messages pile up in the subscription and no `google` events arrive | UTMStack cannot read: the key was deleted or the role was removed after saving. | Create a new key, then edit the config group and choose it with **Replace file**. Check the service account's roles. |
+| Only some activity arrives | Data Access audit logs are off, or the sink filter excludes them. | Turn on Data Access audit logs in **IAM & Admin > Audit Logs**, and widen the sink filter. |
+| Events from another project are missing | One sink and subscription cover one project. | Create a sink in each project to the same topic, or add one config group per project. |
+| Events from before you saved are missing | A subscription only receives messages published after it was created. | Search older activity in **Logs Explorer** in the Google Cloud console. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
 
 ## Manage config groups
 

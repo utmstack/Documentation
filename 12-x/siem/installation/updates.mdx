@@ -1,47 +1,63 @@
-UTMStack v12 updates itself. A system service on the server checks the UTMStack update server regularly and installs new versions when they are offered. This page explains how updates work, how to check the installed version and follow an update, and what to do when updates stop.
+UTMStack v12 updates itself. A system service on the server asks the UTMStack update server every 5 minutes whether a new version is available for it, and installs it when one is offered. This page explains how an update runs, how to check which version you have, how to follow an update, and what to do when an update fails or does not arrive.
 
 ## How automatic updates work
 
-The installer sets up a system service named `UTMStackComponentsUpdater`. It runs `/usr/local/bin/utmstack_installer --run`.
+The installer sets up a system service named `UTMStackComponentsUpdater` ("UTMStack Components Updater"). It runs `/usr/local/bin/utmstack_installer --run` and starts with the server.
 
-1. Every 5 minutes the service asks the UTMStack update server (`https://cm.utmstack.com`) whether an update is available for this server. The update server decides which version your server gets next and offers one update at a time.
-2. When an update is offered, the service downloads the installer of that version from GitHub, records the update in `/utmstack/updates/pending-updates.json` and `/utmstack/updates/version.json`, and restarts itself.
-3. After the restart it applies the update:
-   - downloads the new container images and redeploys the UTMStack services;
-   - rewrites the nginx configuration on the host and restarts nginx;
-   - waits for the backend to answer, then deletes Docker images that no running container uses;
-   - reports the update to the update server as applied.
+### Checking for an update
 
-There is no update page, schedule or "update now" button in the web interface. You do not have to do anything to receive updates.
+Every 5 minutes the service asks the UTMStack update server, `https://cm.utmstack.com`, for the next update for this server. The update server decides which version your server gets next and offers one update at a time. There is no schedule to set, no update page and no "update now" button in the web interface.
 
-<Note>
+### Preparing the update
+
+When an update is offered, the service:
+
+1. Writes `Update available: <version>-<edition>` to its log.
+2. Saves the update in `/utmstack/updates/pending-updates.json`.
+3. Downloads the installer of that version from `https://github.com/utmstack/UTMStack/releases/download/<version>/installer` and puts it in place of `/usr/local/bin/utmstack_installer`.
+4. Records the new version in `/utmstack/updates/version.json`.
+5. Writes `Update prepared, restarting service to apply changes...` and restarts itself.
+
+### Applying the update
+
+After the restart, the service writes `Applying pending update: <version>-<edition>` and then:
+
+1. Writes the service definitions and the ClickHouse and event processor settings for the new version.
+2. Runs again any installation step that the update asks for.
+3. Downloads the container images of the new version from `ghcr.io` and Docker Hub.
+4. Redeploys the UTMStack services with the new images.
+5. Rewrites the nginx settings on the host, restarts nginx and restarts the web container.
+6. Writes `Successfully applied update <version>`.
+7. Waits until the backend answers (up to about 11 minutes), then deletes Docker images that no running container uses.
+8. Reports the update to the update server as applied, and removes the pending update.
 
 While the services restart, the web interface may show a page that says "We're getting things ready". Agents and collectors reconnect on their own when the services are back.
 
-</Note>
-
-## What an update keeps and what it replaces
+### What an update keeps and what it replaces
 
 | Kept | Replaced |
 |---|---|
-| Your data: logs, alerts, statistics, users, settings, rules and flows | The container images of the UTMStack services |
-| `/root/utmstack.yml` | The nginx configuration on the host (`/etc/nginx/sites-available/default` or `/etc/nginx/nginx.conf`) |
-| Your certificate files in `/utmstack/cert` | The installer program `/usr/local/bin/utmstack_installer` |
-| Manual memory limits in `/utmstack/updates/memory-allocation.json` | |
+| Your data: logs, alerts, statistics, users, settings, rules, flows and incidents | The container images of the UTMStack services |
+| `/root/utmstack.yml` | The nginx settings on the host (`/etc/nginx/sites-available/default` or `/etc/nginx/nginx.conf`) |
+| Your certificate files in `/utmstack/cert` | The installer program `/usr/local/bin/utmstack_installer` and `compose.yml` |
+| Memory limits in `/utmstack/updates/memory-allocation.json`, including your own changes | The ClickHouse settings in `/utmstack/clickhouse/conf` and the web container's nginx settings |
 
 Updates delete Docker images that no running container uses, on the whole server. This is one reason to keep UTMStack on a dedicated server.
 
+### Release channel
+
+The installer you download from GitHub follows the production channel. The `branch` value in `/root/utmstack.yml` holds the channel. Do not change it: the other channels are for UTMStack's own testing.
+
 ## Check the installed version
 
-On the server, run:
+| Where | How |
+|---|---|
+| Command line | `sudo /usr/local/bin/utmstack_installer --version` prints a line such as `UTMStack version: v12.0.2, edition: community`. The short command `sudo utmstack --version` does the same. |
+| File | `/utmstack/updates/version.json` |
+| Web interface | The version badge in the top bar, and **Configure > Settings > About** (instance operator). |
+| Images that actually run | `sudo docker service ls --filter name=utmstack_`. The `IMAGE` column shows the tag of each UTMStack service, for example `ghcr.io/utmstack/utmstack/backend:v12.0.2`. |
 
-```bash
-sudo /usr/local/bin/utmstack_installer --version
-```
-
-It prints a line such as `UTMStack version: v12.0.2, edition: community`. The installer also creates the shorter command `/usr/local/bin/utmstack`, which does the same.
-
-The version is stored in `/utmstack/updates/version.json`.
+The image tags show what really runs. If the version shown elsewhere does not match them after an update, trust the image tags.
 
 ## Follow an update
 
@@ -49,22 +65,64 @@ The version is stored in `/utmstack/updates/version.json`.
 # The update service should be "active (running)"
 sudo systemctl status UTMStackComponentsUpdater
 
-# Follow the update log
+# Follow the update log (Ctrl+C to stop)
 sudo tail -f /utmstack/updates/logs/utmstack-updater.log
 
-# Check that every UTMStack service is running again
-docker service ls
+# When it is done, every UTMStack service shows 1/1 and the new image tag
+sudo docker service ls --filter name=utmstack_
 ```
 
-The log shows lines such as `Update available`, `Applying pending update` and `Successfully applied update`, or an error message if a step fails.
+The update log is in `/utmstack/updates/logs/utmstack-updater.log`. The service's start and stop messages are also in `journalctl -u UTMStackComponentsUpdater`.
 
-## Agents
+## When an update fails
 
-Agents update themselves from the UTMStack server. See **Agent command line, updates and status**.
+If a step fails while the update is applied, the log shows `error applying setup for version <version>:` followed by the reason. The update is not reported as applied, so the update server can offer it again at a later check.
 
-## Manual memory limits
+<Steps>
+  <Step title="Read the error">
 
-The installer divides the server's memory between the services. If you change these limits by hand, updates keep your values. See **Installer reference** for the `--apply-memory` and `--recalculate-memory` options.
+    ```bash
+    sudo grep -E "error|Update available|Applying|Successfully" /utmstack/updates/logs/utmstack-updater.log | tail -n 40
+    ```
+
+  </Step>
+  <Step title="Fix the cause">
+
+    | Message in the log | Cause | Fix |
+    |---|---|---|
+    | `error updating installer: error downloading installer` | The server cannot reach GitHub. | Allow HTTPS to `github.com` and its download servers. |
+    | `error getting updates from https://cm.utmstack.com/...` | The server cannot reach the update server. | Allow HTTPS to `cm.utmstack.com`. |
+    | `error applying setup for version ...` | A step of the update failed; the reason follows the message. Often the new images could not be downloaded. | Allow HTTPS to `ghcr.io` and Docker Hub, check free disk space on `/`, and read the reason. |
+    | `no space left on device` | The disk is full. | Free disk space. See **Health Checks and Troubleshooting**. |
+    | `invalid cross-device link` | A known problem of the update service in v12.0.0 on servers whose `/tmp` is a separate memory disk. Fixed in later versions. | Contact UTMStack support. |
+
+  </Step>
+  <Step title="Check the services">
+
+    ```bash
+    sudo docker service ls --filter name=utmstack_
+    ```
+
+    If a service shows `0/1`, see **Health Checks and Troubleshooting**.
+
+  </Step>
+  <Step title="Let the update run again">
+
+    Wait for the next check. The service asks the update server every 5 minutes. Restarting the service does not make it check sooner: after a restart, its first check also comes 5 minutes later.
+
+  </Step>
+  <Step title="Contact support if it keeps failing">
+
+    Send UTMStack support the end of the update log and the output of `docker service ls`. See **Community and Support** and **Collect information for support** in **Health Checks and Troubleshooting**.
+
+  </Step>
+</Steps>
+
+<Warning>
+
+Do not run the v11 update script ("Installer Update Guide") on a v12 server, and do not try to update by running the installer again. On an installed server, the installer only restarts the update service and stops.
+
+</Warning>
 
 ## When updates stop arriving
 
@@ -81,21 +139,43 @@ The installer divides the server's memory between the services. If you change th
    sudo tail -n 100 /utmstack/updates/logs/utmstack-updater.log
    ```
 
-3. Check that the server can reach `https://cm.utmstack.com`, `https://github.com`, `ghcr.io` and Docker Hub on port 443. See **Network ports and firewall**.
+   `error sending heartbeat` or `error getting updates` means the server cannot reach the update server.
 
-4. If the problem continues, contact UTMStack support with the update log. See **Community and support**.
+3. Check that the server reaches the update server, GitHub and the image registries:
 
-<Warning>
+   ```bash
+   curl -s -o /dev/null -w '%{http_code}\n' https://cm.utmstack.com/api/v1/health   # 200
+   curl -s -o /dev/null -w '%{http_code}\n' https://github.com                       # 200
+   curl -s -o /dev/null -w '%{http_code}\n' https://ghcr.io/v2/                      # 401
+   ```
 
-The update script published for UTMStack v11 ("Installer Update Guide") does not apply to UTMStack v12. Do not run it on a v12 server. It also downloads the installer from the `releases/latest` link, which now gives the v12 installer, so do not run it on a v11 server either.
+4. Check that `/utmstack/updates/instance-config.yml` exists. It holds the identity this server received when it registered. If the file is missing, the service registers the server again at its next start and receives a new identity, so a licence issued for the old instance ID no longer fits. Do not delete, edit or copy it to another server.
 
-</Warning>
+5. If the problem continues, contact UTMStack support with the update log.
 
-<Note>
+## Postponing an update
 
-Running the installer again on an installed server does not update or repair it. It finds the `UTMStackComponentsUpdater` service, restarts it and stops.
+There is no setting to delay or skip an update. If you must keep the server unchanged for a while, for example during an audit, you can stop the update service:
 
-</Note>
+```bash
+sudo systemctl stop UTMStackComponentsUpdater
+```
+
+While it is stopped, the server receives no updates and no licence changes, and sends no heartbeat or usage report to UTMStack. It starts again when the server restarts. Start it yourself as soon as you can:
+
+```bash
+sudo systemctl start UTMStackComponentsUpdater
+```
+
+Use `systemctl` to start it. Do not run the installer for this.
+
+## Agents
+
+Agents update themselves from the UTMStack server when the server offers a new agent version. See **Updates and Status**.
+
+## Memory limits
+
+The installer divides the server's memory between the services. If you change these limits by hand, updates keep your values. See **Installer Reference** for `--apply-memory` and `--recalculate-memory`.
 
 ## Servers without internet access
 

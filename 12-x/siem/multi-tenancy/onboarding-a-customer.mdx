@@ -1,0 +1,151 @@
+This page takes you through bringing a new customer onto a multi-tenant UTMStack v12 server, from creating their tenant to seeing their first alert. Some steps are done by you, the instance operator, and some by the customer's tenant administrator; each step says who.
+
+## Before you start
+
+- The server has a licence with the multi-tenant option, and you are an Administrator of the default tenant. See **Multi-Tenancy Overview**.
+- You know the domain the customer will use, for example `acme.siem.example.com`. See **How Users Reach Their Tenant**.
+- Product email works in your own tenant. The customer's first administrator can only be invited by email, and there is no way to resend an invitation.
+- You know the email address of the customer's first administrator.
+
+## Steps
+
+<Steps>
+
+<Step title="Create the DNS record (you)">
+
+Point the customer's domain at the server's public IP address, with a record of its own or with a wildcard record such as `*.siem.example.com`. Check it:
+
+```bash
+dig +short acme.siem.example.com
+```
+
+See **How Users Reach Their Tenant**, step 1.
+
+</Step>
+
+<Step title="Make the certificate cover the domain (you)">
+
+With a wildcard certificate for `*.siem.example.com` there is nothing to do. With a certificate that lists names, get a new one that adds the customer's domain and install it. Then check that `https://acme.siem.example.com` opens without a certificate warning (it shows the sign-in page). See **How Users Reach Their Tenant**, step 2, and **SSL Certificate**.
+
+</Step>
+
+<Step title="Check that email works (you)">
+
+In your own tenant, open **Configure > Settings > Email Configuration**:
+
+- **Base URL** must be filled in. If it is empty, invitations are not sent at all.
+- Click **Send test** and confirm the test email arrives.
+
+The new tenant uses these settings until it saves its own. See **Email Configuration**.
+
+</Step>
+
+<Step title="Create the tenant (you)">
+
+1. Open **Tenants** in the main menu and click **New tenant** (or open the tenant switcher in the top bar and choose **Create tenant**).
+2. Fill in **Name** (the customer's name, at least two characters), **Domain** (for example `acme.siem.example.com`) and **Administrator email**.
+3. Click **Create tenant**.
+
+![The New tenant dialog with the Name, Domain and Administrator email fields and the Create tenant button](/assets/277719fc-43eb-4a51-b651-b7bff55db321)
+
+UTMStack creates the tenant, creates its first user with the **Administrator** role and the status **Pending invite**, and sends that person an email with the subject "UTMStack: activate your account". The tenant's card appears with the badges **Active** and **No access**.
+
+The page says "Tenant created" even if the email could not be sent; a failure appears only in the server's log. If the person does not receive the email, see "The invitation email never arrived" in **Multi-Tenancy FAQ and Troubleshooting**.
+
+</Step>
+
+<Step title="Activate the administrator account (customer)">
+
+The invitation is valid for 7 days. It contains a link like this:
+
+```text
+https://siem.example.com/reset/finish?key=AbC123...
+```
+
+The address part comes from the Base URL, so for a new tenant it is your address, not the customer's. In UTMStack v12.0.2 this link opens the plain sign-in page instead of the password form. Tell the customer's administrator to do this instead:
+
+1. Copy the key from the link: everything after `key=`.
+2. Open `https://acme.siem.example.com/auth/login?key=` followed by that key.
+3. In **Set your password**, type the new password twice and click **Set password**. The page says "Password set. You can sign in now."
+4. Sign in at `https://acme.siem.example.com` with the invited email address and the new password.
+
+The account works only on the tenant's own address. Signing in at your address fails with "Invalid credentials."
+
+</Step>
+
+<Step title="Set up the tenant's settings (customer)">
+
+Signed in on their own address, the tenant administrator goes to **Configure > Settings** and sets:
+
+| Page | What to set |
+|---|---|
+| **Email Configuration** | **Base URL** = `https://acme.siem.example.com`. **Alert recipients** and **Incident recipients**: the customer's own addresses. Until the tenant saves its own recipients, the page shows yours, and the tenant's alert emails go to your alert recipients. Optionally, the customer's own mail server. |
+| **Date Format** and **Language** | The customer's time zone, date format and default language. |
+| **Branding** | The customer's product name, colours and logos, if your licence includes Enterprise. |
+| **Identity Providers** | The customer's single sign-on (Microsoft Entra ID, Okta, Google and others), registered at the provider with the tenant's address. See **Single Sign-On**. |
+
+Then, in **Configure > Team**, the administrator adds the customer's users. **Create local user** does not depend on email; **Invite user** sends an invitation with the same link behaviour as in step 5. See **Users** and **Roles and Permissions**.
+
+</Step>
+
+<Step title="Grant support access, if you will help (customer)">
+
+If you are going to set up data sources or tune rules for the customer, their administrator opens **Configure > Settings > Support access**, chooses **Full access** and clicks **Save**. After onboarding they can lower it to **Read only** or **No access**. See **Support Access**.
+
+</Step>
+
+<Step title="Connect the customer's data sources (customer, or you with Full access)">
+
+Everything below is done **inside the customer's tenant**: either by the tenant administrator on their own address, or by you after entering the tenant (see **Working Inside a Tenant**). Install commands shown inside the tenant contain the tenant's connection key and use the tenant's domain as the server address.
+
+- **Endpoints (Windows, Linux, macOS).** Go to **Configure > Integrations**, open the agent for the operating system, copy the install command and run it on each machine. The connection key in the command decides the tenant; the address only has to reach the server on port 443. A machine can belong to one tenant only: if it already has an agent from another tenant, run that agent's uninstall command first. See **Windows Agent**, **Linux Agent** and **macOS Agent**.
+- **Network devices and syslog sources.** Install a UTMStack Forwarder (the web interface calls it the **Collector**) on a Linux host in the customer's network, using the install command from inside the tenant, and point the devices at it. A Forwarder belongs to one tenant, so each customer needs its own Forwarder on its own host. Forwarder host names must be unique on the server: give each customer's Forwarder host a name no other customer uses, for example `acme-fwd01`, and use a separate host for each customer rather than moving a Forwarder host from one customer to another. See **UTMStack Forwarder**.
+- **Cloud and SaaS services** (Microsoft 365, AWS, Azure, Google Cloud, CrowdStrike, Sophos Central and others). Open the integration in **Configure > Integrations** and add a config group with the customer's credentials. The data collected with those credentials belongs to the tenant where you saved them. See the integration's own page and **How Data Reaches UTMStack**.
+
+</Step>
+
+<Step title="Review rules and response flows (customer, or you)">
+
+A new tenant starts with every shipped correlation rule and pipeline switched on, and every shipped response flow switched off. Rules you switched off in your own tenant are on in the new tenant, and your custom rules, pipelines and flows are not copied.
+
+- Switch off rules the customer does not need in **Configure > Alerting Rules**, and switch on the response flows they want in **SOAR > Flows**. See **Alerting Rules** and **Shipped Flows**.
+- To give the customer your own pipelines or flows, or to switch a shipped rule on or off in many tenants at once, see **Apply to All Tenants**.
+
+</Step>
+
+<Step title="Set the AI request cap, if needed (you)">
+
+On **Tenants**, click **Edit** on the card, switch on **Cap this tenant**, enter the number of SOC-AI requests the tenant may make per day and click **Save changes**. See **Tenant Lifecycle** and **AI Usage and Limits**.
+
+</Step>
+
+<Step title="Check that data arrives and alerts are raised">
+
+Inside the tenant:
+
+1. **Configure > Data Sources** lists the new agents, Forwarder sources and integrations and shows whether they are sending data. See **Data Sources Page**.
+2. **Log Explorer** shows the customer's events for the last minutes.
+3. To see a first alert, cause a harmless event that a shipped rule detects, for example several wrong passwords in a row on a test machine with the agent. The alert appears in **Threat Management > Alerts**.
+
+On your **Tenants** page, the customer's card shows **Users**, **Sources** and **Open alerts** once the customer has granted you support access.
+
+</Step>
+
+</Steps>
+
+## Onboarding checklist
+
+| Done | Item | Who |
+|---|---|---|
+| ☐ | DNS record for the tenant's domain | Operator |
+| ☐ | Certificate covers the domain | Operator |
+| ☐ | Email works and Base URL is set in the default tenant | Operator |
+| ☐ | Tenant created with the right domain and administrator email | Operator |
+| ☐ | Administrator account activated and signed in on the tenant's address | Customer |
+| ☐ | Base URL, alert and incident recipients set in the tenant | Customer |
+| ☐ | Users, roles and single sign-on set up | Customer |
+| ☐ | Support access level agreed | Customer |
+| ☐ | Agents, Forwarder and cloud integrations sending data | Customer or operator |
+| ☐ | Rules and response flows reviewed | Customer or operator |
+| ☐ | AI request cap set, if part of the customer's plan | Operator |
+| ☐ | First events and a test alert seen | Customer or operator |

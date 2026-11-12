@@ -143,3 +143,65 @@ The PDF records who wrote each verdict and note and when. It does not carry a di
 ## Multi-tenant servers
 
 Reports, verdicts, notes, score history and schedules are kept per tenant. Each tenant's report only counts that tenant's logs and alerts.
+
+## Read a report step by step
+
+<Steps>
+
+<Step title="Check that the score can be trusted">
+
+Look at **Score over time**. If the **Evaluated** line dropped, a log source went quiet and requirements could not be judged. Fix the source before you read anything else.
+
+</Step>
+
+<Step title="Read the status counters">
+
+**Non-compliant** needs action. **Not evaluated** means missing data. **Out of scope** means manual controls nobody has judged yet. **Pending** means checks that are declared but not written.
+
+</Step>
+
+<Step title="Find the weakest sections">
+
+Each section shows its own percentage. Start with the sections with the lowest percentage and the most requirements.
+
+</Step>
+
+<Step title="Open the non-compliant controls">
+
+Click a **Non-compliant** control. Under **Check results**, the failed check shows how many records matched ("hits") and which rule it applies. For a limit check, the hits are the events that should not have happened, for example audit logs being cleared. Search for them in **Log Explorer** with the same data type and filters as the check, over the reporting window. The **Remediation** text says what to fix.
+
+</Step>
+
+<Step title="Settle the manual controls">
+
+For each **Out of scope** control, decide whether your organization meets it and record the status with a reason that points to the evidence, for example "Access review procedure v3, SharePoint > Security > Policies, approved 2026-09-01".
+
+</Step>
+
+</Steps>
+
+## Prepare evidence for an audit
+
+1. **Match the audit period.** The reporting window is 30 days unless the framework has a schedule. To evaluate over the audit period, create a schedule for the framework with that number of days in **Reporting window (days)**, for example 365; **Run evaluation** then uses the same window. See **Scheduled Compliance Reports**.
+2. **Run the evaluation** after the end of the period.
+3. **Record verdicts** on every manual control, with reasons that name where the evidence is kept. Re-check verdicts marked "Recorded when the engine said X; it now says Y".
+4. **Download the PDF.** It lists every verdict and note with its author and date, and the controls that could not be judged with the log sources that would settle them.
+5. **Keep supporting exports** where the auditor needs raw records: the logs behind a control from **Log Explorer** (**Export CSV**), and the alert and incident lists from **Threat Management** (**Export CSV**).
+
+<Note>
+
+The PDF names the person who downloaded it and the author of each verdict, but it is not digitally signed. If your auditor needs a signed document, sign the PDF with your organization's own signing tool after you download it.
+
+</Note>
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| "This framework has not been evaluated yet." | The framework has never run in your tenant. | Click **Run evaluation**. |
+| **Enterprise** badge and "Upgrade to Enterprise" | The framework needs an Enterprise licence. | See **License and Editions**. |
+| Many controls **Not evaluated** | Your tenant sent none of the data types their checks read in the window. | Connect the sources; see **Shipped Compliance Frameworks**. |
+| A check shows **Error** | The check could not run, for example because its query failed. It neither passes nor fails. | Run the evaluation again later. For your own controls, check the field names and operators. |
+| The score went up but nothing was fixed | A source went quiet, so failing requirements became **Not evaluated**. | Compare the **Evaluated** line in **Score over time**. |
+| A manual status disappeared after you saved a note | In UTMStack v12.0.2 saving a note with the note button resets a manual status. | Set the status again with **Set status**, and put the note text in the reason. |
+| **Run evaluation** or **Set status** is refused | Your role lacks `compliance.write`. | Ask an administrator. |

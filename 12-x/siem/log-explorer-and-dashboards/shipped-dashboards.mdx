@@ -1,0 +1,113 @@
+UTMStack v12.0.2 ships four ready-made dashboards: **Agents**, **GCP Activity**, **Network Traffic (NetFlow)** and **pfSense Firewall**. This page describes every widget on them, what it counts and which data source fills it, so you can read them correctly and build your own copies.
+
+## How shipped dashboards behave
+
+- They are loaded every time the UTMStack backend starts, and every tenant sees them.
+- They show a lock icon and cannot be edited. To change one, copy it: **Dashboards** > **New** > **From an existing one**. See **Dashboards**.
+- Every widget follows the dashboard's time range at the top right (default **Last 24 hours**). Widget titles that say "(24h)" were written for that default; they show whatever range you choose.
+- Every widget counts records. Widgets on alerts count every stored alert, echoes (repeats grouped under an earlier alert) included, so their numbers can be higher than on the **Alerts** page.
+- A dashboard only shows data for the data sources you have connected. A widget for a source you do not send stays empty.
+- Click a bar, slice, point, number or row to open the records behind it in **Log Explorer** (for logs) or **Threat Management > Alerts** (for alerts).
+
+## Agents
+
+"Fleet-wide agent activity across Linux, Windows and macOS." Use it to check that your agents are sending and to see what their alerts are about. It has 10 widgets.
+
+| Widget | Chart | Data | What it shows |
+|---|---|---|---|
+| **Linux Events (24h)** | Metric | Logs, data type `linux` | How many Linux events arrived |
+| **Windows Events (24h)** | Metric | Logs, data type `wineventlog` (see the note below) | How many Windows events arrived |
+| **macOS Events (24h)** | Metric | Logs, data type `macos` | How many macOS events arrived |
+| **Total Alerts (24h)** | Metric | Alerts, all | How many alerts were raised, echoes included |
+| **Alerts by Severity** | Bar | Alerts, by `severity` | High, medium and low |
+| **Alerts by Agent OS** | Bar | Alerts, by `dataType` | Alerts per data type, top 10. Every data type is counted, not only agents. |
+| **Alerts by Tactic** | Bar | Alerts, by `category` | Alerts per category (usually the MITRE ATT&CK tactic), top 10 |
+| **Top MITRE Techniques** | Bar | Alerts, by `technique` | Alerts per technique, top 10 |
+| **Events Over Time, by OS** | Line | Logs, by `dataType`, per hour | One line per data type, top 10. Every data type is counted, not only agents. |
+| **Latest Alerts** | Table | Alerts | The 10 newest alerts with `name`, `severity`, `dataType` and `technique` |
+
+<Note>
+
+The definition of the **Windows Events (24h)** widget names the data type `windows`, an older name. The console reads it as `wineventlog`, the data type the Windows agent sends, so the widget counts your Windows events. If you rebuild this widget on a copy, use the condition **dataType** **is** `wineventlog`. See **Dashboard Widgets**.
+
+</Note>
+
+Data comes from the UTMStack agents. See **Windows Agent**, **Linux Agent** and **macOS Agent**.
+
+## GCP Activity
+
+Google Cloud activity by severity and operation. All four widgets read logs of the data type `google`, which the Google Cloud integration sends. See **Google Cloud**.
+
+| Widget | Chart | Breakdown | What it shows |
+|---|---|---|---|
+| **Events by Severity** | Pie | `severity` | Share of events per Google Cloud severity, top 10 |
+| **API Operations by Type** | Bar | `action` | Events per HTTP request method (`get`, `post`, `put`, `patch`, `delete`), top 10. Only log entries that carry an HTTP request have an `action`. |
+| **Operations Raising Errors** | Bar | `action`, only events whose `severity` is `error` | The HTTP request methods of error events, top 10 |
+| **GCP Activity Over Time** | Line | Per hour | Volume of Google Cloud events |
+
+The Google Cloud pipeline writes the severity in lower case (`debug`, `info`, `warning`, `error`, `critical`), which is what the **Operations Raising Errors** widget matches on.
+
+## Network Traffic (NetFlow)
+
+"Who talks to whom, over which protocols and ports." All five widgets read logs of the data type `netflow`. See **NetFlow**.
+
+| Widget | Chart | Breakdown | What it shows |
+|---|---|---|---|
+| **Traffic by Protocol** | Pie | `protocol` | Flows per protocol, top 10 |
+| **Top Talkers (Source IP)** | Bar | `origin.ip` | The 10 source addresses with the most flows |
+| **Top Destination Ports** | Bar | `target.port` | The 10 destination ports with the most flows |
+| **Traffic by Source Port** | Bar | `origin.port` | The 10 source ports with the most flows |
+| **Flows Over Time** | Line | Per hour | Volume of flows |
+
+The widgets count flow records, not bytes. To rank addresses by data volume, use SQL in Log Explorer; see **Log Explorer Query Cookbook**.
+
+## pfSense Firewall
+
+What the pfSense firewall allows and blocks. All five widgets read logs of the data type `firewall-pfsense`. See **pfSense**.
+
+| Widget | Chart | Breakdown | What it shows |
+|---|---|---|---|
+| **Traffic by Action** | Pie | `action` | Share of passed and blocked traffic, top 10 |
+| **Traffic by Protocol** | Bar | `protocol` | Events per protocol, top 10 |
+| **Blocked Traffic by Source IP** | Bar | `origin.ip`, only where `action` is `block` | The 10 source addresses blocked most often |
+| **Blocked Traffic by Destination** | Bar | `target.ip`, only where `action` is `block` | The 10 destination addresses most often blocked |
+| **Firewall Activity Over Time** | Line | Per hour | Volume of firewall events |
+
+## Build your own from a shipped dashboard
+
+<Steps>
+
+<Step title="Copy the dashboard">
+
+On **Dashboards**, click **New** > **From an existing one** and pick the shipped dashboard. The copy is named after it with " (copy)" and has all its widgets. Filter chips are not copied.
+
+</Step>
+
+<Step title="Add what you need">
+
+Click **Edit**, then **Add widget**. For example, on a copy of **pfSense Firewall**, add a **Table** widget with **Top values** on `target.port` and the condition **action** **is** `block` to see which ports are blocked most.
+
+</Step>
+
+<Step title="Do not re-save copied widgets without their data type">
+
+Widgets on shipped dashboards carry a data type, and some carry a condition (for example **action** **is** `block`), that the widget editor does not show. If you open such a widget on your copy and click **Save widget**, add the condition **dataType** **is** the data type first (for example `firewall-pfsense`), and the widget's own condition if it had one, or the widget will count every record of the data set. See **Dashboard Widgets**.
+
+</Step>
+
+<Step title="Save">
+
+Click **Save** in the edit bar.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| A whole dashboard is empty | You do not send that data type, or nothing arrived in the time range. | Check **Data Sources**, or widen the time range. |
+| Alert numbers are higher than on the Alerts page | Dashboard widgets count echoes too, and use the dashboard's time range. | Compare with the same time range; read the Alerts page for top-level alerts. |
+| A shipped dashboard has disappeared | Someone used **Remove dashboard** on it. | **New** > **From an existing one** still offers it; the copy is editable. |
+| "Could not load widget data." | The query failed, for example a time-out on a long range. | Click retry, or choose a shorter time range. |

@@ -1,4 +1,4 @@
-In UTMStack v12 you manage the people who use the product on the **Team** page: you add users, give them roles, and deactivate them when they leave. This page covers users; roles and what each permission allows are described in **Roles and Permissions**.
+In UTMStack v12 you manage the people who use the product on the **Team** page: you add users, give them roles, and deactivate them when they leave. This page covers users, the ways to add them, password rules and sign-in sessions. Roles and what each permission allows are described in **Roles and Permissions**.
 
 ## Before you start
 
@@ -17,47 +17,43 @@ A user who can create users and assign roles can give any role to anyone, includ
 
 </Warning>
 
+## Three ways to give someone access
+
+| Way | How the user gets a password | Best for |
+|---|---|---|
+| **Create local user** | You set it, and give it to the user | Setting up a new server; servers whose mail is not set up yet; service accounts |
+| **Invite user** | The user sets it from a link in an invitation email | Day-to-day additions once email works |
+| **Single sign-on** | No UTMStack password; the user signs in with their organization account | Organizations with Microsoft Entra ID, Okta, Google Workspace or Active Directory. See **Single Sign-On**. |
+
+Do not invite users who will sign in through single sign-on: an invited account stays **Pending invite** until the user sets a password, and single sign-on refuses it until then. Let single sign-on create the account at the first sign-in instead.
+
 ## The member list
+
+![The Members tab of the Team page with the search box, the Invite user button and the user list with roles, 2FA and status columns, including SSO badges and Pending invite and Inactive accounts](/assets/ee8cb10b-6751-4cbd-9a98-cb6249e63fd6)
 
 The **Members** tab lists every user of your organization (your tenant), 20 per page. Search by name or email. The columns are:
 
 | Column | Shows |
 |---|---|
-| User | Name and email. An **SSO** badge marks users who sign in through an identity provider. |
-| Roles | The roles the user holds |
+| User | Name and email. An **SSO** badge marks accounts created by an identity provider. |
+| Roles | The roles the user holds, or "none" |
 | 2FA | **On** if the user has turned on two-step sign-in, otherwise **Off** |
-| Status | See the table below |
+| Status | See below |
 
 | Status | Meaning |
 |---|---|
 | Active | The user can sign in. |
-| Pending invite | The user was invited and has not accepted the invitation yet. |
-| Pending password | The account still has its temporary password; the invitation was not completed. |
+| Pending invite | The user was invited and has not set a password yet. They cannot sign in. |
 | Inactive | The account was deactivated and cannot sign in. |
 | Suspended | The account is suspended and cannot sign in. |
 
-## Add a user
-
-Click **Invite user**. The dialog has two modes.
-
-| Mode | What happens |
-|---|---|
-| **Create local user** | You set the password. The account is active at once and no email is sent. |
-| **Invite user** | The account is created inactive, with the status **Pending invite**, and UTMStack sends an invitation email to the user. The invitation is valid for 7 days. |
-
-<Tip>
-
-Use **Create local user** when you are setting up a new server, or whenever you are not sure that email works. Invitations need a working mail server and a correct **Base URL** (see **Email Configuration**).
-
-</Tip>
-
-### Create a local user
+## Create a local user
 
 <Steps>
 
 <Step title="Open the dialog">
 
-Go to **Configure > Team**, open the **Members** tab and click **Invite user**. Choose **Create local user**.
+Go to **Configure > Team**, open the **Members** tab and click **Invite user**. Choose **Create local user** ("The account is created with a password and activated immediately. No email is sent.").
 
 </Step>
 
@@ -65,36 +61,103 @@ Go to **Configure > Team**, open the **Members** tab and click **Invite user**. 
 
 | Field | What to enter |
 |---|---|
-| Email | The address the user signs in with |
+| Email | The address the user signs in with ("This is the address they sign in with.") |
 | Name | The user's name |
-| Password | A strong password: at least 8 characters, with an uppercase letter, a lowercase letter and a special character. Spaces are not allowed. |
-| Roles | One or more roles. **Viewer** is selected by default. |
+| Password | A password that follows the rules below. The dialog ticks each rule as you type. |
+| Roles | One or more roles |
 
 </Step>
 
 <Step title="Create the user">
 
-Click **Create user**. Give the user their email address and password through a safe channel, and ask them to change the password from their **Profile**.
+Click **Create user**. You see "Local user created". Give the user their email address and password through a safe channel, and ask them to change the password from their **Profile**.
 
 </Step>
 
 </Steps>
 
-### Invite a user by email
+## Invite a user by email
 
-1. Go to **Configure > Team**, click **Invite user** and keep the **Invite user** mode.
-2. Enter the **Email**, the **Name** and the **Roles**.
-3. Click **Send invite**. The user appears with the status **Pending invite** until they accept.
+Invitations need a working mail server and a correct **Base URL** in **Email Configuration**. Click **Send test** there before you invite anyone.
+
+<Steps>
+
+<Step title="Send the invitation">
+
+Go to **Configure > Team**, click **Invite user** and keep the **Invite user** mode ("The account is created inactive. The user receives an email to set their password and activate it."). Enter the **Email**, the **Name** and the **Roles**, and click **Send invite**.
+
+</Step>
+
+<Step title="The user opens the link">
+
+The user receives an email with a link that is valid for 7 days. The link has this form:
+
+```text
+https://siem.example.com/reset/finish?key=...
+```
+
+</Step>
+
+<Step title="The user sets a password">
+
+In UTMStack v12.0.2, that link opens the plain sign-in page instead of the password form. To reach the form, the user changes `/reset/finish` in the link to `/auth/login`, keeping everything from `?key=` on:
+
+```text
+https://siem.example.com/auth/login?key=...
+```
+
+The page then shows the form to set a password. After that, the account is **Active** and the user can sign in.
+
+</Step>
+
+</Steps>
+
+Things to know about invitations:
+
+- "Invitation sent" appears even if the email could not be sent, for example because mail is not configured or the **Base URL** is empty. Check with the user that the email arrived.
+- There is no button to send an invitation again, and the same email address cannot be added twice. If an invitation is lost or expires, the account stays **Pending invite**. Prevent this by testing mail first, or use **Create local user**.
+- A **Pending invite** account cannot be reactivated from the Team page; the user has to finish setting their password first.
+- On a multi-tenant server, the user signs in on their tenant's own address after setting the password. See **Multi-Tenancy Overview**.
+
+## Password rules
+
+| When | Rules |
+|---|---|
+| An administrator creates a local user | At least 8 characters, with at least one uppercase letter, one lowercase letter, and one special character (punctuation or symbol). Digits are allowed. Spaces and other characters that are not letters, digits, punctuation or symbols are refused ("password contains invalid characters"). |
+| A user changes their password, or sets it from an invitation or reset link | At least 8 characters. When changing it from **Profile**, the new password must be different from the current one. |
+
+Passwords are stored as one-way hashes; nobody can read them back, not even an administrator.
+
+## Forgotten passwords
+
+Users with a local password can reset it themselves:
+
+1. On the sign-in page, click **Forgot?**, enter the email address and click **Send reset link**. The page always answers "If that email is registered, a reset link is on its way."
+2. The email contains a link that is valid for 1 hour, in the same form as the invitation link. In v12.0.2, change `/reset/finish` to `/auth/login` in the link, as described above.
+3. After setting the new password, all the user's existing sessions are signed out.
+
+Only active accounts with a local password get a reset email. Accounts created by single sign-on, pending invitations and deactivated accounts get nothing. Administrators cannot set a new password for another user; if a user cannot reset their own, sign in as an administrator and help them through **Forgot?**.
 
 ## Change a user's roles
 
 1. On the **Members** tab, click the user to open their details.
-2. Under **Roles**, select or clear roles. A user can hold more than one role; their permissions are the sum of all of them.
-3. Click **Save roles**.
+2. Under **Roles** ("Roles grant module permissions. A user can hold more than one."), select or clear roles. Their permissions are the sum of all their roles.
+3. Click **Save roles**. You see "Roles updated".
 
-A user with no role has no access to any module.
+A user with no role sees "No role assigned — the user will have no module access." and can use no module.
+
+When you change roles here, only a user who already holds the **Administrator** role can give the **Administrator** role.
 
 Role changes reach the user's open sessions within one hour, when their sign-in renews. To apply a change at once, ask the user to sign out and sign in again.
+
+## The user's details
+
+Clicking a user opens a panel with:
+
+- **Profile**: name, email and language. "Only the user can edit these — from their own profile."
+- **Account**: the status, two-step sign-in (**Enabled** or **Not configured**, with **Reset**), "Signs in through an identity provider." for SSO accounts, and when the account was last changed.
+- **Roles**: the role picker and **Save roles**.
+- **Deactivate** or **Reactivate**.
 
 ## Reset a user's two-step sign-in
 
@@ -103,28 +166,41 @@ If a user loses access to their authenticator app:
 1. Open the user's details on the **Members** tab.
 2. Next to **2FA**, click **Reset**, then confirm with **Reset 2FA**.
 
-The user can then sign in with their password and set up two-step sign-in again from their **Profile**. See **Profile and Two-Step Sign-In**.
+The user can then sign in with their password alone and set up two-step sign-in again from their **Profile**. See **Profile and Two-Step Sign-In**.
 
 ## Deactivate or reactivate a user
 
-UTMStack never deletes user accounts; you deactivate them instead.
+UTMStack never deletes user accounts; you deactivate them instead. Their past actions stay in the audit log under their name.
 
 1. Open the user's details on the **Members** tab.
 2. Click **Deactivate**. To let the user back in later, open their details again and click **Reactivate**.
 
 When you deactivate a user:
 
-- They cannot sign in, and their sessions can no longer be renewed. A session that is already open stops working within one hour.
+- They cannot sign in, and their sessions can no longer be renewed. A page that is already open stops working within one hour.
 - Their API keys stop working at once.
 
-## What you cannot change for a user
+## Sessions
 
-The user's name, email and language are edited by the user in their own **Profile**. The user details on the Team page show them read-only.
+| Item | Value |
+|---|---|
+| How long a sign-in lasts before it renews | 1 hour; the browser renews it on its own |
+| How long a user stays signed in without signing in again | Up to 30 days of inactivity for password and LDAP sign-ins. Single sign-on through OpenID Connect or SAML lasts 1 hour, then goes through the identity provider again. |
+| Sessions per user | At most 10. A new sign-in ends the oldest. |
 
-## Users who sign in with single sign-on
+Users see and end their own sessions in **Profile**. See **Profile and Two-Step Sign-In**.
 
-Users of a SAML 2.0 or OpenID Connect identity provider can be created automatically on their first sign-in. They show an **SSO** badge, and their details say "Signs in through an identity provider". They cannot sign in with a local UTMStack password. See **Single Sign-On**.
+## Messages and what they mean
+
+| Message | Cause | Fix |
+|---|---|---|
+| "That email is already in use" | An account with this email already exists in this tenant, perhaps deactivated | Search for it, including deactivated users, and reactivate it instead. |
+| "You do not have permission to do that" | Your roles lack the permission, or you tried to give the Administrator role without holding it | Ask an administrator. |
+| "operation failed" when creating a user | The email is longer than 254 characters, or another unexpected problem | Use a shorter address; otherwise check `docker service logs utmstack_backend`. |
+| "Invalid credentials." at sign-in for an invited user | The invitation was not completed, so the account has no password yet | Complete the invitation (see above). |
+| "This account is deactivated." | The account is inactive | Reactivate it. |
+| "Too many attempts. Try again in a few minutes." | Too many failed sign-ins in a short time | Wait a few minutes and try again. |
 
 ## Users and tenants
 
-On a multi-tenant licence, users belong to one tenant and sign in on that tenant's address. The same email address can exist in several tenants as separate accounts. Each tenant administrator manages their own tenant's users on their own Team page.
+On a multi-tenant licence, users belong to one tenant and sign in on that tenant's address. The same email address can exist in several tenants as separate accounts. Each tenant administrator manages their own tenant's users on their own Team page. See **Multi-Tenancy Overview**.

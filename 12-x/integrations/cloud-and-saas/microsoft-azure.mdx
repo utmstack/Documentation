@@ -2,10 +2,12 @@ The **Azure** integration brings activity from your Azure subscription into UTMS
 
 ## How it works
 
-- Your Azure subscription sends events through an Event Subscription (Event Grid) to an Event Hub.
+An **Event Hub** is an Azure service that receives a stream of events and keeps them for a retention time you choose, so that readers can collect them.
+
+- Your Azure subscription sends events through an Event Subscription (Event Grid) to an Event Hub. You can also send Azure Monitor and Microsoft Entra ID logs to the same hub with diagnostic settings (Step 3, optional part).
 - UTMStack reads the Event Hub with a connection string that has **Listen** rights, using its own consumer group.
-- UTMStack stores its checkpoints (how far it has read) in a container of a Storage Account.
-- Events are stored with the data type `azure`. UTMStack v12 ships 40 detection rules for this data type; see **Azure** in the **Rules** tab.
+- UTMStack stores its checkpoints (how far it has read) in a container of a Storage Account. The first time it connects, it starts with the oldest event still kept in the hub. After that it continues from its checkpoint, also after a restart.
+- Events are stored with the data type `azure` and parsed by the shipped pipeline `azure/azure-eventhub.yaml` (version 2.3.0). UTMStack v12 ships 40 detection rules for this data type; see **Azure** in the **Rules** tab.
 - UTMStack supports Event Hubs in the Azure public cloud, Azure US Government and Azure China.
 
 ## Before you start
@@ -127,6 +129,31 @@ Configure the Event Subscription to send events to the Event Hub you created in 
 </Step>
 </Steps>
 
+### Optional: send Azure Monitor and Microsoft Entra ID logs to the same hub
+
+The Event Subscription above sends resource changes (writes, deletes and actions). Many Azure rules in UTMStack also read Microsoft Entra ID sign-in and audit logs, the Azure Activity log, Key Vault audit events, Application Gateway firewall logs and AKS (Kubernetes) audit logs. Azure sends these through **diagnostic settings**, which can stream to an Event Hub.
+
+| Log | Where to add the diagnostic setting in the Azure portal | Categories the UTMStack pipeline recognises |
+|---|---|---|
+| Microsoft Entra ID | **Microsoft Entra ID > Monitoring > Diagnostic settings** | `AuditLogs`, `SignInLogs`, `NonInteractiveUserSignInLogs`, `ServicePrincipalSignInLogs`, `ManagedIdentitySignInLogs`, `UserRiskEvents` |
+| Azure Activity log | **Monitor > Activity log > Export Activity Logs** | `Administrative` |
+| Key Vault | The vault's **Diagnostic settings** | `AuditEvent` |
+| Application Gateway | The gateway's **Diagnostic settings** | `ApplicationGatewayFirewallLog`, `ApplicationGatewayAccessLog` |
+| AKS cluster | The cluster's **Diagnostic settings** | `kube-audit`, `kube-audit-admin` |
+
+For each one:
+
+1. Click **Add diagnostic setting** and give it a name.
+2. Select the categories you want.
+3. Select **Stream to an event hub**, choose your subscription, the Event Hubs namespace and the Event Hub you created in Step 1. Choose the hub by name, so all logs go to the hub UTMStack reads.
+4. Click **Save**.
+
+<Note>
+
+A diagnostic setting writes to the hub with a namespace-level policy (by default `RootManageSharedAccessKey`), which Azure requires to have Manage, Send and Listen rights. This is separate from the Listen-only policy you created for UTMStack. Microsoft Entra ID sign-in logs need a Microsoft Entra ID P1 or P2 licence.
+
+</Note>
+
 ## Step 4: Connect Azure in UTMStack
 
 Each Event Hub connection is a **config group**. You can add more than one.
@@ -135,6 +162,8 @@ Each Event Hub connection is a **config group**. You can add more than one.
 <Step title="Open the integration">
 
 Go to **Configure > Integrations**, search for `Azure` and open the **Azure** card. The form is at the end of the setup guide, under **Event Hub configuration**.
+
+![Azure setup guide in UTMStack, showing How it works and the first Azure steps: create an Event Hub and add a shared access policy](/assets/29a4c7be-00dd-475c-8cb0-36b298b38f1a)
 
 </Step>
 <Step title="Fill in the form">
@@ -159,19 +188,51 @@ Click **Add config group**. Before saving, UTMStack checks that it can reach the
 
 ### If the save fails
 
+When the check fails, the config group is not saved and a message starting with "credential verification failed:" explains why.
+
 | Message | What to check |
 |---|---|
 | Invalid Event Hub Connection String format. It must include an EntityPath | Add `;EntityPath=<event hub name>` to the connection string. |
+| Invalid Event Hub Connection String format. Please verify the Endpoint URL and SharedAccessKey are correct. | Part of the string is missing or was cut when you copied it. Copy it again from the policy. |
 | Event Hub Connection String is unauthorized | The shared access policy is missing the **Listen** permission, or the key is wrong. |
 | Event Hub ... was not found | The `EntityPath` does not match the Event Hub name. |
 | Consumer Group ... was not found on Event Hub ... | The consumer group name is wrong, or it was created on another Event Hub. |
 | Storage Container ... was not found | The container does not exist in that Storage Account. |
 | Cannot connect to Azure Storage / Access denied to Storage Container | The Storage Account connection string is wrong or has no access. |
-| Connection ... timed out | The UTMStack server cannot reach Azure on port 443. |
+| Connection to Event Hub timed out / Connection to Azure Storage timed out | The UTMStack server cannot reach Azure on port 443. |
 
 ## Check that events arrive
 
-Open the **Azure** card again and click **View logs**. Log Explorer opens filtered to the `azure` data type for the last 24 hours.
+<Steps>
+<Step title="Check that the hub receives events">
+
+In the Azure portal, open your Event Hub. The **Overview** page shows charts of incoming messages. If there are none, Azure is not sending to this hub yet: check the Event Subscription and the diagnostic settings.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Open the **Azure** card again and click **View logs**. Log Explorer opens with the `azure` data type for the last 24 hours. UTMStack reads the hub continuously, so events usually appear within a few minutes of reaching the hub.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 minutes.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example a rotated key, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The hub shows incoming messages, but no `azure` events arrive in UTMStack | The connection string or storage key was rotated after you saved, or the consumer group was deleted. | Edit the config group and paste the current connection strings, or create the consumer group again. |
+| Some events are missing | Another program reads the hub with the same consumer group, so the two readers share the work. | Give UTMStack its own consumer group, used by nothing else. |
+| Resource changes arrive, but no sign-ins or audit events | Only the Event Subscription sends to the hub. | Add the diagnostic settings for Microsoft Entra ID and the Activity log (Step 3, optional part). |
+| Diagnostic setting logs go to a hub called `insights-logs-...` | The diagnostic setting has no Event Hub name, so Azure created one hub per category. | Edit the diagnostic setting and select your Event Hub by name. |
+| Older events are missing after a long outage | The hub keeps events only for its retention time. | Raise the retention time of the Event Hub if UTMStack may be unreachable for longer. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
 
 ## Manage config groups
 

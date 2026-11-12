@@ -33,7 +33,7 @@ PCI DSS       Requirement 10: Log and monitor …    10.2.1.4        ac-7
 - A **framework** is a standard or regulation, for example PCI DSS v4.0.1.
 - It is split into **sections** (its own chapters) and **requirements**, each with the framework's official id, for example `10.2.1.4` or `Art.32`.
 - Each requirement points to one or more **controls** that satisfy it.
-- The controls come from one shared library. A control is defined once and used by every framework that needs it: control `ac-7` (Unsuccessful Logon Attempts) answers PCI DSS 10.2.1.4, CMMC AC.L2-3.1.8, NIST SP 800-171 03.01.08 and ISO A.8.5 alike.
+- The controls come from one shared library. A control is defined once and used by every framework that needs it: control `ac-7` (Unsuccessful Logon Attempts) answers PCI DSS 10.2.1.4, CMMC AC.L2-3.1.8, NIST SP 800-171 03.01.08 and GDPR Art.32(1)(b) alike.
 
 The library is the NIST SP 800-53 Revision 5 catalogue (a public catalogue of security controls from the US National Institute of Standards and Technology): 320 controls. Control ids look like `au-6`; a few control enhancements look like `ia-2.1`.
 
@@ -49,7 +49,7 @@ Checks come in two kinds:
 - **Evidence checks** show that something is in place, for example "failed logons are recorded". They pass when at least a minimum number of records match (643 shipped checks).
 - **Limit checks** count things that must not happen, for example "an audit log was cleared" or "a sign-in without multi-factor authentication". They fail when more than the allowed number of records match, usually more than 0 (152 shipped checks).
 
-Every check reads one data type, such as `wineventlog` or `o365`. A check for a source your tenant does not send neither passes nor fails.
+Almost every check reads one data type, such as `wineventlog` or `o365`; a few read all your logs or your alerts. A check for a source your tenant does not send neither passes nor fails.
 
 ## Shipped frameworks
 
@@ -66,6 +66,8 @@ Every check reads one data type, such as `wineventlog` or `o365`. A check for a 
 | SOC 2 — Trust Services Criteria | 61 | No |
 
 Shipped frameworks and controls are marked **Shipped** and are read-only. You can open them to look inside, copy them, and create your own beside them. See **Custom Frameworks and Controls**.
+
+What each framework covers, its sections, how many of its controls are automatic and which log sources settle them is on **Shipped Compliance Frameworks**.
 
 ## Licence limits
 

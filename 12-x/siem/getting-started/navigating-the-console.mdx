@@ -1,0 +1,103 @@
+The UTMStack v12 web console has three parts: a top bar, a menu on the left (the sidebar) and the page you are working on. This page explains every item in the menu and the top bar, and how the menu changes with your role, your licence and the tenant you are working in.
+
+## The screen at a glance
+
+| Area | What it holds |
+|---|---|
+| Top bar | Product name and version, the **Ask** button for the SOC-AI assistant, the tenant switcher (multi-tenant licence), the notification bell, the light or dark theme switch and your user menu. |
+| Sidebar | The main menu. Its first part is for daily security work. The second part, **Configure**, is for administrators. |
+| Main area | The page you opened from the menu. |
+
+Select the product name or logo in the top left corner to go back to **Overview** from anywhere.
+
+## The sidebar
+
+### Main section
+
+Every signed-in user sees these items. What you can do on each page depends on the permissions of your role (see **Roles and Permissions**).
+
+| Menu item | What it is for | Read more |
+|---|---|---|
+| **Overview** | The home page. It shows alerts and high-severity alerts of the last 24 hours, open incidents, active response flows, data sources that are sending, total events, system health, the top MITRE ATT&CK techniques, the most targeted assets and compliance scores. When the SOC-AI assistant is set up, it also has a question box ("What would you like to know from your security data?"). | **SOC-AI Assistant** |
+| **Tenants** | Every customer tenant on the server. Shown only to the instance operator on a multi-tenant licence. | **Tenants** |
+| **Dashboards** | The dashboard gallery and the widget editor. | **Dashboards** |
+| **Live Operations** | An animated replay of recent alerts, one at a time, with the attacker and the target. **Open in Alerts** opens the alert on the **Alerts** page. | **Alerts** |
+| **Threat Management > Alerts** | The list of alerts, with filters, triage and export. | **Alerts** |
+| **Threat Management > Tagging Rules** | Rules that tag new alerts automatically, for example to mark known false positives. | **Tagging Rules and False Positives** |
+| **Threat Management > Incidents** | Incidents that group related alerts, with notes and history. | **Incidents** |
+| **Threat Management > Adversary View** | A chart of the links between attackers, alerts and the assets they targeted. | **Adversary View** |
+| **SOAR > Flows** | Automated response flows. SOAR stands for Security Orchestration, Automation and Response. | **Flows Page** |
+| **SOAR > Execution history** | Every step that flows and console commands have run. | **Execution History and Run Statuses** |
+| **SOAR > Interactive Console** | Run commands on a computer where the UTMStack agent is installed. | **Interactive Console** |
+| **Log Explorer** | Search all stored logs and alerts, with a filter mode and an SQL mode. | **Log Explorer** |
+| **User Auditor** | The user accounts seen in your Windows, Linux and cloud logs. | **User Auditor** |
+| **Threat Intelligence > Indicators** | Indicators of compromise (malicious addresses, domains, file hashes) found in your data, and lookups. | **Threat Intelligence Screens** |
+| **Threat Intelligence > AI Analyst** | Chat with the ThreatWinds AI about indicators. | **Threat Intelligence Screens** |
+| **Threat Intelligence > Triage** | Look up a list of pasted indicators at once. | **Threat Intelligence Screens** |
+| **Threat Intelligence > Report** | Report an indicator to ThreatWinds. | **Threat Intelligence Screens** |
+| **Compliance** | Compliance frameworks, controls, reports and report schedules. | **Compliance Overview** |
+
+### Configure section
+
+Only users who hold the **Administrator** role see the **Configure** section.
+
+| Menu item | What it is for | Read more |
+|---|---|---|
+| **Data Sources** | Every source that sends logs, its health, labels and asset sensitivity. | **Data Sources Page** |
+| **Integrations** | The catalogue of integrations, with setup guides for agents, the UTMStack Forwarder and cloud services. | **How Data Reaches UTMStack** |
+| **Alerting Rules** | Correlation rules: browse, create, import, export, and switch them on or off. | **Alerting Rules** |
+| **Pipelines** | The parsing pipelines that turn raw logs into structured events. | **Pipelines** |
+| **Data Processing** | Read-only figures on how many logs arrive and how many are dropped. | **Data Processing** |
+| **Team** | Users, roles and permissions. | **Users**, **Roles and Permissions** |
+| **Settings** | The settings pages: licence, notifications, connection key, data retention, branding, API keys, identity providers, email, SOC-AI and more. | **Settings Overview** |
+
+When you open **Settings**, the sidebar shows the list of settings pages instead of the main menu, with a **Back** button at the top. Select **Back** to return to the main menu.
+
+### Make the sidebar smaller or larger
+
+- **Collapse a group.** Select **Threat Management**, **SOAR** or **Threat Intelligence** to hide or show its items. Select the **Configure** heading to hide or show that whole section.
+- **Icon-only mode.** Select the panel button next to **Overview** to shrink the sidebar to icons. Point at an icon to see its name. Selecting a group icon opens the full sidebar again. Select the panel button again to go back to the full sidebar.
+
+UTMStack remembers these choices in your browser. Another browser or computer starts with the full sidebar.
+
+## The top bar
+
+From left to right:
+
+| Element | What it does |
+|---|---|
+| Logo and product name | Opens **Overview**. With white-label branding active, your own logo and product name are shown (see **Branding**). |
+| Version badge | The installed version and the edition, for example `12.0.2 · Community` or `12.0.2 · Enterprise`. On Community, administrators can select it to open the **License** page. |
+| **Ask** | Opens and closes the SOC-AI assistant panel ("SOC Assistant") on the right side of the screen. It appears only after a provider is set up in **Settings > SOC-AI**. In UTMStack v12.0.2 only users with the Administrator role see it. See **SOC-AI Assistant**. |
+| Tenant switcher | Shows the tenant you are working in, **Default tenant** for your own. Use it to enter a customer tenant that granted you support access, to leave it, or to create a tenant. Shown only to the instance operator on a multi-tenant licence. See **Support Access**. |
+| Bell | Your tenant's notifications. A red badge shows how many are unread (`9+` above nine). The list shows the latest notifications with **Mark all read**, and **View all** opens **Settings > Notifications**. See **Notifications**. |
+| Moon or sun | Switches between the dark and the light theme. |
+| Your avatar | Opens the user menu: your name and email, **Profile**, **Language** (English, Spanish, Portuguese, French, German, Italian or Russian) and **Log out**. See **Profile and Two-Step Sign-In**. |
+
+### Working inside a customer tenant
+
+When the instance operator enters a customer tenant, a banner across the top of the screen says "You are working inside" followed by the tenant name, and either "read only — writes are refused" or "full access — changes here are real". Select **Leave** in the banner, or **Default tenant** in the tenant switcher, to return to your own tenant. While you are inside a customer tenant, **Tenants** and the operator-only settings pages are hidden.
+
+## How the menu changes
+
+| Situation | What changes |
+|---|---|
+| Your role is Analyst, Viewer or a custom role without the Administrator role | The **Configure** section is hidden. Buttons for actions your role cannot do are still shown, but the server refuses them with an error. |
+| Your role is Administrator | You see **Configure** and all settings pages of your tenant. |
+| You are the instance operator (an Administrator of the default tenant) | You also see the server-wide settings pages: **License**, **Data Retention**, **ThreatWinds Integration** and **About**. See **Settings Overview**. |
+| The server has a multi-tenant licence | The instance operator also sees **Tenants** and the tenant switcher. Administrators of customer tenants see **Settings > Support access**. |
+| Community edition | The menu is the same. Enterprise-only pages, such as **API Keys**, **Identity Providers** and **Branding**, open but tell you that the feature needs an Enterprise licence. See **License and Editions**. |
+
+## Keyboard shortcuts
+
+The console has no global keyboard shortcuts. These keys work in specific places:
+
+| Where | Key | What it does |
+|---|---|---|
+| Log Explorer, SQL mode | `Ctrl` + `Enter` (`Cmd` + `Enter` on a Mac) | Runs the query. |
+| Log Explorer, SQL mode, while suggestions are open | Arrow up and down, then `Enter` or `Tab` | Picks a suggested field or word. `Esc` closes the list. |
+| SOC-AI assistant and the Overview question box | `Enter` | Sends your message. `Shift` + `Enter` starts a new line. |
+
+## Addresses of the pages
+
+Each page has its own address, so you can bookmark it or share a link with a colleague. For example, `https://<your-server>/threat-management/alerts` opens **Alerts** and `https://<your-server>/log-explorer` opens **Log Explorer**. If you open an address that does not exist, UTMStack opens **Overview**. If you are not signed in, it opens the sign-in page first.

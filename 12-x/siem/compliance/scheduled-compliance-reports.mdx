@@ -90,6 +90,18 @@ A run happens only when all five fields match. This differs from classic cron: `
 
 UTMStack checks for due schedules once a minute.
 
+More examples (all times UTC):
+
+| Cron | Runs |
+|---|---|
+| `0 7 * * 1-5` | Every weekday at 07:00 |
+| `30 22 * * 0` | Every Sunday at 22:30 |
+| `0 */6 * * *` | Every 6 hours, at 00:00, 06:00, 12:00 and 18:00 |
+| `0 6 1 1,4,7,10 *` | The first day of each quarter at 06:00 |
+| `0 6 1,15 * *` | The 1st and the 15th of every month at 06:00 |
+
+Times are in UTC, whatever time zone you chose on **Date, Time Zone and Language**. For a report at 08:00 in Madrid in winter (UTC+1), use hour `7`.
+
 ## What happens at each run
 
 1. UTMStack evaluates the framework over the reporting window. This replaces the standing report, exactly as **Run evaluation** does, and keeps the notes and verdicts people recorded. See **Compliance Reports**.
@@ -103,6 +115,8 @@ The reporting window of a schedule is also used when someone clicks **Run evalua
 ## Manage schedules
 
 The **Schedule** tab lists the schedules **you** created. For each one it shows the framework, the cadence and cron, the window ("over 30d") and the recipients. Schedules created by other users are not shown to you, but they still run.
+
+![The Schedule tab of the Compliance page with the New schedule button and a list of schedules, each showing the framework, cadence, cron, reporting window and recipients, with edit and delete buttons](/assets/f2d31ed3-4bc6-4f0f-9eae-d177c524467e)
 
 - To change a schedule, use its edit button (pencil), change the fields and click **Save**.
 - To delete a schedule, use its delete button (bin). It is deleted at once, without a confirmation.

@@ -1,8 +1,10 @@
 The **Alerts** page lists the alerts that your correlation rules and threat intelligence raise. Use it to find alerts, read what happened, and work each alert: set its status, add notes and tags, assign it, link it to an incident, run a response and export the list.
 
+This page describes every control on the screen. For a step-by-step procedure from a new alert to its closing, see **Alert Triage Workflow**. For every field an alert carries and how to search on it, see **Alert Fields Reference**.
+
 ## Open the Alerts page
 
-Go to **Threat Management > Alerts**. The header shows how many alerts match your current view and how many are open right now.
+Go to **Threat Management > Alerts**. The header shows how many alerts match your current view and how many are open right now, for example "120 matching · 45 open right now". The open count includes only top-level alerts that are **Open** and not tagged **False positive**, whatever filters you set.
 
 | What you want to do | Permission | Built-in roles |
 |---|---|---|
@@ -17,6 +19,8 @@ The page shows every button to every user. If your role does not have the permis
 </Note>
 
 ## What the list shows
+
+![The Alerts page with the matching and open counts, the search box, severity, Tags and time range menus, the export and refresh buttons, Add filter, the All, Open, In review and Completed tabs, and the alert list with status, technique, source, adversary, severity, echoes and time](/assets/1904c3f8-0ddf-4939-83d0-88c5e2f65a7b)
 
 The list shows top-level alerts. When a rule raises the same alert again and the rule groups its alerts, the repeat is stored as an **echo** of the first alert. Echoes are not shown as rows; the **Echoes** column counts them. See **How alerts are created**.
 
@@ -50,7 +54,7 @@ An alert's time is when the server processed the event, not when the event happe
 
 | Control | What it does |
 |---|---|
-| Status tabs | **All**, **Open**, **In review** and **Completed**, each with a count. |
+| Status tabs | **All**, **Open**, **In review** and **Completed**. Each tab except **All** shows a count. |
 | **Search by alert name…** | Shows alerts whose name contains the text you type. |
 | Severity menu | **All severities**, **High**, **Medium** or **Low**. |
 | **Tags** | Shows alerts that carry any of the tags you pick. The match is on part of the tag name, so a short tag name can also match longer tags that contain it. |
@@ -61,6 +65,8 @@ An alert's time is when the server processed the event, not when the event happe
 **Add filter** offers these fields: Alert name, Category, Technique, Description, Severity, Status, Risk, Sensor (the data source), Data type, Tags, Assignee, Notes, Is incident, Incident name, Incident id, Confidentiality, Integrity, Availability, and for both sides of the alert (Adversary and Target) the IP, host, user, domain, URL, country, ASN and ASO.
 
 The operators are **contains**, **is**, **is not**, **exists** and **does not exist**. When you pick **is** or **is not**, UTMStack suggests the values that really occur in your alerts (up to 100).
+
+![The Add filter popover on the Alerts page, with a field menu, an operator menu, a Filter values box and a list of values that occur in your alerts with their counts](/assets/a2934cf8-f030-4678-bb52-abc3ddcc6d72)
 
 ### Overview
 
@@ -93,7 +99,11 @@ Each alert has a severity of **High**, **Medium** or **Low**. It comes from the 
 
 ## The alert panel
 
-Click a row to open the alert panel. At the top you can:
+Click a row to open the alert panel. The header shows the severity and status, the category, an **Incident** badge when the alert is in an incident, the alert name, and the technique, data source and time. When SOC-AI is available to you, an **Ask** button opens the SOC-AI assistant with this alert shared (see **SOC-AI Assistant**).
+
+![The alert panel of an alert that belongs to an incident: severity, status, category and Incident badges, the name, technique, source and time, the Ask button, Set status, Tag and Assign, the Summary, Parties, Events and History tabs, and the Part of an incident box above the Description, References and Details](/assets/b49f580f-a595-427c-bbbf-925c7958a463)
+
+Below the header you can:
 
 - **Set status**.
 - **Tag**: add or remove tags (see **Tags** below).
@@ -163,6 +173,12 @@ Tick the boxes of the alerts you want. A bar shows how many are selected (for ex
 - **Add tag**.
 - **Add to incident**.
 - **Clear**: clears the selection.
+
+<Warning>
+
+In UTMStack v12.0.2, the bulk **Add tag** replaces the tags the selected alerts already have with the one tag you pick, so tags such as **False positive** are removed. To add a tag and keep the others, use **Tag** in the alert panel, one alert at a time.
+
+</Warning>
 
 ## Export alerts
 

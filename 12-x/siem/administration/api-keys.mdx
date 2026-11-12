@@ -5,6 +5,7 @@ API keys let scripts, other tools and AI assistants use the UTMStack v12 API (ap
 - The server needs an Enterprise licence. On Community, the page shows "API keys are an Enterprise feature", and requests made with a key are refused. See **License and Editions**.
 - Creating, rotating, editing and deleting keys needs the `apikey.write` permission. Of the built-in roles, only **Administrator** has it. Listing your keys needs `apikey.read`, which all built-in roles have.
 - Each user sees and manages only their own keys.
+- Users with a custom role that includes `apikey.write` but not the **Administrator** role do not see the **Settings** menu. They open the page at `https://<your-server>/settings/api-keys`.
 
 ## How a key's rights work
 
@@ -37,6 +38,8 @@ Go to **Configure > Settings > API Keys** and click **New API key**.
 | Name | A name that says what the key is for, for example `ci-pipeline`. It must be unique among your keys. |
 | Allowed IPs | The addresses allowed to use the key, separated by commas. Ranges in CIDR notation (for example `192.0.2.0/24`) are accepted. Leave empty to allow any address. |
 | Expires | The date the key stops working. Leave empty for a key that never expires. |
+
+![The New API key dialog with the Name, Allowed IPs and Expires fields, a reminder that the secret is shown only once, and the Create key button](/assets/c44bf08d-9958-4d53-8e00-9eb67198a68f)
 
 </Step>
 
@@ -77,6 +80,8 @@ For the full API and other ways to sign in, see **Authentication and API Keys**.
 
 ## Manage keys
 
+![The API Keys page listing keys with their allowed IPs, created, last rotated and expiry dates, status, and the rotate, edit and delete buttons](/assets/0e285f93-e528-4dd0-a34d-b76ee83ef248)
+
 The list shows each key's **Name**, **Allowed IPs**, **Created**, **Last rotated**, **Expires** and **Status**:
 
 | Status | Meaning |
@@ -98,5 +103,18 @@ Use the search box to find a key by name or allowed IP, and **Refresh** to reloa
 ## Good practice
 
 - Create one key per tool, so you can rotate or delete it without affecting other tools.
-- Set an expiry date and rotate keys regularly.
+- Set an expiry date and rotate keys regularly. The list marks keys that expire within 7 days as **Expiring**.
 - When a person leaves, deactivate their user account; this stops all their keys at once.
+- Administrators cannot see or delete other users' keys. To stop the keys of another user, deactivate that user.
+
+## Troubleshooting
+
+| Message or answer | Cause | Fix |
+|---|---|---|
+| "An API key with that name already exists" | You already have a key with that name | Choose another name. |
+| "operation failed" when creating a key | The name is longer than 255 characters, or another unexpected problem | Use a shorter name; otherwise check `docker service logs utmstack_backend`. |
+| "Key created, but the secret could not be issued. Use Rotate to get one." | The key was saved but its secret was not created | Click **Rotate** on the key to get a secret. |
+| "API keys require the Enterprise edition" when you create or rotate a key, or every request with a key is refused with `401` | No valid Enterprise licence | Install the licence. See **License and Editions**. |
+| Requests with a key answer `401` | The secret is wrong, was rotated, the key expired or was deleted, the request came from an address not in **Allowed IPs**, or the owner was deactivated | Check the key's status, rotate it, or use a key of an active user. |
+| Requests answer `403` for one action but work for others | The key owner's roles lack the permission for that action | Give the owner a role with the permission (see **Roles and Permissions**). |
+| On a multi-tenant server, a key works on one address but not another | A key works only on its owner's tenant address | Send requests to the address of the owner's tenant. |

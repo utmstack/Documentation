@@ -1,0 +1,578 @@
+Use these endpoints to manage the people who can sign in to UTMStack v12 and what they are allowed to do: list, create, change and deactivate users, assign roles, build custom roles from the permission catalogue, and manage your own profile, password, sessions and two-step sign-in. Everything here works on every edition. On a multi-tenant installation, users and custom roles belong to the tenant of your credential.
+
+## Permissions
+
+| Action | Permission | Built-in roles that have it |
+|---|---|---|
+| List and read users | `users.read` | Administrator, Analyst, Viewer |
+| Create and change users, assign roles, reset another user's two-step sign-in | `users.write` | Administrator |
+| Deactivate users | `users.delete` | Administrator |
+| List and read roles and the permission catalogue | `roles.read` | Administrator, Analyst, Viewer |
+| Create, change and delete custom roles | `roles.write` | Administrator |
+| Your own profile, password, sessions and two-step sign-in (`/auth/...`, `/tfa/...`) | Any signed-in user | All |
+
+The three built-in roles (Administrator, Analyst and Viewer) are shared by every tenant and cannot be changed or deleted. See **Roles and Permissions** for what each role can do in the web console.
+
+## Users
+
+### User Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | User id |
+| `email` | string | Email address. This is also the sign-in name. |
+| `name` | string | Display name (left out when empty) |
+| `status` | string | `pending`, `active`, `inactive` or `suspended` |
+| `lang_key` | string | Interface language of the user, for example `en` (left out when empty) |
+| `image_url` | string | Address of the profile picture (left out when there is none) |
+| `federated` | boolean | `true` when the account signs in through an identity provider (single sign-on or a directory) |
+| `tfa_enabled` | boolean | `true` when the user has finished setting up two-step sign-in |
+| `roles` | array | Roles of the user, each with `name` and `display_name` |
+| `created_at`, `updated_at` | string | Times in RFC 3339 format (single-user answers only) |
+
+Only `active` accounts can sign in or use their API keys.
+
+| Status | Meaning |
+|---|---|
+| `pending` | Invited, has not set a password yet |
+| `active` | Can sign in |
+| `inactive` | Deactivated. Cannot sign in; its API keys stop working and its sessions cannot be renewed. |
+| `suspended` | Cannot sign in |
+
+### List Users
+
+**Endpoint:** `GET /api/v1/users` (permission `users.read`)
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page | integer | Page number, starting at `1` |
+| page_size | integer | Default 20, maximum 200 |
+| search | string | Part of the email address or the name (upper and lower case ignored) |
+
+Users are sorted by creation time, oldest first.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/users" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "page=1" \
+  --data-urlencode "page_size=50" \
+  --data-urlencode "search=example.com"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "<user-id>",
+      "email": "analyst@example.com",
+      "name": "Dana Analyst",
+      "status": "active",
+      "lang_key": "en",
+      "federated": false,
+      "tfa_enabled": true,
+      "roles": [
+        {"name": "ROLE_ANALYST", "display_name": "Analyst"}
+      ]
+    }
+  ],
+  "page_info": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 1,
+    "total_pages": 1,
+    "has_next": false,
+    "has_prev": false
+  }
+}
+```
+
+> [!TIP]
+> Ask for 200 users per page or fewer. In UTMStack v12.0.2 a larger `page_size` makes the server return 20 users, while `page_info` still shows the size you asked for.
+
+### Get One User
+
+**Endpoint:** `GET /api/v1/users/{id}` (permission `users.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/users/<user-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one user object, with `created_at` and `updated_at`. An unknown id returns 404 `user not found`; a value that is not a UUID returns 400 `invalid id`.
+
+### Create a User
+
+**Endpoint:** `POST /api/v1/users` (permission `users.write`)
+
+You can create the account in two ways:
+
+- **With a password.** The account is `active` at once and the user can sign in with the email address and that password. This is the reliable way to add a local user.
+- **Without a password (invitation).** The account is created as `pending` and UTMStack emails the user an invitation that is valid for 7 days. Email must be set up first (see **Email Configuration**). If the email cannot be sent, the account is still created and the error is only written to the server log.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| email | string | Yes | A valid email address, unique in your tenant |
+| name | string | No | Display name |
+| lang_key | string | No | Interface language: `en`, `es`, `pt`, `fr` or `de` |
+| role_names | array of strings | No | Role names, for example `["ROLE_ANALYST"]`. Every name must exist. |
+| password | string | No | Initial password. Leave it out to send an invitation instead. |
+
+**Password rules** (when you send a password): at least 8 characters, at least one upper-case letter, one lower-case letter and one special character (punctuation or symbol). Letters, digits, punctuation and symbols are allowed; spaces and other characters are refused.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/users" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "analyst@example.com",
+    "name": "Dana Analyst",
+    "lang_key": "en",
+    "role_names": ["ROLE_ANALYST"],
+    "password": "<initial-password>"
+  }'
+```
+
+**Response (HTTP 201):** the new user object, including `roles`.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `password must have at least 8 characters` (and similar password messages) | The password breaks a rule above |
+| 400 | `one or more role names do not exist` | A name in `role_names` is unknown or repeated |
+| 400 | Validation message | `email` missing or not an email address |
+| 409 | `login or email already in use` | Another user of the tenant has this email address |
+
+### Update a User
+
+**Endpoint:** `PUT /api/v1/users/{id}` (permission `users.write`)
+
+Send only the fields you want to change. Empty or missing fields keep their value.
+
+| Field | Type | Description |
+|---|---|---|
+| email | string | New email address (must be unique in the tenant) |
+| name | string | New display name |
+| lang_key | string | New interface language |
+| status | string | `pending`, `active`, `inactive` or `suspended` |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/users/<user-id>" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Dana Senior Analyst", "status": "active"}'
+```
+
+**Response (HTTP 200):** the updated user object. An email address that is already in use returns 409 `login or email already in use`.
+
+> [!NOTE]
+> In UTMStack v12.0.2 the server does not check the `status` value. Send exactly one of the four values in the table.
+
+To reactivate a deactivated user, send `{"status": "active"}`.
+
+### Deactivate a User
+
+**Endpoint:** `DELETE /api/v1/users/{id}` (permission `users.delete`)
+
+Sets the user's status to `inactive`. The account and its history are kept. The user can no longer sign in, renew a session or use an API key.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/users/<user-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. An unknown id returns 404 `user not found`.
+
+### Assign Roles
+
+**Endpoint:** `PUT /api/v1/users/{id}/roles` (permission `users.write`)
+
+Replaces all roles of the user with the list you send. An empty list removes every role.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/users/<user-id>/roles" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"role_names": ["ROLE_ANALYST", "ROLE_SOC_LEAD"]}'
+```
+
+**Response:** HTTP 204.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `one or more role names do not exist` | Unknown or repeated role name |
+| 403 | `only an administrator can grant the administrator role` | The list contains `ROLE_ADMIN` and you do not hold the Administrator role |
+| 404 | `user not found` | Unknown user id |
+
+### Reset a User's Two-Step Sign-In
+
+**Endpoint:** `POST /api/v1/users/{id}/tfa/disable` (permission `users.write`)
+
+Removes every two-step sign-in method of the user, for example after they lose their phone. They can set it up again after signing in.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/users/<user-id>/tfa/disable" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204.
+
+## Roles
+
+### Role Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Role id |
+| `name` | string | Identifier used in `role_names`, for example `ROLE_ANALYST` |
+| `display_name` | string | Name shown in the web console |
+| `description` | string | Free text (left out when empty) |
+| `system` | boolean | `true` for the three built-in roles, which cannot be changed or deleted |
+| `permissions` | array | Single-role answers only: each permission with `name` and `description` |
+
+### List Roles
+
+**Endpoint:** `GET /api/v1/roles` (permission `roles.read`)
+
+Returns the built-in roles first, then your tenant's custom roles, sorted by name. There is no paging.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/roles" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "00000000-0000-0000-0000-00000000a001",
+    "name": "ROLE_ADMIN",
+    "display_name": "Administrator",
+    "description": "Full access, including users, roles and configuration",
+    "system": true
+  },
+  {
+    "id": "<role-id>",
+    "name": "ROLE_SOC_LEAD",
+    "display_name": "SOC lead",
+    "system": false
+  }
+]
+```
+
+### Get One Role
+
+**Endpoint:** `GET /api/v1/roles/{id}` (permission `roles.read`)
+
+Returns the role with its `permissions`. An unknown id returns 404 `role not found`; a value that is not a UUID returns 400 `invalid role id`.
+
+### List the Permission Catalogue
+
+**Endpoint:** `GET /api/v1/roles/permissions` (permission `roles.read`)
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/roles/permissions" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** an array of `{"name": "...", "description": "..."}`, sorted by name. UTMStack v12.0.2 has 42 permissions:
+
+| Permission | Allows | Administrator | Analyst | Viewer |
+|---|---|---|---|---|
+| `users.read` | List and view users | Yes | Yes | Yes |
+| `users.write` | Create and update users, and assign their roles | Yes | | |
+| `users.delete` | Deactivate users | Yes | | |
+| `roles.read` | List and view roles and the permission catalogue | Yes | Yes | Yes |
+| `roles.write` | Create, update and delete the tenant's own roles | Yes | | |
+| `idp.read` | List and view identity-provider configurations | Yes | Yes | Yes |
+| `idp.write` | Create, update and delete identity-provider configurations | Yes | | |
+| `tenant.read` | List and view tenants | Yes | Yes | Yes |
+| `tenant.write` | Provision, update and terminate tenants | Yes | | |
+| `config.read` | Read application settings | Yes | Yes | Yes |
+| `config.write` | Change application settings | Yes | | |
+| `audit.read` | List and view audit log entries | Yes | Yes | Yes |
+| `notifications.read` | List and view notifications | Yes | Yes | Yes |
+| `notifications.write` | Mark notifications read and delete them | Yes | Yes | |
+| `alerts.read` | List and view alerts, tags and tag rules | Yes | Yes | Yes |
+| `alerts.write` | Update alerts and manage alert tags and tag rules | Yes | Yes | |
+| `incidents.read` | List and view incidents, their alerts, notes and history | Yes | Yes | Yes |
+| `incidents.write` | Create and manage incidents, their alerts and notes | Yes | Yes | |
+| `soar.read` | List and view response flows | Yes | Yes | Yes |
+| `soar.write` | Create response flows and run console commands | Yes | Yes | |
+| `soar.execute` | Start response flows by hand | Yes | | |
+| `compliance.read` | List and view frameworks, controls, reports and score history | Yes | Yes | Yes |
+| `compliance.write` | Manage frameworks and controls, run evaluations, record verdicts and manage report schedules | Yes | | |
+| `dashboards.read` | List and view dashboards and visualizations | Yes | Yes | Yes |
+| `dashboards.write` | Create, update and delete dashboards and visualizations | Yes | Yes | |
+| `loganalyzer.read` | Search logs and view saved queries | Yes | Yes | Yes |
+| `loganalyzer.write` | Create, update and delete saved queries | Yes | Yes | |
+| `datasources.read` | List and view data sources | Yes | Yes | Yes |
+| `datasources.write` | Change data source labels and sensitivity, delete data sources | Yes | | |
+| `eventprocessing.read` | List and view correlation rules, pipelines and patterns | Yes | Yes | Yes |
+| `eventprocessing.write` | Change correlation rules and pipelines, run the test playground | Yes | | |
+| `integrations.read` | List integrations and their configuration | Yes | Yes | Yes |
+| `integrations.write` | Activate integrations and manage their configuration | Yes | | |
+| `adaudit.read` | View the audited user inventory (User Auditor) | Yes | Yes | Yes |
+| `adaudit.write` | Create and manage identity aliases in the User Auditor | Yes | | |
+| `threatintel.read` | Search threat intelligence and its feeds | Yes | Yes | Yes |
+| `storage.read` | Read retention and storage use | Yes | Yes | Yes |
+| `storage.write` | Change retention and configure cold storage | Yes | | |
+| `socai.read` | Use the SOC-AI assistant | Yes | Yes | Yes |
+| `socai.write` | Configure the SOC-AI provider | Yes | | |
+| `apikey.read` | List your own API keys | Yes | Yes | Yes |
+| `apikey.write` | Create and manage your own API keys | Yes | | |
+
+Some endpoints also need a role or a licence on top of the permission. For example, tenant management needs the multi-tenant licence and the Administrator role in the default tenant, so `tenant.read` alone does not let an Analyst list tenants. Each API page names these extra conditions.
+
+### Create a Custom Role
+
+**Endpoint:** `POST /api/v1/roles` (permission `roles.write`)
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Identifier, 2 to 50 characters, unique in your tenant. The web console suggests the prefix `ROLE_`. |
+| display_name | string | No | Name shown in the web console |
+| description | string | No | Free text |
+| permissions | array of strings | No | Permission names from the catalogue. An empty list creates a role with no permissions. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/roles" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "ROLE_SOC_LEAD",
+    "display_name": "SOC lead",
+    "description": "Analyst who can also start flows by hand",
+    "permissions": ["alerts.read", "alerts.write", "incidents.read", "incidents.write",
+                    "loganalyzer.read", "soar.read", "soar.write", "soar.execute"]
+  }'
+```
+
+**Response (HTTP 201):** the new role with its `permissions`.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `role name is already in use` | A built-in or custom role already has this name |
+| 400 | `permission not found` | A name in `permissions` is not in the catalogue |
+| 400 | Validation message | `name` missing, shorter than 2 or longer than 50 characters |
+
+### Update a Custom Role
+
+**Endpoint:** `PUT /api/v1/roles/{id}` (permission `roles.write`)
+
+Takes the same body as create and replaces the whole role: name, display name, description and the full permission list. API keys of users who hold the role get the new permissions at once; signed-in users get them the next time they sign in or renew their token.
+
+**Response (HTTP 200):** the updated role. A built-in role returns 403 `system roles cannot be modified`.
+
+### Delete a Custom Role
+
+**Endpoint:** `DELETE /api/v1/roles/{id}` (permission `roles.write`)
+
+**Response:** HTTP 204. The role is also removed from every user who held it. A built-in role returns 403 `system roles cannot be modified`; an unknown id returns 404 `role not found`.
+
+## Your Own Account
+
+These endpoints act on the user who owns the credential. Signing in, renewing tokens and the current-user call (`GET /auth/me`) are on **Authentication and API Keys**.
+
+### Update Your Profile
+
+**Endpoint:** `PUT /api/v1/auth/me`
+
+| Field | Type | Description |
+|---|---|---|
+| email | string | New email address (also your sign-in name) |
+| name | string | Display name |
+| lang_key | string | Interface language: `en`, `es`, `pt`, `fr` or `de` |
+
+Empty or missing fields keep their value.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/auth/me" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Dana Analyst", "lang_key": "es"}'
+```
+
+**Response (HTTP 200):** your user object (without `roles`). An email address used by someone else returns 409 `email is already in use`.
+
+`GET /api/v1/auth/authenticate` returns only your email address as plain text. It is a quick way to check that a credential works.
+
+### Upload or Remove Your Profile Picture
+
+**Endpoint:** `POST /api/v1/auth/me/avatar` (multipart form, field `file`)
+
+The image must be PNG, JPEG, WebP or GIF and at most 2 MB. The server checks the file content, not the file name.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/me/avatar" \
+  -H "Authorization: Bearer <access-token>" \
+  -F "file=@avatar.png"
+```
+
+**Response (HTTP 200):** your user object with the new `image_url`, for example `/uploads/avatars/u<user-id>-<random>.png?v=<time>`.
+
+| HTTP code | Error |
+|---|---|
+| 400 | `missing file field` |
+| 413 | `image is too large (max 2MB)` |
+| 415 | `only png/jpeg/webp/gif images are allowed` |
+
+`DELETE /api/v1/auth/me/avatar` removes the picture and returns your user object.
+
+### Change Your Password
+
+**Endpoint:** `POST /api/v1/auth/change-password`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| current_password | string | Yes | Your current password |
+| new_password | string | Yes | At least 8 characters, different from the current one |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/auth/change-password" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"current_password": "<current-password>", "new_password": "<new-password>"}'
+```
+
+**Response:** HTTP 204. Every session of your account, including the one you are using, can no longer be renewed: sign in again when your access token expires.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `new password must differ from current` | Same password sent twice |
+| 400 | Validation message | A field is missing or the new password is shorter than 8 characters |
+| 401 | `current password is incorrect` | Wrong current password |
+| 500 | `could not change password` | Also returned in UTMStack v12.0.2 for accounts that sign in through an identity provider, which have no UTMStack password |
+
+### List and Revoke Your Sessions
+
+A session is one sign-in that can still be renewed. Each one keeps the address and browser it came from. A session that is not renewed for 30 days expires (`expires_at`).
+
+**Endpoint:** `GET /api/v1/auth/sessions`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/auth/sessions" \
+  -H "Authorization: Bearer <access-token>"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<session-id>",
+    "ip": "192.0.2.25",
+    "user_agent": "Mozilla/5.0 ...",
+    "created_at": "2026-11-10T08:02:11Z",
+    "expires_at": "2026-12-10T08:02:11Z",
+    "current": true
+  }
+]
+```
+
+`current` is `true` for the session of the token you are calling with. With an API key no session is marked as current.
+
+| Method | Endpoint | Result |
+|---|---|---|
+| DELETE | `/api/v1/auth/sessions/{id}` | Revokes one session so it cannot be renewed. HTTP 204, or 404 `session not found`. |
+| DELETE | `/api/v1/auth/sessions` | Revokes every session except the one you are calling from. HTTP 204. Needs a bearer token: with an API key the answer is 400 `no active session to preserve`. |
+
+### Set Up Two-Step Sign-In
+
+Two-step sign-in asks for a 6-digit code after the password. The code comes from an authenticator app (`totp`) or by email (`email`). Set-up has three stages, all sent to the same endpoint.
+
+**Endpoint:** `POST /api/v1/tfa/enroll`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| stage | string | Yes | `INIT`, `VERIFY` or `COMPLETE` |
+| type | string | Yes | `totp` or `email` |
+| code | string | For `VERIFY` | The 6-digit code |
+
+<Steps>
+<Step title="Start (INIT)">
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/tfa/enroll" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"stage": "INIT", "type": "totp"}'
+```
+
+For `totp` the answer contains `qr_data_url` (a PNG image of the QR code) and `otp_auth_url` (the same secret as an `otpauth://` link). Add it to your authenticator app. For `email` a code is sent to your address and the answer has `"email_sent": true`; the code is valid for 10 minutes.
+
+```json
+{
+  "stage": "INIT",
+  "init": {
+    "type": "totp",
+    "factor_id": "<factor-id>",
+    "qr_data_url": "data:image/png;base64,...",
+    "otp_auth_url": "otpauth://totp/...",
+    "expires_at": "2026-11-10T08:12:11Z"
+  }
+}
+```
+
+</Step>
+<Step title="Confirm the code (VERIFY)">
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/tfa/enroll" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"stage": "VERIFY", "type": "totp", "code": "123456"}'
+```
+
+The answer is `{"stage": "VERIFY", "verified": true}`. From now on, sign-in asks for a code.
+
+</Step>
+<Step title="Check (COMPLETE)">
+
+Send `{"stage": "COMPLETE", "type": "totp"}`. The answer `{"stage": "COMPLETE", "enabled": true}` confirms that two-step sign-in is on for your account.
+
+</Step>
+</Steps>
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `a tfa factor of this type is already enrolled` | You already finished set-up for this type |
+| 401 | `invalid tfa code` | Wrong or old code |
+| 404 | `tfa factor not found`, `challenge has expired` | `VERIFY` without `INIT`, or the email code is older than 10 minutes |
+| 503 | `the second factor is sent by email, and no mail server is configured` | Email is not set up (see **Email Configuration**) |
+
+To finish a sign-in with a code, use `POST /api/v1/auth/tfa/verify-code` (see **Authentication and API Keys**).
+
+### Turn Off Two-Step Sign-In
+
+**Endpoint:** `POST /api/v1/tfa/disable`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/tfa/disable" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"password": "<your-password>"}'
+```
+
+**Response:** HTTP 204. A wrong password returns 400 `current password is incorrect`. Accounts that sign in through an identity provider have no UTMStack password; ask an administrator to reset two-step sign-in for them instead (`POST /users/{id}/tfa/disable`).
+
+### Password Reset by Email
+
+Two endpoints need no credential:
+
+- `POST /api/v1/auth/reset-password/init` with `{"email": "analyst@example.com"}` always answers HTTP 204, whether or not the account exists. For an active local account, UTMStack emails a reset key that is valid for 1 hour.
+- `POST /api/v1/auth/reset-password/finish` with `{"key": "<reset-key>", "new_password": "<new-password>"}` sets the password (at least 8 characters) and answers HTTP 204. An unknown or expired key returns 410 `invalid or expired reset key`. All sessions of the account must sign in again.
+
+Accounts that sign in through an identity provider cannot reset a password here.
+
+## Paging
+
+| Endpoint | Page parameter | First page | Size parameter | Default | Largest | Total |
+|---|---|---|---|---|---|---|
+| `GET /users` | `page` | `1` | `page_size` | 20 | 200 | `page_info` in the answer |
+| `GET /roles`, `/roles/permissions`, `/auth/sessions` | No paging | | | | | |

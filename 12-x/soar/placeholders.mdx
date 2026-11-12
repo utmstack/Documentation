@@ -38,13 +38,14 @@ A placeholder whose field does not exist in the alert is left as written. For ex
 
 ## Automatic quoting
 
-Every value UTMStack inserts is quoted for the step's shell, so a value cannot break out of your command:
+Every value UTMStack inserts is quoted for the step's shell:
 
 | Shell | What UTMStack does with the value |
 |---|---|
 | `bash`, `sh` | Wraps it in single quotes. A single quote inside the value is escaped. |
 | `powershell` | Wraps it in single quotes. A single quote inside the value is doubled. |
 | `cmd` | Puts `^` before each special character: ampersand, vertical bar, less-than, greater-than, caret, double quote, percent and exclamation mark. Line breaks become spaces. |
+| **auto** (no shell chosen) | Wraps it in single quotes, as for `bash`, even when the step runs on Windows, where the agent then uses `cmd`. Choose the shell explicitly. |
 
 For example, on bash:
 
@@ -57,9 +58,24 @@ iptables -I INPUT -s '203.0.113.7' -j DROP
 
 <Warning>
 
-**Do not put your own quotes around a placeholder.** Write `-s $(alert.adversary.ip)`, not `-s "$(alert.adversary.ip)"`. Your quotes and UTMStack's quotes combine, the value ends up with extra quote characters, and the protection against values that break out of the command no longer works. Some shipped flows still contain quoted placeholders; fix them in your copy (see **Shipped Flows**).
+**Do not put your own quotes around a placeholder.** Write `-s $(alert.adversary.ip)`, not `-s "$(alert.adversary.ip)"`. Your quotes and UTMStack's quotes combine and the value no longer arrives as intended. Some shipped flows still contain quoted placeholders; fix them in your copy (see **Shipped Flows**). The editor's own **Disable target user** template for `powershell` also puts double quotes around `$(alert.target.user)`: remove them after you insert it. For `cmd`, UTMStack adds no quotes, so the double quotes in the `cmd` template are needed and can stay.
 
 </Warning>
+
+### Building text from several pieces in bash
+
+Because each value arrives as its own single-quoted piece, you can glue it to fixed text in `bash` and `sh` by writing the pieces next to each other, without spaces. The shell joins them into one argument:
+
+```bash
+# You write
+curl -u $[variables.API_USER]:$[variables.API_SECRET] -d '{"address":"'$(alert.adversary.ip)'"}' https://$[variables.FW_HOST]/api/...
+# The shell receives the pieces
+curl -u 'apiuser':'s3cret' -d '{"address":"''203.0.113.7''"}' https://'fw.example.com'/api/...
+# and runs the command with
+#   -u apiuser:s3cret   -d {"address":"203.0.113.7"}   https://fw.example.com/api/...
+```
+
+This is the reliable way to send alert values and secret variables to another system's API in UTMStack v12.0.2. See **Worked Examples: Responding Through Other Systems**.
 
 ## Placeholders outside shell commands
 
@@ -67,12 +83,16 @@ Values placed into HTTP call, LLM enrichment, notification, email and incident f
 
 Keep in mind for UTMStack v12.0.2:
 
-- An HTTP address, header or body that contains a placeholder receives the value with the single quotes around it. Many APIs will not accept that, so check the request on the receiving side before you rely on it.
-- A value that contains an apostrophe or a double quote (for example a user name such as `O'Brien`) breaks an HTTP call, LLM enrichment, notification, email or incident step that inserts it: if it is a start step the run does not start, otherwise the step stays **Waiting** and never runs.
-- The same applies to stored variables inserted into these fields (see **Step Outputs and Variables**).
+- An HTTP address, header or body that contains a placeholder receives the value with the single quotes around it. Many APIs will not accept that, so check the request on the receiving side before you rely on it. A header such as `Authorization: Bearer $[variables.TOKEN]` arrives as `Bearer 'token'`, which most services refuse.
+- A value that contains an apostrophe, a double quote, a backslash (for example `CORP\jdoe`) or a line break breaks an HTTP call, LLM enrichment, notification, email or incident step that inserts it: if it is a start step the run does not start, otherwise the step stays **Waiting** and never runs.
+- Stored variables inserted into these fields are quoted the same way. A variable value with one of those characters makes the step fail with a result that contains `params:` (see **Step Outputs and Variables**).
+- Placeholders typed in the **Query params** tab of an HTTP call step are never filled in (see **Step Types**).
+
+Quotes around a value are harmless in text that people read, such as a chat message, a ticket title or an email subject. When another system must receive the exact value (an IP address for a firewall, a token in a header), send the request from a shell step instead, as shown in **Worked Examples: Responding Through Other Systems**.
 
 ## Related pages
 
 - **Step Outputs and Variables**
 - **Step Types**
 - **Building a Flow**
+- **Troubleshooting Flows**

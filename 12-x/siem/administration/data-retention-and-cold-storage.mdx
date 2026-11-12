@@ -1,13 +1,19 @@
-UTMStack v12 stores logs, alerts and ingestion statistics in its event store (ClickHouse). On the **Data retention** page you decide how long each kind of record is kept, and you can move older records to cheaper **cold storage** while keeping them searchable.
+The **Data retention** page of UTMStack v12 decides how long logs, alerts and ingestion statistics are kept, and whether older records move to cheaper **cold storage** while staying searchable. This page describes every part of the screen. For step-by-step setups and planning, see the **Storage and Retention** pages listed at the end.
 
 ## Who can use this page
 
-- Only the instance operator sees **Configure > Settings > Data Retention** (see **Settings Overview**). The tables are shared by all tenants, so there is one retention setting for the whole server.
+- Only the instance operator sees **Configure > Settings > Data Retention**: a user with the **Administrator** role in the default tenant, outside a support session. See **Settings Overview**.
+- The three tables are shared by all tenants, so there is one retention setting for the whole server. A tenant administrator who opens the page's address is sent back to the home page. See **Multi-Tenancy Overview**.
 - Viewing needs the `storage.read` permission and changing needs `storage.write`. Of the built-in roles, only **Administrator** can change retention.
+- The page is also hidden when the retention page is switched off in the server's backend settings.
 
-## What the page shows
+## The disk badge
 
-At the top, a badge shows how full the server's disk is (**Disk N% used**). It turns amber when the event store reports a problem.
+At the top right, **Disk N% used** shows how full the event store's disks are. It turns amber above 90%, or when the event store cannot report its disks; hover over it to see the reason. UTMStack does not delete data early when the disk fills up, so act before it is full. See **Planning Retention and Disk Space**.
+
+## Dataset cards
+
+![The Data retention page with the disk badge and the Logs, Alerts and Ingestion statistics cards, each with Delete after and Move to cold storage after in days and a Save button](/assets/afcceb0c-a54c-4ffd-a945-17c716a5de90)
 
 There is one card per dataset:
 
@@ -15,18 +21,20 @@ There is one card per dataset:
 |---|---|---|
 | Logs | All normalized events | 730 days |
 | Alerts | Alerts raised by correlation rules | 730 days |
-| Ingestion statistics | How much data each source sent, used for usage reporting | 1,095 days |
+| Ingestion statistics | How much data each source sent; the server's usage record | 1,095 days |
 
-Each card shows how many records the dataset holds, its size, the date of its oldest record, and two settings.
+Each card shows the number of records, the size on disk (including records in cold storage), the date of the oldest record, and two settings:
 
-| Setting | What it does |
-|---|---|
-| Delete after | A record is deleted this many days after it happened, wherever it is stored by then. Allowed values: 1 to 36,500 days. |
-| Move to cold storage after | Records older than this many days move to cold storage. `0` keeps everything on the local disk. The value must be lower than **Delete after**. Available only after cold storage is set up. |
+| Setting | What it does | Allowed values |
+|---|---|---|
+| Delete after | A record is deleted this many days after it happened, wherever it is stored by then. | 1 to 36,500 days |
+| Move to cold storage after | Records older than this many days move to cold storage and stay searchable. `0` keeps everything on the local disk. Greyed out until cold storage is set up ("Set up cold storage below to move older records off local disk."). | 0, or fewer days than **Delete after** |
 
-Alerts are kept as long as logs by default, because an alert's evidence is its logs. Statistics are kept longer because they are the usage record.
+Click **Save** on the card to apply its values. **Save** stays greyed out until you change something, and while **Move to cold storage after** is neither `0` nor lower than **Delete after** ("Records have to move before they are deleted: use fewer days than the lifetime, or 0.").
 
-## Change how long data is kept
+Once a dataset moves records to cold storage, the card shows "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here." You can still change both numbers, but you cannot set **Move to cold storage after** back to `0`.
+
+### Change how long data is kept
 
 <Steps>
 
@@ -44,43 +52,60 @@ On the dataset card, enter the number of days in **Delete after**, and in **Move
 
 <Step title="Save">
 
-Click **Save** on that card.
+Click **Save** on that card. "Retention saved" confirms the change.
 
 </Step>
 
 </Steps>
 
-<Note>
+<Warning>
 
-The event store keeps records in monthly blocks and deletes a block when all of its records are past the limit. Data can therefore stay up to about one month longer than the number of days you set.
+Lowering **Delete after** deletes the older records for good, in the background. UTMStack has no built-in backup or snapshot of logs and alerts.
 
-</Note>
+</Warning>
 
-Lowering **Delete after** deletes the older records for good. UTMStack has no built-in backup or snapshot of logs and alerts, so plan your retention before you lower it.
+The event store keeps records in monthly blocks and deletes a block only when all of its records are past the limit. Data can therefore stay up to about one month longer than the number of days you set. Keep **Alerts** at least as long as **Logs**: an alert's evidence is its logs.
 
-## Cold storage
+## Cold storage card
 
-Cold storage is a second, slower place where the event store keeps older records. Records in cold storage stay searchable from the same screens as before. It is not an archive: nothing needs to be restored before you can search it.
+Cold storage is a second, slower place where the event store keeps older records. It is not an archive: records in cold storage are searched from the same pages as before and nothing has to be restored. It is not a backup either: retention deletes records there too, and records in S3 or Azure cannot be read without the UTMStack server's own disk.
 
-You can use one of three types:
+The card shows **In use** when cold storage is active and **Not set up** otherwise. Choose a **Type**:
 
-| Type | Fields |
+| Type | Fields | Guide |
+|---|---|---|
+| S3-compatible object store | **Bucket URL**, **Access key**, **Secret key**, or the box **Use the server's IAM role instead of keys** (Amazon S3 on AWS only) | **Cold Storage with Amazon S3**, **Cold Storage with S3-Compatible Stores** |
+| Azure Blob Storage | **Storage account URL**, **Container**, **Account name**, **Account key** | **Cold Storage with Azure Blob Storage** |
+| Local folder or NFS | None. Records move to `/utmstack/clickhouse/cold` on the server, which is `/mnt/utmstack-cold` inside the event store. | **Cold Storage on a Local Folder or NFS** |
+
+The **Bucket URL** must include the bucket, for example `https://s3.eu-west-1.amazonaws.com/utmstack-cold/`. For Google Cloud Storage, use `https://storage.googleapis.com/<bucket>/` with HMAC keys.
+
+| Button | What it does |
 |---|---|
-| S3-compatible object store | **Bucket URL**, **Access key**, **Secret key**, or **Use the server's IAM role instead of keys**. Works with AWS S3, MinIO, Ceph, Wasabi, Cloudflare R2 and Google Cloud Storage (endpoint `https://storage.googleapis.com/<bucket>/` with HMAC keys). |
-| Azure Blob Storage | **Storage account URL**, **Container**, **Account name**, **Account key** |
-| Local folder or NFS | No fields. Records move to `/utmstack/clickhouse/cold` on the server. |
+| **Enable cold storage** | Shown before cold storage is set up. For S3 and Azure, the event store writes a small test file to the destination, reads it back and deletes it; if that fails, you get the reason at once and nothing changes. For a local folder, UTMStack checks that the event store can write to it. |
+| **Update credentials** | Shown once cold storage is set up. Saves new keys (or the IAM role choice) for the same destination. The event store does not repeat the test for a destination it already uses, so check that cold storage still works afterwards. |
 
-The Bucket URL must include the bucket name, for example `https://s3.example.com/utmstack-cold/`.
+The keys are stored on the server for the event store and are never shown again or written to the audit log. Leave the key fields empty only when you use the IAM role.
 
-To speed up searches on cold data, the event store keeps a local cache of up to 10 GiB.
+When cold storage is set up, the card also says: "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it."
 
-### Set up cold storage
+<Warning>
+
+- Records already moved are not copied when you change the destination. They stay in the old bucket, container or folder and can no longer be read from UTMStack.
+- Once a dataset moves records to cold storage, you cannot set it back to local-only from this page.
+- With **Azure Blob Storage**, the card fills **Storage account URL** with the account address followed by the container name. Remove the container part before you click **Update credentials**. See **Cold Storage with Azure Blob Storage**.
+
+</Warning>
+
+If the card shows "The bucket is configured but the store has not picked it up", see **Troubleshooting Retention and Cold Storage**.
+
+## Set up cold storage
 
 <Steps>
 
 <Step title="Prepare the destination">
 
-Create the bucket or container and the credentials UTMStack will use. For **Local folder or NFS**, see the section below.
+Create the bucket, container, disk or share, and the credentials UTMStack will use, with the guide for your type.
 
 </Step>
 
@@ -98,41 +123,17 @@ Select the **Type** and fill in its fields.
 
 <Step title="Enable">
 
-Click **Enable cold storage**. The event store writes a test object to the destination. If the bucket or the keys are wrong, you get an error at once and nothing changes. When it works, the card shows **In use**.
+Click **Enable cold storage**. When it works, you see "Cold storage configured" and the card shows **In use**.
 
 </Step>
 
 <Step title="Choose what moves">
 
-On each dataset card, set **Move to cold storage after** and click **Save**.
+On each dataset card, set **Move to cold storage after** and click **Save**. Records older than that move in the background.
 
 </Step>
 
 </Steps>
-
-To change the keys later, enter the new ones and click **Update credentials**.
-
-### Local folder or NFS
-
-With **Local folder or NFS**, records move to the folder `/utmstack/clickhouse/cold` on the UTMStack server. Inside the event store container this folder is `/mnt/utmstack-cold`.
-
-To keep cold records on another server, mount an NFS share over `/utmstack/clickhouse/cold`. The share must be mounted before the UTMStack services start. For example:
-
-```bash
-sudo mount -t nfs REMOTE-SERVER:/remote/path /utmstack/clickhouse/cold
-```
-
-Replace `REMOTE-SERVER:/remote/path` with your server and path, and add the mount to `/etc/fstab` so that it is mounted again after a restart.
-
-### Rules to know before you start
-
-<Warning>
-
-- Once a dataset has moved records to cold storage, you cannot set it back to local-only from this page. Going back needs the table to be rebuilt.
-- The bucket cannot be changed once records live in it. You can change the credentials at any time.
-- If you switch to another destination, the records already moved are not copied. They stay where they are and can no longer be read from UTMStack until you copy them to the new destination yourself.
-
-</Warning>
 
 ## Other data that UTMStack removes automatically
 
@@ -142,4 +143,11 @@ Replace `REMOTE-SERVER:/remote/path` with your server and path, and add the moun
 | Notifications | Read ones 30 days, all 365 days (see **Notifications**) |
 | Compliance report contents | 730 days |
 
-Changes to retention and cold storage are recorded in the **App Audit Logs**. Credentials are never written to the log.
+Changes to retention (`retention.update`) and cold storage (`cold_storage.set`) are recorded in the **App Audit Logs**. Credentials are never written to the log.
+
+## Storage and Retention pages
+
+- **How UTMStack Stores Data**: the event store, monthly blocks, what retention and cold storage do.
+- **Planning Retention and Disk Space**: how long to keep data and how much disk it needs.
+- **Cold Storage with Amazon S3**, **Cold Storage with S3-Compatible Stores**, **Cold Storage with Azure Blob Storage**, **Cold Storage on a Local Folder or NFS**: complete setups.
+- **Troubleshooting Retention and Cold Storage**: every message on this page and what to do.

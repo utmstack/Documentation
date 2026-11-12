@@ -1,0 +1,146 @@
+UTMStack v12 has no built-in backup. This page explains what you need to protect, how to back up the configuration and the whole server with standard tools, and what you can and cannot restore today.
+
+## What UTMStack does and does not do
+
+| Question | Answer |
+|---|---|
+| Does UTMStack back up logs and alerts? | No. There is no backup, snapshot or export job for logs and alerts. |
+| Does UTMStack back up its configuration? | No. Users, tenants, settings, rules, flows, incidents and agent registrations are in a PostgreSQL database that UTMStack does not back up. |
+| Is cold storage a backup? | No. Data moved to cold storage is still part of the live database and is deleted by the same retention rules. The bucket or share holds the data, but the list of what is where is kept on the server, under `/utmstack/clickhouse/data`. Without the server, the cold storage files cannot be read by a new installation. |
+| Can deleted data be recovered? | No. Data removed by retention, by deleting a tenant, or by uninstalling is gone. |
+
+So you need your own backups. Choose what to protect from the table below.
+
+## What to protect
+
+| Item | Where | Why it matters |
+|---|---|---|
+| Installer settings and secrets | `/root/utmstack.yml` | Holds the database password and the internal key. The internal key also encrypts the secrets stored in the database (mail password, identity provider and integration credentials, SOC-AI keys, two-step sign-in secrets). A database backup is of little use without this file. |
+| Configuration database | PostgreSQL databases `utmstack` and `agentmanager`, in the Docker volume `utmstack_postgres_data` | Users, roles, tenants, settings, incidents, dashboards, compliance, response flows, notifications, audit log, integrations, and the registration of every agent and collector. |
+| Instance identity and licence | `/utmstack/updates` (`instance-config.yml`, `LICENSE`, `memory-allocation.json`, `version.json`) | The instance ID ties your licence to this server. |
+| Certificates | `/utmstack/cert` | Your SSL certificate and key, and the certificate authority the installer created. Keep your own certificate files elsewhere too. |
+| Rules, pipelines, flows and compliance files | `/utmstack/events-engine-workdir` | The event processor's working files. |
+| Cold storage settings | `/utmstack/clickhouse/config.d` | Where cold storage is and how to reach it, including its access keys. |
+| Uploaded images | `/utmstack/uploads` | Avatars and branding images. |
+| Logs, alerts and statistics | `/utmstack/clickhouse/data` (and your cold storage) | The largest part. Usually protected with disk snapshots, if at all. |
+
+<Warning>
+
+Backups of `/root/utmstack.yml`, the database and `/utmstack/clickhouse/config.d` contain secrets. Store them encrypted, off the server, where only administrators can read them.
+
+</Warning>
+
+## Back up the configuration
+
+This backup is small and quick, and it runs while UTMStack keeps working. Run it daily, for example from cron, and copy the result to another system.
+
+Run the commands as root. Start a root shell with `sudo -i`.
+
+<Steps>
+  <Step title="Create a backup folder">
+
+    ```bash
+    mkdir -p /root/utmstack-backup
+    chmod 700 /root/utmstack-backup
+    cd /root/utmstack-backup
+    STAMP=$(date +%Y%m%d-%H%M)
+    ```
+
+  </Step>
+  <Step title="Dump the two PostgreSQL databases">
+
+    The dumps run inside the PostgreSQL container with PostgreSQL's own `pg_dump` tool:
+
+    ```bash
+    PG=$(docker ps -q -f name=utmstack_postgres)
+    docker exec "$PG" pg_dump -U postgres -d utmstack -Fc > "utmstack-db-$STAMP.dump"
+    docker exec "$PG" pg_dump -U postgres -d agentmanager -Fc > "agentmanager-db-$STAMP.dump"
+    ```
+
+  </Step>
+  <Step title="Copy the files">
+
+    ```bash
+    tar czf "utmstack-files-$STAMP.tar.gz" \
+      /root/utmstack.yml \
+      /utmstack/updates \
+      /utmstack/cert \
+      /utmstack/events-engine-workdir \
+      /utmstack/clickhouse/config.d \
+      /utmstack/uploads
+    ```
+
+  </Step>
+  <Step title="Check the dumps">
+
+    A dump that PostgreSQL can list is readable:
+
+    ```bash
+    docker exec -i "$PG" pg_restore --list < "utmstack-db-$STAMP.dump" | head
+    ls -lh /root/utmstack-backup
+    ```
+
+  </Step>
+  <Step title="Move the backup off the server">
+
+    Copy the files to another system, for example with `scp`, `rsync` or your backup software, and delete old copies on the server so they do not fill the disk.
+
+  </Step>
+</Steps>
+
+## Back up the whole server with disk snapshots
+
+A snapshot of all the server's disks, taken by your hypervisor or cloud, protects everything at once, including logs and alerts. It is the most complete backup you can make.
+
+- **Take all disks at the same moment.** If `/` and `/utmstack` are separate disks, snapshot them together: the database on `/` and the data on `/utmstack` must match. Use your platform's option for snapshots of several disks at once (for example a multi-volume snapshot in AWS, or a virtual machine snapshot in your hypervisor).
+- **For the most reliable snapshot, stop UTMStack first.** This interrupts log collection for the time of the snapshot. Agents keep their logs and send them later. Devices that send through the UTMStack Forwarder may lose logs sent while the server is stopped.
+
+<Steps>
+  <Step title="Stop the update service and Docker">
+
+    ```bash
+    sudo systemctl stop UTMStackComponentsUpdater
+    sudo systemctl stop docker.socket docker.service
+    ```
+
+  </Step>
+  <Step title="Take the snapshot">
+
+    Snapshot all disks of the server in your hypervisor or cloud console.
+
+  </Step>
+  <Step title="Start Docker and the update service again">
+
+    ```bash
+    sudo systemctl start docker
+    sudo systemctl start UTMStackComponentsUpdater
+    ```
+
+    Docker starts all UTMStack services by itself. After a few minutes, check them with `sudo docker service ls`. See **Health Checks and Troubleshooting**.
+
+  </Step>
+</Steps>
+
+## Restoring
+
+| Situation | What you can do |
+|---|---|
+| You need the server back as it was | Restore all disks from the same snapshot and start the server. It comes back with its data, settings, licence and agent registrations as of the snapshot. Logs that agents sent after the snapshot are not in it. |
+| You lost a single setting or rule | Look it up in the configuration backup (the database dump or the files) and enter it again in the console. |
+| You need to rebuild the server from the configuration backup | There is no published procedure to load a configuration backup into a new UTMStack v12 installation. Contact UTMStack support and keep your backup files ready. |
+
+<Warning>
+
+Never run the original server and a restored copy at the same time. Both would use the same instance ID and licence.
+
+</Warning>
+
+After any restore, check the server as described in **Health Checks and Troubleshooting**, and check that agents connect again on **Configure > Data Sources**.
+
+## Protect the data you keep
+
+Backups are one part. Also:
+
+- **Plan retention before you lower it.** Lowering **Delete after** in **Configure > Settings > Data Retention** deletes older records for good. See **Data Retention and Cold Storage**.
+- **Keep an eye on the disk.** A full disk loses incoming logs. See **Sizing and Capacity Planning**.
+- **Be careful with uninstall.** The uninstaller deletes the licence and the instance identity and cleans Docker on the whole server. See **Uninstall**.

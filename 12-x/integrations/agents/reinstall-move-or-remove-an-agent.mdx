@@ -1,0 +1,101 @@
+This page explains how to reinstall a UTMStack v12 agent, move a host to another UTMStack server or tenant, handle renamed and cloned machines, and remove an agent for good. The same steps apply to Windows, Linux and macOS agents.
+
+## How UTMStack recognises an agent
+
+When an agent installs, it registers with the UTMStack server and receives its own ID and key, which it keeps in `config.yml` in the agent folder. UTMStack identifies the machine by its **host name and network card (MAC) address**:
+
+- If a machine with the same host name and MAC address is already registered, a new install gets the **same agent ID** back. If either changed, the install creates a new agent registration.
+- The agent's uninstall command removes its registration from the server, so the next install starts fresh.
+- The row on the **Data Sources** page is matched by host name and data type, not by agent ID. A host that keeps its name keeps its row, with its labels and asset sensitivity, across reinstalls. A renamed host gets a new row, and the old one stays until you delete it.
+- The agent belongs to the tenant whose connection key was in the install command.
+
+The agent cannot be pointed at another server or tenant by editing its files. To change either, uninstall and install again.
+
+## Reinstall an agent on the same server
+
+Use this to repair a broken install or to apply a different install option (for example to turn remote commands back on after you used **Disable remote command execution on this host**).
+
+<Steps>
+  <Step title="Uninstall">
+    Open the agent's card in **Configure > Integrations**, choose the platform, expand **Uninstall the agent** and run the command on the host.
+  </Step>
+  <Step title="Install">
+    Copy the install command from the same card, with the options you want, and run it on the host.
+  </Step>
+  <Step title="Check">
+    The host returns on the **Data Sources** page within about a minute. See **Updates and Status**.
+  </Step>
+</Steps>
+
+If you run the install command while an agent is still installed, it stops with `UTMStackAgent service is already installed`.
+
+## Move a host to another UTMStack server
+
+Use this when you build a new UTMStack server, or move a host between two separate installations.
+
+<Steps>
+  <Step title="Uninstall while the old server is reachable">
+    Run the uninstall command on the host. It removes the agent's registration from the old server. If the old server is already gone, the uninstall still removes the agent from the host; it only logs that it could not reach the old server.
+  </Step>
+  <Step title="Install from the new server">
+    Copy the install command from the new server's **Configure > Integrations** page (it contains the new server's address and connection key) and run it on the host.
+  </Step>
+  <Step title="Clean up the old server">
+    If the old server keeps running, delete the host's row on its **Data Sources** page.
+  </Step>
+</Steps>
+
+<Note>
+
+An agent whose server no longer accepts it keeps retrying and does not register again on its own (see **Agent Command Line**). Reinstall it from the new server.
+
+</Note>
+
+## Change the server address agents use
+
+Agents keep the server address they were installed with. If you change the server's DNS name, keep the old name resolving to the server too, or reinstall each agent with a command copied from the new address. If only the server's IP address changes and agents use a DNS name, update the DNS record; nothing needs to change on the hosts.
+
+With **Skip TLS certificate validation** turned off, agents also check the server's certificate. Make sure a new certificate covers the name the agents use. See **SSL Certificate**.
+
+## Move a host to another tenant
+
+On a multi-tenant installation, an agent belongs to the tenant whose install command was used.
+
+1. Run the uninstall command on the host while it can still reach UTMStack. This removes its registration from the old tenant.
+2. Enter the new tenant, open **Configure > Integrations**, and copy the install command there. It contains the new tenant's address and connection key.
+3. Run it on the host.
+4. Delete the host's old row on the old tenant's **Data Sources** page.
+
+Always uninstall first. Logs already stored stay in the old tenant.
+
+## Renamed hosts and new network cards
+
+A host whose name or MAC address changed registers as a new agent the next time you install it. The running agent keeps working under its old registration until then. To bring the entry up to date after a rename, reinstall the agent, then delete the row with the old name on the **Data Sources** page.
+
+## Cloned machines, templates and images
+
+Do not install the agent in a virtual machine template, a golden image or a backup you restore to other machines. Every copy would carry the same `config.yml`, report as the same agent and mix its logs with the others.
+
+- Install the agent on each machine after it has its final host name. Use **Deploying Agents at Scale** to do it automatically.
+- If an image already contains the agent, run the uninstall command on each clone, then install again.
+
+## Remove an agent for good
+
+<Steps>
+  <Step title="Uninstall on the host">
+    Run the uninstall command from the agent's card. It stops the services, removes the agent's registration, removes what the agent set up (for example the Linux audit rules) and deletes the agent folder.
+  </Step>
+  <Step title="Delete the data source">
+    On **Configure > Data Sources**, open the host and click **Delete data source**, then **Confirm delete**. Its stored logs stay searchable in Log Explorer until your retention period removes them.
+  </Step>
+</Steps>
+
+What stays on the host after uninstall:
+
+| System | What remains | What to do |
+|---|---|---|
+| Windows | The audit policy, PowerShell logging and event channel settings the agent turned on | Restore your previous policy if you need to. See **Windows Agent**. |
+| Linux | The `auditd` package (if the agent installed it), running without the UTMStack rules | Remove it with your package manager if you do not use auditing. |
+| macOS | Nothing from the agent | — |
+
+If a machine is gone and you cannot run the uninstall command, delete its row on the **Data Sources** page. If its registration is still on the server, the row comes back within about a minute with the status **Offline**; it does no harm and stays Offline.

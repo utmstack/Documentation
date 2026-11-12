@@ -1,4 +1,4 @@
-UTMStack v12 collects ESET PROTECT detections and events through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the ESET integration on a Collector, then turn on syslog export in the ESET PROTECT console. Nothing is installed on your endpoints.
+UTMStack v12 collects ESET PROTECT detections and audit events through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the ESET integration on a Collector, then turn on syslog export in the ESET PROTECT console in JSON format. Nothing is installed on your endpoints.
 
 ## Connection details
 
@@ -7,69 +7,122 @@ UTMStack v12 collects ESET PROTECT detections and events through the **UTMStack 
 | Card on the Integrations page | **Eset** (category Antivirus) |
 | Data type | `antivirus-esmc-eset` |
 | Default ports on the Collector | 7003/UDP; 7003/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 14 detection rules |
+| Format UTMStack expects | ESET's **JSON** export inside a syslog message (BSD or RFC 5424 header) |
+| Parsing pipeline | `antivirus/esmc-eset.yaml` (version 3.2.1). The **Filters** button in the drawer opens it. |
+| Detection rules | 14 rules for the `antivirus-esmc-eset` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The ESET PROTECT server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The ESET PROTECT server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between. With ESET PROTECT Cloud, the events come from the internet: allow only ESET's addresses and prefer TLS.
 - You need the `integrations.write` permission to enable the integration from the web interface.
+
+<Tip>
+
+ESET's JSON events are often longer than 2,048 bytes, the most the Collector reads from one UDP message. Use **TCP** or **TLS** for ESET so that long events arrive whole.
+
+</Tip>
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Eset** card.
+
+    ![ESET PROTECT setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/0ff9c9aa-8e99-4a3a-a58c-a61c50d9c8ef)
+
+    The guide selects **UDP**; use **TCP** or **TLS** for ESET, as explained above. A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7003** below.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The **Port** fills in with the default, 7003.
   </Step>
   <Step title="Enable it">
-    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7003`.
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · tcp · port 7003`.
   </Step>
 </Steps>
 
-To do the same on the Collector host instead, run:
+To do the same on the Collector host instead, run (TCP shown):
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration antivirus-esmc-eset 7003 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration antivirus-esmc-eset 7003 tcp
 ```
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a port other than 7003
+
+The Collector listens on the port stored on the Collector host: 7003 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port, for example to 7103 over TCP:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port antivirus-esmc-eset tcp 7103
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+Only one data type can listen on a given port and protocol on one Collector.
+
 ## Step 2: Turn on syslog export in ESET PROTECT
 
-<Steps>
-  <Step title="Open the More menu">
-    In the ESET PROTECT console sidebar, click **More**.
-  </Step>
-  <Step title="Open Server settings">
-    Under **More**, open **Server settings**.
-  </Step>
-  <Step title="Expand Advanced settings">
-    Click **Advanced settings** to show all options.
-  </Step>
-  <Step title="Configure the syslog server">
-    Scroll to **Syslog server**, enable **Export logs to Syslog**, and set the destination to the Collector host on port 7003 (UDP).
-  </Step>
-</Steps>
+The menu path depends on your ESET PROTECT version. The setup guide in UTMStack shows the path used by earlier versions. In both cases, choose the **JSON** format.
+
+<Accordion multiple={true}>
+  <AccordionTab title="Current ESET PROTECT versions (for example On-Prem 13.1 and ESET PROTECT Cloud)" icon="pi pi-server">
+
+  1. In the ESET PROTECT console, go to **More > Settings > Export** and click **Add Syslog server**.
+  2. Turn on **Enable syslog settings to send events**.
+  3. Under the log settings, select the event types you want, for example **Detection** and **Audit**. Leave **Notification** off: ESET sends notifications as plain text, which the UTMStack filter does not read.
+  4. Set **Host** to the Collector host and **Port** to 7003.
+  5. Set **Format** to **JSON**. **Version** can be **BSD** or **Syslog**; UTMStack reads both.
+  6. Set **Transport protocol** to the protocol you enabled in step 1 (**TCP** recommended, or **TLS**).
+  7. Click **Finish**.
+
+  </AccordionTab>
+  <AccordionTab title="Earlier ESET PROTECT versions (as in the UTMStack setup guide)" icon="pi pi-server">
+
+  1. In the ESET PROTECT console sidebar, click **More**.
+  2. Open **Server settings**.
+  3. Click **Advanced settings** to show all options.
+  4. Scroll to **Syslog server**, enable **Export logs to Syslog**, and set the destination to the Collector host on port 7003, over the protocol you enabled in step 1.
+  5. Where ESET asks for the format of the exported logs, choose **JSON**.
+  6. Save the settings.
+
+  </AccordionTab>
+</Accordion>
 
 <Note>
 
-The UTMStack v12 parsing filter for ESET reads ESET's JSON event export. If the console lets you choose the format of exported logs, choose JSON.
+The setup guide in UTMStack says that ESET sends LEEF. The UTMStack v12 parsing filter for ESET reads only the JSON format, so choose JSON. Events sent in LEEF or CEF are stored but not split into fields.
 
 </Note>
 
 ## Step 3: Check that logs arrive
 
-- In the **Eset** drawer, click **View logs**. Log Explorer opens with the `antivirus-esmc-eset` data type for the last 24 hours.
-- Within about 10 minutes, the ESET PROTECT server appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+1. Wait for a detection, or make a change in the ESET PROTECT console so that an audit event is written.
+2. In the **Eset** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `antivirus-esmc-eset` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show the ESET fields, such as `log.event_type`, and the `errors` field should be empty.
+4. Within about 20 minutes, the ESET PROTECT server appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from. All your endpoints' events arrive through this one source.
 
 ## Stop collecting
 
 In the **Eset** card, select the same Collector and click **Disable integration**, or run on the Collector host:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration antivirus-esmc-eset udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration antivirus-esmc-eset tcp
 ```
+
+Disable with the same protocol you enabled (`udp` or `tcp`; TLS uses `tcp`). Then remove the syslog server in ESET PROTECT.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | On the Collector host, run `sudo systemctl status UTMStackForwarder` and read `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`. See **Forwarder Troubleshooting**. |
+| The Collector is online but no events arrive | ESET sends to the wrong address, port or protocol, or a firewall blocks the port | Check the syslog server settings in ESET PROTECT against step 1. On the Collector host, `sudo ss -lntup` lists the open ports: look for 7003. |
+| **Enable integration** fails with "port 7003 is already in use by integration '…'" or "… by another process" | Another data type or another program already listens on that port and protocol | Use another port with `change-port` (see step 1), or stop the other listener. |
+| Events arrive but parsed fields are missing and `errors` is not empty | The export format is LEEF or CEF, or the events are notifications in plain text | Set the format to **JSON** and leave **Notification** out of the exported event types. |
+| Events are cut off and do not parse | The integration uses UDP, which carries at most 2,048 bytes per message to the Collector | Enable TCP or TLS on the Collector and set the same transport in ESET PROTECT. |
+| Over TCP or TLS the connection keeps closing | The Collector reads a message that starts with a digit as a length prefix (octet counting) and accepts at most 8,192 bytes this way | Keep ESET's normal syslog header, which starts with `<`. If you turn on **Octet-counted framing**, keep events under 8,192 bytes. |
+| TLS does not connect | The Collector log shows "TLS handshake failed" (ESET does not trust the certificate) or "TLS connection rejected … TLS is disabled, only plain text connections accepted" (ESET uses TLS on a plain TCP listener) | Use the same choice on both sides. For TLS, load a certificate ESET trusts. See **UTMStack Forwarder**. |

@@ -8,14 +8,16 @@ Reading the audit log needs the `audit.read` permission. All three built-in role
 
 ## What the page shows
 
+![The audit log page with the four summary numbers, the Filters panel and the table of entries with timestamp, actor, action, resource, status and IP](/assets/527c6ec1-4e8f-40f8-af3e-cde265f9f039)
+
 At the top, four numbers summarize the log:
 
 | Number | Meaning |
 |---|---|
 | Total entries | How many entries the log holds |
-| Success rate | The share of recorded actions that succeeded |
-| Top action | The most frequent action on the current page |
-| Unique actors | How many different users (and the system) appear |
+| Success rate | The share of actions on the current page that succeeded |
+| Top action | The most frequent action area (the part of the action name before the first dot, for example `auth`) on the current page |
+| Unique actors | How many different users (and the system) appear on the current page |
 
 The table lists one entry per action, with the columns **Timestamp**, **Actor**, **Action**, **Resource**, **Status** (Success or Failure) and **IP**. Click **View** on an entry to open it. The **Overview** tab shows the actor, resource, user agent, session, metadata and any error; the **Raw JSON** tab shows the complete entry, with **Copy JSON**.
 
@@ -25,7 +27,7 @@ The table lists one entry per action, with the columns **Timestamp**, **Actor**,
 |---|---|
 | Last 24h | Show only the last day |
 | Failures only | Show only actions that failed |
-| Auth events | Show only sign-in related actions |
+| Auth events | Show only sign-in related actions (it sets **Action prefix** to `auth.`) |
 | Action prefix | Show actions whose name starts with some text, for example `auth.` or `user.update` |
 | Status | Choose Success, Failure or Any |
 | Resource type | Show actions on one kind of object, for example `user` or `alert` |
@@ -54,9 +56,22 @@ Action names start with the area they belong to. Some useful prefixes for the **
 | `dashboard.`, `visualization.` | Changes to dashboards and widgets |
 | `mcp.tools.call` | Tools called by AI assistants through the MCP server |
 
+## Common searches
+
+| To find | Use |
+|---|---|
+| Failed sign-ins | **Auth events** and **Failures only** |
+| Failed single sign-on attempts, and the reason | Action prefix `auth.sso`, **Failures only**; open the entry |
+| Who changed a user's roles or deactivated a user | Action prefix `user.`, and **User** or **Resource id** for the person |
+| Who changed retention or cold storage | Action prefix `retention.` or `cold_storage.` |
+| Who changed email, date or language settings | Action prefix `config.` |
+| What an API key or AI assistant did | **User**: the key owner; action prefix `mcp.tools.call` for assistant tool calls |
+
+The audit log records what changed and who changed it. It is not a full history of every click: viewing pages, for example, is not recorded.
+
 ## Audit logs and tenants
 
-On a multi-tenant licence, each tenant has its own audit log. When the instance operator works inside a tenant during a support session, those actions are recorded in that tenant's log. See **Support Access**.
+On a multi-tenant licence, each tenant has its own audit log. When the instance operator works inside a tenant during a support session, those actions are recorded in that tenant's log. See **Support Access** and **Multi-Tenancy Overview**.
 
 ## How long entries are kept
 

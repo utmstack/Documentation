@@ -7,30 +7,38 @@ UTMStack v12 collects Oracle Database audit, listener and alert logs through the
 | Card on the Integrations page | **Oracle** (category Database) |
 | Data type | `oracle` |
 | Default ports on the Collector | 7021/UDP; 7021/TCP (also used for TLS) |
-| Included in UTMStack | No parsing filter and no detection rules (see the warning below) |
+| Format UTMStack expects | Syslog lines sent by rsyslog, tagged `oracle-audit`, `oracle-listener` and `oracle-alerts` |
+| Parsing pipeline | None in UTMStack v12.0.2 |
+| Detection rules | None in UTMStack v12.0.2 |
+
+<Warning>
+
+UTMStack v12.0.2 ships no parsing pipeline and no detection rules for the `oracle` data type. Oracle logs arrive and you can search their text in Log Explorer, but they are not split into fields and no alert is raised from them. To use them in rules, add your own pipeline for the `oracle` data type under **Pipelines** (see **Pipelines** and **Testing Pipelines and Rules**).
+
+</Warning>
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
 - The Oracle server must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
-- You need the `integrations.write` permission to enable the integration from the web interface.
-- rsyslog must be installed on the same server as your Oracle Database, with the `imfile` module enabled.
-- Oracle must write its audit, listener and alert logs to files.
-
-<Warning>
-
-UTMStack v12.0.2 ships no parsing filter and no detection rules for the `oracle` data type. Oracle logs arrive and can be searched as text in Log Explorer, but they are not split into fields and no alert is raised from them. To use them in rules, add a parsing filter for `oracle` under **Pipelines**.
-
-</Warning>
+- You need the `integrations.write` permission to enable the integration from the web interface, and root access on the Oracle server.
+- rsyslog must be installed on the same server as your Oracle Database.
+- Oracle must write the logs you want to files:
+  - **Audit files** (`.aud` in the `adump` folder). Oracle writes them when traditional auditing sends records to the operating system (`AUDIT_TRAIL=OS`) and for audited `SYS` operations. With unified auditing, most audit records are stored inside the database instead. Ask your database administrator which applies.
+  - **Listener log** (`listener.log`) and **alert log** (`alert_<SID>.log`), which Oracle writes by default.
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Oracle** card.
+
+    ![Oracle Database setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/4bef4140-ce28-4ee3-bc08-aa2e2b393fa0)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7021** below.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The **Port** fills in with the default, 7021.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7021`.
@@ -45,6 +53,21 @@ sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration oracle 7021 u
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a port other than 7021
+
+The Collector listens on the port stored on the Collector host: 7021 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port, for example to 7121 over UDP:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port oracle udp 7121
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+Only one data type can listen on a given port and protocol on one Collector.
+
 ## Step 2: Configure rsyslog on the Oracle server
 
 <Steps>
@@ -57,6 +80,8 @@ To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder*
     Open `/etc/rsyslog.d/oracle-utmstack.conf` with your preferred editor and add the configuration below. Replace `BASEDIR` with your Oracle base path (for example `/u01/app/oracle`) and `<collector-ip>` with the address or host name of the Collector host.
 
     ```text
+    module(load="imfile")
+
     input(type="imfile"
         File="BASEDIR/admin/*/adump/*.aud"
         Tag="oracle-audit"
@@ -78,26 +103,49 @@ To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder*
     local5.* @<collector-ip>:7021
     ```
 
-    rsyslog sends over UDP by default. To send over TCP, write `@@<collector-ip>:7021` instead, and enable the integration with TCP in step 1.
+    The first line loads rsyslog's file input module (`imfile`). Leave it out if your main rsyslog configuration already loads `imfile`; rsyslog reports an error when a module is loaded twice. The UTMStack setup guide shows the same configuration without this line.
+
+    rsyslog sends over UDP with one `@`. To send over TCP, write `@@<collector-ip>:7021` instead, and enable the integration with TCP in step 1.
   </Step>
-  <Step title="Restart rsyslog">
+  <Step title="Check and restart rsyslog">
     ```bash
+    sudo rsyslogd -N1
     sudo systemctl restart rsyslog
     ```
+
+    `rsyslogd -N1` checks the configuration for errors without restarting.
   </Step>
 </Steps>
 
+<Note>
+
+The last line forwards everything rsyslog receives on the `local5` facility. If other programs on this server already log to `local5`, their messages also go to UTMStack under the `oracle` data type. Use another free facility (for example `local6`) in all four places if `local5` is taken.
+
+</Note>
+
 ## Step 3: Check that logs arrive
 
-Send three test messages from the Oracle server:
+1. Send three test messages from the Oracle server:
 
-```bash
-logger -p local5.info "Test Oracle Audit log message"
-logger -p local5.info "Test Oracle Listener log message"
-logger -p local5.info "Test Oracle Alert log message"
+   ```bash
+   logger -p local5.info "Test Oracle Audit log message"
+   logger -p local5.info "Test Oracle Listener log message"
+   logger -p local5.info "Test Oracle Alert log message"
+   ```
+
+2. In the **Oracle** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `oracle` data type for the last 24 hours. Type `Test Oracle` in the search box to find the messages.
+3. Within about 20 minutes, the Oracle server appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from.
+
+Because there is no parsing pipeline, each event holds the whole syslog line in its raw text. You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, raw
+FROM logs
+WHERE dataType = 'oracle'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
 ```
-
-Then, in the **Oracle** drawer, click **View logs** and search for the test messages. Within about 10 minutes, the Oracle server also appears on the **Data Sources** page under **Direct**.
 
 ## Stop collecting
 
@@ -106,3 +154,16 @@ In the **Oracle** card, select the same Collector and click **Disable integratio
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration oracle udp
 ```
+
+Disable with the same protocol you enabled. If you enabled TCP or TLS, use `tcp` in the command. Then delete `/etc/rsyslog.d/oracle-utmstack.conf` and restart rsyslog.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| The `logger` test messages do not arrive | rsyslog does not forward, the address, port or protocol is wrong, or a firewall blocks the port | Run `sudo rsyslogd -N1` and check `journalctl -u rsyslog` for errors. Check that `@` (UDP) or `@@` (TCP) matches the protocol you enabled. On the Collector host, `sudo ss -lntup` lists the open ports: look for 7021. |
+| Test messages arrive but no Oracle file content | rsyslog cannot read the Oracle files, or the paths do not match | Check that `BASEDIR` and the wildcards match your files. Make sure the user rsyslog runs as can read them (on some systems rsyslog does not run as root). Look for `imfile` errors in `journalctl -u rsyslog`. |
+| Listener and alert logs arrive, audit files do not | Oracle stores audit records in the database (unified auditing or `AUDIT_TRAIL=DB`), so no `.aud` files are written | Ask your database administrator. Only records written to `.aud` files can be read this way. |
+| One audit record arrives as several events | `imfile` reads the files line by line | This is expected. rsyslog can join lines with the `startmsg.regex` setting of `imfile`; see the rsyslog documentation. |
+| Events have no parsed fields | UTMStack v12.0.2 has no pipeline for `oracle` | Search the raw text, or add your own pipeline (see the warning above). |
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | See **Forwarder Troubleshooting**. |

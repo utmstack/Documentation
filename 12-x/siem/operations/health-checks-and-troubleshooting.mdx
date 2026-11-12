@@ -1,0 +1,385 @@
+This page shows how to check that a UTMStack v12 server is healthy, how to read the logs of each part, and how to fix the problems operators meet most often. All commands run on the UTMStack server as root, or with `sudo`.
+
+## What the web console tells you
+
+The console shows only part of the server's health:
+
+| Where | What it checks |
+|---|---|
+| **Overview > System health** | Whether the backend (the API) answers, and whether the SOC-AI engine answers. |
+| **Configure > Settings > About > System health** (instance operator) | Whether the backend answers. **Refresh** checks again. |
+| **Configure > Settings > Data Retention** (instance operator) | The disk badge, **Disk N% used**. It turns amber above 90%. It adds up every storage location the log database uses, including cold storage, so also check `df -h /utmstack`. |
+| **Configure > Data Sources** and **Data Processing** | Which sources send logs, and how many logs arrive and are dropped. |
+
+The console does not show the state of the queue, the event processor, ClickHouse or PostgreSQL, and it does not warn when logs stop arriving. Use the checks below, and consider sending UTMStack's own logs into UTMStack with **UTMStack Self-Monitoring**.
+
+## Quick health check
+
+Run these commands. The table after them shows what a healthy server returns.
+
+```bash
+# 1. Every UTMStack service is running
+sudo docker service ls --filter name=utmstack_
+
+# 2. The API answers through nginx
+curl -sk https://localhost/api/ping; echo
+
+# 3. The system services are active
+systemctl is-active docker nginx UTMStackComponentsUpdater
+
+# 4. Disk, memory and clock
+df -h / /utmstack
+free -m
+timedatectl | grep -i synchronized
+
+# 5. The queue of unprocessed logs is not growing (run it twice, a few minutes apart)
+sudo du -sh /utmstack/nats
+```
+
+| Check | Healthy result |
+|---|---|
+| Services | 10 services, each with `1/1` in the `REPLICAS` column. |
+| API | `{"status":"ok"}` |
+| System services | `active` three times. |
+| Disk | Below 90% used on both `/` and `/utmstack`. |
+| Memory | Some memory `available`. |
+| Clock | `System clock synchronized: yes` |
+| Queue | About the same size both times. A size that keeps growing means logs arrive faster than they are processed. |
+
+## Check each part
+
+| Part | Check | Healthy sign |
+|---|---|---|
+| nginx | `systemctl status nginx` and `sudo nginx -t` | `active (running)`; `syntax is ok` and `test is successful`. |
+| Web container | `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:10001/` | `200` |
+| Backend | `curl -sk https://localhost/api/ping` | `{"status":"ok"}`. Its log contains "database ready — migrations complete, starting backend" after each start. |
+| PostgreSQL | See the command below | One row with `1`. |
+| ClickHouse | See the commands in **Check that logs are arriving** | The query answers. |
+| Log intake | `sudo docker service logs --tail 50 utmstack_log-input` | "log input listening" after a start, and no repeated "cannot publish the log" or "cannot reach the log queue". |
+| Agent manager | `sudo docker service logs --tail 50 utmstack_agentmanager` | "Starting Agent Manager" after a start, and no repeated errors. |
+| Event processor | `sudo docker service logs --since 10m utmstack_event-processor-worker` | No repeated errors. New logs appear in Log Explorer. |
+| Update service | `systemctl status UTMStackComponentsUpdater` | `active (running)`. See **Updates**. |
+
+PostgreSQL:
+
+```bash
+PG=$(sudo docker ps -q -f name=utmstack_postgres)
+sudo docker exec "$PG" psql -U postgres -d utmstack -c 'SELECT 1'
+```
+
+Memory use of each container, compared with its limit:
+
+```bash
+sudo docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}'
+```
+
+## Read the logs
+
+Each UTMStack service writes its log to Docker. Read it with `docker service logs`:
+
+```bash
+# The last 200 lines, with time stamps
+sudo docker service logs --tail 200 --timestamps utmstack_backend
+
+# Everything from the last 30 minutes
+sudo docker service logs --since 30m utmstack_event-processor-worker
+
+# Follow new lines as they come (Ctrl+C to stop)
+sudo docker service logs -f utmstack_log-input
+```
+
+The service names are `utmstack_frontend`, `utmstack_backend`, `utmstack_agentmanager`, `utmstack_log-input`, `utmstack_nats`, `utmstack_event-processor-worker`, `utmstack_event-processor-manager`, `utmstack_clickhouse`, `utmstack_postgres` and `utmstack_valkey`.
+
+To see why a service stopped or failed to start, look at its task history. The `ERROR` column shows the reason:
+
+```bash
+sudo docker service ps --no-trunc utmstack_clickhouse
+```
+
+Other logs: the installer writes `/var/log/utmstack-installer.log`, the update service writes `/utmstack/updates/logs/utmstack-updater.log`, and nginx writes to `/var/log/nginx/`. See **Server Services and Files Reference**.
+
+<Note>
+
+Docker keeps at most 50 MB of log for each container, and a replaced container starts a new log. Copy what you need soon after a problem.
+
+</Note>
+
+## Check that logs are arriving
+
+These read-only queries run inside the ClickHouse container. They use the database password that the container already knows, so you do not have to type it.
+
+Logs stored in the last 10 minutes:
+
+```bash
+CH=$(sudo docker ps -q -f name=utmstack_clickhouse)
+sudo docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+SELECT count() AS logs_last_10_minutes
+FROM utmstack.logs
+WHERE `@timestamp` > now() - INTERVAL 10 MINUTE
+SQL
+```
+
+Logs of the last hour by data type, with the newest time stamp of each:
+
+```bash
+sudo docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+SELECT dataType, count() AS logs, max(`@timestamp`) AS newest
+FROM utmstack.logs
+WHERE `@timestamp` > now() - INTERVAL 1 HOUR
+GROUP BY dataType
+ORDER BY newest DESC
+SQL
+```
+
+Size of each table on disk:
+
+```bash
+sudo docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+SELECT table, formatReadableSize(sum(bytes_on_disk)) AS size, sum(rows) AS records, count() AS parts
+FROM system.parts
+WHERE active AND database = 'utmstack'
+GROUP BY table
+SQL
+```
+
+If alert pages become slow, look at the `parts` count of the `alerts` table: alerts are updated after they are written, and ClickHouse merges the versions in the background. A count that keeps growing means the merges are behind.
+
+## Restart a service
+
+```bash
+sudo docker service update --force utmstack_<service>
+```
+
+Docker replaces the service's container with a new one. Use it after you fixed a cause, for example after freeing disk space. After a server restart, Docker starts all UTMStack services by itself.
+
+## Collect information for support
+
+Before you contact UTMStack support or open a GitHub issue, collect the basic facts in one file:
+
+```bash
+sudo bash -c '
+OUT=/root/utmstack-support-$(date +%Y%m%d-%H%M)
+mkdir -p "$OUT"
+/usr/local/bin/utmstack_installer --version > "$OUT/version.txt" 2>&1
+cat /etc/os-release > "$OUT/os.txt"
+docker service ls > "$OUT/services.txt" 2>&1
+docker service ls --format "{{.Name}}" --filter name=utmstack_ | while read s; do
+  docker service ps --no-trunc "$s" > "$OUT/$s.tasks.txt" 2>&1
+  docker service logs --tail 1000 --timestamps "$s" > "$OUT/$s.log" 2>&1
+done
+tail -n 1000 /utmstack/updates/logs/utmstack-updater.log > "$OUT/updater.log" 2>&1
+tail -n 1000 /var/log/utmstack-installer.log > "$OUT/installer.log" 2>&1
+tail -n 500 /var/log/nginx/error.log > "$OUT/nginx-error.log" 2>&1
+df -h > "$OUT/disk.txt"; free -m > "$OUT/memory.txt"; timedatectl > "$OUT/time.txt"
+tar czf "$OUT.tar.gz" -C /root "$(basename "$OUT")"
+echo "Created $OUT.tar.gz"
+'
+```
+
+<Warning>
+
+Open the files and check them before you send them. Logs can contain IP addresses, user names and other personal data. Never send `/root/utmstack.yml`, `compose.yml`, licence files, your connection key or API keys.
+
+</Warning>
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+  <AccordionTab title="The browser shows the page We're getting things ready" icon="mi-sync">
+
+    nginx is running, but the web container on port 10001 does not answer yet. This is normal for a few minutes after an installation, an update or a server restart.
+
+    If it lasts longer:
+
+    ```bash
+    sudo docker service ls --filter name=utmstack_
+    sudo docker service ps --no-trunc utmstack_frontend
+    sudo docker service logs --tail 100 utmstack_frontend
+    ```
+
+    A service that shows `0/1` is not running. Its task history shows why. See the other entries on this page.
+
+  </AccordionTab>
+
+  <AccordionTab title="The web interface does not open at all" icon="hi-window-solid">
+
+    1. Use `https://` and the server's name or IP address.
+    2. Check that nginx runs and listens: `systemctl status nginx` and `sudo ss -tlnp | grep ':443'`.
+    3. If nginx is not running, test its settings with `sudo nginx -t`. A common cause is a certificate or key file that nginx cannot read; see **SSL Certificate**.
+    4. Check the firewall between your computer and the server for port 443. See **Network Ports and Firewall**.
+    5. On Red Hat Enterprise Linux, after a server restart, check that nginx starts at boot: `systemctl is-enabled nginx`. If it says `disabled`, run `sudo systemctl enable --now nginx`.
+
+  </AccordionTab>
+
+  <AccordionTab title="Pages load but show errors, or every API call answers 403" icon="pi pi-info-circle">
+
+    **Every API call answers 403.** nginx on the host and the web container must use the same shared key (`shared_key` in `/root/utmstack.yml`). After an update the installer restarts the web container so that both match. If that restart did not happen, restart it yourself:
+
+    ```bash
+    sudo docker service update --force utmstack_frontend
+    ```
+
+    **Pages show errors or never finish loading.** The backend is not ready. Read its log:
+
+    ```bash
+    sudo docker service logs --tail 200 utmstack_backend
+    ```
+
+    | Message in the backend log | Meaning and fix |
+    |---|---|
+    | "database not ready", then "failed to connect to database after 30 attempts" | PostgreSQL is not running or not reachable. Check `utmstack_postgres` with `docker service ps` and its log. Check free disk on `/`. |
+    | "failed to migrate database" | The database could not be updated to the installed version. Keep the log and contact UTMStack support. Do not change the database by hand. |
+    | "could not reach the event store; dashboards will not answer" | The backend cannot reach ClickHouse. See "ClickHouse does not start" below. |
+
+    During installation the same problem appears as a "backend start failure" after the installer has waited about 11 minutes.
+
+  </AccordionTab>
+
+  <AccordionTab title="A service shows 0/1 or keeps restarting" icon="hi-wrenchScrewdriver-outline">
+
+    ```bash
+    sudo docker service ps --no-trunc utmstack_<service>
+    sudo docker service logs --tail 200 utmstack_<service>
+    ```
+
+    - **`non-zero exit (137)` in the `ERROR` column** usually means the container was stopped because it reached its memory limit or the server ran out of memory. Check with `journalctl -k --since "1 hour ago"` and look for "Out of memory". Give the server more memory and run `sudo /usr/local/bin/utmstack_installer --recalculate-memory`, or raise that service's limit in `/utmstack/updates/memory-allocation.json` and run `--apply-memory`. See **Installer Reference**.
+    - **"No space left on device"** in the log: see "The disk is full" below.
+    - **Errors about certificate files** (log intake: "cannot read the certificate files"): the files in `/utmstack/cert` are missing or not readable. See **SSL Certificate**.
+
+  </AccordionTab>
+
+  <AccordionTab title="ClickHouse does not start" icon="pi pi-database">
+
+    Without ClickHouse, no logs are stored and Log Explorer, alerts and dashboards show errors.
+
+    ```bash
+    sudo docker service ps --no-trunc utmstack_clickhouse
+    sudo docker service logs --tail 300 utmstack_clickhouse
+    ```
+
+    Common causes:
+
+    - **Not enough memory.** The task stops with exit code 137, or the log mentions a memory limit. Give ClickHouse more memory (see the entry above).
+    - **The disk is full.** See below.
+    - **Cold storage cannot be reached.** If cold storage is set up (the file `/utmstack/clickhouse/config.d/utmstack-tiering.xml` exists), ClickHouse uses that bucket, container or share when it starts. Check that the credentials are still valid, that the server can reach the storage, and that an NFS share is mounted at `/utmstack/clickhouse/cold`. See **Data Retention and Cold Storage**.
+    - **File permissions.** ClickHouse runs inside its container as user ID 101. If the ownership of `/utmstack/clickhouse` was changed, for example by copying the folder, ClickHouse cannot read it.
+
+    Do not delete or move files inside `/utmstack/clickhouse/data` to fix a problem. That destroys stored logs and alerts.
+
+  </AccordionTab>
+
+  <AccordionTab title="The disk is full" icon="hi-exclamationTriangle-solid">
+
+    While the disk is full, ClickHouse and the queue cannot write, and logs that arrive in that time can be lost. Act quickly.
+
+    1. Find what fills the disk:
+
+       ```bash
+       df -h / /utmstack
+       sudo du -xh --max-depth=2 /utmstack | sort -h | tail -n 15
+       sudo docker system df
+       ```
+
+    2. Free space:
+       - **`/utmstack` is full:** add disk space (grow the disk, then the file system, for example `sudo resize2fs /dev/<data disk>` for ext4 or `sudo xfs_growfs /utmstack` for XFS), or lower **Delete after** in **Configure > Settings > Data Retention** so older data is deleted, or move older data to cold storage. See **Data Retention and Cold Storage**.
+       - **`/` is full:** remove Docker images that no container uses with `sudo docker image prune -a`, clean old system logs with `sudo journalctl --vacuum-size=500M`, or grow the disk.
+
+    3. Restart the services that failed: `sudo docker service update --force utmstack_clickhouse`, and any other service that shows `0/1`.
+
+    4. Watch the disk from now on. Size it as described in **Sizing and Capacity Planning**.
+
+  </AccordionTab>
+
+  <AccordionTab title="No new logs arrive" icon="hi-documentDuplicate-solid">
+
+    Work along the path a log takes:
+
+    1. **Is the source sending?** Check the agent or the UTMStack Forwarder on the source side, and its status on **Configure > Data Sources**.
+    2. **Does the server receive it?** Read the log intake log: `sudo docker service logs --since 30m utmstack_log-input`. "cannot publish the log" or "cannot reach the log queue" means the queue (`utmstack_nats`) has a problem: check that service and the free disk space.
+    3. **Is the queue being processed?** Run `sudo du -sh /utmstack/nats` twice, a few minutes apart. If it keeps growing, the event processor is behind or stopped: check `utmstack_event-processor-worker` with `docker service ps` and its log. The queue keeps unprocessed logs for at most 24 hours; older ones are removed.
+    4. **Are logs stored?** Run the "Logs stored in the last 10 minutes" query in **Check that logs are arriving**. If the count is 0 while the queue is processed, read the event processor log for errors about ClickHouse, and check ClickHouse.
+    5. **Are they parsed as expected?** Check **Data Processing** for dropped logs, and the pipeline of that data type. See **Pipelines**.
+
+  </AccordionTab>
+
+  <AccordionTab title="Agents or collectors cannot connect" icon="fa fa-plug">
+
+    Agents, the UTMStack Forwarder and collectors need only port 443 to the server. They use gRPC (a protocol that runs over HTTP/2) inside the encrypted connection, and keep that connection open.
+
+    1. **Test from the machine where the agent runs:**
+
+       ```bash
+       # Linux or macOS: the answer must be {"status":"ok"}
+       curl -k https://<server>/api/ping
+       ```
+
+       ```powershell
+       # Windows PowerShell: TcpTestSucceeded must be True
+       Test-NetConnection <server> -Port 443
+       ```
+
+    2. **Use the same address as in the install command.** If the agent was installed with a name, that name must resolve to the server.
+    3. **Proxies and inspection.** A proxy, firewall or load balancer that inspects TLS or does not pass HTTP/2 breaks agent connections. Exclude the UTMStack server from TLS inspection, or use a layer 4 (TCP) pass-through.
+    4. **No web application firewall on the host nginx.** A module such as ModSecurity holds the agents' long-lived connections, so registration still works but no logs, heartbeats or commands get through. Remove it, then run `sudo systemctl restart nginx`. A reload is not enough, because the old nginx processes keep the held connections.
+    5. **Certificate checks.** Agents installed with **Skip TLS certificate validation** accept the self-signed certificate. Agents installed without it need a certificate that their system trusts and that matches the server name. See **SSL Certificate**.
+    6. **Server side:** read `sudo docker service logs --since 30m utmstack_agentmanager` and `utmstack_log-input` for errors.
+
+    For logs on the agent's own machine, see **Windows Agent**, **Linux Agent**, **macOS Agent** or **UTMStack Forwarder**.
+
+  </AccordionTab>
+
+  <AccordionTab title="Certificate problems" icon="hi-key-outline">
+
+    - Browsers warn about the certificate: the server still uses the self-signed certificate, the certificate does not cover the name in the address bar, or the chain is incomplete.
+    - nginx does not start after a certificate change: the certificate and key do not belong together, or the key has a passphrase.
+    - The certificate expired: renew it and check the renewal job.
+
+    See **SSL Certificate** for the checks and fixes.
+
+  </AccordionTab>
+
+  <AccordionTab title="Times are wrong, or authenticator codes are refused" icon="pi pi-clock">
+
+    A server clock that is off causes wrong time stamps on logs and alerts, correlation rules that count events in the wrong time window, sign-in codes from authenticator apps that are refused (they change every 30 seconds), and certificate errors ("not yet valid").
+
+    ```bash
+    timedatectl
+    ```
+
+    If `System clock synchronized` is `no`, turn time synchronisation on (`sudo timedatectl set-ntp true`, or `sudo systemctl enable --now chronyd` on Red Hat Enterprise Linux) and check that the server can reach an NTP server (UDP port 123). See **Prepare the Server**.
+
+    Times shown in the console also depend on the time zone in **Configure > Settings > Date Format**. Data is always stored in UTC. See **Date, Time Zone and Language**.
+
+  </AccordionTab>
+
+  <AccordionTab title="Services do not start after the server's IP address changed" icon="pi pi-globe">
+
+    The installer sets up Docker Swarm with the server's IP address at installation. Docker recommends a fixed address, and a manager whose address changed may no longer start its services.
+
+    1. Check: `sudo docker node ls` and `sudo docker service ls`.
+    2. If possible, give the server its old address back.
+    3. Otherwise, Docker's documentation describes how to recover a manager whose address changed, with `docker swarm init --force-new-cluster --advertise-addr <new address>`. Take a snapshot of the server first, or ask UTMStack support to guide you.
+
+    Prevent this by giving the server a fixed address. See **Prepare the Server**.
+
+  </AccordionTab>
+
+  <AccordionTab title="Cockpit on port 9090 does not answer" icon="pi pi-server">
+
+    The installer installs Cockpit but, depending on the distribution, does not start it. Start it with:
+
+    ```bash
+    sudo systemctl enable --now cockpit.socket
+    ```
+
+    If you do not use Cockpit, keep port 9090 closed in your firewall, or stop it with `sudo systemctl disable --now cockpit.socket`.
+
+  </AccordionTab>
+
+  <AccordionTab title="Updates do not arrive or fail" icon="mi-sync">
+
+    See **Updates**.
+
+  </AccordionTab>
+
+</Accordion>

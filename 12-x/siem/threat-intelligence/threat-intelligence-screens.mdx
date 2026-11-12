@@ -14,12 +14,14 @@ Go to **Threat Intelligence > Indicators**.
 
 ### What the page shows
 
+![The Indicators page with the number matched in your env, the IOC matches chart with IP, URL, Domain and Signatures counts, the Lookup any indicator box, the IOCs, Threat actors and Feeds tabs, and the indicator table](/assets/a5e91ace-b9fb-46f0-b827-28201dcc415a)
+
 The header shows how many indicators were **matched in your env**: values from your own alerts that ThreatWinds knows. To find them, UTMStack takes up to 1,000 of the most frequent IP addresses, host names, domains, file hashes, URLs and email addresses from both sides of your tenant's top-level alerts and asks ThreatWinds which of them it knows. This list is refreshed every 5 minutes at most.
 
 When none of your values is known (and you have not set a search, filter or time range), the page shows general ThreatWinds data instead and says **No instance indicators — showing generic data**.
 
 - **IOC matches**: the number of indicators per family: **IP**, **URL**, **Domain** and **Signatures**.
-- **Lookup any indicator**: paste an IP address, domain, hash, URL or CVE (a published vulnerability ID) and click **Lookup**. If ThreatWinds knows it, its details open.
+- **Lookup any indicator**: paste an IP address, domain, hash, URL or CVE (a published vulnerability ID) and press **Enter** or click **Lookup**. With the type menu on **Any type**, the indicator list below is narrowed to matching indicators. Pick a type in the menu (**ip**, **domain**, **hostname**, **url**, **md5**, **sha1**, **sha256**, **sha3-256**, **cve**, **email-address**, **threat** or **malware**) to look the value up directly: if ThreatWinds knows it, its details open. Clearing the box and pressing **Enter** brings back the full list.
 - **Export IOCs**: downloads every indicator that matches the current search as a CSV file with id, type, value, tags, lastSeen, reputation, bestReputation, worstReputation and accuracy.
 
 ### Tabs
@@ -48,7 +50,17 @@ Accuracy says how sure ThreatWinds is, from Level 1 to Level 3.
 
 ### Indicator details
 
-Click an indicator to open its details: **Timeline**, **Network / origin**, **Associations**, **Geolocations**, **About** and **Activity**, with First seen, Last seen, Country, City, ASO (network owner), ASN (network number), Reputation, Accuracy (current, best and worst) and an **AI brief**.
+Click an indicator to open its details. The top shows its type, reputation, accuracy, value, description and tags. Below that:
+
+- **Timeline**: First seen and Last seen.
+- **Network / origin**: Country, City, ASO (network owner) and ASN (network number).
+- **Associations**: linked indicators with their reputation (up to 12 listed).
+- **Geolocations**: places linked to the indicator (up to 6 listed).
+- On the right, the **AI brief** box (ThreatWinds' description of the indicator and when it was last observed) and the **Reputation** box (Current, Best and Worst reputation, and Accuracy, each with its score).
+
+**Network / origin**, **Associations** and **Geolocations** are hidden when they have no data. **About** and **Activity** appear only in a threat actor's details, not an indicator's.
+
+![The details of an IP indicator with its reputation and tags, the Timeline, Network / origin, Associations and Geolocations boxes, the AI brief and the current, best and worst reputation](/assets/f0f77a42-ab4e-4e2e-93d1-658a70794723)
 
 ## AI Analyst
 
@@ -111,7 +123,7 @@ Go to **Threat Intelligence > Report** to publish an indicator to the ThreatWind
 
 <Warning>
 
-**Report** publishes the indicator and everything you enter with it to the shared ThreatWinds database, where other ThreatWinds users can see it. Reporting also queues a scan of the target. Do not report internal addresses, internal host names or personal data.
+**Report** publishes the indicator and everything you enter with it to the shared ThreatWinds database, where other ThreatWinds users can see it. For an IP address, domain or host name, reporting also queues a scan of the target. Do not report internal addresses, internal host names or personal data.
 
 </Warning>
 
@@ -128,3 +140,42 @@ Go to **Threat Intelligence > Report** to publish an indicator to the ThreatWind
 | Visible to | Who can see the indicator. The only group offered is `public`. |
 
 Click **Report indicator**. The receipt shows when the indicator is live in the ThreatWinds database; this can take a while.
+
+## Common tasks
+
+### Check an address from an alert
+
+1. Open the alert on **Threat Management > Alerts** and copy the address from the **Parties** tab.
+2. Go to **Threat Intelligence > Indicators**. Under **Lookup any indicator**, set the type menu to **ip**, paste the address and press **Enter**.
+3. If ThreatWinds knows it, its details open. Read **Reputation** (−3 Alarming to 3 Trustworthy), **Accuracy**, **Last seen**, the **Associations** (linked threat actors, malware and other indicators) and the **AI brief**.
+4. Write what you found in the alert's **Notes**.
+
+An unknown address is not proof that it is harmless. It only means ThreatWinds has no record of it.
+
+### Check a list of indicators from a report or an email
+
+1. Go to **Threat Intelligence > Triage**.
+2. Paste the indicators into **Indicators**. Defanged forms such as `hxxp://` or `1.2.3[.]4` are accepted. The box counts the unique indicators it found ("12 unique indicators"); above 500, only the first 500 are checked ("Capped at 500 per run.").
+3. Click **Triage** and wait for the progress to finish.
+4. Read the **Malicious** and **Suspicious** rows first.
+5. Search your own data for them: on **Threat Management > Alerts** with **Add filter** > **Adversary IP** or **Adversary domain**, or in **Log Explorer** (see **Log Explorer Query Cookbook**).
+6. Click **Export STIX** to hand the malicious and suspicious indicators to a firewall, an email gateway or a partner that reads STIX, or **Export CSV** for a spreadsheet.
+
+### See which of your own alerts involve known bad indicators
+
+Open **Threat Intelligence > Indicators**. The number "matched in your env" counts values from your alerts that ThreatWinds knows. Set a time range and filter on **Reputation** to list the worst ones, then click an indicator for its details. Remember that opening this page sends up to 1,000 values from your alerts to ThreatWinds (see **Before you start**).
+
+### Share an indicator you confirmed
+
+Use **Threat Intelligence > Report** only for indicators you are sure about and that are not internal. Fill **Indicator** and **Reputation**, add **Tags** and **Notes** that explain what you saw, and click **Report indicator**. Wait for the receipt to say the indicator is live.
+
+## Troubleshooting
+
+| Message or symptom | Why | What to do |
+|---|---|---|
+| **Threat Intelligence isn't configured** ("Contact your administrator to connect an upstream Cyber Mantra / ThreatWinds instance for this environment.") | The server is not registered with the UTMStack update server, or cannot reach it. | Check outbound HTTPS to `cm.utmstack.com` from the server. See **Network Ports and Firewall**. |
+| **No instance indicators — showing generic data** | None of the values in your alerts is known to ThreatWinds, or your tenant has no alerts yet. | Nothing is wrong. The list shows general ThreatWinds data. |
+| "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance." (Triage) | Same as above. | Same as above. |
+| A Triage row says **Unrecognised** | The value is not an IP address, domain, URL or hash. | Check for typing mistakes or extra characters. |
+| Report says "No type could be inferred from this value." | UTMStack could not tell the kind of value. | Choose a **Type** from the list. |
+| The receipt keeps saying "Still being processed." | ThreatWinds has not finished taking in the indicator. | Wait; it appears once processing catches up. |

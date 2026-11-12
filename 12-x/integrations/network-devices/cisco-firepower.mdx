@@ -1,4 +1,4 @@
-UTMStack v12 collects Cisco Firepower logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the Cisco Firepower integration on a Collector, then configure Firepower Management Center (FMC) to send syslog to that Collector. Nothing is installed on your Firepower devices.
+UTMStack v12 collects Cisco Firepower Threat Defense (FTD) logs through the **UTMStack Forwarder**, which the web interface calls the **Collector**. You enable the Cisco Firepower integration on a Collector, then configure Firepower Management Center (FMC) so your FTD devices send syslog to that Collector. Nothing is installed on your Firepower devices.
 
 ## Connection details
 
@@ -7,22 +7,29 @@ UTMStack v12 collects Cisco Firepower logs through the **UTMStack Forwarder**, w
 | Card on the Integrations page | **Fire Power** (category Firewall) |
 | Data type | `firewall-cisco-firepower` |
 | Default ports on the Collector | 514/UDP; 1470/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 5 detection rules |
+| Log format UTMStack reads | FTD syslog messages (`%FTD-<level>-<message id>: …`), with or without a timestamp in front, including the connection and intrusion event messages 430001, 430002, 430003 and 430007 |
+| Parsing pipeline | `cisco/firepower.yaml`, version 3.2.0. **Filters** in the card's drawer opens it. |
+| Detection rules | 5. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- Your Firepower devices must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- Your FTD devices must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
+- Cisco ASA, Cisco Firepower, Cisco Meraki and Cisco Switch all use 514/UDP and 1470/TCP by default, and only one integration can listen on a port and protocol on the same Collector. If you collect more than one of them on one Collector, give each its own port (see **Use a different port** below).
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Fire Power** card.
+
+    ![Cisco Firepower setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/6a00ec8c-5429-405b-b390-60c846de4bb9)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 514`.
@@ -32,37 +39,95 @@ UTMStack v12 collects Cisco Firepower logs through the **UTMStack Forwarder**, w
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-cisco-firepower 514 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-cisco-firepower udp
 ```
+
+The command prints the port the Collector really listens on, for example `Integration "firewall-cisco-firepower" enabled on udp port 514`.
 
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
 
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port. For example, to move Cisco Firepower over UDP to 5141:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-cisco-firepower udp 5141
+   ```
+
+   Use `tcp` instead of `udp` for TCP and TLS.
+2. In the **Fire Power** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the syslog server entry in step 2.
+
 ## Step 2: Configure Firepower to forward logs
+
+These steps use the FMC web interface. Menu names can differ slightly between FMC versions; see Cisco's guide "Configure Logging on FTD via FMC" for your version.
 
 <Steps>
   <Step title="Open the platform settings">
-    In Firepower Management Center (FMC), go to **Devices → Platform Settings**.
+    In FMC, go to **Devices > Platform Settings**. Edit the Threat Defense Settings policy assigned to your devices, or create one, and open **Syslog**.
+  </Step>
+  <Step title="Turn on logging">
+    On the **Logging Setup** tab, check **Enable Logging**. Leave the EMBLEM format option turned off: UTMStack reads the standard format.
   </Step>
   <Step title="Add the Collector as a syslog server">
-    Edit or create a policy and navigate to **Syslog → Syslog Servers**. Add the Collector IP with port 514 (UDP).
+    On the **Syslog Servers** tab, click **Add**. Enter the Collector IP address, the protocol (UDP or TCP, matching what you enabled in step 1) and the port (514 for UDP, 1470 for TCP). Choose the interface the device uses to reach the Collector.
   </Step>
-  <Step title="Deploy">
-    Assign the policy to your devices and deploy.
+  <Step title="Choose what to send">
+    On the **Logging Destinations** tab, add a destination for the syslog servers and choose the event class and severity to send, for example all events at the informational level.
+  </Step>
+  <Step title="Save and deploy">
+    Save the policy, make sure it is assigned to your devices, and deploy.
   </Step>
 </Steps>
 
-If you enabled the integration with TCP or TLS, use port 1470 and the matching protocol in the syslog server entry.
+If you choose TCP, Cisco recommends allowing traffic through the device when the TCP syslog server cannot be reached. The Syslog Servers tab has an option for this.
+
+To also send connection and intrusion events as syslog, open the access control policy, go to its **Logging** tab and send syslog messages to the syslog servers of the platform settings. These events arrive as messages 430001, 430002, 430003 and 430007.
 
 ## Step 3: Check that logs arrive
 
-- In the **Fire Power** drawer, click **View logs**. Log Explorer opens with the `firewall-cisco-firepower` data type for the last 24 hours.
-- Within about 10 minutes, each sending device appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Fire Power** drawer, click **View logs**. Log Explorer opens with the `firewall-cisco-firepower` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-cisco-firepower` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip` and `action`, and Firepower fields under `log.`, such as `log.messageId`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, each sending device appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-cisco-firepower'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, the policy was not deployed, or the devices send to the wrong address, port or protocol, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list, that the platform settings policy is deployed to the devices, and that the Collector host allows the port in. See **Forwarder Troubleshooting**. |
+| Nothing arrives from some devices | The syslog server entry uses an interface that cannot reach the Collector. | Choose an interface with a route to the Collector host. Cisco documents that data plane syslog cannot leave through the diagnostic interface. |
+| Enabling fails with `port 514 is already in use by integration '…'` | Another Cisco integration already listens on 514/UDP on this Collector. | Move one of them to another port with `change-port` (see **Use a different port**), or use a second Collector. |
+| Enabling fails with `port 514 is already in use by another process` | Another program on the Collector host, often the system syslog service, holds the port. | Stop that program from listening on the port, or move Cisco Firepower to another port. |
+| Events arrive but have almost no fields | The devices send in EMBLEM format. | Turn off the EMBLEM format option on the **Logging Setup** tab and deploy again. |
+| Firepower logs appear under `firewall-cisco-asa` or another data type | The devices send to the port of a different integration. | Send to the port that the Cisco Firepower integration listens on. |
 
 ## Stop collecting
 
-In the **Fire Power** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Fire Power** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`udp`, `tcp` or `tls`):
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-cisco-firepower udp
 ```
+
+Then remove the Collector from the syslog servers of the platform settings policy and deploy.

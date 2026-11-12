@@ -4,6 +4,8 @@ These settings decide how UTMStack v12 shows dates and times, and which language
 
 Go to **Configure > Settings > Date Format**. The page title is **Date & time**.
 
+![The Date & time page with the Time zone field, the current time, the four Date format choices Short, Medium, Long and Full, and the Save changes button](/assets/6f31ab8b-53d3-4ba1-a8d9-4a43f4d9589d)
+
 | Field | What it does | Default |
 |---|---|---|
 | Time zone | The time zone used to show timestamps everywhere in the product. Choose a time zone, or **Browser default** to use each viewer's own computer setting. The page shows the current time in the chosen zone. | UTC |
@@ -23,11 +25,14 @@ Stored data stays in UTC. When you search logs by time or compare UTMStack with 
 
 Go to **Configure > Settings > Language**. The page title is **Platform language**.
 
+![The Platform language page with the Default language choices Deutsch, English, Español, Français, Italiano, Português and Русский, and the Save button](/assets/b70a3765-65a6-4d67-9b65-a72778ec43e0)
+
 **Default language** is used for:
 
 - The sign-in screens.
-- System emails.
 - Users who have not chosen their own language.
+
+Emails that UTMStack sends (invitations, password resets, two-step codes, alerts and incidents) are always in English.
 
 Choose a language and click **Save**. The default is English.
 
@@ -42,4 +47,12 @@ Each user can choose their own interface language. It overrides the default lang
 
 ## Settings and tenants
 
-On a multi-tenant licence, each tenant can set its own time zone, date format and default language. Until a tenant saves its own values, it uses the values of the default tenant.
+On a multi-tenant licence, each tenant can set its own time zone, date format and default language. Until a tenant saves its own values, it uses the values of the default tenant. See **Multi-Tenancy Overview**.
+
+## Common questions
+
+| Question | Answer |
+|---|---|
+| Who can change these settings? | Users with `config.write`; of the built-in roles, the **Administrator**. Everyone can read them. |
+| Times in an exported file or report differ from the screen | Stored times are UTC. Check whether the export shows UTC or your chosen time zone, and compare with the same zone. |
+| A user still sees another language after I changed the default | The user chose their own language, or their browser remembers a language picked earlier. They can choose **System default** in their **Profile**, or pick the language from the avatar menu. |

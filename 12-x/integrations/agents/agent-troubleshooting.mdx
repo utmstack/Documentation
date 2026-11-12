@@ -1,0 +1,103 @@
+Use this page when a UTMStack v12 agent does not install, does not appear on the **Data Sources** page, goes **Offline**, or sends fewer events than you expect. It covers Windows, Linux and macOS agents, with the messages the agent prints and writes to its log.
+
+## Where to look
+
+| What | Windows | Linux | macOS |
+|---|---|---|---|
+| Agent folder | `C:\Program Files\UTMStack\UTMStack Agent` | `/opt/utmstack-linux-agent` | `/opt/utmstack-macos-agent` |
+| Agent log | `logs\utmstack_agent.log` in the folder | `logs/utmstack_agent.log` in the folder | `logs/utmstack_agent.log` in the folder |
+| Services | `UTMStackAgent`, `UTMStackUpdater` | `UTMStackAgent`, `UTMStackUpdater` | launch daemons `UTMStackAgent`, `UTMStackUpdater` |
+| Check services | `Get-Service UTMStackAgent,UTMStackUpdater` | `systemctl status UTMStackAgent UTMStackUpdater` | `sudo launchctl list \| grep UTMStack` |
+| Collection status | agent program `status` | agent program `status` | agent program `status` |
+
+The agent program and its `status` command are described in **Agent Command Line**. In UTMStack, the **Data Sources** page shows each agent's status: **Live** (seen in the last 15 minutes), **Idle** (seen in the last 24 hours) or **Offline**.
+
+## The install fails
+
+The install command prints each stage. The stage that fails tells you where to look.
+
+| Output | Cause | Fix |
+|---|---|---|
+| `Checking server connection ...` then `Error trying to connect to server:  cannot connect to <server> on port 443: …` | The host cannot open a direct connection to the server on 443: firewall, wrong DNS, or a network that only allows traffic through a proxy. The agent has no proxy setting. | Test from the host (`Test-NetConnection <server> -Port 443` on Windows, `curl -k -I https://<server>/` on Linux and macOS). Open 443 to the server. |
+| The download step fails (`curl`, `wget` or `WebClient` errors) | The host cannot download from `https://<server>/private/dependencies/agent/…`. | Same network checks as above. On Linux, `wget` must be installed. |
+| `Error downloading version.json: …` with a certificate error | **Skip TLS certificate validation** is off and the host does not trust the server's certificate. | Turn the option back on, or install a certificate the host trusts on the server. See **SSL Certificate**. |
+| `Error registering agent:` … `invalid connection key` | The connection key in the command is wrong, was regenerated, or the command was copied by a user who is not an administrator (the key shows as `*******`). | Copy the command again as an administrator from **Configure > Integrations**. |
+| `Error registering agent:` … `connection key does not belong to a tenant` | The key does not match any tenant. | Copy the command again from inside the right tenant. |
+| `UTMStackAgent service is already installed` | An agent is already installed. | Keep it, or run the uninstall command first. See **Reinstall, Move or Remove an Agent**. |
+| `Bad CPU type in executable` (macOS) | The Mac has an Intel processor. | Only Apple Silicon Macs are supported. |
+| `Exec format error` (Linux) | The AMD64 build on an ARM64 host, or the other way round. | Choose the matching **Platform** in the product and copy the command again. |
+| Windows: the window closes with no output, or access is denied | PowerShell was not run as administrator. | Open PowerShell with **Run as administrator**. |
+
+## The agent does not appear on the Data Sources page
+
+1. Make sure the install ended with `UTMStackAgent service installed correctly`.
+2. Wait a minute and click **Refresh** on **Configure > Data Sources**, tab **Agents**.
+3. On a multi-tenant installation, check that you are looking at the tenant whose install command you used.
+4. Check that the service runs and read the agent log (see "Where to look").
+
+## The agent is Idle or Offline
+
+| Cause | How to tell | Fix |
+|---|---|---|
+| The host is off, asleep or disconnected | The host does not answer on the network. | Expected. The agent sends what it kept locally when the host is back. |
+| The service is stopped | The service check shows it stopped. | Start it: `Start-Service UTMStackAgent`, `sudo systemctl start UTMStackAgent`, or `sudo launchctl kickstart -k system/UTMStackAgent`. |
+| The network path to UTMStack is blocked | The log shows `error connecting to Server, trying again in …` or `error connecting to Correlation: …` | Restore 443 from the host to the server. |
+| The server's address changed | The log shows connection errors to the old address. | Keep the old name resolving, or reinstall from the new address. See **Reinstall, Move or Remove an Agent**. |
+| UTMStack no longer accepts the agent (for example a rebuilt server, or a removed registration) | The log shows `PermissionDenied` errors, for example `invalid credential` or `invalid key` | Uninstall the agent and install it again from the current server. It keeps retrying and does not register again on its own. |
+
+The agent keeps undelivered logs in its local store while it is offline and sends them when the connection is back, up to five times its retention size (100 MB with the default 20 MB). See **Agent Command Line**.
+
+## The agent is Live but events are missing
+
+Run the `status` command on the host first. It shows, for each source, how many events were read (**RECEIVED**), saved for sending (**PERSISTED**), failed to save (**PERSIST_FAIL**), and when the last one arrived (**LAST EVENT**).
+
+### Windows
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| No logon, process or account events in Security | The audit policy does not record them, often because a domain Group Policy overrides the settings the agent applies. | Run `auditpol /get /category:*`. Set the needed subcategories in your Group Policy. See **Windows Agent**. |
+| No command lines in process events | `ProcessCreationIncludeCmdLine_Enabled` was reset by Group Policy. | Enable **Include command line in process creation events** in your Group Policy. |
+| No Sysmon events | Sysmon is not installed. | Install Sysmon; the agent picks up its channel at the next service start. |
+| Log shows `Error subscribing to channel …` | The channel does not exist on this host. | Normal for optional channels such as Sysmon. |
+| Log shows `events queue full for channel …: event discarded` | A burst of events on one channel was faster than the agent could save them. | Check disk speed and space on the host; reduce noisy auditing if the bursts repeat. |
+| Log shows `auditpolicy: some settings could not be applied` | Windows refused some audit settings. | Check the listed settings and set them through Group Policy. |
+
+### Linux
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Journal events arrive, audit events do not | Kernel auditing is off, the host is a container, or the audit package could not be installed. | Read the `auditd` lines in the agent log, for example `auditd: kernel auditing is disabled (enabled != 1), collector will not start` or `auditd setup skipped: container environment detected`. Check `sudo auditctl -s`. |
+| Log shows `auditd: N events lost due to buffer overflow or rate limiting` | The audit system produced more records than it could deliver. | Reduce broad audit rules of your own; check `auditctl -s` for the backlog settings. |
+| Log shows `journalctl exited with code …, restarting in …` | `journalctl` stopped. | Check that journald runs (`systemctl status systemd-journald`). The agent restarts the reader by itself. |
+| An application's logs are missing | The application writes only to its own file, not to the journal. | The agent reads the journal and the audit log only. See "Change what is collected" in **Linux Agent**. |
+
+### macOS
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Log shows `macOS collector binary not found at: …` | The collection helper `utmstack-collector-mac` was not downloaded. | Check that the Mac reaches the server on 443, then restart the agent. |
+| Log shows `macOS collector exited with code …, restarting in …` | The helper stopped. | The agent restarts it with growing pauses. If it keeps failing, reinstall the agent. |
+
+## Events arrive more than once
+
+The agent sends a log again when UTMStack has not confirmed it in time, for example while the server is under heavy load or after a network interruption. Some events can then be stored more than once, and counts in dashboards and searches come out higher. If you see this often, check the server's load and drops on **Configure > Data Processing**. The event `id` field is the same on every copy, so you can count unique events with `uniqExact(id)` in Log Explorer's SQL mode.
+
+## Remote commands do not run
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| **SOAR > Interactive Console** says "This agent was installed with remote control disabled…" | The agent was installed with **Disable remote command execution on this host**. | Reinstall without the option. |
+| The console is disabled | The agent is **Offline**. | Bring the agent back online. |
+| Windows `cmd` commands with double quotes fail | Quoting in `cmd`. | Use **powershell** for commands with quoted paths. |
+
+See **Data Sources Page** and **Interactive Console**.
+
+## Collect information before asking for help
+
+- The operating system and version, and the platform you chose in the product.
+- The full output of the install command.
+- The output of the `status` command.
+- The last 200 lines of `logs/utmstack_agent.log`.
+- Whether the host reaches the server on 443 (the result of the connection test above).
+
+Do not share `config.yml` or the connection key.

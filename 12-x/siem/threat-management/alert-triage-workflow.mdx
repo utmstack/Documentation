@@ -1,0 +1,259 @@
+Triage means deciding, for each new alert, whether it is a real threat, harmless activity, or something that needs a full investigation. This page gives a step-by-step procedure for working an alert in UTMStack v12, from the moment it appears until you close it or turn it into an incident, and tells you what to look at in each part of the alert panel.
+
+## Before you start
+
+| What you want to do | Who can do it |
+|---|---|
+| Read alerts, incidents and logs | Administrator, Analyst, Viewer |
+| Change status, assign, tag, write notes, create incidents and tagging rules | Administrator, Analyst (`alerts.write`, `incidents.write`) |
+| Run a response flow from an alert | Administrator only (`soar.execute`) |
+| Generate an AI summary, ask SOC-AI | Administrator only in UTMStack v12.0.2, and only when SOC-AI is set up |
+
+Things that make triage easier, set up once by an administrator:
+
+- **Alert recipients** on **Configure > Settings > Email Configuration**, so the team hears about new alerts. See **Alert and Incident Notifications**.
+- **Asset sensitivity** ratings on the **Data Sources** page for important hosts, so their alerts get a higher severity. See **How Alerts Are Created**.
+- Tagging rules for activity you already know is harmless. See **Tagging Rules and False Positives**.
+
+## The workflow at a glance
+
+| Stage | Where | You decide |
+|---|---|---|
+| 1. Pick | **Alerts** list, **Open** tab | Which alert to work next |
+| 2. Claim | Alert panel, **Assign** and **Set status** | That you own it |
+| 3. Understand | **Summary** tab | What the rule saw and how serious it is |
+| 4. Identify the parties | **Parties** tab | Who acted, against what |
+| 5. Check the evidence | **Events** tab, **View all related logs** | Whether the logs support the alert |
+| 6. Measure the scope | Alerts filters, **Adversary View**, **Log Explorer**, **Threat Intelligence**, **User Auditor** | Whether it is isolated or part of something bigger |
+| 7. Decide and act | **Set status**, **Add to incident**, response button | False positive, resolved, or incident |
+| 8. Record | **Notes**, observation | What you checked and why you decided |
+
+## Work an alert step by step
+
+<Steps>
+
+<Step title="Pick the next alert">
+
+1. Go to **Threat Management > Alerts** and click the **Open** tab. The header says how many alerts match and how many are open right now.
+2. Set the time range. The page opens on the last 7 days.
+3. Narrow the list. Useful filters:
+   - The severity menu: **High** first.
+   - **Add filter** > **Assignee** > **is** > your name as shown in the user list, to see your own queue.
+   - **Add filter** > **Alert name** > **contains** > part of a rule name, to work one kind of alert at a time.
+4. Look at the row before you open it:
+   - The **Echoes** number: how often the same alert repeated. A high number means an ongoing activity, not a one-off.
+   - The **AI assessed** badge: SOC-AI has already written an assessment.
+   - The **Incident** badge: someone already linked it to an incident.
+   - **Source** (the affected side) and **Adversary**.
+
+The list is always newest first. It loads 50 alerts at a time as you scroll, and a **New alerts** message with **View** appears when new open alerts arrive.
+
+</Step>
+
+<Step title="Claim the alert">
+
+Click the row to open the alert panel, then:
+
+![The alert panel with the Set status, Tag and Assign buttons under the alert name, and the Summary, Parties, Events and History tabs](/assets/b49f580f-a595-427c-bbbf-925c7958a463)
+
+1. Click **Assign** and pick yourself. The list shows up to 200 users.
+2. Click **Set status** and choose **In review**.
+
+This tells the rest of the team that someone is on it. Changing the status also changes the status of every echo of the alert.
+
+</Step>
+
+<Step title="Understand what the rule saw (Summary tab)">
+
+Read the **Summary** tab from top to bottom.
+
+| Part | What to look at |
+|---|---|
+| **Part of an incident** | If present, the alert already belongs to an incident: work it there instead. |
+| **Description** | What the rule detects and why it matters. |
+| **Solution** | What the rule's author suggests you do. |
+| **References** | Links, usually to the MITRE ATT&CK tactic and technique. |
+| **Details** > **Severity** and **Risk** | Severity is High, Medium or Low. Risk is the rule's highest impact value (0 to 3), adjusted for the importance of the affected host. |
+| **Details** > **Category** and **Technique** | The attack stage (for example Credential Access) and technique (for example T1110 Brute Force). |
+| **Details** > **Sensor** and **Data type** | Which device or integration sent the log, and which kind of log it is. |
+| **Details** > **Status note** | Why the alert has its status, for example a note from the tagging rules. |
+| **SOC AI assessment** | When present: a score from 0 to 100, a risk level, and the sections **Threat Assessment**, **Affected Asset**, **Context**, **LLM Analysis** and **Action**. Treat it as a second opinion, not a verdict. |
+
+If there is no assessment and SOC-AI is set up, you can click **Generate AI summary**. It can take about a minute ("Analyzing the alert… this can take a minute."); if it takes longer, the assessment is added to the alert when it is ready. See **SOC-AI Assistant**.
+
+</Step>
+
+<Step title="Identify the parties (Parties tab)">
+
+The **Parties** tab has two cards:
+
+- **Source / target**: the affected side, the thing the activity was aimed at.
+- **Adversary**: the side the rule treats as the attacker.
+
+Each card shows **IP**, **Host**, **User**, **Domain** and **Country** when the logs had them.
+
+Questions to answer:
+
+- Is the adversary address internal (for example `10.x.x.x` or `192.168.x.x`) or on the internet? An internal adversary can mean a compromised machine, or a scanner or admin tool you know.
+- Is the country one where you have users or partners?
+- Is the user a person, a service account or an administrator? Look it up on **User Auditor**.
+- Is the target an important host (domain controller, payment server, mail server)?
+
+<Note>
+
+The rule decides which side of the event is the adversary. For most rules it is the side that started the activity, but some rules mark the other side. Read the description if the roles look reversed. See **Alert Fields Reference**.
+
+</Note>
+
+</Step>
+
+<Step title="Check the evidence (Events tab)">
+
+1. Open the **Events** tab. It shows a sample of up to about 11 events stored on the alert, plus the events of its echoes. Expand an event to read its fields and the original log line.
+2. Click **View all related logs**. UTMStack collects up to 1,000 logs behind the alert and its echoes and opens them in **Log Explorer**, with a time range of the last 30 days.
+3. In Log Explorer, open one event and click **Surrounding events** to see what the same source logged 15 minutes before and after.
+
+Questions to answer:
+
+- Do the logs really show what the alert says? A parsing problem can produce wrong values.
+- For alerts that count events (for example "5 failed logons in 10 minutes"), was there a success afterwards?
+- Did the activity stop, or is it still going on?
+
+"No related logs found for this alert" means the logs are no longer stored or the alert carries no event ids. For rules that count events over a time window, the **Events** tab can show only the event that completed the match: use **View all related logs** to see the others.
+
+</Step>
+
+<Step title="Measure the scope">
+
+Find out whether the alert is a one-off or part of something bigger.
+
+| Question | Where to look |
+|---|---|
+| Has this adversary set off other alerts? | **Alerts**: **Add filter** > **Adversary IP** > **is** > the address, with the time range set to **All time**. |
+| Has this target been hit by other attackers? | **Alerts**: **Add filter** > **Target host** > **is** > the host. Or **Adversary View**, which draws adversaries, alert names and victims as a chart. |
+| What else did this address or user do in the logs? | **Log Explorer**. See **Log Explorer Query Cookbook** for ready-made searches by IP address and by user. |
+| Is the address or domain known to be malicious? | **Threat Intelligence > Indicators**, **Lookup any indicator**. Paste the value and click **Lookup**. |
+| Is the account new, stale or deleted? | **User Auditor**: search the account name. |
+| Did the same thing happen before and get closed? | **Alerts**: **Completed** tab, filter on the alert name, and read the status notes. |
+
+<Warning>
+
+**Lookup any indicator** sends the value you type to ThreatWinds, the threat intelligence service behind UTMStack. Do not look up internal host names or personal data if your policies forbid sharing them. See **Threat Intelligence: How Indicator Alerts Work**.
+
+</Warning>
+
+</Step>
+
+<Step title="Decide">
+
+Choose one of four outcomes.
+
+| Outcome | When | What to do |
+|---|---|---|
+| **False positive** | The activity is expected and harmless, for example a vulnerability scanner or a backup job. | **Set status** > **Complete + false positive**, write an **Observation**, click **Continue**. If it will happen again, create a tagging rule (see below). |
+| **True positive, resolved** | The activity was real but is already handled, or needs no further action. | **Set status** > **Completed**, write an **Observation** that says what you found and did. |
+| **Incident** | The activity is a real threat, involves several alerts, or needs work by several people. | **Add to incident**: create a new incident or add the alert to an existing one. Then work the incident. See **Incidents**. |
+| **Not sure yet** | You need more data or someone else's opinion. | Keep it **In review**, write what you found in **Notes**, and reassign it if needed. |
+
+The **Observation** is required when you complete a single alert. UTMStack keeps it as the alert's **Status note**, where the next analyst can read it.
+
+</Step>
+
+<Step title="Respond if needed">
+
+If the threat is still active, contain it.
+
+- **Run a shipped response**: the lightning icon on the alert's row in the list runs the shipped response flow for this kind of alert on the agent of the affected host. Hover over it to see the flow's name. "No system flow covers this alert" means there is none. Only Administrators can run it. Read what the flow does on **Shipped Flows** first.
+- **Run a command on the host**: **SOAR > Interactive Console**. See **Interactive Console**.
+- **Act outside UTMStack**: block the address on the firewall, reset the user's password, isolate the machine with your endpoint tool.
+
+Record what you did in the alert's **Notes**, or in the incident's notes if the alert is in an incident.
+
+</Step>
+
+<Step title="Record and close">
+
+1. In the **Summary** tab, type in **Notes** what you checked and what you concluded, and click **Save notes**. Notes are shared with everyone who can see the alert. If the alert has a SOC-AI assessment, the box is called **Your notes** and the assessment is kept.
+2. Set the final status if you have not yet: **Completed** or **Complete + false positive**, with the observation.
+3. Check the **History** tab: every change is listed with the user who made it.
+
+</Step>
+
+</Steps>
+
+## Stop a known false positive from coming back
+
+Completing an alert as a false positive closes only that alert (and its echoes). To close future alerts of the same kind automatically:
+
+1. On the alert's row, click the tag icon **Create a tag from this alert**. A new tagging rule opens, filled in with one condition for each field of the alert that has a value.
+2. Give it a **Rule name** and a **Description** that says why the activity is harmless.
+3. Under **Tags to apply**, add **False positive**.
+4. Remove every condition you do not need. Keep the alert name and the narrowest field that identifies the harmless activity, for example **Adversary IP** of the scanner.
+5. Click **Create**.
+
+About a minute later, new matching alerts are stored as **Completed** with the **False positive** tag. They are still stored, still emailed and still searchable, but they no longer count as open. See **Tagging Rules and False Positives**.
+
+<Warning>
+
+Make the conditions as narrow as you can. A rule on the alert name alone closes every future alert of that rule, including real attacks.
+
+</Warning>
+
+## Work many alerts at once
+
+When many alerts have the same cause, work them together:
+
+1. Filter the list so that it shows only those alerts, for example **Alert name** and **Adversary IP**.
+2. Tick the boxes of the rows (or the box in the header for the whole page).
+3. In the bar that appears, use **Set status**, **Add tag** or **Add to incident**.
+
+The bulk **Set status** does not ask for an observation and does not offer **Complete + false positive**. One action can change at most 10,000 alerts.
+
+<Warning>
+
+In UTMStack v12.0.2, **Add tag** in the bulk bar replaces the tags the selected alerts already have with the one tag you pick. Tags such as **False positive** are removed from those alerts. To add a tag and keep the others, tag the alerts one at a time with **Tag** in the alert panel.
+
+</Warning>
+
+## Repeats, echoes and floods
+
+- A rule that groups its alerts files repeats as **echoes** under the first alert. You work the first alert; its status applies to all its echoes. If an echo arrives after you completed the first alert, the first alert goes back to **Open**.
+- A rule that de-duplicates drops repeats for 7 days, even after you completed the first alert.
+- If one rule raises more than 50 open alerts from one data source in 24 hours, the **Rule flood guard** switches it off for your tenant and posts a warning in the notification bell. Tune the rule or add a tagging rule before an administrator switches it back on.
+
+See **How Alerts Are Created** and **Rule Flood Guard**.
+
+## Get help from SOC-AI
+
+When SOC-AI is set up (Administrators only in UTMStack v12.0.2):
+
+- **Generate AI summary** on the **Summary** tab writes an assessment to the alert.
+- **Ask** in the alert panel's header opens the SOC-AI assistant with the alert shared, so you can ask, for example, "Is this a false positive?" or "What else did this attacker do?".
+- An administrator can switch on **Auto-analyze alerts** on **Configure > Settings > SOC-AI**, so every new alert gets an assessment without anyone asking.
+
+Every request counts towards your tenant's daily AI allowance, and the alert is sent to the AI provider your administrator chose. See **SOC-AI Assistant**, **AI Providers** and **AI Usage and Limits**.
+
+## A shift routine
+
+1. **Start of shift.** Open **Overview** and check that data sources are sending and that the alert counts look normal. See **Overview Page**.
+2. **Queue.** Work the **Open** tab, High severity first, then Medium, then Low.
+3. **Own queue.** Check alerts assigned to you that are still **In review**.
+4. **Incidents.** Check **Threat Management > Incidents** for incidents assigned to you.
+5. **End of shift.** Reassign alerts you could not finish and write where you stopped in **Notes**.
+
+Working alerts also counts for compliance. The shipped control `au-6` (alerts were reviewed) passes only when at least one alert in the reporting window is **In review** or **Completed**, and `ir-4` (alerts were worked to completion) only when at least one is **Completed**. See **Compliance Overview**.
+
+## Troubleshooting
+
+| Message or symptom | Why | What to do |
+|---|---|---|
+| `missing required permission: alerts.write` | Your role can read alerts but not change them (for example Viewer). | Ask an administrator for the Analyst role. |
+| `too many alerts in one action; narrow the selection` | The action would change more than 10,000 alerts. | Filter the list further and repeat. |
+| `one or more alerts are already linked to an incident` | An alert can belong to only one incident. | Leave out alerts that show the **Incident** badge. |
+| "No related logs found for this alert" | The logs behind the alert are no longer stored, or the alert has no event ids. | Search Log Explorer by the adversary or target instead. |
+| "No system flow covers this alert" | No shipped response flow applies to this kind of alert. | Respond by hand, or build a flow. See **Building a Flow**. |
+| A completed alert is **Open** again | An echo of it arrived after you completed it. | Read the new echo; if it is the same harmless activity, add a tagging rule. |
+| An alert arrived already **Completed** with the **False positive** tag | A tagging rule closed it. | Check the tagging rule on **Threat Management > Tagging Rules** if that was not intended. |
+| No **Generate AI summary** button or **Ask** button | SOC-AI is not set up, or your role is not Administrator. | See **SOC-AI Assistant**. |
+| "The AI summary is taking longer than expected…" | The AI provider is slow. | Keep working; the assessment appears on the alert when it is ready. |
+| The lightning icon does nothing for you | Running a response needs the Administrator role. | Ask an administrator, or respond outside UTMStack. |

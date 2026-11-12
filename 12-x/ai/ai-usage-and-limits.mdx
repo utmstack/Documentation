@@ -35,9 +35,13 @@ On a single-tenant installation there is no **Tenants** page, so in practice the
 
 ## When the allowance is used up
 
-Further requests that day are refused with the message "this tenant has used the AI requests its plan allows for today". The assistant cannot answer and **Generate AI summary** fails until midnight UTC.
+Further requests that day are refused with the message "this tenant has used the AI requests its plan allows for today". The assistant cannot answer and **Generate AI summary** fails until midnight UTC. Automatic triage skips new alerts for the rest of the day: they arrive without a SOC AI assessment, and they are not analysed later.
+
+Over the API, the same refusal is HTTP 429 with the fields `limit` and `used` (see **SOC-AI API**).
 
 ## Where you see usage
+
+![The SOC-AI Configuration page showing AI allowance today with the requests used out of the daily allowance, and the Usage block with Chat completions (today) and when the count resets](/assets/79da268c-27e4-48ce-8fa2-e888f1e34279)
 
 | Place | What it shows |
 |---|---|

@@ -1,6 +1,10 @@
 The **Data Sources** page lists every agent, integration and direct sender that feeds events into UTMStack v12, and shows whether each one is still sending. Use it to spot sources that went quiet, label and rate your assets, open a live console on an agent, and export a report.
 
-Go to **Configure > Data Sources**. The page title is **Data sources**: "Agents, integrations and direct sources feeding events. Status is derived from the last time each source was seen."
+Go to **Configure > Data Sources**. The page has no title or subtitle. Its header shows how many sources match the current tab and search ("**N** total"), and the **Export PDF** and **Connect a source** buttons.
+
+![Data Sources page: ingestion chart, number of configured sources, online and offline counts, the All, Agents, Integrations, Direct and Offline tabs, and the source list with type, status, events in the last 24 hours and last seen](/assets/656f1e19-5c8a-4063-b215-a4919c985bb8)
+
+This screenshot is from UTMStack v12.0.0; v12.0.2 also shows an **Export PDF** button next to **Connect a source**.
 
 ## What the page shows
 
@@ -13,15 +17,21 @@ Go to **Configure > Data Sources**. The page title is **Data sources**: "Agents,
 | Toolbar | **Search by name…**, **List** or **Cards** view, and **Refresh**. |
 | Header buttons | **Export PDF** and **Connect a source** (opens the Integrations page). |
 
-In the list view the columns are **Source**, **Type**, **Status**, **Events 24h** and **Last seen**. Click a label on any source to show only the sources with that label; clear the filter from the "Filtered by label" chip.
+In the list view the columns are **Source**, **Type**, **Status**, **Events 24h** and **Last seen**. The list loads 50 sources at a time. Click a label on any source to show only the sources with that label; clear the filter from the "Filtered by label" chip.
 
 ## Kinds of data source
 
-| Kind | Tab | How it gets on the list |
-|---|---|---|
-| Agent | **Agents** | Added when a Windows, Linux or macOS agent registers. |
-| Integration | **Integrations** | Added when you save a config group for a cloud integration. Its name is the config group name. |
-| Direct | **Direct** | Any sender UTMStack sees in its ingestion statistics, for example a firewall sending through the UTMStack Forwarder. A background job adds or refreshes these every 10 minutes. |
+| Kind | Tab | How it gets on the list | Name | How "last seen" is updated |
+|---|---|---|---|---|
+| Agent | **Agents** | When a Windows, Linux or macOS agent registers. | The host name | Every 60 seconds, from the agent's last contact with the server |
+| Integration | **Integrations** | When you save a config group for a cloud integration. | The config group name | Every 10 minutes, from the count of events received for that config group |
+| Direct | **Direct** | When UTMStack counts events from a new sender, for example a firewall sending through the UTMStack Forwarder. | The sender's IP address (or the Forwarder host name for local senders, `github` for GitHub webhooks) | Every 10 minutes, from the count of events received from that sender |
+
+A row is identified by its name and its data type. So:
+
+- A firewall that sends two data types appears twice, once per data type.
+- Two devices with the same IP address and the same data type (for example two sites using the same private addresses) appear as one row.
+- A host keeps its row, labels and asset sensitivity when its agent is reinstalled, as long as its host name does not change.
 
 ## Status
 
@@ -31,14 +41,28 @@ In the list view the columns are **Source**, **Type**, **Status**, **Events 24h*
 | **Idle** | Last seen between 15 minutes and 24 hours ago. |
 | **Offline** | Last seen more than 24 hours ago, or never. |
 
-The **Offline** tab lists every source that is Offline, including sources that were never seen.
+The **Offline** tab lists every source that is Offline, including sources that were never seen. The status is worked out in your browser from **Last seen** each time the page loads, so click **Refresh** to update it.
+
+### What to expect after you connect a source
+
+| Source | When it appears | When it turns Live |
+|---|---|---|
+| Agent | About a minute after the install | At once |
+| Device through the Forwarder | Up to about 20 minutes after its first logs | When it appears |
+| Cloud integration | As soon as you save the config group | Up to about 20 minutes after the first events arrive. Until then it shows **Offline**. |
+
+A source that sends rarely (for example a device that logs only on changes) can be **Idle** most of the time. That is normal; look at its **Events 24h** and its ingestion trend.
 
 ## Source details
 
-Click a source to open its details.
+Click a source to open its details. The top shows the source's type, kind and data type, its name, IP address and status, and the **View logs** button.
 
-- **Stats & identity**: Events 24h, Last seen, Discovered, Kind, Data type, IP and ID.
-- **Metadata**: extra details reported by the source, when there are any.
+![Details of a data source: View logs, Stats and identity with the ingestion trend, Metadata and Labels](/assets/a2adf136-db00-4652-8ee5-932c373143f0)
+
+The **Metadata** values in the screenshot are demo data; each source shows only the details it reports.
+
+- **Stats & identity**: Events 24h, Last seen, Discovered, Kind, and Data type and IP when the source has them.
+- **Metadata**: extra details reported by the source, when there are any (for agents: operating system, version, addresses and whether remote commands are disabled).
 - **Ingestion trend**: a small chart of recent events. Gaps show when the source stopped sending. When a source is offline, a warning shows "Last event … — possible log gap".
 - **View logs**: opens Log Explorer for this source over the last 7 days.
 - **Labels**: type a label and press Enter to add it. Changes save automatically.
@@ -76,6 +100,28 @@ For agents, the details include a **Console** section: "Run commands on this hos
 ## Export a report
 
 Click **Export PDF**. UTMStack builds the "UTMStack — Data Sources Report" with event totals, the number of agents, integrations and direct sources, the volume received and the full list. Click **Print / Save as PDF** and use your browser's print dialog to save it.
+
+## A routine health check
+
+Once a day or once a week:
+
+1. Open the **Offline** tab. For each source, decide whether it was retired (delete it) or has a problem (investigate).
+2. Sort or scan **Events 24h** in the **All** tab for sources whose volume dropped sharply compared with what you usually see.
+3. Open **Configure > Data Processing** and check **Dropped (parsing)** by data type. A rise means a source changed its log format. See **Data Processing**.
+4. Compare the **Agents** tab with your inventory of computers, to find machines without an agent.
+
+For problems you find, see **Checking and Troubleshooting Data Collection**.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| A new device does not appear | Its logs have not been counted yet (up to about 20 minutes), or they do not reach UTMStack. | Wait 20 minutes, then check **View logs** on its card. See **Forwarder Troubleshooting**. |
+| A new cloud integration shows **Offline** | No events have been counted for its config group yet. | Check **View logs** on its card. Some services deliver their first events only after a delay; see the integration's page. |
+| An uninstalled agent stays on the list | Uninstalling removes the agent, not its row. The row turns **Idle**, then **Offline**. | Delete the row. |
+| A deleted source comes back | It still sends data, or its agent registration still exists. | Stop the source or uninstall its agent first, then delete it. |
+| Two devices share one row | They reach the Forwarder with the same IP address and send the same data type. | All their events are stored; only the row is shared. Tell them apart in Log Explorer with a field such as `origin.host` or the raw text. |
+| A deleted cloud config group still has a row | Deleting a config group stops collection but leaves its row, which turns **Offline**. | Delete the row. |
 
 ## Permissions
 

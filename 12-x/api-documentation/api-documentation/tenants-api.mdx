@@ -1,0 +1,248 @@
+Use these endpoints to create and manage tenants on a multi-tenant UTMStack v12 installation: the separate customer or business-unit spaces that each have their own users, data, rules and settings. They also set each tenant's daily SOC-AI allowance and let a tenant decide whether the platform team may enter it for support. Tenant management needs the multi-tenant (MSSP) licence.
+
+## Permissions and Licence
+
+| Action | Who can call it | Licence |
+|---|---|---|
+| List and read tenants | Administrator role in the default tenant, with `tenant.read` | Multi-tenant |
+| Create, update, terminate, reactivate and permanently delete tenants | Administrator role in the default tenant, with `tenant.write` | Multi-tenant |
+| Read or change a tenant's support access | Administrator role **in that tenant** (not the platform team) | Multi-tenant |
+
+The **default tenant** is the one created at installation. Its Administrators are the platform team: they manage the other tenants. In this section, "platform administrator" means a user with the Administrator role in the default tenant.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 403 | `This feature requires an MSSP license` | The installation has no multi-tenant licence |
+| 403 | `this operation is limited to administrators of the default tenant` | The caller is not a platform administrator |
+| 403 | `missing required permission: tenant.write` | The caller's role lacks the permission |
+
+For the screens, see **Tenants** and **Support Access**.
+
+## Tenant Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Tenant id |
+| `name` | string | Display name |
+| `domain` | string | Host name that users of this tenant open, for example `acme.siem.example.com`. Requests that arrive on this address belong to the tenant. |
+| `status` | string | `ACTIVE`, `SUSPENDED` or `TERMINATED` |
+| `supportAccess` | string | `NONE`, `READ` or `FULL`: what the platform team may do inside the tenant. Set by the tenant itself. |
+| `limits.maxAIRequests` | integer or null | Daily SOC-AI allowance of the tenant. `null` follows the instance limit. |
+| `createdAt`, `updatedAt` | string | Times in RFC 3339 format |
+
+## List Tenants
+
+**Endpoint:** `GET /api/v1/tenants`
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| name | string | Part of the name (upper and lower case ignored) |
+| domain | string | Part of the domain (upper and lower case ignored) |
+| status | string | `ACTIVE`, `SUSPENDED` or `TERMINATED` |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 25 |
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/tenants" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "status=ACTIVE" \
+  --data-urlencode "size=100"
+```
+
+**Response (HTTP 200):** an array, newest tenant first. The total is in the `X-Total-Count` header.
+
+```json
+[
+  {
+    "id": "<tenant-id>",
+    "name": "Acme Corp",
+    "domain": "acme.siem.example.com",
+    "status": "ACTIVE",
+    "supportAccess": "READ",
+    "limits": {"maxAIRequests": 200},
+    "createdAt": "2026-11-03T09:30:00Z",
+    "updatedAt": "2026-11-05T16:12:00Z"
+  }
+]
+```
+
+## Get One Tenant
+
+**Endpoint:** `GET /api/v1/tenants/{id}`
+
+Returns one tenant object. An unknown id returns 404 `tenant not found`; a value that is not a UUID returns 400 `invalid tenant id`.
+
+## Create a Tenant
+
+**Endpoint:** `POST /api/v1/tenants`
+
+Creates the tenant and its first Administrator. The Administrator is created as an invited user: UTMStack sends an invitation email to `adminEmail` (email must be set up, see **Email Configuration**).
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Display name |
+| domain | string | Yes | Host name for the tenant. At least two parts separated by dots; each part 1 to 63 characters of letters, digits and hyphens, not starting or ending with a hyphen; 253 characters at most. Stored in lower case. Must not belong to another tenant. |
+| adminEmail | string | Yes | Email address of the tenant's first Administrator |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/tenants" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Acme Corp", "domain": "acme.siem.example.com", "adminEmail": "admin@acme.example.com"}'
+```
+
+**Response (HTTP 201):** the new tenant object, with status `ACTIVE`, support access `NONE` and no AI limit.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `name is required` | Empty name |
+| 400 | `domain is required` | Empty domain |
+| 400 | `domain is not a valid hostname` | The domain breaks the rules above |
+| 400 | Validation message | A field is missing or `adminEmail` is not an email address |
+| 409 | `domain already belongs to another tenant` | Domain in use |
+
+Before users can open the tenant, its domain must reach the UTMStack server: add a DNS record that points the name at the server and make sure the server's certificate covers it (see **Tenants**). In UTMStack v12.0.2 the invitation link may not let the new Administrator set a password; **Tenants** describes how to onboard the first Administrator.
+
+## Update a Tenant
+
+**Endpoint:** `PUT /api/v1/tenants/{id}`
+
+Send only what you want to change.
+
+| Field | Type | Description |
+|---|---|---|
+| name | string | New display name |
+| domain | string | New domain (same rules as create) |
+| status | string | `ACTIVE`, `SUSPENDED` or `TERMINATED` |
+| maxAIRequests | integer or null | Daily SOC-AI allowance. A whole number of 0 or more sets it; `0` turns SOC-AI off for the tenant; `null` removes the tenant limit so the instance limit applies. Leave the field out to keep the current value. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/tenants/<tenant-id>" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"maxAIRequests": 200}'
+```
+
+**Response (HTTP 200):** the updated tenant object.
+
+**How the AI allowance is worked out.** If the tenant has no limit, it follows the instance limit. If the instance has no limit, the tenant limit applies as set. If both are set, the smaller one applies. Each chat message, alert summary and automatic alert analysis counts as one request; the count resets at midnight UTC. See **AI Usage and Limits**.
+
+**Suspending a tenant** (`"status": "SUSPENDED"`) blocks it at once: every request made with its users' tokens or API keys is refused with 403 `this tenant has been suspended or terminated`. Send `"status": "ACTIVE"` to lift the suspension.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `status must be ACTIVE, SUSPENDED or TERMINATED` | Unknown status |
+| 400 | `a limit cannot be negative; omit it to fall back to the instance limit, or set 0 to deny the feature` | `maxAIRequests` below 0 |
+| 400 | `a limit must be a whole number, or null to remove it` | `maxAIRequests` is not a whole number |
+| 400 | `tenant is terminated` | The tenant is terminated; reactivate it first |
+| 400 | `domain is not a valid hostname` | Invalid new domain |
+| 404 | `tenant not found` | Unknown id |
+| 409 | `domain already belongs to another tenant` | Domain in use |
+
+> [!WARNING]
+> Do not change the status of the default tenant. Its users are the platform team. Terminate, reactivate and permanent delete refuse the default tenant, but this endpoint does not check it in UTMStack v12.0.2.
+
+## Terminate a Tenant
+
+**Endpoint:** `DELETE /api/v1/tenants/{id}`
+
+Sets the status to `TERMINATED`. The tenant's users and keys stop working at once, but all of its data is kept, so the step can be undone with reactivate. Terminating a tenant that is already terminated does nothing and still answers 204.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/tenants/<tenant-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. The default tenant returns 403 `the default tenant holds the platform plane and cannot be changed this way`.
+
+## Reactivate a Tenant
+
+**Endpoint:** `POST /api/v1/tenants/{id}/reactivate`
+
+Sets a terminated tenant back to `ACTIVE`.
+
+**Response (HTTP 200):** the tenant object. A tenant that is not terminated returns 400 `tenant is not terminated`.
+
+## Delete a Tenant Permanently
+
+**Endpoint:** `DELETE /api/v1/tenants/{id}/permanent`
+
+Removes the tenant and its data for good: every database record of the tenant (users, roles, incidents, notifications, audit log entries, settings and so on), its events and alerts in the event store, and its custom correlation rules and pipelines. This cannot be undone. The tenant must be terminated first.
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/tenants/<tenant-id>/permanent" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `tenant is not terminated` | Terminate the tenant first |
+| 403 | `the default tenant holds the platform plane and cannot be changed this way` | The default tenant cannot be deleted |
+| 404 | `tenant not found` | Unknown id |
+| 500 | Message starting with `external purge:` | The event store or the rule folders could not be cleaned. Nothing was removed from the database; try again later. |
+
+## Support Access
+
+Support access is the tenant's own choice of what the platform team may do inside it:
+
+| Value | Meaning |
+|---|---|
+| `NONE` | The platform team cannot enter the tenant (the default for new tenants) |
+| `READ` | The platform team can look but not change anything (only `GET` requests are allowed) |
+| `FULL` | The platform team can work in the tenant as its own administrators can |
+
+These two endpoints need the Administrator role **in the tenant itself**, called on the tenant's own address and with the tenant's own id. The platform team cannot change this setting for a tenant, and it cannot be set on the default tenant.
+
+**Read:** `GET /api/v1/tenants/{id}/support-access`
+
+```bash
+curl -sk "https://acme.siem.example.com/api/v1/tenants/<tenant-id>/support-access" \
+  -H "Utm-Api-Key: <tenant-admin-api-key>"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"supportAccess": "READ"}
+```
+
+**Change:** `PUT /api/v1/tenants/{id}/support-access`
+
+```bash
+curl -sk -X PUT "https://acme.siem.example.com/api/v1/tenants/<tenant-id>/support-access" \
+  -H "Utm-Api-Key: <tenant-admin-api-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"supportAccess": "FULL"}'
+```
+
+**Response (HTTP 200):** the full tenant object.
+
+| HTTP code | Error | Cause |
+|---|---|---|
+| 400 | `support access must be NONE, READ or FULL` | Unknown value |
+| 400 | `tenant is terminated` | Terminated tenant |
+| 403 | `missing required role: ROLE_ADMIN` | The caller is not an Administrator |
+| 403 | `this operation is limited to your own tenant` | The id is not the caller's tenant, or the caller is the platform team working inside the tenant |
+| 403 | `the default tenant holds the platform plane and cannot be changed this way` | The default tenant |
+
+### Working Inside a Tenant as the Platform Team
+
+When a tenant grants `READ` or `FULL` access, a platform administrator can call any tenant endpoint for it by adding the header `X-Tenant-Id: <tenant-id>` to a normal request on the platform address. This needs a **bearer token** from signing in (see **Authentication and API Keys**): API keys cannot switch tenant. Without access granted, the answer is 403 `this tenant has not granted the platform access`.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "X-Tenant-Id: <tenant-id>" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "alerts", "page": 0, "size": 10}'
+```
+
+## Paging
+
+| Endpoint | Page parameter | First page | Size parameter | Default | Largest | Total |
+|---|---|---|---|---|---|---|
+| `GET /tenants` | `page` | `0` | `size` | 25 | No limit | `X-Total-Count` header |

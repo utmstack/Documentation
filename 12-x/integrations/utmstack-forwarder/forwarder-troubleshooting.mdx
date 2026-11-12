@@ -1,0 +1,145 @@
+Use this page when logs sent through the UTMStack Forwarder (the **Collector** in the web interface) do not arrive, arrive under the wrong integration, or arrive without parsed fields. It lists the checks in the order that finds most problems fastest, then the error messages the Forwarder and the web interface show.
+
+## Quick checks
+
+Work through these in order. Each one tells you which part of the path is broken.
+
+<Steps>
+  <Step title="Is the Forwarder online?">
+    Open the device's card in **Configure > Integrations**. In **Enable this integration remotely**, select your Collector. If it shows as offline, the Forwarder cannot reach UTMStack: go to "The Forwarder is offline" below.
+  </Step>
+  <Step title="Is the integration enabled on that Forwarder?">
+    The line under the fields should read `Currently: enabled · <protocol> · port <port>`. On the host, confirm the listener is really open:
+
+    ```bash
+    sudo ss -lntup | grep utmstack_forwar
+    sudo grep "listening in port" /opt/utmstack-forwarder/logs/utmstack_forwarder.log | tail
+    ```
+
+    You should see the port and protocol you expect, for example `Server firewall-fortigate-traffic listening in port: 7005 protocol: UDP`.
+  </Step>
+  <Step title="Do packets reach the host?">
+    Capture traffic on the Forwarder host while the device sends:
+
+    ```bash
+    sudo tcpdump -ni any port 7005
+    ```
+
+    No packets means the device is not sending, sends to another address or port, or a firewall drops the traffic. Check the device's syslog settings and every firewall in between, including the host's own (`ufw status` or `firewall-cmd --list-all`).
+  </Step>
+  <Step title="Do the logs reach UTMStack?">
+    Open the card's drawer and click **View logs**, or open **Log Explorer** with the data set `logs` and the integration's data type. Logs normally show within a minute. The sender appears on **Data Sources** under **Direct**, named after its IP address, within about 20 minutes.
+  </Step>
+  <Step title="Are they parsed?">
+    Expand an event. Parsed events have standard fields (such as `origin.ip`, `target.ip`, `action`) and vendor fields under `log.`. If only `raw` is filled, or `errors` is not empty, see "Logs arrive but are not parsed" below.
+  </Step>
+</Steps>
+
+## Test without the device
+
+To tell a device problem from a Forwarder problem, send a test message yourself from any Linux machine that can reach the Forwarder:
+
+```bash
+logger -n <forwarder-ip> -P 7014 -d "utmstack test message"
+```
+
+`-d` sends over UDP; use `-T` for TCP. This example uses the generic syslog port 7014, which must be enabled (see **Generic Syslog, CEF and LEEF**). Then search Log Explorer for `utmstack test message`. If the test arrives and the device's logs do not, the problem is on the device side.
+
+## Common problems
+
+### The Forwarder is offline
+
+| Cause | Fix |
+|---|---|
+| The service is stopped. | `sudo systemctl status UTMStackForwarder`, then `sudo systemctl restart UTMStackForwarder`. |
+| The host cannot reach UTMStack on 443/TCP. | Test with `curl -k -I https://<server>/` from the host. Open 443 outbound. The Forwarder has no proxy setting, so it needs a direct connection. |
+| The server name in the install command no longer resolves or points elsewhere. | The Forwarder keeps the address it was installed with. Fix DNS, or reinstall with a command copied from the current address. |
+| The Forwarder's registration is no longer valid, for example after the UTMStack server was reinstalled. | The log shows `PermissionDenied` errors, for example `invalid collector key (attempt N), retrying in …` or `invalid credential`. Uninstall and install the Forwarder again with a command from the current server. |
+
+The Forwarder counts as offline after about a minute without contact.
+
+### The integration cannot be enabled
+
+| Message | Cause | Fix |
+|---|---|---|
+| `port 514 is already in use by integration 'firewall-cisco-asa'` | Another data type already listens on that port and protocol on this Forwarder. The four Cisco integrations share 514/UDP and 1470/TCP. | Move one data type with `change-port`, then enable it. See "Use a different port" in **UTMStack Forwarder**. |
+| `port 514 is already in use by another process` | Another program on the host holds the port, often rsyslog or syslog-ng listening on 514. | Stop that listener (for example remove the `imudp`/`imtcp` input from rsyslog) or use another port. Find the program with `sudo ss -lntup \| grep :514`. |
+| `TLS certificates not found. Please load certificates first` | You chose **TLS** before loading a certificate. | Upload the certificate in the **TLS certificate** box, or run `load-tls-certs`. |
+| `TLS is not supported for UDP protocol. Use TCP for TLS connections` | TLS works only over TCP. | Choose **TLS** (which uses the TCP port), not UDP. |
+| "This Collector is offline and can't receive configuration changes right now." | The Forwarder is not connected. | See "The Forwarder is offline". |
+| `collector N did not acknowledge config within 15s` | The Forwarder did not answer in time. | Check that it is online and try again. |
+| "This forwarder was installed with remote control disabled…" | The Forwarder was installed with `--no-remote-control`. | Use the command line on the host, or reinstall without the option. |
+| "You don't have permission to manage remote integrations…" | Your role lacks `integrations.write`. | Ask an administrator. |
+
+### The page shows one port, the Forwarder uses another
+
+For built-in data types the Forwarder listens on the port saved in its own settings, whatever port you type in the panel. The **Currently** line shows what the web interface last sent, and does not show changes made on the host. Check the real port with `ss -lntup` or the Forwarder log. To change it, run `change-port` on the host first, then enable the integration again with the same port in the panel.
+
+When you disable an integration, choose the same protocol you enabled it with. Then confirm with `ss -lntup` that the port is closed.
+
+### Logs arrive under the wrong integration
+
+The Forwarder decides the data type from the port a log arrives on. If FortiGate logs show under `firewall-paloalto`, the FortiGate sends to the Palo Alto port. Fix the destination port on the device. Logs already stored keep their data type.
+
+### Logs arrive but are not parsed
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Only `raw` is filled; `errors` lists a step | The device sends a format the pipeline does not expect, for example SonicWall in its default format instead of CEF, or ESET in LEEF instead of JSON. | Change the device's log format as its integration page says. Test a sample with **Test pipeline** on **Configure > Pipelines**. |
+| Messages end in the middle | UDP messages are cut at 2,048 bytes. | Switch the device and the integration to TCP or TLS. |
+| A TCP stream stops after some lines | A plain line that starts with a digit (for example a date) is read as a length prefix, and the connection closes. | Make the device send standard syslog lines that start with `<PRI>`, or use octet counting. |
+| Times look wrong | The device's clock or time zone is wrong, or its messages carry no year. | Set the device's clock with NTP. UTMStack keeps the time it received each log in `@timestamp`. |
+
+To list recent events with errors for one data type, use Log Explorer in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-fortigate-traffic'
+  AND notEmpty(errors)
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+The **Dropped (parsing)** figure on **Configure > Data Processing** shows how many logs were dropped while being parsed, per data type. See **Data Processing**.
+
+### Some logs are missing
+
+| Cause | Fix |
+|---|---|
+| The link to UTMStack was down. The Forwarder does not keep logs on disk. | Check the Forwarder log for `failed to send log` and `error connecting to Correlation`. Make the link reliable, or use an agent where the source allows it. |
+| UDP packets were dropped before the Forwarder read them (busy host, small socket buffers, a congested network). | Check `netstat -su` for receive errors. Use TCP, place the Forwarder closer to the device, or split the load across Forwarders. |
+| The device only logs some events (for example only denied traffic, or a high severity threshold). | Check the device's logging level and per-policy logging. |
+
+### The install fails
+
+| Output | Cause | Fix |
+|---|---|---|
+| `Error trying to connect to server:  cannot connect to <server> on port 443` | No direct route to the server on 443. | Open 443 from the host to the server; check DNS. |
+| `Error downloading version info` | The download from the server failed, for example a certificate the host does not trust with `no` as the last argument. | Use `yes` (skip certificate validation) or install a trusted certificate on the server. |
+| `Error registering collector:` … `invalid connection key` | The key in the command is wrong, was rotated, or was copied by a non-administrator (`*******`). | Copy the command again as an administrator. |
+| `Error registering collector:` … `hostname has already been registered` | A Forwarder with the same host name is already registered from a different IP address. | Install on a host with a different host name, or give this host its old IP address. |
+| `UTMStackForwarder service is already installed` | A Forwarder is already on this host. | Uninstall it first, or keep using it. |
+
+## Forwarder log messages
+
+The log file is `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`.
+
+| Message | Meaning |
+|---|---|
+| `Log stream connected` | The Forwarder is sending to UTMStack. |
+| `Server <data type> listening in port: <port> protocol: <UDP\|TCP>` | A listener opened. |
+| `Server <data type> TLS enabled in port: <port> protocol: TCP` | A TLS listener opened. |
+| `error listening UDP in port …` / `error listening TCP in port …` | The port could not be opened (in use, or not allowed). |
+| `TLS connection rejected from <ip>: TLS is disabled, only plain text connections accepted` | A device sent TLS to a plain TCP listener. Enable the integration as TLS, or turn TLS off on the device. |
+| `TLS handshake failed from <ip>: …` | A device could not agree TLS with the Forwarder: wrong certificate, a device that does not trust it, or a TLS version older than 1.2. |
+| `error reading TCP data from <ip>: …` | A TCP connection was closed because of a framing problem. See "Logs arrive but are not parsed". |
+| `invalid collector key (attempt N), retrying in …` | UTMStack no longer accepts this Forwarder's credentials. Reinstall it. |
+| `failed to send log` / `failed to receive ack` | The connection to UTMStack dropped. The Forwarder reconnects by itself. |
+| `unsupported NetFlow version …` / `invalid NetFlow packet from …` | An exporter sends a NetFlow version or packet the Forwarder cannot read. |
+| `http: …` lines | Messages from HTTP and HTTPS listeners, such as GitHub. |
+
+## Still stuck
+
+Collect this before you ask for help: the integration and data type, the protocol and port on the device, the output of `ss -lntup` and of a short `tcpdump` on the Forwarder host, the last 100 lines of the Forwarder log, and a raw sample of one log line from the device. Do not share the connection key or the files in `/opt/utmstack-forwarder/certs`.

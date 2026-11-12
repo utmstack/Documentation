@@ -1,0 +1,119 @@
+Use the `json-input` data type for applications and scripts that write one JSON object per event. UTMStack v12 ships a pipeline that turns each JSON object into fields, and 10 detection rules for web and API attacks that read this data type.
+
+## What UTMStack does with these logs
+
+| Item | Value |
+|---|---|
+| Data type | `json-input` |
+| Card on the Integrations page | None by default. Create a custom integration named **JSON Input** (below). |
+| How logs arrive | Through a UTMStack Forwarder (the **Collector** in the web interface), as a custom data type on a port you choose |
+| Shipped pipeline | `json/json-input.yaml` (version 2.0): reads the whole log as one JSON object |
+| Shipped rules | 10, for example "Mass Assignment Attack Detection", "NoSQL Injection via JSON Detection", "GraphQL Abuse Detection" and "JWT Algorithm Confusion Attack Detection" |
+
+The pipeline puts every key of the JSON object under `log.`. For example, `{"user":"jdoe","status":401}` becomes `log.user` = `jdoe` and `log.status` = `401`. Nested objects keep their path, for example `log.request.method`.
+
+<Note>
+
+The shipped pipeline does not move anything into the standard fields such as `origin.ip`. Four of the shipped rules only fire when `origin.ip` exists, and others read specific keys such as `log.callback` or `log.jti`. Add a small pipeline of your own that renames your keys to standard fields (Step 4). Threat intelligence matching and dashboards also need the standard fields.
+
+</Note>
+
+## Before you begin
+
+- A UTMStack Forwarder installed and online. See **UTMStack Forwarder**.
+- A free port on the Forwarder host for this data type, for example 7015 or 7100. It must not be used by another integration.
+- Each event must be one JSON object on one line. Pretty-printed JSON that spans several lines is split into broken pieces.
+
+## Step 1: Create the JSON Input integration
+
+<Steps>
+  <Step title="Create it">
+    Go to **Configure > Integrations**, scroll to **Add custom integration** and click **Create**. In **Integration name**, type `JSON Input`. The drawer shows that it is stored as `json-input`. Save.
+
+    ![New custom integration drawer in UTMStack with the Integration name, Description and Icon fields and the Create integration button](/assets/c2f44659-cfbf-43cb-aa33-de6ab9844cf7)
+  </Step>
+  <Step title="Check the identifier">
+    The identifier must be exactly `json-input`, or the shipped pipeline and rules do not apply. If you used another name, delete the integration and create it again.
+  </Step>
+</Steps>
+
+## Step 2: Open a listener on the Forwarder
+
+Open the new **Json Input** card. Under **Enable this integration remotely**, choose the **Collector**, the **Protocol** and the **Port**, then click **Enable integration**. Because `json-input` is new to the Forwarder, it uses the port you type.
+
+| Protocol | Use it when | Notes |
+|---|---|---|
+| **TCP** | The sender is on another host. Recommended. | One JSON object per line, each ending with a newline. Lines that start with `{` are read one per line. |
+| **TLS** | The sender is on another host and the data must be encrypted. | Load a certificate on the Forwarder first. See **UTMStack Forwarder**. |
+| **UDP** | Short events only. | Each event must fit in 2,048 bytes; longer ones are cut and fail to parse. |
+| **HTTP** or **HTTPS** | The sender runs on the Forwarder host itself. | The listener answers only on `127.0.0.1`, path `/logs`. Each request body is one event, up to 8 MB. |
+
+Or, on the Forwarder host:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration json-input 7015 tcp
+```
+
+The first time, the command prints `New data type "json-input" created.`
+
+## Step 3: Send events
+
+<CodeGroup>
+
+```bash Test from any Linux host (TCP)
+echo '{"timestamp":"2026-11-12T09:30:00Z","client_ip":"203.0.113.10","user":"jdoe","path":"/api/login","status":401}' \
+  | nc -q 1 <forwarder-ip> 7015
+```
+
+```bash Test on the Forwarder host (HTTP)
+curl -X POST "http://127.0.0.1:7015/logs" \
+  -H "Content-Type: application/json" \
+  -d '{"timestamp":"2026-11-12T09:30:00Z","client_ip":"203.0.113.10","user":"jdoe","path":"/api/login","status":401}'
+```
+
+</CodeGroup>
+
+For a real application, point its log shipper at `<forwarder-ip>:7015` over TCP. Most shippers (for example Fluent Bit, Vector or rsyslog with a JSON template) can send newline-delimited JSON over TCP. Send the JSON object only: do not wrap it in a syslog header.
+
+`nc -q 1` closes the connection one second after sending. Some `nc` versions use `-N` or `-w 1` instead.
+
+## Step 4: Map your keys to standard fields
+
+Create a pipeline for `json-input` in **Configure > Pipelines** (Code mode), with one `rename` step per key you want to move. For the test event above:
+
+```yaml
+pipeline:
+  - dataTypes: [json-input]
+    steps:
+      - rename:
+          from:
+            - log.client_ip
+          to: origin.ip
+      - rename:
+          from:
+            - log.user
+          to: origin.user
+```
+
+Keys you do not rename stay under `log.` and remain searchable. Only move a key to a standard field whose meaning matches: a field outside `log.` whose name is not in the schema is removed without an error.
+
+Your pipeline runs after the shipped one, so the keys are already under `log.`. Use **Test pipeline** with a real sample before you save. See **Pipelines** and **Standard Event Schema** for the field names.
+
+If several applications send to `json-input`, add a `where` condition to each step, for example `where: exists("log.client_ip")`, so a step only touches the events it is meant for. If they differ a lot, give each application its own custom integration and data type instead. See **Custom Integrations**.
+
+## Step 5: Check that events arrive
+
+1. In **Log Explorer**, choose the data set `logs` and the data type `json-input`, and search for `jdoe`.
+2. Expand the event. The JSON keys appear under `log.` (or in the standard fields, after Step 4), and the `errors` field is empty.
+3. Within about 20 minutes, the sender appears on **Configure > Data Sources** under **Direct**, named after its IP address (or the Forwarder's host name for senders on `127.0.0.1`). Events posted to an HTTP or HTTPS listener appear under the name `json-input`.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Nothing arrives | Wrong address, port or protocol, or a firewall in between. HTTP listeners accept only senders on the Forwarder host. | Check `sudo ss -lntup \| grep 7015` and capture with `tcpdump`. For remote senders use TCP or TLS. See **Forwarder Troubleshooting**. |
+| `errors` is not empty and only `raw` is filled | The event is not valid JSON, is cut off (UDP over 2,048 bytes), has a syslog header in front, or spans several lines. | Send one complete JSON object per line over TCP, without a header. |
+| A TCP stream stops after some events | A line that starts with a digit is read as a length prefix and closes the connection. | Make sure every line is a JSON object starting with `{`. |
+| Events arrive under another data type | The integration was not named `JSON Input`, or the sender uses the port of another integration. | Check the identifier on the card and the destination port. |
+| The shipped rules never fire | They need standard fields such as `origin.ip`, or specific keys. | Add the rename pipeline in Step 4. |
+| `port 7015 is already in use by integration '…'` | Another data type listens on that port. | Choose another port. |

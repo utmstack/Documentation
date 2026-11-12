@@ -2,8 +2,8 @@ The **Sophos** integration brings security events from Sophos Central into UTMSt
 
 ## How it works
 
-- UTMStack signs in to Sophos Central with the credential's Client ID and Client Secret and reads the Sophos Central SIEM events API every 5 minutes.
-- Events are stored with the data type `sophos-central`. UTMStack v12 ships 20 detection rules for this data type; see **Sophos Central** in the **Rules** tab.
+- UTMStack signs in to Sophos Central with the credential's Client ID and Client Secret, asks Sophos which tenant and data region the credential belongs to, and reads the Sophos Central SIEM events API every 5 minutes. It reads events, not the separate alerts API.
+- Events are stored with the data type `sophos-central` and parsed by the shipped pipeline `sophos/sophos_central.yaml`. UTMStack v12 ships 20 detection rules for this data type; see **Sophos Central** in the **Rules** tab.
 
 ## Before you start
 
@@ -27,7 +27,13 @@ In **Sophos Central Admin**, go to **Global Settings > API Credentials Managemen
 </Step>
 <Step title="Create a new credential">
 
-Click **Add Credential**. Enter a **Name** and a **Description**, select the appropriate **Role**, and click **Add**. The credential must be able to read events.
+Click **Add Credential**. Enter a **Name** and a **Description**, select the appropriate **Role**, and click **Add**. The credential must be able to read events: a read-only role such as **Service Principal Read-Only** is enough.
+
+<Note>
+
+Create the credential in Sophos Central Admin of the account (tenant) you want to monitor. UTMStack reads one tenant per credential; a credential created at partner or enterprise level in Sophos Central does not work here. To monitor several Sophos Central accounts, create one credential in each and add one config group per account.
+
+</Note>
 
 <img
   height="200"
@@ -64,6 +70,10 @@ Each Sophos Central account connection is a **config group**. You can add more t
 
 Go to **Configure > Integrations**, search for `Sophos` and open the **Sophos** card (the one for Sophos Central, not **Sophos Xg**). The form is at the end of the setup guide, under **Add Sophos Central credentials**.
 
+![Sophos Central setup guide in UTMStack, showing How it works and the first step: open API Credentials Management in Sophos Central Admin](/assets/33cde54d-1088-4c91-bf0f-0074044129b6)
+
+The guide mentions alerts, but this integration reads only the Sophos Central events API; see **How it works**.
+
 </Step>
 <Step title="Fill in the form">
 
@@ -89,7 +99,37 @@ UTMStack does not test Sophos Central credentials when you save them: a wrong Cl
 
 ## Check that events arrive
 
-Open the **Sophos** card again and click **View logs**. Log Explorer opens filtered to the `sophos-central` data type for the last 24 hours. UTMStack reads new events every 5 minutes, so allow a few minutes after you save.
+Because the save does not test the credentials, this check is the only proof that the connection works.
+
+<Steps>
+<Step title="Make sure there is activity">
+
+Sophos Central only returns events that happened. In Sophos Central, open **Logs & Reports > Events** (the event log) and check that recent events exist, for example a scan, a policy change or a sign-in to an endpoint.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Wait at least 5 minutes, then open the **Sophos** card again and click **View logs**. Log Explorer opens with the `sophos-central` data type for the last 24 hours.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 minutes. A row that stays **Offline** while Sophos Central shows recent events means UTMStack cannot read them.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors do not appear in the web interface, not even a wrong secret. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| No `sophos-central` events after 10 minutes | The Client ID or Client Secret is wrong, or the secret was copied incompletely. | Create a new credential in Sophos Central, then edit the config group and paste both values. |
+| Still no events with a new credential | The credential was created at partner or enterprise level, or its role cannot read events. | Create it in Sophos Central Admin of the monitored account, with a role such as **Service Principal Read-Only**. |
+| Events stopped after working | The credential was deleted or its secret was renewed in Sophos Central. | Edit the config group and paste the current secret. |
+| You also need the full traffic and threat logs of a Sophos Firewall | This integration reads Sophos Central events, not the firewall's own syslog. | Send the firewall's syslog to a UTMStack Collector; see **Sophos Firewall (XG)**. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
 
 ## Manage config groups
 

@@ -7,7 +7,7 @@ Every **Shell** step has a **Run on** setting with three choices:
 | Choice | What it does |
 |---|---|
 | **alert source** (default) | "Runs on $(alert.dataSource) — the host that raised the matched alert." |
-| **one host** | Pins the step to one host. Pick it from the list (**pick a host…**), or type a template such as `$(alert.target.host)`. |
+| **one host** | Pins the step to one host. Pick it from the list (**pick a host…**). The editor also offers to type a template such as `$(alert.target.host)`, but templates do not work in UTMStack v12.0.2 (see the warning below). |
 | **all except** | "Runs on the host that raised the alert, but skips ones in the list." Add hosts with **add exclusion**. |
 
 The host list shows agents for the step's **Platform**. The platform list offers the platforms of your agents plus `windows`, `linux`, `ubuntu`, `centos` and `darwin`.
@@ -17,12 +17,12 @@ The host list shows agents for the step's **Platform**. The platform list offers
 For each shell step, UTMStack decides the target in this order:
 
 1. The host pinned on the step (**one host**), if there is one.
-2. The agent chosen in **Trigger flow**, when you start the flow by hand.
+2. The agent chosen in **Trigger flow**, when you start the flow by hand (start steps only).
 3. The alert's `dataSource`, that is, the host that raised the alert.
 
-A later step without its own host runs where its parent step ran. Agents are found by host name.
+A later step without its own host runs where its parent step ran, or on the alert's host when the parent has no host (for example when the flow starts with a Conditional or HTTP call step). Agents are found by their host name, which must match exactly, including upper and lower case, as shown on **Configure > Data Sources**.
 
-- With **all except**, a step whose target is on the exclusion list does not run; it is marked **Failed** and its red wire runs. Exclusions apply only to the alert-source choice, not to a pinned host or a host chosen in **Trigger flow**.
+- With **all except**, a step whose target is on the exclusion list does not run; it is marked **Failed** and its red wire runs. Exclusions are checked whenever the step has no pinned host: against the alert's host, the host chosen in **Trigger flow**, or the host of the parent step. They do not apply to a pinned host. The result then reads `soar shell: agent not found`.
 - If no agent has the host name, the step is marked **Failed**. If the agent is offline, it is marked **Failed** with the cause **Agent offline**.
 - An agent installed with remote control disabled refuses every command ("Remote control disabled"). This can only be changed by reinstalling the agent on that machine.
 
@@ -32,11 +32,11 @@ The **Platform** of a step does not limit where it runs. A step pinned to a Linu
 
 </Warning>
 
-<Note>
+<Warning>
 
-Values inserted into a host template are quoted like any other placeholder (see **Placeholders**). Test a templated host with **Trigger flow** before you rely on it. Picking a fixed host from the list avoids this.
+**Host templates do not work in UTMStack v12.0.2.** A template such as `$(alert.target.host)` in **Run on > one host** is filled in with single quotes around the value, like any placeholder (see **Placeholders**). UTMStack then looks for an agent whose host name includes those quotes, finds none, and the step fails with `soar shell: agent not found`. Pick a fixed host from the list instead.
 
-</Note>
+</Warning>
 
 ## Option 1: a jump host with an agent
 
@@ -94,7 +94,7 @@ Use this for devices and services with a web API (firewalls, cloud services, tic
 - The server checks the device's HTTPS certificate and has no option to skip it. A device with a self-signed certificate is refused; use a jump host for it instead.
 - Placeholders and variables inserted into the address, headers or body arrive wrapped in single quotes in UTMStack v12.0.2. Check what the API receives before you rely on such a step. See **Placeholders**.
 
-See **Step Types** for every field of the HTTP call step.
+See **Step Types** for every field of the HTTP call step, and **Worked Examples: Responding Through Other Systems** for complete examples of both options.
 
 ## Which option to choose
 
@@ -117,3 +117,4 @@ See **Step Types** for every field of the HTTP call step.
 - **Step Types**
 - **Step Outputs and Variables**
 - **Interactive Console**
+- **Worked Examples: Responding Through Other Systems**

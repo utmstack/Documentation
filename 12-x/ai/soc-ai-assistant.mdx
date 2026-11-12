@@ -34,7 +34,7 @@ The panel is titled **SOC Assistant**. When it is empty it reads "Ask anything a
 
 In a long conversation you may see "Compacting context…" while the assistant shortens what it remembers.
 
-Conversations are kept in your browser only. UTMStack does not store them on the server, so they are not shared with colleagues and are gone when you clear them.
+Conversations are kept in your browser only. UTMStack does not store them on the server, so they are not shared with colleagues and are gone when you clear them or reload the page.
 
 ## How it works
 
@@ -62,8 +62,8 @@ The assistant changes things for real. If you ask it to close alerts, change a r
 
 When **Auto-analyze alerts** is on in the SOC-AI settings, SOC-AI investigates every new alert on its own:
 
-1. It removes personal names before the alert goes to the AI: user names and email addresses of the target and the adversary (also in the alert's last event) are replaced with placeholders.
-2. It investigates with read-only tools.
+1. It replaces some personal data before the alert goes to the AI: the user names and email addresses of the target and the adversary, and of the target in the alert's last event, become placeholders (see **What data goes to the AI provider** below).
+2. It judges the alert together with the score UTMStack computes for it. Only when that leaves the picture unclear does it investigate further with tools.
 3. It writes its assessment as a note on the alert, starting with `[AI SOC Agent]`.
 
 The alert then carries the **AI assessed** badge, and its details show a **SOC AI assessment** section with a risk level and a score out of 100.
@@ -84,7 +84,30 @@ In the alert details, click **Generate AI summary** ("SOC-AI investigates this a
 
 ## What data goes to the AI provider
 
-The AI provider you choose receives your questions and the data the assistant's tools return, such as alerts and log lines, so it can answer. For automatic triage, user names and email addresses in the alert are replaced first, as described above. If your data must stay on your own network, use a local provider such as Ollama (see **AI Providers**).
+The AI provider you choose in **Configure > Settings > SOC-AI** receives the data below. Requests go from your UTMStack server straight to the provider's address (listed in **AI Providers**); with the default ThreatWinds provider they go to ThreatWinds.
+
+| Feature | What is sent to the provider |
+|---|---|
+| Chat: the assistant panel, **Ask** buttons, and the AI builders for dashboards and flows | Your message; up to the last 10 messages of the conversation; the alert or incident you shared with the assistant; UTMStack's instructions and the list of tools the assistant may use; and the result of every tool the assistant calls while it answers, such as log lines, alerts, incidents and search counts. |
+| Automatic triage and **Generate AI summary** | The alert, up to 100,000 characters. Automatic triage sends it with its last event (the alert's other events are left out); **Generate AI summary** sends only the alert's own fields, such as name, description, severity, adversary and target, without its events or notes. In both cases also the alert's score, which UTMStack computes itself, and, when the first pass asks for a deeper look, the results of the tools it calls. |
+
+**What is replaced before sending.** For automatic triage and **Generate AI summary** only, UTMStack replaces these values with placeholders before the alert leaves the server:
+
+- the user name and email address of the alert's target and adversary;
+- the user name and email address of the target in the last event (automatic triage only, because only it sends the last event);
+- email addresses inside the text values of the last event's `log` fields (automatic triage only).
+
+The model is told which fields were replaced, so it does not draw conclusions from the placeholders.
+
+**What is not replaced.** IP addresses, host names, the origin user of the last event, the original log text (`raw`), the contents of chat messages, and everything that tools return during a chat or a deeper triage are sent as they are.
+
+**What is stored where.**
+
+- Chat conversations are kept only in your browser.
+- Assessments are stored in UTMStack as a note on the alert, starting with `[AI SOC Agent]`. Everyone who can read the alert can read the note.
+- What the provider keeps, and for how long, depends on the provider's own terms.
+
+If your data must not leave your network, run a model on your own infrastructure (Ollama, or any OpenAI-compatible server) and choose it as the provider. See **AI Providers**.
 
 ## Permissions
 
@@ -94,6 +117,21 @@ The AI provider you choose receives your questions and the data the assistant's 
 | `socai.write` | "Configure the SOC AI provider" | Administrator |
 
 Because the assistant's buttons depend on the settings check, in UTMStack v12.0.2 only users with `socai.write` see them.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| No **Ask** button and no **Generate AI summary** | No provider is set up, or your role cannot open the SOC-AI settings (in UTMStack v12.0.2 only the Administrator role sees the assistant). | Set up a provider in **Configure > Settings > SOC-AI** (see **AI Providers**). |
+| "this tenant has used the AI requests its plan allows for today" | The tenant's daily AI allowance is used up. | Wait until midnight UTC, or ask the instance operator to raise the tenant's cap. See **AI Usage and Limits**. |
+| "rate limit reached — upgrade to Enterprise for higher usage limits" | The AI provider refused the request because too many were sent. With ThreatWinds, the limit comes from your subscription; with other providers, from your account with them. | Wait a few minutes and ask again. With your own provider, check your plan's limits. |
+| "SOC AI agent unreachable" or "SOC AI agent timed out" | The SOC-AI service on the UTMStack server is not running or did not answer in time. | Check the server's services (see **Health Checks and Troubleshooting**) and try again. |
+| "An error has occurred while processing your request." | The AI provider returned an error, for example because the model or key changed. | Check the provider, model and key in **Configure > Settings > SOC-AI**. Saving a changed provider, model, address or key tests the connection again. |
+| The assistant stops before it finishes the task | It reached **Max tool iterations** (default 12). | Ask a narrower question, or raise **Max tool iterations** in the SOC-AI settings. |
+| Answers are cut off | They reached **Max tokens** (default 4096). | Raise **Max tokens** in the SOC-AI settings. |
+| "Compacting context…" in a long conversation | The conversation is too long for the model, so the assistant shortens what it remembers. | Normal. For a new topic, click **Clear conversation**. |
+| New alerts get no SOC AI assessment | **Auto-analyze alerts** is off; the tenant's allowance for the day is used up (automatic triage then skips alerts); or more than 1,000 alerts are waiting, in which case new ones are skipped. | Check the switch and **AI allowance today** in the SOC-AI settings. On a busy server, analyse important alerts with **Generate AI summary**. |
+| **Generate AI summary** shows "The AI summary is taking longer than expected…" | The provider is slow, or many alerts are waiting for analysis. | The assessment is added to the alert when it is ready. |
 
 ## Not the same as AI Analyst
 

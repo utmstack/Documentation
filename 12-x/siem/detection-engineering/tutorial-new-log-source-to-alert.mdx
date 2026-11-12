@@ -1,0 +1,404 @@
+This tutorial walks you through the whole detection workflow in UTMStack v12 with one example source: you bring in the logs of a firewall that UTMStack has no integration for, write a pipeline that turns its raw lines into standard fields, write two alerting rules, test both in the test playground, switch them on and watch a real alert arrive. Plan about an hour. Every step names the screen and the button you use, and ends with a check.
+
+## What you build
+
+The example source is a fictional firewall, "Acme Firewall", that sends syslog lines like this one:
+
+```text
+<134>Nov 12 09:30:00 fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=3389 policy=deny-ext
+```
+
+At the end you have:
+
+| Item | What it does |
+|---|---|
+| A custom integration `Acme Firewall` | Gives the logs their own data type, `acme-firewall`, and a listener on a UTMStack Collector. |
+| A pipeline `Acme Firewall` | Splits each line into fields and maps them to the standard event fields (`origin.ip`, `target.ip`, `target.port`, `actionResult`). |
+| Rule 1: a single-event rule | Raises an alert when an address outside your network is blocked on a remote administration port (SSH, RDP, WinRM). |
+| Rule 2: a counting rule | Raises an alert when one address has 50 blocked connections in 10 minutes, a typical port scan. |
+
+You can replace Acme Firewall with your own source: the steps are the same, only the pipeline steps and field names change.
+
+## Before you start
+
+- You need the **Administrator** role. Pipelines and rules need the `eventprocessing.write` permission, and the integration needs `integrations.write`. See **Roles and Permissions**.
+- You need a UTMStack Collector (the UTMStack Forwarder service on a Linux host in your network) that is online. See **UTMStack Forwarder**.
+- You need a Linux machine that can reach the Collector, to play the firewall. The examples use `nc` (netcat). On Debian or Ubuntu, install it with `sudo apt install netcat-openbsd`.
+- Keep these pages open for reference: **Pipeline File Format and Step Reference**, **Rule File Format** and **Condition Functions Reference**.
+
+<Note>
+
+Pipelines and rules you create belong to the tenant you are working in. On a multi-tenant installation, check the tenant name in the top bar before you start.
+
+</Note>
+
+## Part 1: Bring the logs in
+
+<Steps>
+<Step title="Create the custom integration">
+
+Go to **Configure > Integrations**. On the **Add custom integration** card, click **Create**. Enter the **Integration name** `Acme Firewall` and check the line under the field: it shows the identifier "acme-firewall". This identifier is the data type of every event the integration receives. Click **Create integration**.
+
+![The New custom integration panel with Integration name, Description, Icon, and the Create integration and Cancel buttons](/assets/c2f44659-cfbf-43cb-aa33-de6ab9844cf7)
+
+</Step>
+<Step title="Open a listener on the Collector">
+
+Open the new **Acme Firewall** card. In **Enable this integration remotely**, choose your **Collector**, set **Protocol** to **UDP** and **Port** to `7100`, and click **Enable integration**. The panel then reads "Currently: enabled · udp · port 7100".
+
+See **Custom Integrations** for TCP, TLS and HTTP listeners and for the command-line alternative.
+
+</Step>
+<Step title="Send sample lines">
+
+On your test machine, send three lines to the Collector. Replace `<collector-ip>` with the Collector's address:
+
+```bash
+COLLECTOR=<collector-ip>
+TS=$(date '+%b %d %H:%M:%S')
+printf '<134>%s fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=3389 policy=deny-ext\n' "$TS" | nc -u -w1 $COLLECTOR 7100
+printf '<134>%s fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=443 policy=deny-ext\n' "$TS" | nc -u -w1 $COLLECTOR 7100
+printf '<134>%s fw01 acmefw: action=accept src=10.0.0.20 dst=198.51.100.80 dport=443 policy=allow-out\n' "$TS" | nc -u -w1 $COLLECTOR 7100
+```
+
+</Step>
+<Step title="Check that the raw logs arrived">
+
+On the **Acme Firewall** card, click **View logs**. Log Explorer opens filtered to the data type `acme-firewall`. Within about a minute you see three events. Open one: its text is only in the `raw` field, because no pipeline parses this data type yet.
+
+Copy the `raw` value of each event into a text file. You will paste them into the test playground.
+
+</Step>
+</Steps>
+
+If no events arrive, check the firewall rules between the test machine and the Collector, and the troubleshooting table of **Custom Integrations**.
+
+## Part 2: Write and test the pipeline
+
+The pipeline turns `action=block src=203.0.113.7 ...` into fields. It works in four phases: split the line, extract the `key=value` pairs, map them to standard fields, and clean up.
+
+<Steps>
+<Step title="Open a new pipeline">
+
+Go to **Configure > Pipelines** and click **New pipeline**. Enter the **Name** `Acme Firewall`. The hint under the field shows the file name it will be saved as.
+
+</Step>
+<Step title="Paste the pipeline">
+
+Click **Code** and replace the content with:
+
+```yaml
+pipeline:
+  - dataTypes: [acme-firewall]
+    steps:
+      # 1. Split the line: the syslog header up to "acmefw:", then the key=value part
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: log.header
+              pattern: '.*acmefw:'
+            - fieldName: log.kvData
+              pattern: '{{.greedy}}'
+
+      # 2. Extract the pairs: they become log.action, log.src, log.dst, log.dport, log.policy
+      - kv:
+          source: log.kvData
+          fieldSplit: " "
+          valueSplit: "="
+          where: 'exists("log.kvData")'
+
+      # 3. Map to standard fields
+      - rename:
+          from: [log.src]
+          to: origin.ip
+      - rename:
+          from: [log.dst]
+          to: target.ip
+      - rename:
+          from: [log.dport]
+          to: target.port
+      - cast:
+          fields: [target.port]
+          to: int
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.action", "block")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.action", "accept")'
+
+      # 4. Location of the source address, then remove helper fields
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: 'exists("origin.ip")'
+      - delete:
+          fields: [log.header, log.kvData]
+```
+
+Click **Visual** to see the same pipeline as a list of steps. You can add, move and remove steps there with **Add step:**, **Move up**, **Move down** and **Remove step**.
+
+Why each step is there is explained in the **Annotated example** of **Pipeline File Format and Step Reference**. Two details matter most:
+
+- `target.port` is a whole number in the standard schema. The `cast` step stores it as a number. Without it, a port value that is not a plain number (for example `-`) would make UTMStack drop the whole event.
+- Use only `success`, `failed` or `denied` for `actionResult`. Rules and dashboards rely on these exact words.
+
+</Step>
+<Step title="Test the pipeline">
+
+Click **Test**. In **Test pipeline**, the **Data type** is fixed to `acme-firewall`. Paste the first sample line into **Raw log** and click **Run**. Click **Run** a second time and read the second result: in UTMStack v12.0.2 the first result after a change can show the previous run (see **Testing Pipelines and Rules**).
+
+In **Parsed result**, open **Fields** and check:
+
+| Field | Expected value |
+|---|---|
+| `origin.ip` | `203.0.113.7` |
+| `target.ip` | `10.0.0.5` |
+| `target.port` | `3389` (a number, without quotes in the **JSON** tab) |
+| `actionResult` | `denied` |
+| `log.action`, `log.policy` | `block`, `deny-ext` |
+| `errors` | absent or empty |
+
+`origin.geolocation` stays empty in the test: "The geolocation plugin isn't available in this lite version of the filter and rule test." It is filled in on the live server.
+
+Repeat with the other two lines. The third line should give `actionResult` `success`.
+
+</Step>
+<Step title="Save">
+
+Click **Save**. The page confirms "Pipeline saved". The new pipeline is listed on the **Custom** tab with its **Active** switch on. It reaches the engine within about a minute.
+
+</Step>
+<Step title="Check live events">
+
+Send the three sample lines again (Part 1, step 3). In Log Explorer, open the new events: the fields from the table above are now there, and `origin.geolocation` has a country for `203.0.113.7`. Events that arrived before you saved the pipeline stay unparsed; pipelines only apply to new events.
+
+</Step>
+</Steps>
+
+## Part 3: Write and test a single-event rule
+
+Rule 1 looks at one event at a time, so the playground can prove it fires.
+
+<Steps>
+<Step title="Open a new rule">
+
+Go to **Configure > Alerting Rules** and click **New rule**.
+
+</Step>
+<Step title="Paste the rule">
+
+Click **Code** at the top of the panel and replace the content with:
+
+```yaml
+dataTypes:
+  - acme-firewall
+name: "Acme Firewall: Blocked Connection to an Administration Port"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Initial Access"
+technique: "T1133 - External Remote Services"
+adversary: origin
+description: |
+  An address outside the private ranges tried to reach SSH (22), RDP (3389) or WinRM (5985, 5986) and the firewall blocked it.
+
+  Next Steps:
+  1. Look up the source address in Threat Intelligence and check whether it targets other hosts.
+  2. Make sure the target host does not expose the same service through another path.
+  3. If the address keeps trying, block it at the edge or add it to a deny list.
+references:
+  - "https://attack.mitre.org/techniques/T1133/"
+where: |
+  equals("actionResult", "denied") &&
+  oneOf("target.port", [22, 3389, 5985, 5986]) &&
+  exists("origin.ip") &&
+  !inCIDR("origin.ip", "10.0.0.0/8") &&
+  !inCIDR("origin.ip", "172.16.0.0/12") &&
+  !inCIDR("origin.ip", "192.168.0.0/16")
+deduplicateBy:
+  - adversary.ip
+  - target.ip
+```
+
+Click **Visual** to check the form: **Name**, **Category**, **Technique**, **Adversary** (**Origin**), **Data types**, **Confidentiality**, **Integrity**, **Availability** and **Description** are filled in, **Active** is ticked, and **Condition (CEL)** holds the condition.
+
+What the rule says:
+
+- `where` matches blocked connections (`denied`) to the four ports from any address outside the three private ranges.
+- `adversary: origin` makes the source address the attacker, so the alert shows it as `adversary.ip`.
+- `deduplicateBy` keeps one alert per source and target pair: a repeat with the same values within 7 days is dropped. This keeps the rule quiet and away from the rule flood guard (see Part 5).
+- The highest impact value is 2, so the alert's severity is medium (see **Rule File Format**), unless the target matches a data source with an **Asset sensitivity** (see **Detection Rules Overview**).
+
+</Step>
+<Step title="Test the rule">
+
+Click **Test** at the bottom of the panel. In **Test rule**, choose the **Data type** `acme-firewall`, paste the first sample line (port 3389) and click **Run**. **Alerts** lists one alert named "Acme Firewall: Blocked Connection to an Administration Port".
+
+Then test lines that must **not** match, and expect no alert:
+
+| Sample | Why it must not match |
+|---|---|
+| The second line (port 443) | Not an administration port. |
+| The third line (`action=accept`) | Not blocked. |
+| The first line with `src=10.1.2.3` | Source inside a private range. |
+
+The rule test runs your draft rule on top of the pipelines already saved. If **Parsed result** shows only `raw`, wait a minute after saving the pipeline and run the test again.
+
+</Step>
+<Step title="Save">
+
+Click **Save**. The page confirms "Rule created". The rule is listed with **Custom** owner and its **Active** switch on.
+
+</Step>
+</Steps>
+
+<Warning>
+
+Saving does not check the condition. A condition with a typo is saved as active and simply never matches. Always run a test that should raise an alert before you rely on a rule.
+
+</Warning>
+
+## Part 4: Add a counting rule
+
+Rule 2 counts earlier events: it fires when one address has 50 blocked connections within 10 minutes. Counting rules are best added as a file with **Import**, because import keeps the correlation steps exactly as written (see **Alerting Rules**).
+
+<Steps>
+<Step title="Write the file">
+
+Save this as `acme-firewall-port-scan.yaml` on your computer:
+
+```yaml
+dataTypes:
+  - acme-firewall
+name: "Acme Firewall: Many Blocked Connections From One Address"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 2
+category: "Discovery"
+technique: "T1046 - Network Service Discovery"
+adversary: origin
+description: |
+  One address had at least 50 connections blocked by the firewall within 10 minutes.
+
+  Next Steps:
+  1. Check who owns the source address.
+  2. If it is inside your network, find the program that opens the connections.
+where: |
+  equals("actionResult", "denied") &&
+  exists("origin.ip")
+correlation:
+  - within: 10m
+    count: 50
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: denied
+deduplicateBy:
+  - adversary.ip
+```
+
+The correlation step searches the stored events of the last 10 minutes for events with the same `origin.ip` and `actionResult` `denied`, and the rule fires when it finds at least 50. `{{.origin.ip}}` copies the value from the event being checked; `where` makes sure that field exists. See **Rule File Format**.
+
+</Step>
+<Step title="Import it">
+
+On **Configure > Alerting Rules**, click **Import** and choose the file. **Import results** shows it as **Approved**. Imported rules are switched on.
+
+</Step>
+<Step title="Test it with live traffic">
+
+A single test log cannot reach a count of 50, so test this rule with real events. From the test machine, send 60 blocked connections from one address to different ports:
+
+```bash
+COLLECTOR=<collector-ip>
+for PORT in $(seq 1000 1059); do
+  printf '<134>%s fw01 acmefw: action=block src=198.51.100.50 dst=10.0.0.5 dport=%s policy=deny-ext\n' "$(date '+%b %d %H:%M:%S')" "$PORT"
+  sleep 0.2
+done | nc -u -w1 $COLLECTOR 7100
+```
+
+The short pause between lines makes `nc` send each line as its own message.
+
+Within a few minutes, **Threat Management > Alerts** shows one alert "Acme Firewall: Many Blocked Connections From One Address" with `198.51.100.50` as the adversary.
+
+</Step>
+</Steps>
+
+<Warning>
+
+Do not open an imported counting rule in the editor and save it. The editor removes correlation steps that have no **Index pattern** when it saves. To change the rule, edit the file, delete the rule and import the file again. See **Alerting Rules**.
+
+</Warning>
+
+## Part 5: Switch on, check the alert and watch the volume
+
+<Steps>
+<Step title="Check that both are on">
+
+On **Configure > Pipelines**, the **Custom** tab shows **Acme Firewall** with **Active** on. On **Configure > Alerting Rules**, choose the owner filter **Custom**: both rules are listed with **Active** on.
+
+</Step>
+<Step title="Raise Rule 1 for real">
+
+Send the first sample line again from the test machine. Within about a minute, **Threat Management > Alerts** shows "Acme Firewall: Blocked Connection to an Administration Port". Open it and check:
+
+- **Severity** is medium.
+- The adversary is `203.0.113.7` and the target is `10.0.0.5`.
+- The last event shows the parsed fields, including `origin.geolocation`.
+
+Send the same line again: no second alert appears, because `deduplicateBy` drops repeats of the same source and target for 7 days. Change `src=` to another public address and send it: a new alert appears.
+
+</Step>
+<Step title="Check notifications and response">
+
+Top-level alerts are also emailed to the **Alert recipients** set in **Configure > Settings > Email Configuration** (see **Alert and Incident Notifications**). To respond automatically, build a flow whose trigger names the rule exactly; see **Building a Flow**.
+
+</Step>
+<Step title="Watch the first days">
+
+New rules are most likely to be noisy in their first days. Check the rule's alerts every day for a week. The rule flood guard switches a rule off for your tenant when it has more than 50 open, top-level alerts from one data source in 24 hours, and tells you in the notification bell. Rule 1 de-duplicates by source and target, so it would need more than 50 different attacking pairs a day to get there. If it does, tune it as described in **Tuning Rules and Reducing False Positives**.
+
+</Step>
+</Steps>
+
+## Part 6: Clean up after a test
+
+If you built this only to learn, remove it when you are done:
+
+1. On **Configure > Alerting Rules**, open each custom rule and click **Delete**.
+2. On **Configure > Pipelines**, open the **Acme Firewall** pipeline and click **Delete**.
+3. Open the **Acme Firewall** integration card, select the Collector and click **Disable integration**. Then delete the card (see **Custom Integrations**).
+4. Close the test alerts on **Threat Management > Alerts**.
+
+The test events stay in storage until their retention period ends (see **Data Retention and Cold Storage**).
+
+## Do the same with the API
+
+Every step in Parts 2 to 5 has an API call: create the pipeline with `POST /api/v1/eventprocessing/pipelines`, test it with `POST /api/v1/eventprocessing/playground/test-pipeline`, import the rules with `POST /api/v1/eventprocessing/correlation-rule/import`, and switch them with `PUT /api/v1/eventprocessing/correlation-rule/activate-deactivate`. **Rules and Pipelines API** has a worked example of the whole sequence.
+
+## If something does not work
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The pipeline test times out ("The test timed out — this usually means the selected data type doesn't match the log format.") | The data type of the test does not match the pipeline's `dataTypes`. | Check the spelling of `acme-firewall` in the pipeline. |
+| Fields are missing and `errors` is empty | The line does not contain `acmefw:`, so the first pattern does not match and the step writes nothing. | Compare your real line with the sample; adjust the pattern. |
+| `target.port` is text, or events disappear after you save the pipeline | The `cast` step is missing or names a different field. Without it, a port value that is not a plain number makes UTMStack drop the event. | Cast every number field before it is stored. |
+| Rule 1 shows no alert in the test | The pipeline is not saved yet, the condition has a typo, or the sample does not meet every condition. | Save the pipeline, check **Parsed result**, test a line that must match. |
+| Rule 2 never fires | Fewer than 50 matching events reached UTMStack within 10 minutes (UDP lines can be lost), or the steps were removed by saving the rule in the editor. | Send more lines; re-import the file. |
+| An alert fires for every event | De-duplication is missing, or its field names do not exist on the alert. | Use alert field names such as `adversary.ip`, `target.ip`, `dataSource` or `lastEvent.log.<field>`. |
+
+More symptoms and the engine's own messages are in **Writing and Testing Rules and Pipelines**.

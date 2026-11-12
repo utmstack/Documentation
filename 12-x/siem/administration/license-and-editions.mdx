@@ -9,16 +9,32 @@ UTMStack v12 comes in two editions: **Community**, which needs no licence file, 
 | Single sign-on (SAML 2.0 and OpenID Connect) and creating or editing identity providers | No | Yes | Yes |
 | White-label branding | No | Yes | Yes |
 | Shipped compliance frameworks | CMMC 2.0 and GDPR only | All | All |
-| MCP tools for API keys and identity providers | No | Yes | Yes |
+| MCP tools that create API keys or create and edit identity providers | No | Yes | Yes |
 | Tenants, support access, tenant switcher, **Apply to all tenants** | No | No | Yes |
 
 On Community, the compliance limit applies only to the frameworks and controls that ship with UTMStack. Frameworks and controls you create yourself are not limited.
 
 When a licence expires or cannot be verified, UTMStack falls back to Community. Your data is kept, but the Enterprise features above stop working until a valid licence is installed.
 
+## What stops when a licence expires
+
+The License page shows **Expiring soon** during the last 30 days. Renew before then. When the licence expires:
+
+| Feature | What happens |
+|---|---|
+| Single sign-on (OpenID Connect and SAML) | Sign-in through these providers stops. Users who have no local password cannot sign in until a valid licence is installed. Keep at least one administrator with a local password. |
+| API keys | Every request made with an API key is refused, including scripts, integrations and AI assistants that use a key. |
+| Branding | Your branding is no longer shown, and the branding page can no longer be changed. Your settings are kept. |
+| Compliance | Only the frameworks and controls available on Community can be used. |
+| Tenants (multi-tenant licence) | The tenant pages and features need the multi-tenant licence. |
+
+Log collection, alerts, incidents, rules and searches keep working on Community.
+
 ## View your licence
 
 Open **Configure > Settings > License**. Only the instance operator sees this page (see **Settings Overview**).
+
+![The License page showing the edition, ingest volume, MSSP / multi-tenant, licence type and instance ID, the Status panel with the expiry date and time remaining, and the Upload a license section](/assets/d72a82c7-fdaa-405a-bfea-8b8b3648ab56)
 
 | Field | What it shows |
 |---|---|
@@ -59,7 +75,7 @@ Under **Upload a license**, click **Choose file**, select the file and click **I
 
 <Step title="Check the result">
 
-UTMStack checks the file's signature, that it was issued for this instance ID and that it has not expired. If the file is accepted, the page shows the new edition. If not, you see "Invalid or expired license file."
+UTMStack checks the file's signature, that it was issued for this instance ID and that it has not expired. If the file is accepted, the page shows the new edition. If not, you see an error that starts with `invalid license:` followed by the reason, for example `license expired at ...` or `decrypt/verify failed: ...`.
 
 </Step>
 
@@ -75,6 +91,16 @@ Uninstalling UTMStack deletes `/utmstack/updates`, which holds the licence file 
 
 </Warning>
 
+## Troubleshooting the licence
+
+| What you see | Cause | Fix |
+|---|---|---|
+| "Administrator privileges are required to upload a license." | You are not the instance operator | Sign in as an administrator of the default tenant. |
+| An error that starts with `invalid license: decrypt/verify failed` or `invalid license: license expired at` | The file was issued for another instance ID, was changed or damaged, or has expired | Compare the **Instance ID** on the License page with the one you gave UTMStack, and request a new file if they differ. |
+| The License page shows no **Instance ID** row, or the upload fails with `invalid license: license verification not configured` | The server has not registered with UTMStack yet. It receives its instance ID from the UTMStack update server, which needs internet access. A licence cannot be verified without it. | Check that the server can reach the internet (see **Network Ports and Firewall**), wait a few minutes and reload the page. For servers without internet access, contact UTMStack. |
+
+On the server, the backend log shows why a licence file was rejected: `docker service logs --since 1h utmstack_backend 2>&1 | grep -i license`.
+
 ## About this instance
 
 Open **Configure > Settings > About** (instance operator only). The page shows:
@@ -85,6 +111,10 @@ Open **Configure > Settings > About** (instance operator only). The page shows:
 - **System health** for the backend API, with a **Refresh** button.
 - **Data sources**: how many data sources are configured.
 - **Support** links (documentation, GitHub repository, issue reporting, website) and **Legal** information.
+
+![The About this instance page with the edition, server name, instance ID, licence summary with View license, System health for the Backend API, the number of configured data sources, and the Support and Legal links](/assets/e5032dc1-ef46-4da2-8ce5-aed4d6b1fe42)
+
+**System health** checks only the backend API (**Healthy** or **Down**). It does not check the event store, the queue or the agent manager. To check every service on the server, see **Health Checks and Troubleshooting**.
 
 You can also see the installed version and edition on the server with:
 

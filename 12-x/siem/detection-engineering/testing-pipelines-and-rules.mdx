@@ -1,6 +1,6 @@
 The test dialogs on the Pipelines and Alerting Rules pages run a sample log through a separate copy of the engine, the playground, and show the parsed event and any alerts it raises. Use them to check a pipeline or rule before you save it. Alerts raised in a test appear only in the dialog; they are not added to your alert list.
 
-UTMStack v11 offered the playground as a command-line tool. In UTMStack v12 it is built into the product.
+UTMStack v11 offered the playground as a command-line tool. In UTMStack v12 it is built into the product. The command-line tools described for v11 (`playground`, `log-pusher`, `opensearch-fetcher`) are not part of the UTMStack v12 workflow: there is no OpenSearch to fetch logs from, and the test dialogs replace the playground.
 
 ## Before you start
 
@@ -16,7 +16,9 @@ UTMStack v11 offered the playground as a command-line tool. In UTMStack v12 it i
 | **Test** | Top of **Configure > Alerting Rules** | Your log through all deployed pipelines, then through every deployed rule, including rules switched off for your tenant. |
 | **Test** | Inside a rule's panel or the rule editor | Your log through all deployed pipelines, then through that one rule, as it is in the editor. |
 
-The dialog is titled **Test pipeline** or **Test rule**.
+The dialog is titled **Test pipeline** or **Test rule**. The **Test rule** dialog adds an **Alerts** panel and two notices, about geolocation and about rules that count earlier events.
+
+![The Test rule dialog: Data type, Raw log with a character counter, Run, the two notices, and the empty Parsed result and Alerts panels](/assets/4861a0aa-0290-4400-ab56-ede1c5eee22c)
 
 ## Run a test
 

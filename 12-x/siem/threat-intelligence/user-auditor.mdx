@@ -29,7 +29,7 @@ Go to **User Auditor** in the side menu.
 | What you want to do | Permission | Built-in roles |
 |---|---|---|
 | See the inventory | `adaudit.read` | Administrator, Analyst, Viewer |
-| Create, rename, assign and delete identities | `adaudit.write` | Administrator, and any role that can manage users |
+| Create, rename, assign and delete identities | `adaudit.write` | Administrator, and roles you give `adaudit.write` |
 
 The identity controls are shown only to users with `adaudit.write`. You see the accounts of your own tenant. An instance operator who can see several tenants gets a tenant menu with **All tenants**.
 
@@ -39,7 +39,10 @@ The identity controls are shown only to users with `adaudit.write`. You see the 
 - Views: **All accounts**, **Windows**, **Linux**, **O365**, **Azure**, **GCP** and **AWS**.
 - **Search by account name or SID…**
 - **Add filter** with **Lifecycle status** **is** Active, Disabled or Deleted.
+- An identity menu: **All identities**, **No identity** (accounts not grouped yet) or one identity by name.
 - **Refresh**, and a choice of **List** or **Cards** layout.
+
+The list loads 50 accounts at a time.
 
 The list shows **Account**, **Account ID** (the SID for Windows, the user ID and host for Linux, the user name for cloud accounts), **Identity**, **Status**, **Last logon**, **Last seen** and **Tenant**.
 
@@ -57,6 +60,8 @@ The list shows **Account**, **Account ID** (the SID for Windows, the user ID and
 
 Click an account to see its details: Account name, Domain, Hostname, SID, UID, Machine ID, Tenant, AD status, and its **Lifecycle** (Account created, Last logon, Last seen in logs, Account deleted).
 
+![The details of a Windows service account with the View events in Log Explorer and Copy SID buttons, the Identity box (account name, domain, SID, tenant, AD status) and the Lifecycle box (account created, last logon, last seen in logs)](/assets/ba12224b-67b2-4608-a70f-694fb39fcc8d)
+
 - **Copy SID** copies the account's SID.
 - **View events in Log Explorer** opens **Log Explorer** on the last 30 days of events for this account: for Windows, the create, delete and logon events of its SID; for Linux and cloud accounts, the events of its user name (and host, for Linux).
 
@@ -69,3 +74,72 @@ One person often has several accounts: a Windows account, a Linux login and a cl
 3. To take the account out again, use **Remove from group**.
 
 You can also **Rename identity** and **Delete identity**. An identity that still has accounts cannot be deleted: remove its accounts from the group first.
+
+## Common tasks
+
+### Review stale accounts
+
+Accounts nobody uses are an easy way in for an attacker.
+
+1. Open **User Auditor** and choose a view, for example **Windows**.
+2. **Add filter** > **Lifecycle status** **is** Active.
+3. Look for the **stale** badge: active accounts whose last logon is more than 30 days ago.
+4. For each one, check with its owner whether it is still needed, and disable or delete it in the source system (Active Directory, the Linux host, the cloud console). UTMStack only observes accounts; it cannot change them.
+
+The next deletion event that reaches UTMStack moves the account to **Deleted**.
+
+### Check new and deleted accounts
+
+1. Open an account and read its **Lifecycle**: **Account created**, **Last logon**, **Last seen in logs** and **Account deleted**.
+2. An account created and deleted within a short time, or a new account nobody asked for, is worth an investigation. Click **View events in Log Explorer** to see the events that created it, then check who did it.
+
+### Investigate an account named in an alert
+
+1. Copy the user name from the alert's **Parties** tab.
+2. In **User Auditor**, type it in **Search by account name or SID…**.
+3. Check its status, last logon and identity. A **service** account or an account with the **stale** badge that suddenly logs on deserves attention.
+4. Click **View events in Log Explorer** for its recent activity, or use the user recipes in **Log Explorer Query Cookbook**.
+
+### Group the accounts of one person
+
+When the same person has a Windows account, a Linux login and a Microsoft 365 account, group them into an identity (see **Group accounts into identities** above). Then pick the identity in the identity menu to see all the person's accounts together, for example when the person leaves the company and every account must be removed.
+
+## Check that the inventory fills
+
+<Steps>
+
+<Step title="Make sure the right events are sent">
+
+The inventory only sees what your logs contain:
+
+- **Windows**: logon events (4624) and account management events (4720, 4726) must be audited. The UTMStack Windows agent turns this auditing on when it installs; a Group Policy can override it. See **Windows Agent**.
+- **Linux**: the agent must collect the system journal, and the server must write the audit log for logins. See **Linux Agent**.
+- **Cloud**: the integration must be connected and sending. See **Microsoft 365 (Office 365 Management Activity API)**, **Microsoft 365 through Microsoft Graph**, **Microsoft Azure**, **Google Cloud** and **AWS CloudWatch**.
+
+</Step>
+
+<Step title="Produce an event">
+
+Sign in to a monitored Windows host or Linux server with a test account, or create a test account.
+
+</Step>
+
+<Step title="Wait and look">
+
+After a minute or two, search the account name in **User Auditor**. Its **Last logon** or **Account created** should show the time of your test. If it does not, find the event in **Log Explorer** first: if the event is not there, the problem is collection, not the User Auditor.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| "No accounts match this view." | No event of that source has been processed yet, or your filters exclude everything. | Clear the filters. Check that the source sends the events listed under **How the inventory is built**. |
+| A Windows account never shows **Disabled** | UTMStack does not read the Windows "account disabled" and "account enabled" events. | Check the account in Active Directory. |
+| Linux accounts appear but never have a **Last logon** | The server does not write the audit log, so logins are not seen. | Install and enable the Linux audit service on the server. See **Linux Agent**. |
+| A computer account (name ending in `$`) or `SYSTEM` is missing | They are skipped on purpose. | Nothing to do. |
+| "Could not load AD accounts." | The inventory could not be read. | Click **Retry**; if it continues, reload the page. |
+| An identity cannot be deleted | It still has accounts. | Use **Remove from group** on each account first. |
+| **Export** does nothing | In UTMStack v12.0.2 the **Export** button in the header has no action. | Use **View events in Log Explorer** and its **Export CSV** for the events of one account. |

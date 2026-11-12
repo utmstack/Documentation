@@ -7,36 +7,64 @@ UTMStack v12 collects Suricata IDS/IPS events through the **UTMStack Forwarder**
 | Card on the Integrations page | **Suricata** (category IDS / IPS) |
 | Data type | `suricata` |
 | Default ports on the Collector | 7019/UDP; 7019/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 35 detection rules |
+| Log format UTMStack reads | Suricata EVE JSON, one event per line, with or without a syslog header in front. EVE `stats` records are discarded. |
+| Parsing pipeline | `suricata/suricata.yaml`, version 1.1.1. **Filters** in the card's drawer opens it. |
+| Detection rules | 35. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The Suricata host must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The Suricata host must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
 - The Suricata host needs rsyslog installed and running.
+
+<Tip>
+
+Use TCP. EVE events, especially `flow`, `http` and `tls` records, are often longer than 2,048 bytes, and over UDP the Collector reads at most 2,048 bytes of each message. UTMStack v12.0.2 accepts EVE JSON lines over TCP.
+
+</Tip>
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Suricata** card.
+
+    ![Suricata setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/f022c329-7a7a-472b-8810-56d17ce95e05)
+
+    The guide selects **UDP**; choose **TCP** as recommended above. A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** **TCP** (or **UDP**, or **TLS**). Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
-    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7019`.
+    Click **Enable integration**. The panel then shows, for example, `Currently: enabled · tcp · port 7019`.
   </Step>
 </Steps>
 
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration suricata 7019 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration suricata tcp
 ```
 
+The command prints the port the Collector really listens on, for example `Integration "suricata" enabled on tcp port 7019`.
+
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port, for example:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port suricata tcp 7119
+   ```
+
+   Use `udp` instead of `tcp` for UDP.
+2. In the **Suricata** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the rsyslog line in step 3.
 
 ## Step 2: Send Suricata EVE events to syslog
 
@@ -56,7 +84,7 @@ outputs:
         - flow
 ```
 
-Then restart Suricata:
+Add or remove event types to suit you. `alert` is the one most detection rules need. Then restart Suricata:
 
 ```bash
 sudo systemctl restart suricata
@@ -64,13 +92,21 @@ sudo systemctl restart suricata
 
 ## Step 3: Forward syslog to the Collector
 
-Point the `local5` facility, where Suricata now writes, at the Collector. Add this line to `/etc/rsyslog.d/60-utmstack-suricata.conf` on the Suricata host. Replace `<collector-ip>` with the address of the Collector host.
+Point the `local5` facility, where Suricata now writes, at the Collector. Create `/etc/rsyslog.d/60-utmstack-suricata.conf` on the Suricata host with this line. Replace `<collector-ip>` with the address of the Collector host.
 
 ```text
-local5.*  @<collector-ip>:7019
+local5.*  @@<collector-ip>:7019
 ```
 
-`@` sends over UDP. Use `@@` instead to send over TCP, and enable the integration with TCP in step 1. Then restart rsyslog:
+`@@` sends over TCP. If you enabled the integration with UDP, use a single `@` instead.
+
+rsyslog cuts messages longer than 8 KB by default, and EVE records can be longer. To keep them whole, add this line at the very top of `/etc/rsyslog.conf`, before any module is loaded:
+
+```text
+global(maxMessageSize="32k")
+```
+
+Then restart rsyslog:
 
 ```bash
 sudo systemctl restart rsyslog
@@ -78,20 +114,54 @@ sudo systemctl restart rsyslog
 
 <Note>
 
-The setup guide in UTMStack fills in your UTMStack server's address in this step. Keep it only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
+The setup guide in UTMStack fills in your UTMStack server's address in this step and shows the UDP form (`@`). Keep the address only if the Collector runs on the UTMStack server; otherwise use the address of the Collector host.
 
 </Note>
 
 ## Step 4: Check that logs arrive
 
-- In the **Suricata** drawer, click **View logs**. Log Explorer opens with the `suricata` data type for the last 24 hours.
-- Within about 10 minutes, the Suricata host appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Suricata** drawer, click **View logs**. Log Explorer opens with the `suricata` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `suricata` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip` and `target.port`, and EVE fields under `log.`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, the Suricata host appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To test the whole path with an alert, use the harmless test from Suricata's quick start guide: from a machine whose traffic Suricata sees, run `curl http://testmynids.org/uid/index.html`. With the Emerging Threats Open rules, this raises an alert. Then look for an `alert` event in Log Explorer.
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'suricata'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, rsyslog sends to the wrong address, port or protocol, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list, that the rsyslog line matches the protocol you enabled (`@@` for TCP, `@` for UDP), and that the Collector host allows the port in. See **Forwarder Troubleshooting**. |
+| Nothing reaches rsyslog | Suricata does not write EVE to syslog. | Check the `eve-log` section of `suricata.yaml` and Suricata's own log after the restart. |
+| Events are cut off or have no EVE fields | Over UDP, the Collector reads at most 2,048 bytes of each message; rsyslog cuts messages over its own size limit. | Send over TCP (`@@`) and raise `maxMessageSize` in rsyslog. |
+| Gaps in events when traffic is high | The local syslog service limits how many messages a program can send (rate limiting). | Look for rate-limiting messages in the Suricata host's system log, and raise or turn off the limit in rsyslog or journald, following their documentation. |
+| Suricata events appear under another data type | rsyslog sends to the port of a different integration. | Send to the port that the Suricata integration listens on. |
+| No `stats` events | The UTMStack pipeline discards EVE `stats` records on purpose. | Nothing to do. |
 
 ## Stop collecting
 
-In the **Suricata** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Suricata** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`tcp`, `udp` or `tls`):
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration suricata udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration suricata tcp
 ```
+
+Then delete `/etc/rsyslog.d/60-utmstack-suricata.conf` on the Suricata host and restart rsyslog.

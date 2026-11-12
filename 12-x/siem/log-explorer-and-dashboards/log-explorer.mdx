@@ -1,5 +1,7 @@
 **Log Explorer** is where you search the logs and alerts that UTMStack v12 has stored. You can filter by any field, look at the original log line, chart the results, save searches for your team and export results to a CSV file (a spreadsheet-friendly text file).
 
+For ready-made searches (failed logons, one IP address across sources, top talkers, one user's activity, new Windows processes), see **Log Explorer Query Cookbook**.
+
 ## Who can use Log Explorer
 
 Log Explorer is in the main menu, so every user sees it.
@@ -27,6 +29,8 @@ There are no index patterns to maintain any more: the datasets and data types co
 How long records are kept is set on **Data Retention and Cold Storage**.
 
 ## Search for events
+
+![Log Explorer with a search tab, the query bar (dataset and data type selector, Search across all fields, time range, SQL, refresh, export and Search), the Saved button, the Table and Chart switch, the fields sidebar and the results table](/assets/99997e7f-f0ce-4cde-9317-9776e8e2e9af)
 
 <Steps>
 
@@ -90,7 +94,7 @@ If you type a statement that starts with `SELECT` or `WITH` and contains `FROM`,
 
 ## Filters
 
-Click **Add filter**, pick a field, an operator and a value, and click **Add**. While you choose a value, Log Explorer suggests the 100 most frequent values of that field in your current search. All filters must match (they are combined with AND).
+Click **Add filter** (below the query bar, left of **Saved**; it is hidden in SQL mode), then pick a field and an operator. For **is** and **is not**, click one of the values in the list: it shows the 100 most frequent values of that field in your current search, and **Filter values…** narrows it. For **contains**, type the text and click **Add**. For **exists**, click **Add**. All filters must match (they are combined with AND).
 
 | Operator | Matches when |
 |---|---|
@@ -135,6 +139,8 @@ You can drag column edges to resize them. To remove a column you added, use the 
 ### Look at one event
 
 Click a row to open it.
+
+![One event opened in Log Explorer, showing the Parsed fields and JSON tabs with the normalized fields of a Windows logon event, and the Surrounding events link](/assets/b933797c-1c9a-4bc6-8260-ed9b6a72b157)
 
 | Element | What it does |
 |---|---|
@@ -215,3 +221,18 @@ When you write or change a pipeline or rule, use Log Explorer to check real reco
 3. To see how a field is stored (text or number), use SQL mode, for example `SELECT dynamicType(log.eventCode) ...`. See **Log Explorer SQL Mode**.
 
 See also **Testing Pipelines and Rules**.
+
+## Troubleshooting
+
+| What you see | Why | What to do |
+|---|---|---|
+| A data type you expect is not in the selector | It has no stored records in your tenant, or more than 200 data types exist. | Check that the source is sending (see **Data Sources Page**). Type in **Filter data types…**. |
+| A field is not in the fields sidebar | No stored record of the selected dataset has it yet, or it was added in the last 5 minutes. | Wait up to 5 minutes, or open an event and look under **Parsed fields**. |
+| Clicking a field shows no top values | **All data types** is selected. | Select one data type. |
+| A filter with **is** finds nothing | **is** compares exact text, letter case included. | Use **contains**, or copy the value from **Parsed fields** with **Filter for**. |
+| **is not** leaves out more records than expected | Records that do not have the field are left out too. | See **Filter Operators Reference**. |
+| The search box is greyed out | The `alerts` dataset has no original log line. | Use filters on alert fields. See **Alert Fields Reference**. |
+| The histogram is missing | No data type is selected, or the range is longer than one year. | Select a data type, or shorten the range. |
+| Results from a relative range look old | The range was fixed when the search started. | Click the refresh button. |
+| A tab disappeared on another computer | Tabs are kept in your browser only. | Save the search with **Saved** > **Save current search**. |
+| "View all related logs" on an alert shows a message that the list was cut | More than 1,000 logs are behind the alert. | Search by the alert's adversary or target instead; see **Log Explorer Query Cookbook**. |

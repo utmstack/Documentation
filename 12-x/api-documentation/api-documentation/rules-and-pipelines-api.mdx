@@ -1,0 +1,803 @@
+Use these endpoints to manage correlation rules (the rules that raise alerts) and pipelines (the parsing steps that turn raw logs into fields), to switch shipped ones on or off for your tenant, to import and export rule files, and to test a log in the playground before you save anything. They do the same work as **Configure > Alerting Rules** and **Configure > Pipelines** in the web console.
+
+This page covers the endpoints. The file formats are described in **Rule File Format** and **Pipeline File Format and Step Reference**, and the console screens in **Alerting Rules**, **Pipelines** and **Testing Pipelines and Rules**. Ingestion statistics (`/eventprocessing/ingestion-stats`) are on the **Data Sources API** page.
+
+## Permissions
+
+| Action | Permission | Built-in roles |
+|---|---|---|
+| List and read rules, pipelines, regex patterns; export rules | `eventprocessing.read` | All |
+| Create, change, delete, import; switch on or off; change the order | `eventprocessing.write` | Administrator |
+| Run a test in the playground | `eventprocessing.write` | Administrator |
+| Apply to many tenants at once | `eventprocessing.write` and platform administrator | Administrators of the default tenant |
+
+None of these endpoints needs a licence of its own. Calls made with an API key need the Enterprise licence, like every API key call (see **Authentication and API Keys**).
+
+## Shipped and Custom Definitions
+
+Every rule and pipeline is a YAML file. There are two kinds:
+
+| Kind | Where it comes from | What you can do with it |
+|---|---|---|
+| **Shipped** (`"systemOwner": true` for rules, `"system": true` for pipelines) | Built into the UTMStack release. The backend copies the release's files over the shipped set every time it starts, and removes shipped files that the release no longer contains. | Read, export (rules), switch on or off for your tenant, change the order (pipelines). You cannot change or delete it: the answer is `system's rules can't be updated` or `system filter is read-only`. |
+| **Custom** (`false`) | Created, imported or applied by you | Everything. It belongs to your tenant and runs only on your tenant's events. |
+
+How the pieces fit together:
+
+- **Identity.** A rule or pipeline is identified by `relPath`, its path relative to the folder of its kind. Shipped items have paths such as `windows/audit_log_was_cleared.yaml` (rule) or `windows/windows-events.yaml` (pipeline).
+- **Custom file names.** When you create or import an item, UTMStack stores it as `<tenant-id>/<name>-<tenant-id>.yaml` and writes your tenant id into the file. For a rule, `<name>` is the rule's `name` in lower case, with every run of characters other than letters and digits replaced by `-`. For a pipeline, `<name>` is the file name you send in `relPath`, without `.yaml`. On an installation without multi-tenancy, `<tenant-id>` is the id of the default tenant.
+- **On and off.** Switching an item on or off is recorded per tenant, by the file name without `.yaml`. It does not change the file, so it survives upgrades, and it never affects other tenants.
+- **Order.** Each pipeline file has an `order` value. Your tenant can store its own order, which comes first; see "Change the Pipeline Order" below.
+- **When changes apply.** The backend writes the file at once. The engine picks up new and changed files on its own, usually within a minute.
+- **Other tenants' items.** Custom rules and pipelines of other tenants are invisible: asking for one answers "not found".
+
+## Correlation Rules
+
+All rule paths start with `/api/v1/eventprocessing/correlation-rule`.
+
+### Rule Object
+
+| Field | Type | Description |
+|---|---|---|
+| `relPath` | string | Identity of the rule (see above). Read-only. |
+| `name` | string | Alert name. Also the base of the custom file name. |
+| `adversary` | string | `origin` or `target`: which side of the event is the attacker |
+| `confidentiality`, `integrity`, `availability` | integer | Impact, 0 to 3 each |
+| `category` | string | Free text, usually a MITRE ATT&CK tactic |
+| `technique` | string | Free text, for example `"T1110 - Brute Force"` |
+| `description` | string | Free text |
+| `references` | array | Web addresses |
+| `definition` | string | The rule's condition (the `where` key of the file), written in CEL (Common Expression Language). See **Condition Functions Reference**. |
+| `correlation` | array or null | Correlation steps, as in the file's `correlation` key. See **Rule File Format**. |
+| `groupBy`, `deduplicateBy` | array of strings or null | Alert fields used for grouping and de-duplication |
+| `dataTypes` | array of objects | Data types the rule examines. Only `dataType` matters when you send it; the answer also has `id`, `dataTypeName`, `dataTypeDescription`, `lastUpdate`, `included` and `systemOwner`, filled with placeholder values. |
+| `ruleActive` | boolean | On or off for your tenant |
+| `systemOwner` | boolean | `true` for shipped rules. Read-only. |
+| `ruleLastUpdate` | string | When the file was last written. Read-only. |
+
+A rule file stored with the older key `afterEvents` instead of `correlation` comes back with `"correlation": null`, because the backend reads only `correlation`. This is the case for many shipped counting rules in UTMStack v12.0.2. Export the file to see its steps (see "Export Rules" below).
+
+### List Rules
+
+**Endpoint:** `GET /api/v1/eventprocessing/correlation-rule/search-by-filters`
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| page | integer | Page number, starting at `0` |
+| size | integer | Rules per page. If you leave it out (or send `0`), every matching rule is returned in one answer. There is no maximum. |
+| ruleName | string | Part of the name, upper and lower case ignored |
+| search | string | Same as `ruleName` |
+| ruleActive | boolean | `true` or `false`: state for your tenant |
+| systemOwner | boolean | `true` for shipped rules, `false` for custom rules |
+| ruleCategory | string, repeatable | Exact category. Repeat the parameter for several values. |
+| ruleTechnique | string, repeatable | Exact technique |
+| ruleAdversary | string, repeatable | `origin` or `target`. Other values are ignored. |
+| ruleConfidentiality, ruleIntegrity, ruleAvailability | integer, repeatable | Exact impact values |
+| dataTypes | string, repeatable | Rules that examine at least one of these data types |
+| initDate, endDate | string | RFC 3339 times. Only rules whose file was written between them. Values in another format are ignored. |
+
+The answer is a JSON array of rule objects, sorted by name. The total number of matching rules is in the `X-Total-Count` header. A `sort` parameter is accepted but has no effect.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/search-by-filters" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "dataTypes=wineventlog" \
+  --data-urlencode "ruleActive=true" \
+  --data-urlencode "page=0" \
+  --data-urlencode "size=20" \
+  -D -
+```
+
+**Response (HTTP 200)**, with the number of matching rules in the `X-Total-Count` header:
+
+```json
+[
+  {
+    "relPath": "windows/audit_log_was_cleared.yaml",
+    "name": "Windows audit log was cleared",
+    "adversary": "origin",
+    "confidentiality": 1,
+    "integrity": 2,
+    "availability": 3,
+    "category": "Defense Evasion",
+    "technique": "T1070.001 - Indicator Removal: Clear Windows Event Logs",
+    "description": "Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion.",
+    "references": ["https://attack.mitre.org/techniques/T1070/001/"],
+    "definition": "equals(\"log.eventCode\", 1102)",
+    "correlation": null,
+    "groupBy": ["adversary.ip", "target.user"],
+    "deduplicateBy": null,
+    "ruleLastUpdate": "2026-11-09T08:00:12Z",
+    "ruleActive": true,
+    "systemOwner": true,
+    "dataTypes": [
+      {
+        "id": 0,
+        "dataType": "wineventlog",
+        "dataTypeName": "wineventlog",
+        "dataTypeDescription": "",
+        "lastUpdate": null,
+        "included": true,
+        "systemOwner": false
+      }
+    ]
+  }
+]
+```
+
+To list only your custom rules, send `systemOwner=false`. To find rules switched off for your tenant (for example by the rule flood guard), send `ruleActive=false`.
+
+### Get One Rule
+
+**Endpoint:** `GET /api/v1/eventprocessing/correlation-rule/find?relPath=<rel-path>`
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/find" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=windows/audit_log_was_cleared.yaml"
+```
+
+**Response (HTTP 200):** one rule object. An unknown `relPath`, or a rule of another tenant, returns 404 `correlation rule not found`. A missing `relPath` returns 400 `relPath is required`.
+
+### Distinct Values
+
+**Endpoint:** `GET /api/v1/eventprocessing/correlation-rule/search-property-values`
+
+Returns the distinct values of one rule property, for filters and pickers.
+
+| Parameter | Description |
+|---|---|
+| prop | `rule_name`, `rule_category`, `rule_technique` or `rule_adversary` |
+| value | Optional. Only values that contain this text (upper and lower case ignored). |
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/search-property-values" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "prop=rule_category" \
+  --data-urlencode "value=cred"
+```
+
+**Response (HTTP 200):**
+
+```json
+["Credential Access"]
+```
+
+Any other `prop` returns 400 `invalid or unsupported property: <prop>`.
+
+### Create a Rule
+
+**Endpoint:** `POST /api/v1/eventprocessing/correlation-rule`
+
+**Request Body:** a rule object without `relPath`, `systemOwner` and `ruleLastUpdate`.
+
+| Field | Required | Notes |
+|---|---|---|
+| `name` | Yes in practice | The server does not refuse an empty name, but the file is then named `rule-<tenant-id>.yaml`. |
+| `dataTypes` | Yes | At least one entry, for example `[{"dataType": "wineventlog"}]` |
+| `definition` | Yes | The condition as a JSON string |
+| `ruleActive` | No | Send `true`. If you leave it out, the rule is saved switched off. |
+| `correlation` | No | Correlation steps. Each `within` must be a valid duration (`10m`, `1h`, `24h`; `1d` is refused), each condition needs a `field`, and each `operator` must be `filter_term`, `must_not_term`, `filter_match` or `must_not_match`. `indexPattern` is not needed. |
+| Other fields | No | Stored as sent |
+
+The server does **not** check that the condition is valid CEL, that impact values are between 0 and 3, or the adversary value. A rule with a broken condition is saved and never matches. Test it first (see "Test in the Playground" below).
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Firewall: Many Blocked Connections From One Address",
+    "adversary": "origin",
+    "confidentiality": 1,
+    "integrity": 1,
+    "availability": 2,
+    "category": "Discovery",
+    "technique": "T1046 - Network Service Discovery",
+    "description": "One address had at least 50 connections blocked by the firewall within 10 minutes.",
+    "references": ["https://attack.mitre.org/techniques/T1046/"],
+    "definition": "equals(\"actionResult\", \"denied\") && exists(\"origin.ip\")",
+    "correlation": [
+      {
+        "within": "10m",
+        "count": 50,
+        "with": [
+          {"field": "origin.ip", "operator": "filter_term", "value": "{{.origin.ip}}"},
+          {"field": "actionResult", "operator": "filter_term", "value": "denied"}
+        ]
+      }
+    ],
+    "groupBy": null,
+    "deduplicateBy": ["adversary.ip"],
+    "ruleActive": true,
+    "dataTypes": [{"dataType": "acme-firewall"}]
+  }'
+```
+
+**Response:** HTTP 204, with no body. The answer does not contain the new `relPath`: find the rule with `GET .../search-by-filters?ruleName=<name>&systemOwner=false`.
+
+> [!NOTE]
+> The `{{.origin.ip}}` inside the correlation step is part of the rule (it copies the value from the triggering event), not a placeholder for you to replace.
+
+**Errors:**
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `rule must have at least one data type` | `dataTypes` is empty |
+| 400 | `correlation rule definition must not be null` | `definition` is empty |
+| 400 | `invalid correlation rule: afterEvents must be an array of correlation steps` | `correlation` is not a list |
+| 400 | `invalid correlation rule: step 1 'within' ("1d") is not a valid duration` | Invalid `within` |
+| 400 | `invalid correlation rule: step 1 has a condition without a field` | Condition without `field` |
+| 400 | `invalid correlation rule: step 1 uses an unknown operator "eq"` | Operator other than the four allowed |
+| 500 | `operation failed` | In UTMStack v12.0.2, also returned when you already have a custom rule with the same name (the file already exists) |
+
+### Update a Rule
+
+**Endpoint:** `PUT /api/v1/eventprocessing/correlation-rule`
+
+**Request Body:** the full rule object, including `relPath`. Only your own custom rules can be updated.
+
+The update replaces the whole rule. Every field you leave out is cleared, and:
+
+- leaving out `correlation` removes the correlation steps;
+- leaving out `ruleActive` (or sending `false`) switches the rule off for your tenant.
+
+The safe way is to read the rule with `GET .../find`, change the fields you need in that object, and send the whole object back. Unlike the editor in the web console, the API keeps correlation steps exactly as you send them, with or without an index pattern.
+
+```bash
+# 1. Read the rule
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/find" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=<tenant-id>/acme-firewall-many-blocked-connections-from-one-address-<tenant-id>.yaml" \
+  > rule.json
+
+# 2. Raise the threshold from 50 to 100 and send it back
+jq '.correlation[0].count = 100' rule.json > rule-new.json
+
+curl -sk -X PUT "{{baseUrl}}/api/v1/eventprocessing/correlation-rule" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d @rule-new.json
+```
+
+**Response:** HTTP 204. The name can change, but the file keeps its original `relPath`.
+
+**Errors:** the same as for create, plus:
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `id is required on update` | `relPath` is missing |
+| 400 | `system's rules can't be updated` | The rule is shipped |
+| 404 | `correlation rule not found` | Unknown `relPath`, or a rule of another tenant |
+
+### Switch a Rule On or Off
+
+**Endpoint:** `PUT /api/v1/eventprocessing/correlation-rule/activate-deactivate?relPath=<rel-path>&active=<true|false>`
+
+Works for shipped and custom rules and affects only your tenant. This is also how you switch back on a rule that the rule flood guard switched off (see **Rule Flood Guard**).
+
+```bash
+curl -sk -X PUT --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/activate-deactivate" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=windows/audit_log_was_cleared.yaml" \
+  --data-urlencode "active=false"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"changed": true}
+```
+
+`changed` is `false` when the rule was already in the requested state.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `relPath is required` | Missing `relPath` |
+| 400 | `invalid active parameter: must be true or false` | `active` missing or not `true`/`false` |
+| 400 | `correlation rule not found` | Unknown `relPath` |
+
+### Delete a Rule
+
+**Endpoint:** `DELETE /api/v1/eventprocessing/correlation-rule?relPath=<rel-path>`
+
+Deletes one of your custom rules. Shipped rules cannot be deleted; switch them off instead.
+
+```bash
+curl -sk -X DELETE --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=<tenant-id>/acme-firewall-many-blocked-connections-from-one-address-<tenant-id>.yaml"
+```
+
+**Response:** HTTP 204. Errors: 400 `relPath is required`, 400 `system's rules can't be updated` (shipped rule), 400 `correlation rule not found`.
+
+### Import Rules
+
+**Endpoint:** `POST /api/v1/eventprocessing/correlation-rule/import`
+
+Creates custom rules from rule files. The files are sent as text inside a JSON body (not as a file upload). Import keeps the `correlation` key exactly as written, including Or alternatives with their own `within` and `count`.
+
+**Request Body:**
+
+| Field | Type | Description |
+|---|---|---|
+| files | array, at least 1 | One entry per rule file |
+| files[].filename | string | Any name; it is only echoed back in the result |
+| files[].content | string | The YAML text of one rule. A plain mapping, or the older UTMStack v11 form (a list with one rule). |
+
+Each file is checked on its own: it needs a `name`, at least one data type and a `where` condition, and its correlation steps must pass the same checks as for create. Imported rules are switched on. A key named `afterEvents` is not read, so its steps are lost; rename it to `correlation` before you import.
+
+The easiest way to build the body is with `jq`:
+
+```bash
+jq -n --rawfile r1 acme-blocked.yaml \
+  '{files: [{filename: "acme-blocked.yaml", content: $r1}]}' > import.json
+
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/import" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d @import.json
+```
+
+**Response (HTTP 200):** one result per file, plus totals. The call answers 200 even when every file was rejected.
+
+```json
+{
+  "results": [
+    {
+      "filename": "acme-blocked.yaml",
+      "approved": true,
+      "name": "Acme Firewall: Many Blocked Connections From One Address",
+      "relPath": "<tenant-id>/acme-firewall-many-blocked-connections-from-one-address-<tenant-id>.yaml"
+    },
+    {
+      "filename": "old-rule.yaml",
+      "approved": false,
+      "name": "Windows: Possible Brute Force Attack (custom)",
+      "error": "file already exists"
+    }
+  ],
+  "approved": 1,
+  "rejected": 1
+}
+```
+
+| `error` in a result | Cause |
+|---|---|
+| `invalid correlation rule: file is empty` | Empty `content` |
+| `invalid correlation rule: not valid rule YAML: ...` | The text is not YAML, or not a rule |
+| `invalid correlation rule: missing rule name` | No `name` |
+| `rule must have at least one data type` | No `dataTypes` |
+| `correlation rule definition must not be null` | No `where` |
+| `invalid correlation rule: step N ...` | A correlation step failed a check |
+| `file already exists` | You already have a custom rule with this name. Delete it first, or give the new rule another name. |
+
+An empty `files` list returns 400 with a validation message.
+
+### Export Rules
+
+**Endpoint:** `POST /api/v1/eventprocessing/correlation-rule/export`
+
+Downloads rule files exactly as they are stored, in a zip archive, for backup, review or to move rules to another installation.
+
+**Request Body:**
+
+| Field | Type | Description |
+|---|---|---|
+| relPaths | array of strings | Rules to export. An empty list exports every rule you can see: all shipped rules and your custom rules. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/export" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"relPaths": []}' \
+  -o correlation-rules.zip
+```
+
+**Response (HTTP 200):** a zip file (`Content-Type: application/zip`, file name `correlation-rules.zip`), also when you ask for one rule. Inside, each rule is stored under its file name only, without folders. The files keep everything that is in the stored file: shipped files keep their version comment and the older `afterEvents` key where they use it; custom files contain a `tenantId` line, which import replaces with your own tenant id.
+
+If you name exactly one rule and it does not exist or belongs to another tenant, the answer is 404 `correlation rule not found`. When you name several, unknown ones are skipped.
+
+## Pipelines
+
+All pipeline paths start with `/api/v1/eventprocessing/pipelines`. A pipeline is sent and returned as the full YAML text of its file, in the format described in **Pipeline File Format and Step Reference**.
+
+### Pipeline Object
+
+| Field | Type | Description |
+|---|---|---|
+| `relPath` | string | Identity of the pipeline |
+| `content` | string | The YAML text of the file |
+| `system` | boolean | `true` for shipped pipelines |
+| `active` | boolean | On or off for your tenant. A shipped pipeline that the release ships switched off is always `false`. |
+| `dataTypes` | array of strings | Data types the file handles, read from its entries |
+| `order` | integer | The `order` value of the file's first entry |
+| `position` | integer | Place in the sequence your tenant runs, starting at 0, counted over all pipelines you can see |
+
+### List Pipelines
+
+**Endpoint:** `GET /api/v1/eventprocessing/pipelines`
+
+| Parameter | Type | Description |
+|---|---|---|
+| page | integer | Page number, starting at `1` |
+| size | integer | Default 50. There is no maximum. |
+| relPath.contains | string | Part of the `relPath` (upper and lower case count) |
+| isActive.equals | boolean | `true` or `false` |
+| system.equals | boolean | `true` for shipped, `false` for custom |
+| dataType.equals | string | Pipelines that handle this data type |
+
+The answer is a JSON array of pipeline objects in the order your tenant runs them. The total is in the `X-Total-Count` header.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/pipelines" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "dataType.equals=wineventlog"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "relPath": "windows/windows-events.yaml",
+    "content": "pipeline:\n  - dataTypes:\n      - wineventlog\n ...",
+    "system": true,
+    "active": true,
+    "dataTypes": ["wineventlog"],
+    "order": 34,
+    "position": 2
+  }
+]
+```
+
+The `content` value is shortened here; the answer contains the whole file.
+
+### Get One Pipeline
+
+**Endpoint:** `GET /api/v1/eventprocessing/pipelines/find?relPath=<rel-path>`
+
+**Response (HTTP 200):** one pipeline object. An unknown `relPath`, or a pipeline of another tenant, returns 404 `filter not found`.
+
+### List Pipeline Data Types
+
+**Endpoint:** `GET /api/v1/eventprocessing/pipelines/data-types`
+
+Returns, sorted, every data type that at least one pipeline you can see handles, for example `["aws", "azure", "firewall-fortigate-traffic", ...]`.
+
+### Create a Pipeline
+
+**Endpoint:** `POST /api/v1/eventprocessing/pipelines`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| relPath | string | Yes | A file name ending in `.yaml`, for example `acme-firewall.yaml`. Any folder part is dropped. UTMStack stores the file as `<tenant-id>/acme-firewall-<tenant-id>.yaml`. |
+| content | string | Yes | The YAML text |
+
+Before saving, the server checks that:
+
+- the text is YAML with a `pipeline` list of at least one entry;
+- each entry has at least one data type and at least one step;
+- each step has exactly one step type, and the type is one of `grok`, `kv`, `json`, `csv`, `trim`, `rename`, `cast`, `reformat`, `delete`, `drop`, `add`, `dynamic`;
+- each step has its required fields (see **Pipeline File Format and Step Reference**), and every grok pattern has both `fieldName` and `pattern`.
+
+It does not check `where` conditions, field names or regular expressions. An entry with no `order` (or `order: 0`) gets `order: 100`. UTMStack also adds your tenant id to each entry and writes the file out again, so comments are removed and keys may change order; the `content` in the answer is the stored version.
+
+Build the body with `jq` so the YAML is escaped correctly:
+
+```bash
+jq -n --rawfile c acme-firewall.yaml \
+  '{relPath: "acme-firewall.yaml", content: $c}' > pipeline.json
+
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/pipelines" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d @pipeline.json
+```
+
+**Response (HTTP 200):** the new pipeline object, with the stored `relPath` and `content`. New pipelines are switched on.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `invalid pipeline: content is empty` | `content` holds only spaces or line breaks. A missing or empty `content` (or `relPath`) returns 400 with a validation message instead. |
+| 400 | `invalid pipeline: must define at least one pipeline entry` | No `pipeline` list |
+| 400 | `invalid pipeline: pipeline[0] needs at least one dataType` | Entry without data types |
+| 400 | `invalid pipeline: pipeline[0].steps[2]: unknown processor "xml"` | Step type not allowed |
+| 400 | `invalid pipeline: pipeline[0].steps[0]: "grok" is missing required field "source"` | Missing field |
+| 400 | `invalid pipeline: pipeline[0].steps[0]: grok.patterns[1] needs both fieldName and pattern` | Incomplete grok pattern |
+| 500 | `file already exists` | You already have a pipeline created from the same file name |
+
+### Update a Pipeline
+
+**Endpoint:** `PUT /api/v1/eventprocessing/pipelines`
+
+Same body as create, with the stored `relPath` (for example `<tenant-id>/acme-firewall-<tenant-id>.yaml`). The content is checked the same way and replaces the whole file. Only your own custom pipelines can be updated.
+
+**Response (HTTP 200):** the updated pipeline object. Errors: as for create, plus 400 `system filter is read-only` (shipped pipeline) and 404 `filter not found`.
+
+### Switch a Pipeline On or Off
+
+**Endpoint:** `PUT /api/v1/eventprocessing/pipelines/activate?relPath=<rel-path>&active=<true|false>`
+
+Works for shipped and custom pipelines and affects only your tenant. Any value of `active` other than `true` switches the pipeline off.
+
+```bash
+curl -sk -X PUT --get "{{baseUrl}}/api/v1/eventprocessing/pipelines/activate" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=<tenant-id>/acme-firewall-<tenant-id>.yaml" \
+  --data-urlencode "active=true"
+```
+
+**Response (HTTP 200):** `{"message": "ok"}`. Unknown `relPath`: 404 `filter not found`.
+
+> [!WARNING]
+> Switching off the shipped pipeline of a data type stops its events from being split into fields, so the rules for that data type stop matching.
+
+### Change the Pipeline Order
+
+**Endpoint:** `PUT /api/v1/eventprocessing/pipelines/order`
+
+Sets the order in which your tenant runs pipelines. Send the complete list of pipeline names (file names without `.yaml`, for example `windows-events` or `acme-firewall-<tenant-id>`). Names in the list run first, in that order; pipelines you leave out follow, in the order of their files. An empty list removes your own order.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/eventprocessing/pipelines/order" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"order": ["acme-firewall-<tenant-id>", "generic"]}'
+```
+
+**Response:** HTTP 204. A name you cannot see returns 404 `filter not found`, and nothing is saved.
+
+### Delete a Pipeline
+
+**Endpoint:** `DELETE /api/v1/eventprocessing/pipelines?relPath=<rel-path>`
+
+**Response (HTTP 200):** `{"message": "deleted"}`. Errors: 400 `system filter is read-only`, 404 `filter not found`.
+
+## Regex Patterns
+
+**Endpoints:** `GET /api/v1/eventprocessing/regex-pattern` and `GET /api/v1/eventprocessing/regex-pattern/{patternId}`
+
+The named patterns you can use in grok steps as `{{.name}}` (for example `{{.ipv4}}`). They are read-only; there is no endpoint to add one.
+
+| Parameter | Description |
+|---|---|
+| search | Part of the pattern name |
+| page | Page number, starting at `0` |
+| size | Default 20, maximum 200. A larger value falls back to 20. |
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/regex-pattern" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search=int"
+```
+
+**Response (HTTP 200)**, total in `X-Total-Count`:
+
+```json
+[
+  {"patternId": "integer", "patternDefinition": "(?:[+-]?(?:[0-9]+))"}
+]
+```
+
+An unknown name returns 400 `regex pattern not found`.
+
+## Test in the Playground
+
+The playground is a separate copy of the engine. It parses one log, runs rules on it and returns the result, without storing anything and without adding alerts to your alert list. It behaves like the test dialogs described in **Testing Pipelines and Rules**, with the same limits (no geolocation, no threat intelligence, counting rules need stored events, one test at a time).
+
+### Test a Pipeline
+
+**Endpoint:** `POST /api/v1/eventprocessing/playground/test-pipeline`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| log | object | Yes | The test log |
+| log.dataType | string | Yes in practice | Data type of the log; it decides which pipelines run |
+| log.raw | string | Yes in practice | The log exactly as the source sends it |
+| pipeline | object | No | `{"content": "<YAML text>"}`: a draft pipeline. If present, **only** this pipeline runs. If absent, all deployed pipelines run. |
+
+### Test a Rule
+
+**Endpoint:** `POST /api/v1/eventprocessing/playground/test-rule`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| log | object | Yes | As above |
+| rule | object | No | `{"content": "<YAML text>"}`: a draft rule file. If present, only this rule runs. If absent, every deployed rule runs, including rules switched off for your tenant. |
+
+A rule test always parses the log with the **deployed** pipelines. To test a new pipeline and a new rule together, save the pipeline first.
+
+The log object is passed to the engine as it is. Besides `dataType` and `raw`, the engine's log format also has a `dataSource` field (the name of the sending host); the web console never sends it, so rules that require a data source do not fire there. You can add it in API calls, for example `"dataSource": "fw01"`.
+
+**Limits:**
+
+- The request body may be up to 1 MiB; a larger one returns 413 `request body too large`.
+- One test runs at a time on the whole installation. A test waits up to 30 seconds for the one before it to finish, then returns 503 `playground busy, retry later`.
+- The playground waits up to 15 seconds for the parsed event. If none arrives, the answer has `"timedOut": true` and no event; this usually means no pipeline handles the data type. After the event, it collects alerts until 2 seconds pass without a new one, for at most 15 seconds.
+
+**Response (HTTP 200):**
+
+| Field | Description |
+|---|---|
+| `uuid` | Id of the test log |
+| `event` | The parsed event, as the pipelines left it. Check its fields and its `errors` field. |
+| `alerts` | Alerts the log raised, in the engine's raw form (not de-duplicated, grouped or tagged). Empty for most pipeline tests. |
+| `stopReason` | Why alert collection stopped: `quiet`, `hard_cap` or `no_alerts` |
+| `timedOut` | `true` when no parsed event arrived in time |
+
+**Errors:**
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `playground: bad input: <message>` | The playground refused the draft or the log |
+| 413 | `request body too large` | Body larger than 1 MiB |
+| 503 | `playground busy, retry later` | Another test is running |
+| 502 | `playground misconfigured` | The backend could not authenticate to the playground |
+| 500 | `playground unavailable` | The playground service could not be reached or failed |
+
+Every test is recorded in the audit log.
+
+## Apply to Many Tenants
+
+On installations with the multi-tenant licence, administrators of the default tenant can repeat a change in many tenants with one call. These endpoints need `eventprocessing.write` and a token or API key of an administrator of the default tenant.
+
+| Method | Endpoint | Body |
+|---|---|---|
+| POST | `/api/v1/platform/eventprocessing/correlation-rule/bulk/create` | `{"selector": ..., "rule": <rule object as for create>}` |
+| POST | `/api/v1/platform/eventprocessing/correlation-rule/bulk/update` | `{"selector": ..., "rule": <rule object as for update>}` |
+| POST | `/api/v1/platform/eventprocessing/correlation-rule/bulk/delete` | `{"selector": ..., "relPath": "..."}` |
+| POST | `/api/v1/platform/eventprocessing/correlation-rule/bulk/activate` | `{"selector": ..., "relPath": "...", "active": true}` |
+| POST | `/api/v1/platform/eventprocessing/pipelines/bulk/create` | `{"selector": ..., "relPath": "acme-firewall.yaml", "content": "..."}` |
+| POST | `/api/v1/platform/eventprocessing/pipelines/bulk/update` | `{"selector": ..., "relPath": "...", "content": "..."}` |
+| POST | `/api/v1/platform/eventprocessing/pipelines/bulk/delete` | `{"selector": ..., "relPath": "..."}` |
+| POST | `/api/v1/platform/eventprocessing/pipelines/bulk/activate` | `{"selector": ..., "relPath": "...", "active": true}` |
+
+The `selector` is either `{"tenantIds": ["<tenant-id-1>", "<tenant-id-2>"]}` or `{"allTenants": true}` (every active tenant).
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/platform/eventprocessing/correlation-rule/bulk/activate" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"selector": {"allTenants": true}, "relPath": "windows/audit_log_was_cleared.yaml", "active": true}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"succeeded": ["<tenant-id-1>"], "failed": [{"tenantId": "<tenant-id-2>", "error": "correlation rule not found"}]}
+```
+
+Each tenant is handled on its own; a failure in one does not undo the others. Things to know:
+
+- **Create** makes a separate custom copy in each tenant, named with that tenant's id.
+- **Activate** works well with shipped rules and pipelines, whose `relPath` is the same in every tenant.
+- **Update** and **delete** act on one `relPath`. A custom item's `relPath` contains the id of the tenant that owns it, so in UTMStack v12.0.2 these calls succeed only in that tenant and report `correlation rule not found` or `filter not found` for the others.
+
+## Worked Examples
+
+### Change a Shipped Rule (Export, Edit, Import)
+
+Shipped rules cannot be changed. To run a changed version, export it, import it as a custom rule under a new name, and switch the shipped one off.
+
+```bash
+# 1. Export the shipped rule
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/export" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"relPaths": ["windows/audit_log_was_cleared.yaml"]}' \
+  -o export.zip
+unzip -o export.zip    # gives audit_log_was_cleared.yaml
+
+# 2. Edit the file: give the rule a new name (and rename afterEvents to correlation if present)
+sed -i.bak 's/^name: .*/name: "Windows audit log was cleared (custom)"/' audit_log_was_cleared.yaml
+
+# 3. Import it
+jq -n --rawfile r audit_log_was_cleared.yaml \
+  '{files: [{filename: "audit_log_was_cleared.yaml", content: $r}]}' > import.json
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/import" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d @import.json
+
+# 4. Switch the shipped rule off for your tenant
+curl -sk -X PUT --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/activate-deactivate" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "relPath=windows/audit_log_was_cleared.yaml" \
+  --data-urlencode "active=false"
+```
+
+Check the import result: `approved` must be `true`. To change one of your own custom rules later, use "Update a Rule" above; importing the same name again is rejected with `file already exists`.
+
+### Back Up Your Custom Rules
+
+```bash
+# relPaths of all custom rules
+curl -sk --get "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/search-by-filters" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "systemOwner=false" \
+  | jq '{relPaths: [.[].relPath]}' > custom.json
+
+curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/correlation-rule/export" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d @custom.json \
+  -o custom-rules.zip
+```
+
+If you have no custom rules, the list is empty and the export returns every rule you can see. Pipelines have no export endpoint: save the `content` of each custom pipeline from `GET /eventprocessing/pipelines?system.equals=false`.
+
+### Test a New Pipeline and Rule
+
+This example uses the "Acme Firewall" pipeline and rule from **Pipeline File Format and Step Reference** and **Writing and Testing Rules and Pipelines**.
+
+<Steps>
+  <Step title="Test the draft pipeline">
+
+  Save the pipeline YAML as `acme-firewall.yaml`, then run it on a sample line. Only the draft pipeline runs.
+
+  ```bash
+  jq -n --rawfile c acme-firewall.yaml \
+    --arg raw '<134>Nov 11 09:30:00 fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=443 policy=deny-ext' \
+    '{log: {dataType: "acme-firewall", raw: $raw}, pipeline: {content: $c}}' > test-pipeline.json
+
+  curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/playground/test-pipeline" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d @test-pipeline.json | jq '{timedOut, event}'
+  ```
+
+  Check that `timedOut` is `false` and that the event has `origin.ip`, `target.ip`, `target.port` as a number and `actionResult` set to `denied`. Look for an `errors` field. Remember that the `dynamic` (geolocation) step does nothing in the playground.
+
+  </Step>
+  <Step title="Save the pipeline">
+
+  Create it with `POST /eventprocessing/pipelines` as shown in "Create a Pipeline" above.
+
+  </Step>
+  <Step title="Test the draft rule">
+
+  Write a rule that matches a single event, save it as `acme-blocked.yaml`, and run it on the same line. The log is now parsed by the deployed pipelines, including the one you just saved.
+
+  ```yaml
+  dataTypes:
+    - acme-firewall
+  name: "Acme Firewall: Blocked Connection From an External Address"
+  impact:
+    confidentiality: 1
+    integrity: 1
+    availability: 1
+  category: "Discovery"
+  technique: "T1046 - Network Service Discovery"
+  adversary: origin
+  where: equals("actionResult", "denied") && exists("origin.ip")
+  ```
+
+  ```bash
+  jq -n --rawfile r acme-blocked.yaml \
+    --arg raw '<134>Nov 11 09:30:00 fw01 acmefw: action=block src=203.0.113.7 dst=10.0.0.5 dport=443 policy=deny-ext' \
+    '{log: {dataType: "acme-firewall", raw: $raw}, rule: {content: $r}}' > test-rule.json
+
+  curl -sk -X POST "{{baseUrl}}/api/v1/eventprocessing/playground/test-rule" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    -H "Content-Type: application/json" \
+    -d @test-rule.json | jq '{timedOut, stopReason, alerts: [.alerts[].name]}'
+  ```
+
+  You expect one alert named "Acme Firewall: Blocked Connection From an External Address". An empty list means the condition did not match or does not compile: both look the same, so always test with a log that should match.
+
+  </Step>
+  <Step title="Import the rule">
+
+  Import the file as shown in "Import Rules" above. Imported rules are switched on.
+
+  </Step>
+</Steps>
+
+## Audit
+
+Creating, importing, updating, deleting and switching rules, creating, updating and deleting pipelines, and every playground test are recorded in the audit log (see **App Audit Logs**). Switching a pipeline on or off and changing the pipeline order are not recorded.

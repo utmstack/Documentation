@@ -71,6 +71,10 @@ If your hosts may be cut off from UTMStack for long periods, raise the retention
 
 </Tip>
 
+## When UTMStack no longer accepts the agent
+
+If the UTMStack server no longer recognises the agent, for example because the server was reinstalled or the agent's registration was removed, the server refuses its connection: the agent log shows `PermissionDenied` errors (for example `invalid credential` or `invalid key`). The agent keeps retrying and does not register again on its own. To connect the host again, uninstall the agent and run the install command from your current UTMStack server. See **Reinstall, Move or Remove an Agent**.
+
 ## Remote command lock
 
 If you install the agent with **Disable remote command execution on this host** (the `--no-remote-control` flag), the agent refuses every remote command on that machine, from the Data Sources console and from SOAR. In **SOAR > Interactive Console**, such an agent shows: "This agent was installed with remote control disabled…".
@@ -87,8 +91,13 @@ The lock can only be removed by uninstalling the agent and installing it again w
 | `config_state.json` | Which settings sent by the server the agent has already applied. |
 | `update_hold.json` | Whether the server has put this agent's updates on hold. |
 | `version.json` | The agent version information downloaded from the server. |
+| `agent_status.json` | The snapshot that the `status` command prints. |
+| `wineventlog_bookmarks.json` (Windows) | Where the agent stopped reading in each Event Log channel. |
+| `journald_cursor.txt`, `audit_log_cursor.json` (Linux) | Where the agent stopped reading in the journal and the audit log. |
 | `logs/utmstack_agent.log` | The agent's own log file. Check it first when something does not work. |
 | `logs_process/logs.db` | The local log store described above. |
+
+Do not copy these files to another machine, and do not include an installed agent in a virtual machine template or disk image: every copy would report as the same agent. See **Reinstall, Move or Remove an Agent**.
 
 ## Services
 

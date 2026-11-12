@@ -22,7 +22,9 @@ The bell in the top bar shows how many notifications are unread. Click it to see
 
 ## The Notifications page
 
-Open it with **View all** under the bell, or with **Configure > Settings > Notifications**. The page shows how many notifications there are in total and how many are unread. For each notification you can use **Mark as read**, **Mark as unread** and **Delete**, and you can mark everything read with **Mark all read**.
+Open it with **View all** under the bell, or with **Configure > Settings > Notifications**. The page shows how many notifications there are in total and how many are unread. Notifications with the same source, type and message are grouped, with a count. For each notification you can use **Mark as read**, **Mark as unread** and **Delete**, and you can mark everything read with **Mark all read**. You can show from 10 to 100 notifications per page. There is no search or filter.
+
+The bell refreshes its unread count every minute.
 
 ## Who sees notifications
 
@@ -41,3 +43,14 @@ UTMStack deletes old notifications automatically. It checks every 6 hours and de
 
 - Read notifications older than 30 days.
 - All notifications older than 365 days.
+
+## Common questions
+
+| Question | Answer |
+|---|---|
+| Why is the bell always empty? | Only the rule flood guard and response flows with a notification step create notifications. New alerts and incidents do not; they are sent by email instead (see **Alert and Incident Notifications**). |
+| A notification I had not read shows as read. | Another user of your tenant read it, or clicked **Mark all read**. The read state is shared by the whole tenant. |
+| Can I get notifications in Slack, Teams or by webhook? | Not directly. Use an HTTP step in a response flow, or email. |
+| Who can delete notifications? | Users with `notifications.write`: the built-in **Administrator** and **Analyst** roles. The list is shared by the whole tenant, so a deleted notification is gone for everyone. |
+
+On a multi-tenant server, see **Multi-Tenancy Overview** for what each tenant sees.

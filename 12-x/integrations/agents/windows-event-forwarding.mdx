@@ -1,0 +1,113 @@
+Windows Event Forwarding (WEF) lets Windows computers send selected events to one central Windows server, the event collector. If you install the UTMStack Windows agent on that collector, UTMStack v12 receives the forwarded events too, without an agent on every computer. This page explains when that makes sense and how to set it up.
+
+## Agent on every host, or forwarding?
+
+| | Agent on every host | Windows Event Forwarding to one agent |
+|---|---|---|
+| What is collected | The full list of channels in **Windows Agent** | Only the events your subscription selects |
+| Audit policy | The agent turns on the needed auditing on each host | You must set the audit policy yourself, with Group Policy |
+| Response commands (console, SOAR) | On each host | Only on the collector |
+| **Data Sources** page | One row per host | One row for the collector |
+| Local buffer when UTMStack is unreachable | On each host | On the collector |
+| Software on each host | The UTMStack agent | None (Windows built-in) |
+
+Use forwarding for hosts where you cannot install software, or to add a few events from many workstations. Use agents for servers and important hosts, where you want full collection and response.
+
+## How it works
+
+1. Each source computer runs the Windows Remote Management service and sends the events a subscription asks for to the collector, over WinRM (port 5985 HTTP, or 5986 HTTPS).
+2. The collector stores them in its **ForwardedEvents** channel. Each event keeps its original computer name and channel.
+3. The UTMStack agent on the collector reads ForwardedEvents along with the collector's own channels, and sends everything under the data type `wineventlog`.
+
+In UTMStack, forwarded events have:
+
+- `dataSource`: the collector's host name, because the agent there sent them,
+- `target.host`: the name of the computer where the event happened,
+- `log.eventCode`, `log.channel` and the other fields of a normal Windows event, so the Windows detection rules apply.
+
+## Before you begin
+
+- A Windows Server to act as collector, with the UTMStack Windows agent installed (see **Windows Agent**). Give its ForwardedEvents log enough space for the volume you expect.
+- Domain-joined source computers (this page uses the source-initiated setup with Kerberos, the usual choice in a domain).
+- Rights to edit Group Policy.
+- Port 5985/TCP open from the source computers to the collector.
+
+## Step 1: Prepare the collector
+
+On the collector, in an administrator command prompt:
+
+```bat
+wecutil qc /q
+```
+
+This starts the Windows Event Collector service and sets it to start automatically.
+
+## Step 2: Create a subscription
+
+<Steps>
+  <Step title="Open Event Viewer">
+    On the collector, open **Event Viewer**, right-click **Subscriptions** and choose **Create Subscription**.
+  </Step>
+  <Step title="Set the basics">
+    Name it, leave **Destination log** as **Forwarded Events**, and choose **Source computer initiated**. Click **Select Computer Groups** and add the Active Directory group of the computers that should forward (for example **Domain Computers**, or a group you create).
+  </Step>
+  <Step title="Choose the events">
+    Click **Select Events** and choose the logs and event IDs to forward. A common start is the **Security** log with logon, account and process events, plus **System**. Forward only what you need: every event costs network and storage.
+  </Step>
+  <Step title="Set delivery">
+    Under **Advanced**, choose **Minimize Latency** so events arrive within seconds, and keep the protocol **HTTP** (traffic is still encrypted by Kerberos in a domain).
+  </Step>
+</Steps>
+
+## Step 3: Point the source computers at the collector
+
+Create or edit a Group Policy Object linked to the source computers:
+
+1. **Computer Configuration > Policies > Administrative Templates > Windows Components > Event Forwarding > Configure target Subscription Manager**: set it to **Enabled** and add this value, with your collector's full name:
+
+   ```text
+   Server=http://wec01.corp.example.com:5985/wsman/SubscriptionManager/WEC,Refresh=60
+   ```
+
+2. **Computer Configuration > Policies > Windows Settings > Security Settings > Restricted Groups** (or Group Policy Preferences): add the **NETWORK SERVICE** account to the local **Event Log Readers** group, so the forwarding service can read the Security log.
+3. Make sure the **Windows Remote Management (WS-Management)** service runs on the source computers (for example with `winrm quickconfig` or a Group Policy service setting).
+4. Set the audit policy you need under **Computer Configuration > Policies > Windows Settings > Security Settings > Advanced Audit Policy Configuration**. The UTMStack agent does not set it on source computers, because it is not installed there. Use the subcategories listed in **Windows Agent** as a minimum.
+
+The source computers pick up the policy at their next Group Policy refresh (or run `gpupdate /force`).
+
+## Step 4: Check that events arrive
+
+1. On the collector, run `wecutil gr <subscription name>`. Each source computer should be listed as **Active**.
+2. In **Event Viewer** on the collector, **Windows Logs > Forwarded Events** shows the events.
+3. In UTMStack, open **Log Explorer** with the data type `wineventlog`, filter on `dataSource` with the collector's name, and look at `target.host` for the source computers' names.
+
+To count forwarded events per source computer, use Log Explorer's SQL mode:
+
+```sql
+SELECT toString(target.host) AS computer, count() AS events
+FROM logs
+WHERE dataType = 'wineventlog'
+  AND dataSource = 'WEC01'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+GROUP BY computer
+ORDER BY events DESC
+LIMIT 50
+```
+
+Replace `WEC01` with the collector's name as it appears on the **Data Sources** page.
+
+## Things to know
+
+- **One data source.** All forwarded events appear under the collector on the **Data Sources** page. Asset sensitivity you set there applies to the collector, not to each source computer.
+- **Response commands** from the Data Sources console or SOAR run on the collector only.
+- **Volume.** A collector that receives many computers' Security logs can produce a lot of data. Watch the collector's CPU and disk, and the ForwardedEvents log size.
+- **Delays.** If a source computer is offline, it sends its events when it comes back. UTMStack stores them with the time the collector's agent read them in `@timestamp`, and the event's own time in `deviceTime`.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `wecutil gr` lists no computers | The Group Policy has not reached them, or WinRM is not running. | Run `gpupdate /force` on a source computer, check `winrm qc`, and look at **Applications and Services Logs > Microsoft > Windows > Eventlog-ForwardingPlugin > Operational** on that computer. |
+| Computers are listed but no Security events arrive | NETWORK SERVICE cannot read the Security log. | Add it to **Event Log Readers** and restart the WinRM service on the source computer. |
+| Events reach Forwarded Events but not UTMStack | The agent on the collector is not running or cannot reach UTMStack. | Check `Get-Service UTMStackAgent` and the agent log on the collector. See **Agent Troubleshooting**. |
+| Events arrive late | The subscription uses **Normal** delivery. | Choose **Minimize Latency**. |

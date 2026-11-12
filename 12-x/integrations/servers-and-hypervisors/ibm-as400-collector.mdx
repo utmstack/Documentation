@@ -1,4 +1,4 @@
-The UTMStack AS/400 Collector is a Linux service that connects to your IBM AS/400 (IBM i) systems, pulls their security journal entries and sends them to UTMStack v12 for correlation and alerting. Nothing is installed on the AS/400 itself. One Collector can watch several AS/400 systems.
+The UTMStack AS/400 Collector is a Linux service that connects to your IBM AS/400 (IBM i) systems, pulls their security audit journal entries and sends them to UTMStack v12 for correlation and alerting. Nothing is installed on the AS/400 itself. One collector can watch several AS/400 systems.
 
 ## Connection details
 
@@ -6,29 +6,44 @@ The UTMStack AS/400 Collector is a Linux service that connects to your IBM AS/40
 |---|---|
 | Card on the Integrations page | **As 400** (category Operating System) |
 | Data type | `ibm-as400` |
-| Service on the Collector host | `UTMStackAS400Collector` |
+| Service on the collector host | `UTMStackAS400Collector` |
 | Install folder | `/opt/utmstack-as400-collector` |
-| Included in UTMStack | A parsing filter and 8 detection rules |
+| Configuration file | `/opt/utmstack-as400-collector/as400-config.yaml` |
+| Collector log file | `/opt/utmstack-as400-collector/logs/utmstack_as400_collector.log` |
+| Parsing pipeline | `ibm/ibm_as_400.yaml` (version 4.1.1). The **Filters** button in the drawer opens it. |
+| Detection rules | 8 rules for the `ibm-as400` data type. The **Rules** button in the drawer lists them. |
+
+## How it works
+
+The collector is a small Go service that runs a Java program, `as400-collector.jar`, which it downloads from your UTMStack server. The Java program signs in to each AS/400 system you list, reads the security audit journal (**QAUDJRN**) and hands each entry to the service, which sends it to UTMStack over port 443.
+
+- Events go to the UTMStack tenant whose install command you used.
+- On the **Data Sources** page, all events from one collector appear under one **Direct** source named after the **collector host's** name. The AS/400 system an event came from is in the event's `origin.host` field.
+- The collector is separate from the UTMStack Forwarder. You do not need a Forwarder for AS/400.
 
 ## Before you begin
 
-- A Linux host with an **x86-64 (AMD64)** processor. UTMStack v12 publishes the AS/400 Collector for AMD64 only.
-- The install command in the product uses `apt`, so it is written for **Debian or Ubuntu**.
-- The host must reach your UTMStack server on **443/TCP** and must have network access to each AS/400 system you want to monitor.
-- Root rights (`sudo`) on the host. Java is installed automatically during the install.
-- The **QAUDJRN** security audit journal must be active on each AS/400 system (step 3).
+- A Linux host with an **x86-64 (AMD64)** processor. UTMStack v12 publishes the AS/400 collector for AMD64 only.
+- **Debian or Ubuntu.** The install command and the Java installation use `apt`.
+- Root rights (`sudo`) on the host.
+- The host must reach your UTMStack server on **443/TCP**.
+- The host must reach each AS/400 system over the network. The Java program uses IBM Toolbox for Java (JT400), which connects to the IBM i host servers; IBM documents their ports (by default 449 and 8470 to 8476) under "IBM i host server ports". Allow those from the collector host.
+- An IBM i user profile for each system that is allowed to read the QAUDJRN journal. A dedicated profile is safer than `QSECOFR`.
+- The **QAUDJRN** security audit journal must be active on each system (step 3).
 
 <Note>
 
-The AS/400 Collector is a separate program from the UTMStack Forwarder. You do not need a Forwarder for AS/400.
+During the install, the collector installs the `openjdk-17-jdk` package with `apt`. When you uninstall the collector, it removes `openjdk-17-jdk` and runs `apt autoremove`. If other programs on the host need Java 17, install the collector on a host of its own.
 
 </Note>
 
-## Step 1: Install the AS/400 Collector
+## Step 1: Install the AS/400 collector
 
 <Steps>
   <Step title="Open the As 400 card">
     In UTMStack, go to **Configure > Integrations** and open the **As 400** card.
+
+    ![AS/400 Collector setup guide in UTMStack, showing How it works and the Install the AS/400 Collector command](/assets/86df3c3d-65b5-4f01-a6d0-ba3d00405aac)
   </Step>
   <Step title="Copy the command">
     Under **Install the AS/400 Collector**, copy the command. It contains your server address and connection key; only administrators see the key, other users see `*******`.
@@ -53,44 +68,81 @@ sudo bash -c "
 
 The last argument is "skip TLS certificate validation": `yes` accepts the server's self-signed certificate, `no` requires a certificate the host trusts.
 
-The install checks the connection to UTMStack, downloads the collector's Java component, installs Java if needed, registers the collector, creates the configuration file and starts the `UTMStackAS400Collector` service.
+The install prints each stage: "Checking server connection", "Downloading dependencies" (the version file and `as400-collector.jar`), "Installing Java", "Configuring collector" (registration and the configuration template) and "Creating service". It ends with "UTMStackAS400Collector service installed correctly".
 
 ## Step 2: Add your AS/400 systems
 
-The systems to monitor are set in a local file, not in the web interface. Edit `/opt/utmstack-as400-collector/as400-config.yaml` and add one entry per AS/400 system:
+The systems to watch are listed in a local file, not in the web interface. The install creates `/opt/utmstack-as400-collector/as400-config.yaml` with an empty list (`servers: []`) and a commented example. Replace the empty list with one entry per AS/400 system:
 
 ```yaml
 servers:
   - tenant:   default
     hostname: 10.0.0.5
-    userId:   QSECOFR
-    password: changeme
+    userId:   UTMSTACKRD
+    password: your-password
+  - tenant:   default
+    hostname: as400-prod.example.com
+    userId:   UTMSTACKRD
+    password: your-password
 ```
 
 | Field | What to enter |
 |---|---|
-| `tenant` | A name that identifies this entry. The template uses `default`. |
+| `tenant` | A name that identifies this entry, for example `default`. It does not choose the UTMStack tenant. |
 | `hostname` | The IP address or host name of the AS/400 system. |
-| `userId` | The user the collector signs in with. |
+| `userId` | The IBM i user profile the collector signs in with. |
 | `password` | That user's password. |
 
-- All four fields are required for every entry. You can list as many systems as you need.
-- The collector watches this file and reloads it when you save. You do not need to restart the service.
-- The collector encrypts the password before it uses it, but the file holds what you type. Limit who can read this file on the host.
+- All four fields are required for every entry. Remove the line `servers: []` when you add your list; the file must contain `servers:` only once.
+- The collector watches this file and reloads it a moment after you save. You do not need to restart the service. The collector log shows "Config loaded: N servers" and then "Configuration saved: N servers".
+- The collector encrypts the passwords before it hands them to the Java program, but this file keeps what you typed. Limit who can read it:
+
+  ```bash
+  sudo chmod 600 /opt/utmstack-as400-collector/as400-config.yaml
+  ```
 
 ## Step 3: Turn on audit journaling on the AS/400
 
-On each AS/400 system, make sure the **QAUDJRN** security audit journal is active. The procedure differs between IBM i versions; see IBM's documentation.
+On each AS/400 system, the **QAUDJRN** security audit journal must exist and auditing must be on.
+
+1. On the IBM i command line, run `DSPSECAUD` to see whether the journal exists and which auditing values (`QAUDCTL`, `QAUDLVL`) are set.
+2. If auditing is off, a security administrator with `*AUDIT` special authority can turn it on with `CHGSECAUD`, which creates the QAUDJRN journal if it is missing and sets the auditing system values. See IBM's documentation "Using CHGSECAUD to set up security auditing" for the values that fit your policy.
+
+The events UTMStack receives depend on the auditing levels you choose in `QAUDLVL`.
 
 ## Step 4: Check that logs arrive
 
-- In the **As 400** drawer, click **View logs**. Log Explorer opens with the `ibm-as400` data type for the last 24 hours.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
-- On the Collector host, check the service with `sudo systemctl status UTMStackAS400Collector` and read the log file `/opt/utmstack-as400-collector/logs/utmstack_as400_collector.log`.
+1. On the collector host, check the service and the log file:
+
+   ```bash
+   sudo systemctl status UTMStackAS400Collector
+   sudo tail -n 50 /opt/utmstack-as400-collector/logs/utmstack_as400_collector.log
+   ```
+
+   A working collector logs "JAR started (PID: …)" and no "JAR error" lines.
+2. In the **As 400** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `ibm-as400` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show the AS/400 system in `origin.host`, and the `errors` field should be empty.
+4. Within about 20 minutes, the collector host appears on **Configure > Data Sources** under **Direct**.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, toString(origin.host) AS as400_system, errors
+FROM logs
+WHERE dataType = 'ibm-as400'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Update the collector
 
-The AS/400 Collector does not update itself. To update it, uninstall it and install it again with the command from the **As 400** card. Keep a copy of `as400-config.yaml` first, because the uninstall command deletes the install folder.
+The AS/400 collector does not update itself. To update it, reinstall it:
+
+1. Copy `/opt/utmstack-as400-collector/as400-config.yaml` to a safe place.
+2. Uninstall the collector (see below) and check that the install folder is gone.
+3. Install it again with the command from the **As 400** card.
+4. Put your copy of `as400-config.yaml` back in `/opt/utmstack-as400-collector/` and run the `chmod 600` command again.
 
 ## Uninstall the collector
 
@@ -103,4 +155,26 @@ sudo bash -c "
 "
 ```
 
-This stops the service and deletes all its files, including `as400-config.yaml`.
+The uninstall removes the collector's registration in UTMStack, stops and removes the `UTMStackAS400Collector` service, and removes `openjdk-17-jdk`. It prints "UTMStackAS400Collector service uninstalled correctly".
+
+<Note>
+
+The uninstall command can end with an error status even when it worked, and then the `rm -rf` part does not run. Check that `/opt/utmstack-as400-collector` is gone. If it is still there, delete it with `sudo rm -rf /opt/utmstack-as400-collector`. This also deletes `as400-config.yaml`.
+
+</Note>
+
+## Troubleshooting
+
+Look in `/opt/utmstack-as400-collector/logs/utmstack_as400_collector.log` first. Lines that start with "JAR error:" come from the Java program and usually name the AS/400 problem.
+
+| Symptom or log message | Likely cause | What to do |
+|---|---|---|
+| The install stops at "Error trying to connect to server" | The host cannot reach UTMStack on 443 | Open 443/TCP from the collector host to the UTMStack server and run the command again. |
+| The install stops at "Error installing java" | The host is not Debian or Ubuntu, or `apt` cannot download packages | Use a Debian or Ubuntu host with access to its package repositories. |
+| The install stops at "Error registering collector: … hostname has already been registered" | Another AS/400 collector with the same host name is registered from a different IP address | Uninstall the old collector first (this removes its registration), or install on a host with another name. |
+| "failed to load config …" | `as400-config.yaml` is not valid YAML, for example `servers:` appears twice because `servers: []` was left in | Fix the file and save it again. |
+| "invalid config: server N (…): missing required fields (tenant, hostname, userId, password)" | An entry is missing one of the four fields | Complete the entry and save the file. |
+| "No servers configured, stopping collector..." | The list in `as400-config.yaml` is empty | Add your systems (step 2). |
+| "JAR exited with error" and "JAR error:" lines | The Java program could not sign in or read the journal: wrong password, locked or disabled profile, missing authority to QAUDJRN, or the host server ports are blocked | Fix the cause on the AS/400 or the network, then save `as400-config.yaml` again or run `sudo systemctl restart UTMStackAS400Collector` to start the Java program again. |
+| "AS400 collector JAR not found at: …" | `as400-collector.jar` was not downloaded during the install | Reinstall the collector (see "Update the collector"). |
+| The collector runs without errors but no events arrive | QAUDJRN is not active, or `QAUDLVL` does not include the events you expect | Check with `DSPSECAUD` on the AS/400 (step 3). |

@@ -1,0 +1,240 @@
+This page answers common questions about tenants on a multi-tenant UTMStack v12 server and helps you fix the problems operators and tenant administrators meet most often. Each problem lists what you see, the likely causes and what to do.
+
+## Questions
+
+<Accordion multiple={true}>
+
+<AccordionTab title="Can one user work in several tenants?" icon="pi pi-users">
+
+Not with one account. An account belongs to one tenant and signs in only on that tenant's address. The same email address can have separate accounts, with separate passwords, in several tenants. The only person who can work in several tenants from one account is the instance operator (an Administrator of the default tenant), through support sessions. See **Working Inside a Tenant**.
+
+</AccordionTab>
+
+<AccordionTab title="Can a tenant use its own domain instead of a sub-domain of ours?" icon="pi pi-globe">
+
+Yes. The customer points their name, for example `siem.acme.com`, at your server with a DNS record, and your certificate must list that exact name. A wildcard certificate for your own domain does not cover it. See **How Users Reach Their Tenant**.
+
+</AccordionTab>
+
+<AccordionTab title="Can tenants have different data retention?" icon="pi pi-clock">
+
+No. Data retention and cold storage are one setting for the whole server. See **Data Retention and Cold Storage**.
+
+</AccordionTab>
+
+<AccordionTab title="Can I limit how much a tenant uses?" icon="pi pi-sliders-h">
+
+The only per-tenant limit is the daily SOC-AI request cap, set with **Edit** on the **Tenants** page. See **Tenant Lifecycle** and **AI Usage and Limits**.
+
+</AccordionTab>
+
+<AccordionTab title="Do my rule changes reach my customers automatically?" icon="pi pi-sitemap">
+
+No. Switching a rule, pipeline or flow on or off, and your own custom items, apply to your tenant only. Use **Apply to All Tenants** to roll changes out, or make them inside each tenant.
+
+</AccordionTab>
+
+<AccordionTab title="Can a customer stop me from seeing their data?" icon="pi pi-lock">
+
+Yes. A tenant's administrator sets **Support access** to **No access**, which is the default for every new tenant. You then cannot enter the tenant. See **Support Access**.
+
+</AccordionTab>
+
+<AccordionTab title="What happens to tenants if the licence expires?" icon="pi pi-id-card">
+
+Multi-tenancy needs a valid licence with the multi-tenant option. An expired licence falls back to Community, which has no tenants. Renew before the end date; the **License** page shows **Expiring soon** during the last 30 days. See **License and Editions**.
+
+</AccordionTab>
+
+</Accordion>
+
+## Troubleshooting
+
+<Accordion multiple={true}>
+
+<AccordionTab title="A user cannot sign in on the tenant's address" icon="pi pi-sign-in">
+
+**What you see:** "Invalid credentials." on the tenant's sign-in page.
+
+**Causes and fixes:**
+
+- **The account belongs to another tenant.** Accounts exist in one tenant only. Make sure the user opens their own tenant's address, for example `https://acme.siem.example.com`, not the operator's address or another customer's.
+- **The account was invited and never activated.** An invited user has no password until they use the invitation. See "The invitation link opens the plain sign-in page" below.
+- **The password is wrong.** Use **Forgot?** on the tenant's own sign-in page. The reset email uses the tenant's **Base URL**; if the tenant has not set one, the link points at the operator's address (see the next item).
+- **The user signs in through single sign-on.** Accounts created by an identity provider cannot use a password. Use the provider's button on the sign-in page.
+
+If the message is "unknown tenant" instead, see that item below.
+
+</AccordionTab>
+
+<AccordionTab title="The invitation link opens the plain sign-in page" icon="pi pi-envelope">
+
+**What you see:** the link in the "activate your account" email (or a password-reset email) opens the normal sign-in page, without the **Set your password** form.
+
+**Cause:** in UTMStack v12.0.2 these emails link to `/reset/finish?key=...`, which the web interface does not show as a page. The form opens at `/auth/login?key=...`.
+
+**Fix:**
+
+1. Copy the key from the link in the email: everything after `key=`.
+2. Open `https://` followed by the tenant's domain and `/auth/login?key=` and the key, for example `https://acme.siem.example.com/auth/login?key=AbC123...`.
+3. Type the new password twice and click **Set password**. The page says "Password set. You can sign in now."
+4. Sign in on the tenant's own address.
+
+An invitation is valid for 7 days. A password-reset link is valid for 1 hour.
+
+</AccordionTab>
+
+<AccordionTab title="The invitation email never arrived" icon="pi pi-inbox">
+
+**What you see:** the **Tenants** page said "Tenant created", but the customer's administrator has no email.
+
+**Causes:**
+
+- Product email does not work, or the default tenant has no **Base URL**. In both cases the invitation is not sent, and the only trace is in the server's log.
+- The email went to a spam folder or was blocked by the customer's mail filter.
+
+**Fix:**
+
+1. Ask the customer to check spam and quarantine folders.
+2. In your own tenant, open **Email Configuration**, fill in **Base URL**, click **Send test** and fix the mail settings until the test arrives. See **Email Configuration**.
+3. A first administrator's invitation cannot be sent again, and a password reset does not work for an account that was never activated. Delete the tenant and create it again: **Deactivate** it, **Delete permanently**, then **New tenant** with the same domain. See **Tenant Lifecycle**.
+
+</AccordionTab>
+
+<AccordionTab title="Sign-in or the API says unknown tenant" icon="pi pi-question-circle">
+
+**What you see:** signing in fails with "unknown tenant", or the API answers `{"error":"unknown tenant"}`.
+
+**Cause:** on a multi-tenant licence, the host name in the address does not exactly match the domain of any tenant, including the default tenant.
+
+**Fixes:**
+
+- Check the address for typos and extra parts such as `www.`. Compare it with the domain on the tenant's card on **Tenants**.
+- Users must not use the server's IP address, unless the default tenant was bound to it.
+- If you changed the tenant's domain, the old address stops working at once. Use the new one.
+- If the tenant was deleted permanently, its address answers "unknown tenant" for good.
+- If a load balancer or another proxy sits in front of UTMStack, make sure it passes the original host name through.
+- If your own address says "unknown tenant" right after you installed a multi-tenant licence, the default tenant was bound to another address the first time someone opened UTMStack, often the IP address. Use that address, or change the default tenant's domain as described in **How Users Reach Their Tenant**.
+
+Check an address from the command line:
+
+```bash
+curl -s https://acme.siem.example.com/api/v1/branding/public
+```
+
+A known tenant answers with its branding; an unknown name answers "unknown tenant".
+
+</AccordionTab>
+
+<AccordionTab title="Error: this tenant has been suspended or terminated" icon="pi pi-ban">
+
+**What you see:** the tenant's users get errors with this message on every page, and its API keys stop working.
+
+**Cause:** the tenant's status is **Suspended** or **Terminated** (deactivated).
+
+**Fix (instance operator):**
+
+- **Terminated:** on **Tenants**, click the power icon (**Activate**) on the card.
+- **Suspended:** send `{"status": "ACTIVE"}` for the tenant through the API. **Activate** does not work for suspended tenants. See **Tenant Lifecycle**.
+
+</AccordionTab>
+
+<AccordionTab title="Error: this tenant has not granted the platform access" icon="pi pi-shield">
+
+**What you see:** the instance operator, inside a customer's tenant, gets this message.
+
+**Causes and fixes:**
+
+- The tenant has **No access**, or changed it to **No access** while you were inside. Click **Leave** and ask the customer to grant access.
+- The tenant granted **Read only** and you tried to save, delete or run something. Ask for **Full access** for the time you need it.
+- The tenant granted **Read only** and you opened the alert list, Log Explorer, a dashboard or the SOC-AI assistant. In v12.0.2 these searches are refused in a read-only session. Ask for **Full access**.
+
+See **Working Inside a Tenant**.
+
+</AccordionTab>
+
+<AccordionTab title="Error: credential does not belong to this tenant" icon="pi pi-key">
+
+**What you see:** an API call, an AI assistant (MCP) or a browser tab gets this message.
+
+**Cause:** a session or API key of one tenant was used on another tenant's address.
+
+**Fix:** send the requests to the address of the tenant the API key or account belongs to. An API key can never be used in another tenant. See **API Keys**.
+
+</AccordionTab>
+
+<AccordionTab title="An agent's data lands in the wrong tenant" icon="pi pi-desktop">
+
+**What you see:** a machine appears in **Data Sources** of the wrong tenant, or its logs and alerts show up there.
+
+**Causes:**
+
+- The agent was installed with the install command, and so the connection key, of the wrong tenant. The tenant comes from the connection key, not from the address in the command.
+- The machine was registered before for another tenant and its agent was never uninstalled.
+
+**Fix:**
+
+1. On the machine, run the agent's uninstall command while the machine can still reach the server. This also removes its registration. Deleting the data source on the **Data Sources** page is not enough.
+2. Inside the correct tenant, copy the install command from **Configure > Integrations** and run it.
+3. Check that the machine appears in the correct tenant's **Data Sources**.
+
+Data the machine sent before stays in the tenant that received it. See the agent pages in the **Integrations** tab.
+
+</AccordionTab>
+
+<AccordionTab title="A Forwarder sends data to the wrong tenant, or will not register" icon="pi pi-server">
+
+**What you see:** devices sending to a Forwarder appear in the wrong tenant, or the Forwarder install fails with "hostname has already been registered".
+
+**Causes:**
+
+- A Forwarder belongs to the tenant whose install command was used, and every log it receives goes to that tenant. One Forwarder cannot serve two tenants.
+- Forwarder host names must be unique on the server. A Forwarder whose host name is already registered is refused.
+
+**Fix:** give each customer a Forwarder on its own host, with a host name no other customer uses (for example `acme-fwd01`), installed with the command copied inside that customer's tenant. Do not move a Forwarder host from one customer to another. See **UTMStack Forwarder**.
+
+</AccordionTab>
+
+<AccordionTab title="The operator cannot see a tenant's data" icon="pi pi-eye-slash">
+
+**What you see:** no **Enter** button, an empty card ("This tenant has not granted you access."), or a tenant missing from the tenant switcher.
+
+**Causes and fixes:**
+
+- The tenant has **No access** (the default). Ask the tenant's administrator to grant **Read only** or **Full access**. See **Support Access**.
+- The tenant is deactivated. Deactivated tenants cannot be entered; activate it first.
+- The tenant is suspended. You can enter, but every request is refused.
+- Your account is not an Administrator of the default tenant, or you are signed in on another address than your own. Only Administrators of the default tenant can enter tenants.
+- The server's licence has no multi-tenant option, or it expired.
+
+</AccordionTab>
+
+<AccordionTab title="A tenant's alert emails go to the operator" icon="pi pi-envelope">
+
+**What you see:** you receive alert emails about a customer.
+
+**Cause:** the tenant has not saved its own **Alert recipients**, so it uses the default tenant's list.
+
+**Fix:** the tenant's administrator (or you, with **Full access**) opens **Email Configuration** in the tenant, enters the customer's own **Alert recipients** and **Incident recipients**, and clicks **Save changes**. See **Email Configuration**.
+
+</AccordionTab>
+
+<AccordionTab title="A tenant does not show our branding" icon="pi pi-palette">
+
+**What you see:** a customer's sign-in page and console show the standard UTMStack look.
+
+**Cause:** branding is per tenant and is not inherited from the default tenant.
+
+**Fix:** set up branding inside the tenant on **Configure > Settings > Branding** (Enterprise licence). To give many tenants the same logos, use **Apply to all tenants** next to each image's upload button. Do not use the **Apply to all tenants** button next to **Save** on that page in v12.0.2. See **Branding** and **Apply to All Tenants**.
+
+</AccordionTab>
+
+<AccordionTab title="Apply to all tenants reports failures" icon="pi pi-exclamation-triangle">
+
+**What you see:** some tenants are listed under **Failed**.
+
+**Causes and fixes:** the tenant already had an item with the same name, did not have the item you changed, or the item was not valid. Changes are not undone in the tenants that succeeded. Fix the cause and run the dialog again for the failed tenants only. Changing or deleting your own custom pipelines and rules reaches only your own tenant. See **Apply to All Tenants**.
+
+</AccordionTab>
+
+</Accordion>

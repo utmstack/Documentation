@@ -187,7 +187,7 @@ When the last pipeline step has run, the engine turns the result into an event. 
 | Field names are cleaned | Every character other than letters, digits, dots and underscores is removed from a field name. | `log.event-type` becomes `log.eventtype`. `log.event_type` is kept as it is. |
 | Unknown names are dropped | A field outside `log` whose name is not in the schema is removed, with no error. | `origin.hostname` is dropped; the schema field is `origin.host`. |
 | A wrong type drops the event | If a schema field holds a value of the wrong type, the whole event is discarded and the engine logs "failed to convert log to event". | A word in `origin.port`. Use the `cast` step to convert ports to `int`. |
-| `raw` and `@timestamp` are protected | No step can change or delete them. | A `delete` step on `raw` does nothing. |
+| `raw` and `@timestamp` are protected | No step can change or delete them. | A `delete` step on `raw` fails with "field cannot be a reserved field" in `errors`, and `raw` stays. |
 
 An unreadable `deviceTime` also loses the event: the database refuses it (see **Time fields**).
 

@@ -8,8 +8,8 @@ This page explains how to remove UTMStack v12 from a server, what the uninstalle
 
 ## Before you uninstall
 
-- **Save what you need.** UTMStack has no built-in backup. Once the data is deleted, logs, alerts, incidents and settings are gone.
-- **Remove the agents and collectors first**, if you are not moving them to another UTMStack server. Each agent and collector page shows its uninstall command. See **Windows agent**, **Linux agent**, **macOS agent** and **UTMStack Forwarder**.
+- **Save what you need.** UTMStack has no built-in backup. Once the data is deleted, logs, alerts, incidents and settings are gone. See **Backups and Recovery**.
+- **Remove the agents and collectors first**, if you are not moving them to another UTMStack server. Each agent and collector page shows its uninstall command. See **Windows Agent**, **Linux Agent**, **macOS Agent** and **UTMStack Forwarder**.
 - **Licence.** The uninstaller deletes `/utmstack/updates`, which holds the licence file and this server's registration with UTMStack. A new installation registers as a new instance with a new instance ID. If you have an Enterprise licence, contact UTMStack about using it on the new instance.
 
 ## Run the uninstaller
@@ -30,7 +30,7 @@ You can also run the downloaded installer with `./installer --uninstall` (or `-u
 4. Runs `docker system prune -a -f --volumes` (see the warning above).
 5. Deletes the `/utmstack/updates` folder.
 
-If the update service is not installed, the uninstaller still removes the `utmstack` stack if it exists and deletes `/utmstack/updates`, but it skips the Docker clean-up.
+If the update service is not running, the uninstaller treats UTMStack as not installed: it still removes the `utmstack` stack if it exists and deletes `/utmstack/updates`, but it skips the Docker clean-up and leaves the update service's definition in place. Start the service first (`sudo systemctl start UTMStackComponentsUpdater`) if you want the full uninstall.
 
 ## What the uninstaller leaves behind
 
@@ -40,12 +40,12 @@ When it finishes, the uninstaller reminds you that it did not remove Docker, sys
 |---|---|
 | UTMStack data | `/utmstack` (logs, alerts, certificates, rules and the other folders) |
 | Generated settings and secrets | `/root/utmstack.yml` |
-| The PostgreSQL database volume | Docker volume `postgres_data` of the stack, unless the Docker clean-up removed it. Whether it is removed depends on your Docker version, so do not count on it being kept. |
+| The PostgreSQL database volume | Docker volume `utmstack_postgres_data`, unless the Docker clean-up removed it. Current Docker versions remove only unnamed volumes in this clean-up, so the volume usually stays, but do not count on it being kept. |
 | The installer copy | `/usr/local/bin/utmstack_installer` and `/usr/local/bin/utmstack` |
 | Docker and Docker Swarm | Docker stays installed and the server stays a Swarm manager. |
 | nginx and its configuration | `/etc/nginx/sites-available/default` (Ubuntu, Debian) or `/etc/nginx/nginx.conf` (Red Hat), and `/etc/nginx/html/custom_502.html` |
 | Cockpit | Installed package |
-| System changes | Lines added to `/etc/sysctl.conf` (IPv6 off and others), `8021q` in `/etc/modules`, the `vlan10` interface files, and on Red Hat the SELinux and firewalld changes. See **System requirements**. |
+| System changes | Lines added to `/etc/sysctl.conf` (IPv6 off and others), `8021q` in `/etc/modules`, the `vlan10` interface files, and on Red Hat the SELinux and firewalld changes. See **System Requirements**. |
 | Logs | `/var/log/utmstack-installer.log` |
 
 ## Remove everything

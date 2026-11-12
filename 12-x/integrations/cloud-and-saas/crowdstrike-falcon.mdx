@@ -2,8 +2,10 @@ The **CrowdStrike** integration brings detections and audit activity from CrowdS
 
 ## How it works
 
-- UTMStack connects to the Falcon Event Streams API of your CrowdStrike cloud region with an API client that has the **Event streams: Read** scope.
-- Events are stored with the data type `crowdstrike`. UTMStack v12 ships 17 detection rules for this data type; see **CrowdStrike** in the **Rules** tab.
+- UTMStack connects to the Falcon Event Streams API of your CrowdStrike cloud region with an OAuth2 API client (a Client ID and secret that let a program get an access token) that has the **Event streams: Read** scope.
+- The stream is continuous: events arrive in UTMStack seconds to minutes after Falcon creates them. UTMStack keeps its position in each stream, so after a restart it continues where it stopped.
+- UTMStack stores only events created after collection started. Earlier detections and audit events are not imported.
+- Events are stored with the data type `crowdstrike` and parsed by the shipped pipeline `crowdstrike/crowdstrike.yaml` (version 1.3.1). UTMStack v12 ships 17 detection rules for this data type; see **CrowdStrike** in the **Rules** tab.
 
 ## Before you start
 
@@ -59,6 +61,8 @@ Each API client connection is a **config group**. You can add more than one, for
 
 Go to **Configure > Integrations**, search for `CrowdStrike` and open the **Crowdstrike** card. The form is at the end of the setup guide, under **API client configuration**.
 
+![CrowdStrike setup guide in UTMStack, showing How it works and the first Falcon step: open API Clients and Keys](/assets/9e619bd7-4857-4e9a-a0c7-7a967c1178ec)
+
 </Step>
 <Step title="Fill in the form">
 
@@ -89,16 +93,48 @@ Click **Add config group**. UTMStack signs in to CrowdStrike and checks access t
 
 ### If the save fails
 
+When the check fails, the config group is not saved and a message starting with "credential verification failed:" explains why.
+
 | Message | What to check |
 |---|---|
 | Invalid Client ID or Client Secret | The Client ID or secret is wrong, or the secret was reset. |
-| Client ID does not have permission to access Event Streams | Add the **Event streams: Read** scope to the API client in Falcon. |
-| Unrecognized CrowdStrike Cloud Region / Invalid CrowdStrike Cloud Region | Use one of the Base URLs in the table above. |
+| Client ID does not have permission to authenticate | The API client is disabled, or it has no scopes. |
+| Client ID does not have permission to access Event Streams / CrowdStrike API returned a permission error | Add the **Event streams: Read** scope to the API client in Falcon. |
+| Cannot access CrowdStrike Event Streams | The scope is missing, or the Event Streams API is not turned on for your Falcon account (see the note at the top). |
+| Unrecognized CrowdStrike Cloud Region / Invalid CrowdStrike Cloud Region | Use one of the Base URLs in the table above. You can also enter the region code, for example `us-1`. |
 | Cannot resolve CrowdStrike API host / Connection to CrowdStrike timed out | The Base URL is wrong, or the UTMStack server cannot reach it on port 443. |
 
 ## Check that events arrive
 
-Open the **Crowdstrike** card again and click **View logs**. Log Explorer opens filtered to the `crowdstrike` data type for the last 24 hours.
+<Steps>
+<Step title="Create some activity in Falcon">
+
+Do something Falcon records in its event stream, for example sign in to the Falcon console or change a setting. Detections also appear in the stream as they happen.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Open the **Crowdstrike** card again and click **View logs**. Log Explorer opens with the `crowdstrike` data type for the last 24 hours. Events usually appear within a few minutes.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted, which can take up to 20 minutes.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example a deleted API client, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The save fails with a permission message | The API client lacks **Event streams: Read**, or Event Streams is not turned on for your account. | Edit the API client in Falcon and add the scope. Ask CrowdStrike Support to turn on the Event Streams API if needed. |
+| Saved, but no `crowdstrike` events | No activity happened since you saved; UTMStack does not import earlier events. | Create activity (Step 1 of this check) and wait a few minutes. |
+| Events stopped | The API client was deleted, or its secret was reset. | Create a new secret in Falcon, then edit the config group and paste it. |
+| Events arrive from the wrong Falcon tenant | The API client was created in another Falcon CID (customer ID). | Create the API client inside the Falcon tenant you want to monitor, and add one config group per tenant. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
 
 ## Manage config groups
 

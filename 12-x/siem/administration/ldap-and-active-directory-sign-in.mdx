@@ -1,0 +1,125 @@
+With an **LDAP / Active Directory** identity provider, users sign in to UTMStack v12 with their directory email and password on the normal UTMStack sign-in page, and UTMStack checks them against your directory over LDAP (Lightweight Directory Access Protocol). This page explains how the check works, every field, and a complete Microsoft Active Directory example.
+
+Read **Single Sign-On** first for how accounts and roles work. Creating identity providers needs an **Enterprise** licence.
+
+## How an LDAP sign-in works
+
+1. The user opens the UTMStack sign-in page. They either click **Continue with** the directory's name (the page then shows "Signing in to" and the name, with **Use another** to go back), or simply type their email and password.
+2. UTMStack connects to the directory server on the configured port and, if **Use StartTLS** is on, switches the connection to encryption.
+3. UTMStack signs in to the directory with the service account (**Bind DN** and **Bind password**).
+4. It searches below **Base DN** with **User filter**, where `%s` is replaced by what the user typed. The search must find exactly one entry.
+5. It signs in to the directory again as that entry, with the password the user typed. If the directory accepts it, the password is right.
+6. It reads the user's email, name and groups from the entry, finds or creates the UTMStack account with that email, and decides the roles as described in **Single Sign-On**.
+7. If the user turned on UTMStack two-step sign-in, UTMStack asks for the code.
+
+When the user does not choose a directory, UTMStack tries every active LDAP provider of the tenant, but only for addresses that have no local UTMStack account or whose account was created through an identity provider. A user who has a local UTMStack password signs in with that password unless they click **Continue with** the directory first.
+
+## Requirements
+
+- The UTMStack server can reach the directory server on the LDAP port (389 by default) over TCP.
+- A service account that can search the directory. In Active Directory, an ordinary domain user can read users and their groups; it needs no administrator rights.
+- **Use StartTLS** works only if the directory server's certificate is valid for the **Host** name you enter and is issued by a certificate authority that the UTMStack server trusts, such as a public certificate authority. Certificates issued by a private certificate authority, as is common for domain controllers, are not trusted, and the sign-in fails.
+
+<Warning>
+
+UTMStack connects with plain LDAP and, optionally, StartTLS on the same port. LDAPS, where the connection is encrypted from the first byte on port 636, is not supported: a provider set to port 636 cannot connect.
+
+Without StartTLS, the service account's password and every user's password travel over the network unencrypted, and domain controllers that require LDAP signing refuse the sign-in. Use LDAP without StartTLS only on a network segment you fully trust, or connect UTMStack to your directory through an identity provider that supports OpenID Connect or SAML instead (see **Single Sign-On**).
+
+</Warning>
+
+## Fields
+
+| Field | What to enter | Pre-filled value |
+|---|---|---|
+| Host | The directory server's host name or IP address, without `ldap://` and without a port, for example `dc01.corp.example.com` | |
+| Port | The LDAP port. Leave it at 389 unless your directory uses another plain LDAP port. | `389` |
+| TLS: Use StartTLS | Encrypts the connection after it opens (see **Requirements**) | On |
+| Bind DN | The distinguished name of the service account, for example `CN=svc-utmstack,OU=Service Accounts,DC=corp,DC=example,DC=com` | |
+| Bind password | The service account's password. Stored encrypted, never shown again; leave blank when editing to keep it. | |
+| Base DN | Where to search for users, for example `OU=Staff,DC=corp,DC=example,DC=com` or the whole domain `DC=corp,DC=example,DC=com` | |
+| User filter | The search filter. It must contain `%s`, where the typed address is placed, and its parentheses must balance. | `(mail=%s)` |
+| Email attribute | The attribute that holds the email address. UTMStack uses it as the account's email; when it is empty on the entry, the typed address is used. | `mail` |
+| Name attribute | The attribute that holds the display name | `displayName` |
+| Group attribute | The attribute that lists the user's groups. UTMStack takes the common name (`CN`) of each group, so `CN=UTMStack-Admins,OU=Groups,DC=corp,DC=example,DC=com` becomes `UTMStack-Admins`. | `memberOf` |
+
+Fill in all three attribute fields, or clear all three. If only some are filled in, UTMStack asks the directory only for those attributes, and the others come back empty.
+
+Under **Accounts and roles**, the **Groups attribute** field is not used for LDAP; the **Group attribute** above is. Map group common names in **Group to role**.
+
+## Example: Microsoft Active Directory
+
+The domain in this example is `corp.example.com`, and UTMStack access is given through three groups: `UTMStack-Admins`, `UTMStack-Analysts` and `UTMStack-Viewers`.
+
+### In Active Directory
+
+1. Create a service account, for example `svc-utmstack`, in an organizational unit such as `OU=Service Accounts`. Give it a long password and decide how you will update UTMStack when the password changes.
+2. Create the three security groups and add the users.
+3. Make sure every UTMStack user has an email address in the **E-mail** field (`mail` attribute). That address is their UTMStack sign-in.
+
+### In UTMStack
+
+Go to **Configure > Settings > Identity Providers**, click **Add provider**, name it `corp-ad`, choose **LDAP / Active Directory**, and enter:
+
+| Field | Value |
+|---|---|
+| Host | `dc01.corp.example.com` |
+| Port | `389` |
+| Use StartTLS | On if the domain controller's certificate is trusted (see **Requirements**) |
+| Bind DN | `CN=svc-utmstack,OU=Service Accounts,DC=corp,DC=example,DC=com` |
+| Bind password | The service account's password |
+| Base DN | `DC=corp,DC=example,DC=com` |
+| User filter | `(&(objectClass=user)(mail=%s)(memberOf=CN=UTMStack-Users,OU=Groups,DC=corp,DC=example,DC=com))`, or simply `(&(objectClass=user)(mail=%s))` |
+| Email attribute, Name attribute, Group attribute | `mail`, `displayName`, `memberOf` |
+| Create the account on first sign-in | On |
+| Default role | **None** |
+| Re-apply roles on every sign-in | On |
+| Group to role | `UTMStack-Admins` to Administrator, `UTMStack-Analysts` to Analyst, `UTMStack-Viewers` to Viewer |
+
+The longer filter lets only members of a `UTMStack-Users` group sign in. Leave it out if the group mapping with **Default role** set to **None** is enough for you.
+
+Keep **Active (show on the login page)** on (the default), click **Create provider**, and test by signing in with a directory user in a private browser window. An inactive LDAP provider is never tried.
+
+### Useful filters
+
+| Purpose | Filter |
+|---|---|
+| Sign in with the email address | `(&(objectClass=user)(mail=%s))` |
+| Sign in with the user principal name, when it is the same as the email address | `(&(objectClass=user)(userPrincipalName=%s))` |
+| Only members of one group | `(&(objectClass=user)(mail=%s)(memberOf=CN=UTMStack-Users,OU=Groups,DC=corp,DC=example,DC=com))` |
+| Leave out disabled accounts | `(&(objectClass=user)(mail=%s)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))` |
+| OpenLDAP | `(&(objectClass=inetOrgPerson)(mail=%s))` |
+
+Ask users to type the same address that the **Email attribute** holds. That address is the UTMStack account.
+
+### Things to know about Active Directory groups
+
+- `memberOf` lists only direct memberships. If a user is in a group that is itself a member of `UTMStack-Admins`, UTMStack does not see `UTMStack-Admins`. Add users directly to the mapped groups.
+- The primary group (usually **Domain Users**) is not listed in `memberOf`.
+- Group names are compared without regard to case.
+
+## Check the connection from the server
+
+Before you blame UTMStack, check the directory from the UTMStack server with `ldapsearch` (package `ldap-utils` on Ubuntu and Debian, `openldap-clients` on Red Hat). It uses the same steps as UTMStack:
+
+```bash
+ldapsearch -x -ZZ -H ldap://dc01.corp.example.com:389 \
+  -D "CN=svc-utmstack,OU=Service Accounts,DC=corp,DC=example,DC=com" -W \
+  -b "DC=corp,DC=example,DC=com" \
+  "(&(objectClass=user)(mail=jane.doe@corp.example.com))" mail displayName memberOf
+```
+
+`-ZZ` requires StartTLS, like **Use StartTLS**; remove it to test without. The search must return exactly one entry.
+
+## Troubleshooting
+
+| What the user sees | Likely cause | Fix |
+|---|---|---|
+| "Invalid credentials." | Wrong password; or the search found no entry or more than one; or the service account cannot sign in; or the connection or StartTLS failed | Run the `ldapsearch` check above with the same values. Make the filter specific enough to find exactly one entry. |
+| "Invalid credentials." only with **Use StartTLS** on | The directory's certificate is not trusted by UTMStack or does not match **Host** | Use a certificate from a trusted authority that names the host, or see the warning in **Requirements**. |
+| "Login failed. Please try again." or "login failed" | The password was right, but no UTMStack account matches and **Create the account on first sign-in** is off, or no group matches and **Default role** is **None**, or the account is still waiting for its invitation to be accepted | Check the account on the **Team** page, the option, and the group mapping. |
+| "This account is deactivated." | The password was right, but the UTMStack account is deactivated | Reactivate it on the **Team** page. |
+| "Too many attempts. Try again in a few minutes." | Too many failed sign-ins from the same address | Wait 10 minutes. |
+| The user gets the wrong roles | **Group attribute** or **Group to role** do not match the directory's group names, or **Re-apply roles on every sign-in** is off | Compare the `memberOf` values from `ldapsearch` with the mapping. |
+
+The reason behind a failed LDAP sign-in is not shown in **App Audit Logs**. Use the `ldapsearch` check to find it.

@@ -1,4 +1,4 @@
-This page brings the pieces together: a step-by-step way to build a pipeline or rule, good practice that keeps rules useful and quiet, worked examples in UTMStack v12 syntax, and what to check when something does not work.
+This page brings the pieces together: a step-by-step way to build a pipeline or rule, good practice that keeps rules useful and quiet, worked examples in UTMStack v12 syntax, and what to check when something does not work. For a complete walk-through with one example source, from the first raw log to a real alert, see **Tutorial: From a New Log Source to an Alert**. For more complete examples to copy, see **Pipeline Examples** and **Rule Examples**.
 
 ## Workflow for a new pipeline
 
@@ -37,7 +37,7 @@ This page brings the pieces together: a step-by-step way to build a pipeline or 
   </Step>
   <Step title="Save and verify">
 
-  Save the pipeline. After about a minute, check new events in Log Explorer: the fields are there, they have the right values, and `errors` is empty. Check **Configure > Data Processing** for dropped events.
+  Save the pipeline. After about a minute, check new events in Log Explorer: the fields are there, they have the right values, and `errors` is empty. Check that the number of events still matches what the source sends: events discarded by a `drop` step or lost because of a wrong field type do not appear anywhere else.
 
   </Step>
 </Steps>
@@ -270,10 +270,11 @@ To test it, the earlier blocked events must already be stored: send real traffic
 | A rule never fires | Is it **Active** for your tenant? Did the flood guard switch it off (look for a notice in the notification bell)? Is there a `Circuit Breaker: <rule name>` alert? Do the events have the data type, field names and values the rule reads (check in Log Explorer)? Does the rule use `afterEvents` in an imported file (its steps were lost)? |
 | A counting rule never fires | Do the stored events match every `with` condition exactly, including letter case for `equals (term)`? Does every `{{.field}}` placeholder exist on the triggering event? Is `count` reachable within `within`? |
 | A rule fires for every matching event | Its correlation steps were lost. In the editor, a step without an **Index pattern** is removed on save; in an import, `afterEvents` steps are dropped. Re-import the file with `correlation`. |
-| A rule fires too often | Add or fix `deduplicateBy` or `groupBy`, narrow `where`, or close known false positives with a tagging rule. See **Tagging Rules and False Positives**. |
+| A rule fires too often | Add or fix `deduplicateBy` or `groupBy`, narrow `where`, or close known false positives with a tagging rule. See **Tuning Rules and Reducing False Positives**. |
 | A pipeline does not parse | Run **Test pipeline** with a real sample (twice). Look at the `errors` field of stored events. Check that `source` fields exist and that conditions and patterns compile. |
 | Fields are missing after parsing | A misspelled standard field name is dropped silently. A `grok` step writes nothing if any of its patterns fails. |
-| Events disappear | A value of the wrong type in a standard field drops the whole event ("failed to convert log to event"). An unreadable `deviceTime` makes the database refuse it. Check **Configure > Data Processing** for drops. |
+| Events disappear | A value of the wrong type in a standard field drops the whole event ("failed to convert log to event" in the engine log). An unreadable `deviceTime` makes the database refuse it. A `drop` step may match more than you meant. None of these is counted on **Configure > Data Processing**, so read the engine log and test the pipeline with the missing sample. |
+| A pipeline step seems to do nothing | Copy the pipeline into the editor and remove steps from the end, one at a time, testing after each, until the result is what you expect. The last step you removed is the one to fix. Its condition may be false, its source may be missing, or a `grok` pattern may not match. |
 | A rule's data type gets no events | The engine logs "rule references dataTypes no pipeline produces" when no pipeline lists the rule's data type. Check the spelling of the data type. |
 
 ### Reading the engine's messages
@@ -291,7 +292,7 @@ Useful messages:
 | "failed to parse log during pipeline execution" | A pipeline step failed. |
 | "failed to convert log to event" | The event was dropped because a field had the wrong type. |
 | "failed to evaluate where clause using CEL" | A condition in a pipeline step failed. |
-| "failed to evaluate rule" | A rule condition or history search failed. |
+| "failed to evaluate rule" | A rule condition or history search failed. The reason follows: "failed to compile expression" (the condition), "correlation: unresolved placeholder for" (a `{{.field}}` the event does not have), "correlation: invalid 'within'" (for example `1d`). See **Rule File Format**. |
 | "rule references dataTypes no pipeline produces" | A rule names a data type that no pipeline lists. |
 | "duplicate pipeline order" | Two pipelines share an `order` value. Both still run, one after the other. Give each pipeline its own `order`. |
 

@@ -1,0 +1,353 @@
+Use these endpoints to look up indicators (IP addresses, domains, file hashes and more) in ThreatWinds, the threat intelligence service that UTMStack v12 uses, to download its indicator feeds, to report an indicator, and to manage the ThreatWinds switches of your installation. They are the endpoints behind the Threat Intelligence pages of the web console.
+
+> [!NOTE]
+> These endpoints need your UTMStack installation to be registered with ThreatWinds. The registration is created when UTMStack is installed and is stored on the server. Without it, every endpoint that goes to ThreatWinds answers 503 `instance not configured`. Check with `GET /api/v1/threat-intel/status`.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| Every endpoint on this page | `threatintel.read` (all built-in roles) |
+| `GET /threat-intel/usage` and `GET /threat-intel/feeds/contribution` | Also: Administrator of the default tenant (platform administrator) |
+| `PUT /threat-intel/feeds/contribution` | Also: platform administrator |
+
+On a single-tenant installation, every Administrator is a platform administrator. On a multi-tenant installation, only Administrators of the default (platform) tenant are.
+
+## Signing In for These Endpoints
+
+The examples on this page sign in with a bearer token: `{{token}}` stands for the `access_token` returned by `POST /api/v1/auth/login` (see **Authentication and API Keys**). Use a bearer token for the `/threat-intel` endpoints.
+
+## How the Requests Reach ThreatWinds
+
+Most endpoints on this page pass your request on to ThreatWinds through the UTMStack central service and return the answer unchanged:
+
+- The path is replaced by the matching ThreatWinds path. The query string and the JSON body are passed on as they are.
+- UTMStack signs the request with the installation's own ThreatWinds registration. You never need a ThreatWinds key of your own.
+- ThreatWinds answers, including its error codes (for example 404 when an indicator is not known, or 400 when a value is not valid for its type), come back to you unchanged.
+
+The answer shapes below are the ones the web console reads. ThreatWinds defines them, so they may gain fields.
+
+| Error from UTMStack itself | Cause |
+|---|---|
+| 503 `instance not configured` | The installation is not registered with ThreatWinds |
+| 502 `upstream service error` | ThreatWinds could not be reached |
+| 504 `upstream service timed out` | ThreatWinds did not answer within 30 seconds |
+
+The analyst conversations, the status check and the feed switches are handled by UTMStack itself and do not go to ThreatWinds.
+
+## Check the Registration
+
+**Endpoint:** `GET /api/v1/threat-intel/status`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/threat-intel/status" \
+  -H "Authorization: Bearer {{token}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"configured": true}
+```
+
+## Look Up One Indicator
+
+**Endpoint:** `POST /api/v1/threat-intel/entity/lookup`
+
+Exact lookup of one value of a known type.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| type | string | Yes | Indicator type, for example `ip`, `domain`, `hostname`, `url`, `md5`, `sha256` or `cve`. `GET /threat-intel/report/definitions` lists every type. |
+| value | string | Yes | The value to look up |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/threat-intel/entity/lookup" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{"type": "ip", "value": "203.0.113.45"}'
+```
+
+**Response (HTTP 200):** one search item (see the table below). ThreatWinds answers 404 when the indicator is not in its database, and 400 when the value does not fit the type.
+
+```json
+{
+  "id": "<entity-id>",
+  "type": "ip",
+  "attributes": {"ip": "203.0.113.45"},
+  "tags": ["brute-force"],
+  "lastSeen": "<time>",
+  "reputation": -3,
+  "bestReputation": -1,
+  "worstReputation": -3,
+  "accuracy": 3,
+  "score": 1
+}
+```
+
+**Search Item Fields:**
+
+| Field | Description |
+|---|---|
+| `id` | Entity id. Use it for details, relations, history and comments. |
+| `type` | Indicator type |
+| `attributes` | The value, under the key of its type (for example `attributes.ip`) |
+| `tags` | Labels such as `brute-force` or `phishing` |
+| `lastSeen` | When the indicator was last reported |
+| `reputation`, `bestReputation`, `worstReputation` | Reputation numbers, read as in the table below |
+| `accuracy` | How reliable the reputation is |
+
+The web console shows reputation numbers with these labels:
+
+| Reputation | Label |
+|---|---|
+| -3 or lower | Alarming |
+| -2 or -1 | Suspicious |
+| 0 | Indefinable |
+| 1 | Fair |
+| 2 or higher | Trustworthy |
+
+## Search Indicators
+
+### Full-text Search
+
+**Endpoints:** `POST /api/v1/threat-intel/search` and `POST /api/v1/threat-intel/ai/search` (both reach the same ThreatWinds search)
+
+Searches names and keywords, for example a malware family. Do not use it for an exact IP address or hash: the text is split into words, so an address returns many unrelated entries. Use the lookup above instead.
+
+| Field | Type | Description |
+|---|---|---|
+| query | string | Search words |
+| page | integer | Page; the web console sends `0` |
+| limit | integer | Results per page; the web console sends 1 to 50 |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/threat-intel/search" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "emotet", "page": 0, "limit": 15}'
+```
+
+**Response (HTTP 200):** `items` (number of matches) and `results` (a list of search items).
+
+### Advanced Search
+
+**Endpoint:** `POST /api/v1/threat-intel/search/advanced`
+
+A structured query with conditions and optional counts (aggregations). This is what the Threat Intelligence page uses for its filters and charts.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| limit | integer | Results per page. The web console sends `0` when it only needs the counts. |
+| page | integer | Page; the web console starts at `1` |
+
+**Body:**
+
+| Field | Description |
+|---|---|
+| `query.must` | Conditions that must all match |
+| `query.should` | Conditions of which at least `query.minimum_should_match` must match |
+| `query.must_not` | Conditions that must not match |
+| `query.filter` | Conditions that must match, without affecting the score |
+| `aggs` | Named counts: `terms` (count per value of a field) or `date_histogram` (count per time interval) |
+
+Each condition is one of: `term`, `terms`, `match`, `multi_match`, `range`, `exists` or `wildcard`.
+
+This example is the query the Threat Intelligence page uses to count indicators per type. It lists IP addresses and domains, 20 per page, and counts them by type:
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/threat-intel/search/advanced?limit=20&page=1" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": {
+      "must": [
+        {"terms": {"type.keyword": ["ip", "domain"]}}
+      ]
+    },
+    "aggs": {
+      "byTypes": {"terms": {"field": "type.keyword", "size": 20}}
+    }
+  }'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "items": 1250,
+  "pages": 63,
+  "results": [
+    {"id": "<entity-id>", "type": "domain", "attributes": {"domain": "<domain>"}, "tags": ["phishing"], "reputation": -3}
+  ],
+  "aggregations": {
+    "byTypes": {"buckets": [{"key": "domain", "doc_count": 900}, {"key": "ip", "doc_count": 350}]}
+  }
+}
+```
+
+`items` is the number of matches and `pages` the number of pages.
+
+## Indicator Details
+
+| Method | Endpoint | Returns |
+|---|---|---|
+| GET | `/api/v1/threat-intel/entity/{id}` | Full details: `attributes` (value, description, tags, first and last seen, reputation and accuracy with labels), `metadata` (ASN, organisation, city, country, coordinates), `latest_associations`, `geolocations` |
+| GET | `/api/v1/threat-intel/entity/{id}/relations` | A list of related indicators, each with the same `attributes` fields |
+| GET | `/api/v1/threat-intel/entity/{id}/history` | Earlier versions of the indicator, as ThreatWinds returns them |
+| GET | `/api/v1/threat-intel/entity/{id}/comments` | Comments on the indicator, as ThreatWinds returns them |
+
+`{id}` is the `id` of a search item.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/threat-intel/entity/<entity-id>" \
+  -H "Authorization: Bearer {{token}}"
+```
+
+## Report an Indicator
+
+> [!WARNING]
+> A report adds the indicator to the ThreatWinds database, which other ThreatWinds users can see. Report only indicators you are sure of, and never internal addresses, user names or other private data.
+
+### List the Indicator Types
+
+**Endpoint:** `GET /api/v1/threat-intel/report/definitions`
+
+Returns a list of types, each with `type`, `label`, and optionally `attributes` (the extra fields the type accepts) and `correlate`.
+
+### Send a Report
+
+**Endpoint:** `POST /api/v1/threat-intel/report/entity`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| type | string | Yes | Indicator type from the definitions list |
+| attributes | object | Yes | The value under the key of its type (for example `"ip": "203.0.113.45"`), plus any extra attributes the type accepts. The web console puts a free-text description in `text`. |
+| reputation | integer | No | The web console sends a value from -3 (bad) to 3 (good) |
+| tags | list of strings | No | Labels |
+
+The web console can also send `associations`, `correlate` and `visibleBy`; ThreatWinds defines what they do.
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/threat-intel/report/entity" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "ip",
+    "attributes": {"ip": "203.0.113.45", "text": "RDP password spraying against our VPN"},
+    "reputation": -3,
+    "tags": ["brute-force", "rdp"]
+  }'
+```
+
+**Response (HTTP 200):** an acknowledgement from ThreatWinds, which may carry a `message`.
+
+## Feeds
+
+ThreatWinds publishes lists of bad indicators (feeds) at three accuracy levels.
+
+| Method | Endpoint | Returns |
+|---|---|---|
+| GET | `/api/v1/threat-intel/feeds` | The list of feeds: `name`, `type` (for example `accumulative`) and `accuracy` (`level1`, `level2` or `level3`) |
+| GET | `/api/v1/threat-intel/feeds/download/{level}/{type}/{name}` | One feed file. Use the `accuracy`, `type` and `name` of a feed from the list. The web console saves feeds of type `daily` as `.ndjson` and the others as `.list.tar.gz`. |
+| GET | `/api/v1/threat-intel/feeds/checksum` | A checksum file for the feed downloads |
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/threat-intel/feeds/download/level3/accumulative/<feed-name>" \
+  -H "Authorization: Bearer {{token}}" \
+  -o "<feed-name>.list.tar.gz"
+```
+
+## AI Analyst Chat
+
+**Endpoint:** `POST /api/v1/threat-intel/ai/chat`
+
+Sends a chat request to the ThreatWinds AI model, as the AI Analyst of the Threat Intelligence page does. The request and answer follow the common "chat completions" format.
+
+| Field | Type | Description |
+|---|---|---|
+| model | string | Model name. In UTMStack v12.0.2 the AI Analyst offers `silas-1.7-pro` (its default), `silas-1.6-pro` and `silas-1.6`. |
+| messages | list | Each item has `role` (`system`, `user` or `assistant`) and `content` |
+| stream | boolean | `false` for one complete answer; `true` for a streamed answer |
+| tools | list | Optional tool definitions, as the AI Analyst sends them |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/threat-intel/ai/chat" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "silas-1.7-pro",
+    "stream": false,
+    "messages": [
+      {"role": "user", "content": "What is known about the IP address 203.0.113.45?"}
+    ]
+  }'
+```
+
+**Response (HTTP 200):** the answer text is in `choices[0].message.content`.
+
+These requests count against your installation's ThreatWinds allowance (see **Usage** below). They do not use the SOC-AI provider you set in UTMStack (see **SOC-AI API**).
+
+## AI Analyst Conversations
+
+The AI Analyst saves its conversations in UTMStack, not in ThreatWinds. Each user sees only their own conversations, in their own tenant.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/threat-intel/analyst/conversations` | Your conversations, newest first. Answer: `{"conversations": [...]}`. No paging. |
+| POST | `/api/v1/threat-intel/analyst/conversations` | Save a new conversation. Answer HTTP 201 `{"id": "<id>"}`. |
+| PUT | `/api/v1/threat-intel/analyst/conversations/{id}` | Replace the title, turns and history. Answer `{"ok": true}`; 404 `conversation not found` for an unknown id. |
+| DELETE | `/api/v1/threat-intel/analyst/conversations/{id}` | Delete. Answer `{"ok": true}`. |
+
+**Conversation Fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| id | string | Required when you create a conversation. You choose it (up to 64 characters). |
+| title | string | Up to 255 characters. Titles must be unique within the tenant: in UTMStack v12.0.2 a second conversation with a title already in use is refused with 500 `failed to create conversation`. |
+| turns, history | JSON | The conversation content, stored as you send it |
+| updatedAt | string | Last change |
+
+## Usage
+
+**Endpoint:** `GET /api/v1/threat-intel/usage` (platform administrator)
+
+Shows how much of the installation's ThreatWinds allowance has been used, for every tenant together.
+
+**Response (HTTP 200):** one entry per limited ThreatWinds service, keyed by its path:
+
+```json
+{
+  "/api/ai/v1/chat/completions": {
+    "used": 120,
+    "limit": 1000,
+    "resets_in_seconds": 43200
+  }
+}
+```
+
+A tenant's own daily SOC-AI allowance is a different number; read it with `GET /api/v1/soc-ai/usage` (see **SOC-AI API**).
+
+## Feed Switches
+
+**Endpoints:** `GET /api/v1/threat-intel/feeds/contribution` and `PUT /api/v1/threat-intel/feeds/contribution` (platform administrator)
+
+These are the two switches of the ThreatWinds settings page.
+
+| Field | Screen label | Meaning |
+|---|---|---|
+| `feeds_enabled` | Enable feeds | Events are checked against the ThreatWinds feeds |
+| `feeds_contribution_enabled` | Contribute incidents | Incidents from this installation are sent to ThreatWinds |
+
+Send both fields every time: a field you leave out is read as `false`.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/threat-intel/feeds/contribution" \
+  -H "Authorization: Bearer {{token}}" \
+  -H "Content-Type: application/json" \
+  -d '{"feeds_enabled": true, "feeds_contribution_enabled": false}'
+```
+
+**Response (HTTP 200):** the new state, in the same shape. A caller who is not a platform administrator gets 403 `this operation is limited to administrators of the default tenant`. See **Threat Intelligence: How Indicator Alerts Work** for what each switch changes.

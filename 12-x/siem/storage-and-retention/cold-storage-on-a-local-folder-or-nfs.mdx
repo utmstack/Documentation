@@ -1,0 +1,240 @@
+With the **Local folder or NFS** type, UTMStack v12 moves older records to a folder on the server, `/utmstack/clickhouse/cold`. On its own, that folder is on the same disk as the rest of the data, so it saves no space. It becomes useful when you mount a second disk or an NFS (Network File System) share on that folder. This guide covers both, including the permissions the event store needs and how to make the mount survive a restart.
+
+For what cold storage is and how it behaves, read **How UTMStack Stores Data** first.
+
+## How the folder works
+
+| On the server (host) | Inside the event store container |
+|---|---|
+| `/utmstack/clickhouse/cold` | `/mnt/utmstack-cold` |
+
+- The installer creates `/utmstack/clickhouse/cold` and passes it into the event store (ClickHouse) container as `/mnt/utmstack-cold`.
+- The event store runs as user ID `101` and group ID `101` inside its container. It must be able to create, write and delete files and folders in the cold folder.
+- Docker passes the folder to the container when the container starts. If you mount a disk or share on `/utmstack/clickhouse/cold` while UTMStack is running, the event store keeps seeing the old, empty folder until the event store restarts. The steps below include that restart.
+
+<Warning>
+
+Set up the disk or share **before** you click **Enable cold storage**, and never mount anything over `/utmstack/clickhouse/cold` once records have moved there. The records in the folder underneath would be hidden from the event store.
+
+</Warning>
+
+## Before you start
+
+- You need `root` or `sudo` access to the UTMStack server, and you need to be the UTMStack instance operator.
+- Decide your retention first, so you know how big the disk or share must be. See **Planning Retention and Disk Space**.
+- Plan a short pause: restarting the event store stops searches and the storage of new events for about a minute. New events wait in the queue and are stored when it is back.
+
+## Option A: a second disk in the server
+
+Use this when the server can take another, larger or cheaper disk (for example a large HDD or a cheaper cloud volume).
+
+<Steps>
+
+<Step title="Find the new disk">
+
+Attach the disk to the server, then list the disks:
+
+```bash
+lsblk
+```
+
+In this example the new, empty disk is `/dev/sdb`. Make sure you pick the right one: the next step erases it.
+
+</Step>
+
+<Step title="Create a file system">
+
+```bash
+sudo mkfs.xfs /dev/sdb
+```
+
+`ext4` works too (`sudo mkfs.ext4 /dev/sdb`).
+
+</Step>
+
+<Step title="Add it to /etc/fstab">
+
+Find the disk's UUID and add a line to `/etc/fstab`, so it is mounted at every start:
+
+```bash
+sudo blkid /dev/sdb
+```
+
+```text
+UUID=your-disk-uuid  /utmstack/clickhouse/cold  xfs  defaults  0  2
+```
+
+</Step>
+
+<Step title="Mount it and give it to the event store">
+
+```bash
+sudo mount /utmstack/clickhouse/cold
+sudo chown 101:101 /utmstack/clickhouse/cold
+sudo chmod 0770 /utmstack/clickhouse/cold
+df -h /utmstack/clickhouse/cold
+```
+
+`df` must show the new disk and its size.
+
+</Step>
+
+</Steps>
+
+Continue with **Make Docker wait for the mount** below.
+
+## Option B: an NFS share
+
+Use this to keep cold records on a file server or a NAS (network-attached storage) on your network.
+
+### On the NFS server
+
+Export a folder to the UTMStack server only, with read and write access, and make it belong to user and group `101`. On a Linux NFS server (replace `192.0.2.10` with the UTMStack server's address):
+
+```bash
+sudo mkdir -p /exports/utmstack-cold
+sudo chown 101:101 /exports/utmstack-cold
+sudo chmod 0770 /exports/utmstack-cold
+echo '/exports/utmstack-cold 192.0.2.10(rw,sync,no_subtree_check)' | sudo tee -a /etc/exports
+sudo exportfs -ra
+```
+
+Keep the default `root_squash` option: the event store does not need root on the share. On a NAS, create the share in its management console with the same result: read and write for the UTMStack server's address, and the top folder owned by user ID 101 and group ID 101.
+
+### On the UTMStack server
+
+<Steps>
+
+<Step title="Install the NFS client">
+
+On Ubuntu or Debian:
+
+```bash
+sudo apt-get install -y nfs-common
+```
+
+On Red Hat, Rocky Linux or AlmaLinux:
+
+```bash
+sudo dnf install -y nfs-utils
+```
+
+</Step>
+
+<Step title="Add the share to /etc/fstab">
+
+```text
+nfs.example.com:/exports/utmstack-cold  /utmstack/clickhouse/cold  nfs  nfsvers=4.1,hard,_netdev  0  0
+```
+
+- `hard` makes the server wait for the NFS server instead of returning errors when the network has a short break. Do not use `soft` for a database.
+- `_netdev` tells the system to wait for the network before mounting.
+
+</Step>
+
+<Step title="Mount it">
+
+```bash
+sudo mount /utmstack/clickhouse/cold
+df -h /utmstack/clickhouse/cold
+```
+
+`df` must show the NFS share and its size.
+
+</Step>
+
+</Steps>
+
+Use NFS version 4.1 or later on a fast, reliable network close to the server. Other network file systems, such as SMB or CIFS shares, are not covered by this guide.
+
+## Make Docker wait for the mount
+
+If the server starts and the disk or share is not mounted, the event store sees an empty folder: records already in cold storage are missing from searches, and new moves write to the server's main disk. To prevent that, make Docker, and so UTMStack, start only after the folder is mounted:
+
+```bash
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo tee /etc/systemd/system/docker.service.d/utmstack-cold.conf <<'EOF'
+[Unit]
+RequiresMountsFor=/utmstack/clickhouse/cold
+EOF
+sudo systemctl daemon-reload
+```
+
+With this setting, if the disk or share cannot be mounted at start-up, UTMStack does not start until you fix the mount. That is safer than running with records missing.
+
+## Restart the event store and check access
+
+Restart the event store so that it sees the mounted folder:
+
+```bash
+docker service update --force utmstack_clickhouse
+```
+
+Wait until the service is running again (`docker service ps utmstack_clickhouse`), then check that the event store's user can write to the folder from inside its container:
+
+```bash
+CH=$(docker ps -q -f name=utmstack_clickhouse)
+docker exec -u 101:101 "$CH" sh -c 'touch /mnt/utmstack-cold/.write-test && rm /mnt/utmstack-cold/.write-test && echo writable'
+```
+
+The command must print `writable`. If it prints `Permission denied`, fix the ownership of the disk or share (user and group `101`) and try again.
+
+## Turn on cold storage in UTMStack
+
+<Steps>
+
+<Step title="Open the Cold storage card">
+
+Go to **Configure > Settings > Data Retention** and scroll to **Cold storage**.
+
+</Step>
+
+<Step title="Choose the type">
+
+Click **Local folder or NFS**. There are no fields to fill in.
+
+</Step>
+
+<Step title="Enable">
+
+Click **Enable cold storage**. UTMStack checks that the event store sees the folder and can write to it. If it works, you see "Cold storage configured" and the card shows **In use**.
+
+If the folder is missing or not writable, you see "could not enable cold storage". The reason is in the backend log:
+
+```bash
+docker service logs --since 10m utmstack_backend 2>&1 | grep -i "cold"
+```
+
+Look for "the local cold folder is not writable by the event store: check the mount and its permissions". Fix the folder, run the write check above again, and click **Enable cold storage** again. After this error the card can show **In use** when you reload the page; do not set **Move to cold storage after** until enabling has succeeded.
+
+</Step>
+
+<Step title="Choose what moves">
+
+On the **Logs** card, and on **Alerts** if you want, set **Move to cold storage after** and click **Save**.
+
+</Step>
+
+</Steps>
+
+## Check that it works
+
+- The **Cold storage** card shows **In use**.
+- After records older than **Move to cold storage after** have moved, the folder fills up: `du -sh /utmstack/clickhouse/cold`.
+- The event store query in **Check that it works** in **Cold Storage with Amazon S3** shows the disk name `cold_disk` for the moved records.
+- In **Log Explorer**, a search older than **Move to cold storage after** still returns results.
+
+## If the disk or share goes away
+
+| What happens | What you see | What to do |
+|---|---|---|
+| The share drops while UTMStack runs | Searches over old periods fail or hang; moves to cold storage stop and records stay on the main disk | Fix the network or the NFS server. With `hard` mounts, work continues when the share is back. |
+| The server starts without the mount (no Docker wait) | Old records are missing from searches; new moves fill `/utmstack/clickhouse/cold` on the main disk | Stop UTMStack's event store with `docker service scale utmstack_clickhouse=0`, mount the share, then start it with `docker service scale utmstack_clickhouse=1`. Files written to the main disk while the share was missing stay hidden under the mount point; ask UTMStack support before you move them. |
+| The folder is not writable | Enabling fails with "could not enable cold storage"; the backend log says "the local cold folder is not writable by the event store: check the mount and its permissions" | Give user and group `101` write access, restart the event store, and enable again. |
+
+## Rules to keep
+
+- Do not create, change or delete files in the cold folder by hand.
+- Do not share the same folder or NFS export between two UTMStack servers.
+- Keep at least 20% of the cold disk or share free.
+- A cold folder on the same disk as `/utmstack/clickhouse/data` gives no space benefit. Use Option A or B.

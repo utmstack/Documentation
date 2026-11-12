@@ -29,6 +29,16 @@ pipeline:
 
 When you save a pipeline from the product, UTMStack also writes a `tenantId` into each entry so that it runs only for your tenant. You do not need to write it yourself.
 
+**Pipeline Examples** has complete pipelines for JSON, `key=value`, free text, CSV, CEF and LEEF logs.
+
+## From raw log to event
+
+1. A log arrives with its data type, data source, tenant, time and the original text in `raw`.
+2. The engine makes a working copy of the log. Every step reads this copy and writes its results back into it, so a step sees what the steps before it wrote.
+3. The matching pipeline entries run one after the other (see below), each one's steps from top to bottom.
+4. A `drop` step whose condition is true ends the work: the log is discarded.
+5. After the last step, the working copy is turned into an event in the **Standard Event Schema** and passed on to storage and the alerting rules.
+
 ## Which entries run, and in what order
 
 1. The engine takes every entry, in every pipeline file, whose `dataTypes` include the log's data type. One log can go through several entries.
@@ -66,7 +76,8 @@ Every step accepts a `where` condition, written in the same language as rule con
 - The condition is checked against the log as it stands at that step, so it can read fields that earlier steps wrote.
 - When the condition is false, the step is skipped.
 - Field names inside a condition are always quoted: `exists("log.message")`, not `exists(log.message)`. An unquoted name either fails to compile or silently never matches.
-- In YAML, wrap a condition in single quotes, or start it on its own line after `|`, when it begins with `!` or contains `: `.
+- In YAML, wrap a condition in single quotes, or start it on its own line after `|`, when it begins with `!` or contains `: `. Without the quotes, YAML reads a leading `!` as a tag of its own and the file does not mean what you wrote.
+- Inside a condition, text can be in double or single quotes: `equals("log.result", "OK")` and `equals('log.result', 'OK')` are the same. A condition in double quotes in YAML therefore uses single quotes inside.
 
 ```yaml
 - drop:
@@ -144,7 +155,7 @@ The `raw` field is kept for auditing and cannot be deleted.
 
 ## Step reference
 
-The product accepts 12 step types in the pipelines you save. The "Required" column shows what saving checks.
+The product accepts 12 step types in the pipelines you save. The "Required fields" column shows what saving checks.
 
 | Step | Required fields | Purpose |
 |---|---|---|
@@ -159,7 +170,7 @@ The product accepts 12 step types in the pipelines you save. The "Required" colu
 | `delete` | `fields` | Remove fields. |
 | `add` | `function` | Write a fixed value. |
 | `dynamic` | `plugin` | Call an enrichment plugin. |
-| `drop` | `where` | Discard the log. |
+| `drop` | None (the engine needs `where`) | Discard the log. |
 
 ### json
 
@@ -180,7 +191,7 @@ If `source` does not exist, the step fails with "source was not found". Guard it
 
 ### kv
 
-Splits text into `key=value` pairs and writes each as `log.<key>`. Values are trimmed, and double quotes around a value are removed. A value in double quotes can contain the pair separator (for example `msg="login failed"`); a value without quotes cannot.
+Splits text into `key=value` pairs and writes each as `log.<key>`. Values are trimmed, and double quotes around a value are removed. A value in double quotes can contain the pair separator (for example `msg="login failed"`); a value without quotes ends at the next separator, so `msg=login failed` gives `log.msg` the value `login`. A piece without the value separator is ignored. To split on tab characters, write `fieldSplit: "\t"` in double quotes.
 
 | Field | Description |
 |---|---|
@@ -199,7 +210,9 @@ Splits text into `key=value` pairs and writes each as `log.<key>`. Values are tr
 
 ### csv
 
-Splits text on a separator and writes the parts to the field names in `headers`, in order. The names are used exactly as written, so give full paths.
+Splits text on a separator and writes the parts to the field names in `headers`, in order. The names are used exactly as written, so give full paths. Values in double quotes may contain the separator.
+
+If a line has fewer columns than there are headers, the step writes the columns it has and then fails with "column index out of range, number of headers should match the number of resulting columns" in the event's `errors` field. Columns beyond the last header are ignored.
 
 | Field | Description |
 |---|---|
@@ -368,7 +381,7 @@ Removes fields.
 | `fields` | The fields to remove. |
 | `where` | Optional condition. |
 
-`raw` and `@timestamp` cannot be deleted.
+Fields that do not exist are skipped. `raw` and `@timestamp` cannot be deleted: a `delete` step that names them fails with "field cannot be a reserved field" in the event's `errors` field, and the value stays.
 
 ```yaml
 - delete:
@@ -385,7 +398,7 @@ Writes a fixed text value into a field.
 |---|---|
 | `function` | Only `string`. |
 | `params.key` | The field to write, used exactly as written. |
-| `params.value` | The value. It must be text. |
+| `params.value` | The value. It must be text: a number or `true`/`false` without quotes is written as empty text. Write `value: '5'`, not `value: 5`. |
 | `where` | Optional condition. |
 
 ```yaml
@@ -419,16 +432,18 @@ Calls an enrichment plugin. The plugin shipped for pipelines is `com.utmstack.ge
 
 ### drop
 
-Discards the log when its condition is true. Nothing is stored and no rule sees it.
+Discards the log when its condition is true. Nothing is stored and no rule sees it. The remaining steps, and any later pipelines for the same data type, do not run.
 
 | Field | Description |
 |---|---|
-| `where` | Required. A `drop` without a condition is an error and drops nothing. |
+| `where` | Needed by the engine. Saving accepts a `drop` without a condition, but it then drops nothing and adds "drop operation requires where clause" to every event. |
 
 ```yaml
 - drop:
     where: 'startsWith("raw", "[") || contains("raw", "RunExecutor") || contains("raw", "ETL pool")'
 ```
+
+Logs discarded by a `drop` step are not counted in the drop figures of **Data Processing**; those count logs the engine discarded because it was overloaded.
 
 <Note>
 

@@ -7,12 +7,14 @@ UTMStack v12 collects SonicWall firewall logs through the **UTMStack Forwarder**
 | Card on the Integrations page | **Sonic Wall** (category Firewall) |
 | Data type | `firewall-sonicwall` |
 | Default ports on the Collector | 7009/UDP; 7009/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 7 detection rules |
+| Log format UTMStack reads | SonicOS CEF (the ArcSight format, which the product recommends) and SonicOS key=value syslog (`id=firewall sn=… msg="…"`) |
+| Parsing pipeline | `sonicwall/sonic_wall.yaml`, version 4.2.0. **Filters** in the card's drawer opens it. |
+| Detection rules | 7. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The firewall must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
 
 ## Step 1: Enable the integration on a Collector
@@ -20,9 +22,13 @@ UTMStack v12 collects SonicWall firewall logs through the **UTMStack Forwarder**
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Sonic Wall** card.
+
+    ![SonicWall setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/3e368e87-e46e-439e-bd2f-123536aa878a)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). Use **UDP** unless your SonicOS version can send syslog over TCP. Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7009`.
@@ -32,22 +38,38 @@ UTMStack v12 collects SonicWall firewall logs through the **UTMStack Forwarder**
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-sonicwall 7009 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-sonicwall udp
 ```
 
+The command prints the port the Collector really listens on, for example `Integration "firewall-sonicwall" enabled on udp port 7009`.
+
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port, for example:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-sonicwall udp 7109
+   ```
+
+   Use `tcp` instead of `udp` for TCP and TLS.
+2. In the **Sonic Wall** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the syslog server entry in step 2.
 
 ## Step 2: Add a syslog server in SonicOS
 
 <Steps>
   <Step title="Open the syslog settings">
-    In SonicOS, go to **Device → Log → Syslog** (**Manage → Log → Syslog** on older firmware).
+    In SonicOS, go to **Device > Log > Syslog** (**Manage > Log > Syslog** on older firmware).
   </Step>
   <Step title="Add the Collector">
     Add a Syslog Server with the address of the Collector host and port **7009**.
   </Step>
   <Step title="Choose the CEF format">
-    Set the **Syslog Format** to **ArcSight (CEF)**, then click **Apply**. UTMStack parses SonicWall logs in CEF.
+    Set the **Syslog Format** to **ArcSight (CEF)**, then click **Apply**. UTMStack parses SonicWall in CEF.
   </Step>
 </Steps>
 
@@ -57,16 +79,50 @@ The setup guide in UTMStack fills in your UTMStack server's address in this step
 
 </Note>
 
+The UTMStack pipeline also reads SonicOS's key=value syslog (`id=firewall sn=… msg="…"`), so logs sent in the default format still parse. CEF is the format the product recommends.
+
 ## Step 3: Check that logs arrive
 
-- In the **Sonic Wall** drawer, click **View logs**. Log Explorer opens with the `firewall-sonicwall` data type for the last 24 hours.
-- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Sonic Wall** drawer, click **View logs**. Log Explorer opens with the `firewall-sonicwall` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-sonicwall` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip`, `target.port` and `action`, and SonicWall fields under `log.`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, the firewall appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-sonicwall'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, or the firewall sends to the wrong address, port or protocol, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list, that the syslog server entry matches, and that the Collector host allows the port in. See **Forwarder Troubleshooting**. |
+| Nothing arrives, and the Forwarder guide filled in the UTMStack server's address | The firewall sends to the UTMStack server, but the Collector runs on another host. | Use the Collector host's address in the syslog server entry. |
+| Only some events arrive | The log event profile or the logging level filters events out. | Check the log settings in SonicOS and raise the logging level or enable the event categories you need. |
+| Events arrive but have almost no fields | The firewall sends a format the pipeline does not read. | Set the **Syslog Format** to **ArcSight (CEF)**. |
+| Long messages are cut off | Over UDP, the Collector reads at most 2,048 bytes of each message. | Send over TCP if your SonicOS version supports it. |
+| SonicWall logs appear under another data type | The firewall sends to the port of a different integration. | Send to the port that the SonicWall integration listens on. |
 
 ## Stop collecting
 
-In the **Sonic Wall** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Sonic Wall** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`udp`, `tcp` or `tls`):
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-sonicwall udp
 ```
+
+Then remove the syslog server entry in SonicOS.

@@ -1,0 +1,586 @@
+These examples show complete UTMStack v12 flows that act through other systems: a perimeter firewall, Active Directory, the host firewall of an endpoint, a ticketing tool and a chat tool. Each one covers the setup on the other system, the flow itself, and how to check that it works.
+
+<Warning>
+
+Flows act for real. Build each example switched off, test it with **Trigger flow** against a test machine or a test value, and only then switch it on. Vendor menus, API paths and permissions change between product versions: check every command against your own systems and their current documentation first.
+
+</Warning>
+
+## Before you start
+
+### Two ways to reach another system
+
+| | HTTP call step | Shell step on a jump host |
+|---|---|---|
+| Where the request starts | The UTMStack server | A machine with a UTMStack agent that can reach the system (a *jump host*) |
+| Alert values in the request | Arrive wrapped in single quotes in UTMStack v12.0.2 | Arrive exactly, because the shell removes the quotes |
+| Secrets (API keys, passwords) | Typed into the step; anyone who can view flows can read them | Kept in secret variables, masked in history and output |
+| Self-signed certificates | Refused, no way to skip the check | Your choice (`curl --cacert`) |
+| Good for | Messages people read: chat posts, ticket titles | Anything where the other system needs the exact value: IP addresses, account names, tokens |
+
+The quoting is explained in **Placeholders**. In short, an HTTP call step that sends `$(alert.adversary.ip)` sends `'203.0.113.7'` with the quotes, which a firewall refuses, while a bash command can glue the quoted value to fixed text and send `203.0.113.7`.
+
+### Prepare a jump host
+
+For examples 1 and 3 (Linux part) you need a Linux machine that:
+
+- has the UTMStack agent installed and online (see **Linux Agent**), not installed with remote control disabled;
+- can reach the target system over the network;
+- has `curl` installed (and `jq` for the optional chat variant).
+
+Note its host name exactly as shown on **Configure > Data Sources**. The examples call it `jump-01`.
+
+### Build a flow without switching it on
+
+A flow created with **New flow > From scratch** is switched on when you save it. To keep an example off while you test it:
+
+1. Click **New flow > From an existing one** and pick any flow. Copies are saved switched off.
+2. Open the **Code** tab and replace its whole content with the example YAML.
+3. Change the host names, lists, addresses and credentials, then click **Save**.
+
+### Test with a made-up alert
+
+Click **Trigger flow** on the flow's row, choose **Raw alert JSON**, and paste an alert that carries the fields the flow uses, with documentation addresses such as `198.51.100.77`. For example:
+
+```json
+{
+  "id": "test-flow-1",
+  "name": "System Linux: Possible Brute Force Attack",
+  "severity": "high",
+  "dataSource": "jump-01",
+  "adversary": { "ip": "198.51.100.77" },
+  "target": { "user": "test.user" }
+}
+```
+
+The trigger conditions are ignored for a manual run, and the run works while the flow is switched off. Then open **SOAR > Execution history**, search for `test-flow-1`, and check each step. See **Troubleshooting Flows** if a step fails.
+
+## Example 1: Block an attacker's address on an OPNsense firewall
+
+**Scenario.** When a Linux server reports an SSH brute-force attack (many failed SSH sign-ins), add the attacker's address to a block list on the perimeter firewall, so every server behind it is protected. The example uses the OPNsense REST API; other firewalls work the same way with their own API call.
+
+**How it works.** The firewall has an alias (a named address list) that a block rule refers to. A shell step on the jump host calls the OPNsense API to add the address to the alias. The API key and secret stay in secret variables.
+
+### On the firewall (OPNsense)
+
+<Steps>
+  <Step title="Create the alias">
+
+    In **Firewall > Aliases**, add an alias named `UTMStack_Block` of type **Host(s)** with no content, save and apply.
+
+  </Step>
+  <Step title="Create the block rule">
+
+    In **Firewall > Rules > WAN**, add a rule at the top of the list: action **Block**, source the alias `UTMStack_Block`, destination any. Save and apply. Because the rule sits on the WAN interface, it affects traffic that arrives from the internet only.
+
+  </Step>
+  <Step title="Create an API user and key">
+
+    In **System > Access > Users**, create a user for UTMStack and give it only the privileges it needs for firewall aliases (see the OPNsense documentation on user privileges). In the user's API keys section, click **+**. OPNsense downloads a file with the `key` and the `secret`; the secret can be downloaded only once.
+
+  </Step>
+  <Step title="Make the certificate trusted on the jump host">
+
+    OPNsense serves its API on the web interface address with HTTPS. If the jump host does not trust that certificate (OPNsense creates a self-signed one at installation), copy the certificate or its issuing authority to the jump host, for example to `/etc/utmstack-soar/opnsense-ca.pem`, and call the firewall by the host name written in the certificate.
+
+  </Step>
+</Steps>
+
+### In UTMStack
+
+<Steps>
+  <Step title="Store the connection details as variables">
+
+    In **SOAR > Interactive Console**, select the jump host and click **Variables**. Create:
+
+    | Name | Value | Secret |
+    |---|---|---|
+    | `OPN_HOST` | The firewall's host name, for example `fw.example.com` | No |
+    | `OPN_API_KEY` | The `key` from the downloaded file | Yes |
+    | `OPN_API_SECRET` | The `secret` from the downloaded file | Yes |
+
+  </Step>
+  <Step title="Test the connection from the console">
+
+    Still in the console of the jump host (consoles of Linux hosts always use `bash`), run:
+
+    ```bash
+    curl -sS --max-time 20 --cacert /etc/utmstack-soar/opnsense-ca.pem -u $[variables.OPN_API_KEY]:$[variables.OPN_API_SECRET] https://$[variables.OPN_HOST]/api/firewall/alias_util/list/UTMStack_Block
+    ```
+
+    A JSON answer means the key, the certificate and the network path work. An empty or HTML answer, or a curl error, means one of them does not.
+
+  </Step>
+  <Step title="Create the flow">
+
+    Use the copy method described above, paste this YAML in the **Code** tab, replace `jump-01` with your jump host, and save.
+
+    ```yaml
+    - name: Block SSH brute-force source on OPNsense
+      description: Add the attacker's address to the UTMStack_Block alias on the perimeter firewall.
+      conditions:
+        - operator: IS
+          field: name
+          value: 'System Linux: Possible Brute Force Attack'
+        - operator: EXISTS
+          field: adversary.ip
+          value: ''
+      roots:
+        - block
+      nodes:
+        block:
+          kind: executor
+          executor: shell
+          platform: linux
+          shell: bash
+          agent: jump-01
+          command: >-
+            resp=$(curl -sS --max-time 20 --cacert /etc/utmstack-soar/opnsense-ca.pem
+            -u $[variables.OPN_API_KEY]:$[variables.OPN_API_SECRET]
+            -H 'Content-Type: application/json'
+            -d '{"address":"'$(alert.adversary.ip)'"}'
+            https://$[variables.OPN_HOST]/api/firewall/alias_util/add/UTMStack_Block);
+            echo "$resp"; echo "$resp" | grep -q '"status":"done"'
+          onSuccess:
+            - notify_ok
+          onError:
+            - notify_fail
+        notify_ok:
+          kind: executor
+          executor: notify
+          params:
+            type: WARNING
+            message: Blocked $(alert.adversary.ip) on the perimeter firewall after an SSH brute force on $(alert.dataSource)
+        notify_fail:
+          kind: executor
+          executor: notify
+          params:
+            type: ERROR
+            message: Could not block $(alert.adversary.ip) on the perimeter firewall - act by hand
+    ```
+
+  </Step>
+  <Step title="Test it">
+
+    Run **Trigger flow** with the test alert shown in **Before you start**. The step `block` should be **Executed** and `notify_ok` should post a warning in the bell menu.
+
+  </Step>
+  <Step title="Check on the firewall">
+
+    In OPNsense, open **Firewall > Diagnostics > Aliases**, choose `UTMStack_Block`, and look for `198.51.100.77`. Then remove the test address from the console of the jump host:
+
+    ```bash
+    curl -sS --cacert /etc/utmstack-soar/opnsense-ca.pem -u $[variables.OPN_API_KEY]:$[variables.OPN_API_SECRET] -H 'Content-Type: application/json' -d '{"address":"198.51.100.77"}' https://$[variables.OPN_HOST]/api/firewall/alias_util/delete/UTMStack_Block
+    ```
+
+  </Step>
+</Steps>
+
+**How the command works.** UTMStack fills in the variables and the alert value, each in single quotes. Bash glues the pieces together, so curl sends `{"address":"203.0.113.7"}` with the real key and secret. OPNsense answers `{"status":"done"}`; the last part of the command (`grep -q`) makes the step fail when the answer is anything else, for example `{"status":"not_an_address"}`, so the error notification runs.
+
+**Notes.**
+
+- Why not an HTTP call step: in UTMStack v12.0.2 it would send `'203.0.113.7'` with the quotes, which OPNsense refuses as `not_an_address`, and it cannot use a self-signed certificate.
+- Blocked addresses stay in the alias until you remove them. Review the alias regularly.
+- For another firewall vendor, keep the flow and replace the `curl` call with the vendor's API request for adding an address to a block list, written the same way (pieces glued together, credentials in secret variables).
+
+## Example 2: Disable an Active Directory account
+
+**Scenario.** After many failed sign-ins followed by a successful one, disable the account in Active Directory and open an incident, but never touch a list of protected accounts.
+
+**How it works.** A Conditional step checks the account against your list. A PowerShell step pinned to a domain controller runs `Disable-ADAccount`. Incident and notification steps report the result.
+
+### Requirements
+
+- A domain controller with the UTMStack Windows agent installed and online (see **Windows Agent**). The agent runs as the Local System account. On a domain controller that account acts as the domain controller itself and can change accounts in the domain. On a member server it cannot, unless you delegate the right to disable user accounts to that server's computer account in Active Directory and install the Active Directory module for PowerShell (`Install-WindowsFeature RSAT-AD-PowerShell` on Windows Server).
+- The alerts must carry the account name in `target.user`. The shipped rule `Windows: Multiple Logon Failure Followed by Logon Success` fills it from the Windows sign-in event, as the account name without the domain (for example `jdoe`), which is the form `Disable-ADAccount -Identity` accepts.
+
+### The flow
+
+Replace `DC01` with your domain controller's host name and the protected accounts with your own. Keep the list in the **Code** tab: lists typed in the Visual tab of a Conditional step do not work in UTMStack v12.0.2 (see **Step Types**).
+
+```yaml
+- name: Disable AD account after brute-force success
+  description: Disable the account in Active Directory, open an incident, skip protected accounts.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Multiple Logon Failure Followed by Logon Success'
+  roots:
+    - guard
+  nodes:
+    guard:
+      kind: executor
+      executor: conditional
+      params:
+        conditions:
+          - field: alert.target.user
+            operator: IS_NOT_ONE_OF
+            value:
+              - Administrator
+              - svc-backup
+      onSuccess:
+        - disable
+      onError:
+        - notify_protected
+    disable:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      agent: DC01
+      command: >-
+        $ErrorActionPreference='Stop';
+        Disable-ADAccount -Identity $(alert.target.user);
+        Get-ADUser -Identity $(alert.target.user) | Select-Object SamAccountName,Enabled | Format-List
+      onSuccess:
+        - incident
+      onError:
+        - notify_fail
+    incident:
+      kind: executor
+      executor: incident
+      params:
+        name: Account disabled $(alert.id)
+        description: Account $(alert.target.user) was disabled in Active Directory after a brute-force success from $(alert.adversary.ip) on $(alert.dataSource).
+    notify_protected:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: Brute-force success for protected account $(alert.target.user) on $(alert.dataSource) - not disabled, check it now
+    notify_fail:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not disable $(alert.target.user) in Active Directory - act by hand
+```
+
+**What happens.** The domain controller receives `Disable-ADAccount -Identity 'jdoe'` (UTMStack adds the quotes for PowerShell). `$ErrorActionPreference='Stop'` makes any error end the command with a failure, so an account that does not exist in Active Directory (for example a local account of a workstation) takes the error wire. The last command prints the account's state, which you can read in the step result.
+
+### Check that it works
+
+1. Create a test account in Active Directory, for example `test.user`.
+2. Run **Trigger flow** with the test alert from **Before you start** (its `target.user` is `test.user`).
+3. In **Execution history**, `guard` and `disable` should be **Executed** and an incident named `Account disabled 'test-flow-1'` should exist.
+4. On the domain controller, run `Get-ADUser -Identity test.user` and check that `Enabled` is `False`.
+5. Re-enable the account with `Enable-ADAccount -Identity test.user`, or delete it.
+
+<Note>
+
+An account name that contains an apostrophe (for example `o'brien`) is handled correctly in the PowerShell step, but stops the incident and notification steps in UTMStack v12.0.2 (see **Placeholders**).
+
+</Note>
+
+## Example 3: Isolate a host but keep it connected to UTMStack
+
+**Scenario.** On a strong sign of compromise, cut the machine off the network, but keep its connection to UTMStack so you can still investigate it in the Interactive Console and lift the isolation from UTMStack.
+
+**How it works.** The palette's "Isolate host (block all traffic)" command blocks everything, including the agent's own connection, so it can only be undone at the machine. The commands below block every address except the UTMStack server. Store the UTMStack server's address, as the agent reaches it, in a variable named `UTM_SERVER_IP` (not secret).
+
+<Warning>
+
+If the agent was installed with a host name for the UTMStack server rather than an IP address, name lookups (DNS) are blocked too. The open connection keeps working, but if it drops, the agent cannot find the server again. Use the IP address, or also allow your DNS server.
+
+</Warning>
+
+### Linux (iptables)
+
+The command creates two chains, lets through loopback traffic and the UTMStack server, drops everything else, and puts the chains first in the input and output lists:
+
+```bash
+iptables -N UTM_ISO_IN && iptables -A UTM_ISO_IN -i lo -j ACCEPT && iptables -A UTM_ISO_IN -s $[variables.UTM_SERVER_IP] -j ACCEPT && iptables -A UTM_ISO_IN -j DROP && iptables -N UTM_ISO_OUT && iptables -A UTM_ISO_OUT -o lo -j ACCEPT && iptables -A UTM_ISO_OUT -d $[variables.UTM_SERVER_IP] -j ACCEPT && iptables -A UTM_ISO_OUT -j DROP && iptables -I INPUT 1 -j UTM_ISO_IN && iptables -I OUTPUT 1 -j UTM_ISO_OUT && echo isolated
+```
+
+To lift the isolation, run this in the Interactive Console of the machine:
+
+```bash
+iptables -D INPUT -j UTM_ISO_IN; iptables -D OUTPUT -j UTM_ISO_OUT; iptables -F UTM_ISO_IN; iptables -X UTM_ISO_IN; iptables -F UTM_ISO_OUT; iptables -X UTM_ISO_OUT
+```
+
+Notes:
+
+- The command needs the `iptables` command (on systems that use nftables, the `iptables-nft` package provides it). If it is missing, the step fails and the error wire runs.
+- Firewall managers such as firewalld or ufw may remove these rules when they reload. The isolation also ends at restart.
+- The command covers IPv4. Block IPv6 with the same commands using `ip6tables`, without the UTMStack server line if the agent reaches UTMStack over IPv4.
+
+### Windows (Windows Firewall)
+
+In Windows Firewall a block rule wins over any allow rule, so "allow UTMStack, block everything" does not work. The command below builds block rules for every IPv4 address except the UTMStack server, plus all IPv6 addresses:
+
+```powershell
+$ErrorActionPreference='Stop'; $b=([Net.IPAddress]$[variables.UTM_SERVER_IP]).GetAddressBytes(); [Array]::Reverse($b); $n=[BitConverter]::ToUInt32($b,0); $f={param([uint32]$v) $x=[BitConverter]::GetBytes($v); [Array]::Reverse($x); [Net.IPAddress]::new($x).IPAddressToString}; $r=@(('0.0.0.0-'+(& $f ($n-1))),((& $f ($n+1))+'-255.255.255.255'),'::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'); New-NetFirewallRule -DisplayName 'UTMStack-Isolate-Out' -Direction Outbound -Action Block -RemoteAddress $r | Out-Null; New-NetFirewallRule -DisplayName 'UTMStack-Isolate-In' -Direction Inbound -Action Block -RemoteAddress $r | Out-Null; 'isolated, except ' + $[variables.UTM_SERVER_IP]
+```
+
+To lift the isolation, run this in the Interactive Console of the machine, with **Shell type** `powershell`:
+
+```powershell
+Remove-NetFirewallRule -DisplayName 'UTMStack-Isolate-Out','UTMStack-Isolate-In'
+```
+
+Notes:
+
+- The rules apply only while Windows Firewall is on for the active network profile. Check with `Get-NetFirewallProfile | Select-Object Name,Enabled`.
+- The command contains no double quotes on purpose: keep it that way when you adapt it.
+
+### The flow
+
+This flow isolates Windows machines that delete their shadow copies (a common step before ransomware encrypts files), except critical servers, and tells the team. For Linux, use the same layout with the Linux command, `platform: linux`, `shell: bash`, and a Linux rule such as `System Linux: Reverse Shell Created via Named Pipe`.
+
+```yaml
+- name: Ransomware precursor - isolate, keep UTMStack connection
+  description: Block all traffic except the UTMStack server, unless the machine is critical.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)'
+  roots:
+    - guard
+  nodes:
+    guard:
+      kind: executor
+      executor: conditional
+      params:
+        conditions:
+          - field: alert.dataSource
+            operator: IS_NOT_ONE_OF
+            value:
+              - DC01
+              - SQL01
+      onSuccess:
+        - isolate
+      onError:
+        - notify_critical
+    isolate:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: >-
+        $ErrorActionPreference='Stop'; $b=([Net.IPAddress]$[variables.UTM_SERVER_IP]).GetAddressBytes();
+        [Array]::Reverse($b); $n=[BitConverter]::ToUInt32($b,0);
+        $f={param([uint32]$v) $x=[BitConverter]::GetBytes($v); [Array]::Reverse($x); [Net.IPAddress]::new($x).IPAddressToString};
+        $r=@(('0.0.0.0-'+(& $f ($n-1))),((& $f ($n+1))+'-255.255.255.255'),'::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
+        New-NetFirewallRule -DisplayName 'UTMStack-Isolate-Out' -Direction Outbound -Action Block -RemoteAddress $r | Out-Null;
+        New-NetFirewallRule -DisplayName 'UTMStack-Isolate-In' -Direction Inbound -Action Block -RemoteAddress $r | Out-Null;
+        'isolated, except ' + $[variables.UTM_SERVER_IP]
+      onSuccess:
+        - notify_done
+      onError:
+        - notify_fail
+    notify_done:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: Isolated $(alert.dataSource) after shadow copy deletion - lift the isolation from the Interactive Console when it is clean
+    notify_critical:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Shadow copy deletion on critical server $(alert.dataSource) - not isolated, act now
+    notify_fail:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not isolate $(alert.dataSource) - act by hand
+```
+
+### Check that it works
+
+1. Pick a test machine and run **Trigger flow** with a raw alert whose `dataSource` is that machine's host name.
+2. When `isolate` is **Executed**, open the machine in **SOAR > Interactive Console**. The console still answers, which proves the UTMStack connection works.
+3. In the console, check that other traffic is blocked: `Test-NetConnection example.com -Port 443` (Windows) should report `TcpTestSucceeded : False`; `curl -sS -m 5 https://example.com || echo blocked` (Linux) should print `blocked`.
+4. Lift the isolation with the command above.
+
+## Example 4: Open a ticket in Jira Cloud (or ServiceNow)
+
+**Scenario.** Every time a brute-force attack succeeds, open an issue in your Jira project and post its key in UTMStack.
+
+**How it works.** An HTTP call step sends the Jira "create issue" request from the UTMStack server. The step is an enrichment step, so the next step can insert the new issue's key from Jira's answer. Ticket titles are text people read, so the single quotes UTMStack adds around inserted values do no harm here.
+
+### In Jira Cloud
+
+1. Sign in to Atlassian with the account that will create the issues (preferably a dedicated account that can only create issues in one project) and create an API token on the Atlassian account security page (`https://id.atlassian.com/manage-profile/security/api-tokens`) with **Create API token** (a token with scopes does not work with the site address used below).
+2. Note the project key (for example `SEC`) and an issue type that exists in that project (for example `Task`).
+3. Build the authorization value: the text `email:api-token` encoded in Base64. On Linux run `printf '%s' 'you@example.com:API_TOKEN' | base64 -w0`; on Windows PowerShell run `[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('you@example.com:API_TOKEN'))`. The header value is `Basic ` followed by the result.
+
+### The flow
+
+```yaml
+- name: Open a Jira issue for brute-force successes
+  description: Create a Jira issue for each alert and post its key.
+  conditions:
+    - operator: IS
+      field: name
+      value: 'Windows: Multiple Logon Failure Followed by Logon Success'
+  roots:
+    - ticket
+  nodes:
+    ticket:
+      kind: enrichment
+      executor: http
+      params:
+        method: POST
+        url: https://your-site.atlassian.net/rest/api/2/issue
+        headers:
+          Content-Type: application/json
+          Accept: application/json
+          Authorization: Basic BASE64_OF_EMAIL_AND_TOKEN
+        body:
+          fields:
+            project:
+              key: SEC
+            issuetype:
+              name: Task
+            summary: 'UTMStack: $(alert.name) on $(alert.dataSource)'
+            description: 'Severity: $(alert.severity). Source address: $(alert.adversary.ip). Account: $(alert.target.user). UTMStack alert id: $(alert.id).'
+      onSuccess:
+        - notify_ok
+      onError:
+        - notify_fail
+    notify_ok:
+      kind: executor
+      executor: notify
+      params:
+        type: INFO
+        message: Jira issue $(ticket.key) opened for alert $(alert.id)
+    notify_fail:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: Could not open a Jira issue for alert $(alert.id)
+```
+
+If you build the step in the Visual tab instead, delete the `Accept-Encoding` header that a new HTTP call step starts with; otherwise Jira's compressed answer cannot be read and the step fails even though the issue was created (see **Step Types**).
+
+**What happens.** Jira answers HTTP 201 with the new issue, for example `{"id":"10042","key":"SEC-24","self":"https://your-site.atlassian.net/rest/api/2/issue/10042"}`. The notification then reads `Jira issue 'SEC-24' opened for alert '…'`. The issue title reads, for example, `UTMStack: 'Windows: Multiple Logon Failure Followed by Logon Success' on 'WKS-042'`.
+
+### Check that it works
+
+Run **Trigger flow** with a stored alert of the rule. In **Execution history**, `ticket` should be **Executed**; open the issue in Jira. A **Failed** `ticket` step usually means a wrong authorization value (HTTP 401), a project or issue type the account cannot use (HTTP 400), or a network block from the UTMStack server. The exact answer from Jira is in the step's result (see **Troubleshooting Flows**).
+
+### ServiceNow instead of Jira
+
+Use the same layout with these values (from the ServiceNow Table API):
+
+| Setting | Value |
+|---|---|
+| URL | `https://<instance>.service-now.com/api/now/table/incident` |
+| Authorization header | `Basic ` followed by the Base64 of `user:password` of a ServiceNow account allowed to create incidents |
+| Body | `short_description` and `description` fields, for example `{"short_description": "UTMStack: $(alert.name)", "description": "Alert id $(alert.id) on $(alert.dataSource)"}` |
+| Ticket number in later steps | `$(ticket.result.number)` |
+
+<Warning>
+
+The authorization value is stored in the flow. Everyone who can view flows (every role with `soar.read`, the Viewer included) can read it in the editor and the Code tab. Use an account that can only create tickets. If that is not acceptable, send the request from a shell step on a jump host with `curl` and secret variables, as in example 1.
+
+</Warning>
+
+## Example 5: Post high-severity alerts to Slack or Microsoft Teams
+
+**Scenario.** Post a short message to the security channel for every high-severity alert.
+
+**How it works.** An HTTP call step posts to the chat tool's incoming-webhook address. Chat tools answer with plain text or nothing, so the step's `kind` is `executor`: the answer is not read, only the status code counts.
+
+<Note>
+
+Every high-severity alert starts its own run, and UTMStack does not group runs. On a busy installation, post only selected rules (condition on **Alert name**) to keep the channel readable. Microsoft documents that a Teams webhook is throttled when it receives more than four requests per second.
+
+</Note>
+
+### Slack
+
+1. In Slack, create an app (or reuse one) for your workspace, open **Incoming Webhooks**, turn on **Activate Incoming Webhooks**, click **Add New Webhook to Workspace**, pick the channel and click **Authorize**.
+2. Copy the webhook address. It contains a secret: anyone who has it can post to the channel.
+
+```yaml
+- name: High-severity alerts to Slack
+  description: Post every high-severity alert to the security channel.
+  conditions:
+    - operator: IS
+      field: severity
+      value: high
+  roots:
+    - chat
+  nodes:
+    chat:
+      kind: executor
+      executor: http
+      params:
+        method: POST
+        url: https://hooks.slack.com/services/T0000000/B0000000/XXXXXXXXXXXXXXXXXXXXXXXX
+        headers:
+          Content-Type: application/json
+        body:
+          text: 'UTMStack alert $(alert.name) on $(alert.dataSource) (severity $(alert.severity), id $(alert.id))'
+```
+
+Slack answers `ok` with HTTP 200. The channel shows, for example, `UTMStack alert 'Windows: Possible Brute Force Attack' on 'dc01' (severity 'high', id '…')`.
+
+### Microsoft Teams
+
+Microsoft retired the old connector-based incoming webhooks in Teams; webhooks are now created with the **Workflows** app.
+
+1. In Teams, go to the channel, select **More options (...)** next to it, then **Workflows**.
+2. Pick the template **Send webhook alerts to a channel**, set the team and channel, and click **Save**.
+3. Copy the webhook link shown when the workflow is created. It contains a signature that works like a password.
+
+The template expects an Adaptive Card. Use this step instead of the Slack one:
+
+```yaml
+    chat:
+      kind: executor
+      executor: http
+      params:
+        method: POST
+        url: https://your-workflow-webhook-address
+        headers:
+          Content-Type: application/json
+        body:
+          type: message
+          attachments:
+            - contentType: application/vnd.microsoft.card.adaptive
+              content:
+                $schema: http://adaptivecards.io/schemas/adaptive-card.json
+                type: AdaptiveCard
+                version: '1.2'
+                body:
+                  - type: TextBlock
+                    weight: Bolder
+                    text: 'UTMStack alert: $(alert.name)'
+                  - type: TextBlock
+                    wrap: true
+                    text: 'Source $(alert.dataSource), severity $(alert.severity), alert id $(alert.id)'
+```
+
+Paste the whole webhook link into the URL; the editor shows its query part in the **Query params** tab, which is expected (the link contains no placeholders).
+
+### Check that it works
+
+Run **Trigger flow** with any stored alert and check the channel. In **Execution history**, the step's **Command / Action** column shows `POST` and the webhook address. If the step is **Failed**, the webhook address is wrong or was removed (the chat tool answers with an error status such as 403 or 404), the workflow is turned off in Teams, or the UTMStack server cannot reach the internet.
+
+<Tip>
+
+**Keep the webhook address secret and the text exact.** The HTTP call step stores the webhook address in the flow, where everyone who can view flows can read it, and **Execution history** shows it. To avoid that, and to post values without quotes, send the message from a Linux jump host with `jq` and `curl`, the address kept in a secret variable `SLACK_WEBHOOK_URL`:
+
+```bash
+jq -n --arg t 'UTMStack alert: '$(alert.name)' on '$(alert.dataSource) '{text: $t}' | curl -sS -f -X POST -H 'Content-Type: application/json' --data @- $[variables.SLACK_WEBHOOK_URL]
+```
+
+`jq` builds valid JSON whatever the alert values contain, and `curl -f` makes the step fail on an error answer.
+
+</Tip>
+
+## Related pages
+
+- **Step Types**
+- **Placeholders**
+- **Step Outputs and Variables**
+- **Running Steps on Another Host**
+- **Use Cases**
+- **Troubleshooting Flows**

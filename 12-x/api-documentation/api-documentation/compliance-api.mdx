@@ -1,0 +1,636 @@
+Use these endpoints to read compliance frameworks and controls, create your own, run an evaluation, record verdicts and notes, download reports as PDF, read the score history and schedule reports by email. They do the same work as the **Compliance** pages of the web console.
+
+How frameworks, requirements, controls and checks fit together, and what each status means, is explained in **Compliance Overview**. The YAML format of frameworks and controls is described in **Custom Frameworks and Controls**; the API takes the same keys as JSON.
+
+## Permissions
+
+| Action | Permission | Built-in roles |
+|---|---|---|
+| Read frameworks, controls, reports, history and PDFs; list your schedules | `compliance.read` | All |
+| Create, change and delete frameworks and controls; run evaluations; record verdicts and notes; delete reports; manage schedules | `compliance.write` | Administrator |
+| Apply frameworks and controls to many tenants at once | `compliance.write` and platform administrator | Administrators of the default tenant |
+
+Frameworks and controls you create, reports, verdicts, notes and schedules belong to your tenant.
+
+## Licence Rules
+
+The compliance endpoints have no licence check of their own, but the shipped catalogue is limited without the Enterprise licence (the Community edition):
+
+| Item | Without Enterprise | With Enterprise |
+|---|---|---|
+| Shipped frameworks | Only `cmmc-2.0` and `gdpr` can be evaluated and scheduled. The others come back with `"locked": true`. | All |
+| Shipped controls | Only the 138 controls used by CMMC 2.0 and GDPR. The others come back with `"locked": true` and cannot be named in a framework of your own. | All |
+| Frameworks and controls you create | Never locked | Never locked |
+
+A locked item can still be read. The refusals are:
+
+| HTTP code | `error` | When |
+|---|---|---|
+| 403 | `this framework requires an Enterprise license` | Evaluating or scheduling a locked shipped framework |
+| 403 | `this control requires an Enterprise license` | Creating or updating a framework whose `satisfiedBy` names a locked shipped control |
+
+API keys themselves need the Enterprise licence (see **Authentication and API Keys**). On the Community edition, call these endpoints with a bearer token.
+
+## Shipped and Custom Items
+
+- **Shipped** frameworks and controls (`"system": true`) come with the UTMStack release and are read-only. Changing or deleting one returns 403 `the shipped catalogue is read-only — create your own instead of changing it`.
+- **Custom** items (`"system": false`) are created by your tenant. Their `key` (framework) or `id` (control) must be new: you cannot override a shipped id by creating one with the same id.
+- Ids and keys must not be empty and must not contain `/`, `\` or `..`; otherwise the answer is 400 `invalid id/key (must be non-empty and contain no path separators)`.
+
+## Controls
+
+### List Controls
+
+**Endpoint:** `GET /api/v1/compliance/controls`
+
+Returns every control your tenant can use, shipped and custom, sorted by id. There is no paging.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/compliance/controls" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "au-6",
+    "family": "au",
+    "familyName": "Audit and Accountability",
+    "name": "Audit Record Review, Analysis, and Reporting",
+    "scope": "data",
+    "statement": "Review and analyze system audit records ...",
+    "remediation": "Passes when alerts raised in the window have been reviewed ...",
+    "strategy": "ANY",
+    "checks": [
+      {
+        "key": "alerts-reviewed",
+        "name": "Alerts were reviewed (moved to In review or Completed)",
+        "dataset": "alerts",
+        "filters": [
+          {"field": "status", "operator": "IS_ONE_OF_TERMS", "value": ["In review", "Completed"]}
+        ],
+        "rule": "MIN_HITS_REQUIRED",
+        "ruleValue": 1
+      }
+    ],
+    "source": "NIST SP 800-53 Rev 5 (public domain)",
+    "system": true,
+    "locked": false
+  }
+]
+```
+
+Text values are shortened here.
+
+### Control Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique id, for example `au-6` or `acme-backup-1` |
+| `family`, `familyName` | string | Grouping shown in the console |
+| `name` | string | Control name |
+| `scope` | string | `data` (judged from logs and alerts) or `governance` (a policy or process; always **Out of scope**) |
+| `statement`, `remediation`, `source` | string | Free text |
+| `strategy` | string | `ALL` (every check must pass) or `ANY` (one passing check is enough) |
+| `checks` | array | Log or alert counts that judge the control (below). A control without checks needs a person's verdict. |
+| `system`, `locked` | boolean | Read-only, set by the server |
+
+Each check:
+
+| Field | Type | Description |
+|---|---|---|
+| `key`, `name` | string | Identity and label of the check |
+| `dataset` | string | `logs` (default) or `alerts` |
+| `dataType` | string | Optional. Only records of this data type, for example `wineventlog`. If your tenant receives no data of this type, the check is **Not applicable**. |
+| `filters` | array | Conditions with `field`, `operator` and `value`, using the operators in **Filter Operators Reference** |
+| `rule` | string | `MIN_HITS_REQUIRED` (passes when the count is at least `ruleValue`) or `THRESHOLD_MAX` (passes when the count is at most `ruleValue`; `0` means none allowed) |
+| `ruleValue` | integer | The threshold |
+| `todo` | boolean | `true` marks a placeholder check; the control shows **Pending** |
+
+### Get One Control
+
+**Endpoint:** `GET /api/v1/compliance/controls/{id}`
+
+**Response (HTTP 200):** one control, with `system` and `locked`. Unknown id: 404 `compliance control not found`.
+
+### Create a Control
+
+**Endpoint:** `POST /api/v1/compliance/controls`
+
+**Request Body:** a control object (without `system` and `locked`).
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/compliance/controls" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "acme-log-clearing",
+    "family": "acme",
+    "familyName": "Acme internal controls",
+    "name": "Windows audit logs are never cleared",
+    "scope": "data",
+    "remediation": "Fails when a Windows audit log was cleared in the window. Find out who cleared it and why.",
+    "strategy": "ALL",
+    "checks": [
+      {
+        "key": "no-log-clearing",
+        "name": "No Windows audit log was cleared",
+        "dataset": "logs",
+        "dataType": "wineventlog",
+        "filters": [
+          {"field": "log.eventCode", "operator": "IS_ONE_OF_TERMS", "value": ["1102"]}
+        ],
+        "rule": "THRESHOLD_MAX",
+        "ruleValue": 0
+      }
+    ]
+  }'
+```
+
+**Response (HTTP 201):** the control as stored. Errors: 400 invalid id, 409 `a control with this id already exists`.
+
+The server does not check field names, operators or values inside `checks`. A check that cannot run shows the outcome `ERROR` in the next report. Run an evaluation after you add a control to see that its checks work.
+
+### Update a Control
+
+**Endpoint:** `PUT /api/v1/compliance/controls/{id}`
+
+The body is the full control; the id in the path wins over any id in the body. Only your own controls can be changed.
+
+**Response (HTTP 200):** the stored control. Errors: 404 `compliance control not found`, 403 for a shipped control.
+
+### Delete a Control
+
+**Endpoint:** `DELETE /api/v1/compliance/controls/{id}`
+
+**Response:** HTTP 204. Errors: 404, 403 for a shipped control. Frameworks that name the deleted control keep the id; the next report shows that control as **Not covered**, with the evidence "control not found in the library".
+
+## Frameworks
+
+### List Frameworks
+
+**Endpoint:** `GET /api/v1/compliance/frameworks`
+
+Returns every framework your tenant can see, shipped and custom, sorted by name. There is no paging.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/compliance/frameworks" \
+  -H "Utm-Api-Key: {{apiKey}}" | jq '.[] | {key, name, system, locked}'
+```
+
+**Response (HTTP 200)**, shortened:
+
+```json
+[
+  {
+    "key": "gdpr",
+    "name": "GDPR — EU General Data Protection Regulation",
+    "description": "Obligations of controllers and processors under Regulation (EU) 2016/679 ...",
+    "source": "Regulation (EU) 2016/679, EUR-Lex (reuse permitted). Mapping to NIST SP 800-53 Rev 5 by UTMStack.",
+    "sections": [
+      {
+        "key": "security",
+        "name": "Chapter IV, Section 2: Security of personal data (Art. 32-34)",
+        "requirements": [
+          {
+            "id": "Art.33(1)",
+            "name": "Notify a personal data breach to the supervisory authority within 72 hours",
+            "satisfiedBy": ["ir-6", "ir-8"]
+          }
+        ]
+      }
+    ],
+    "system": true,
+    "locked": false
+  }
+]
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `key` | string | Unique key, used in every report path |
+| `name`, `description`, `source` | string | Free text |
+| `sections` | array | Each with `key`, `name` and `requirements` |
+| `sections[].requirements[]` | object | `id`, `name` and `satisfiedBy` (the control ids that prove the requirement) |
+| `system`, `locked` | boolean | Read-only, set by the server |
+
+### Get One Framework
+
+**Endpoint:** `GET /api/v1/compliance/frameworks/{key}`
+
+**Response (HTTP 200):** one framework. Unknown key: 404 `compliance framework not found`.
+
+### Create a Framework
+
+**Endpoint:** `POST /api/v1/compliance/frameworks`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/compliance/frameworks" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "acme-internal",
+    "name": "Acme internal security policy",
+    "description": "Checks for the Acme security policy, version 3.",
+    "sections": [
+      {
+        "key": "logging",
+        "name": "Logging",
+        "requirements": [
+          {"id": "LOG-1", "name": "Audit logs are protected", "satisfiedBy": ["acme-log-clearing"]},
+          {"id": "LOG-2", "name": "Alerts are reviewed", "satisfiedBy": ["au-6"]}
+        ]
+      }
+    ]
+  }'
+```
+
+**Response (HTTP 201):** the stored framework. Errors: 400 invalid key, 409 `a framework with this key already exists`, 403 `this control requires an Enterprise license`.
+
+A `satisfiedBy` id that does not exist is accepted; the report shows it as **Not covered**.
+
+### Update a Framework
+
+**Endpoint:** `PUT /api/v1/compliance/frameworks/{key}`
+
+The body is the full framework; the key in the path wins. Only your own frameworks can be changed. **Response (HTTP 200):** the stored framework. Errors: 404, 403 for a shipped framework or a locked control.
+
+### Delete a Framework
+
+**Endpoint:** `DELETE /api/v1/compliance/frameworks/{key}`
+
+**Response:** HTTP 204. Errors: 404, 403 for a shipped framework. The framework's stored report and schedules are not deleted with it.
+
+## Reports
+
+Each framework has at most one current report per tenant. An evaluation replaces it and adds a point to the score history.
+
+### Run an Evaluation
+
+**Endpoint:** `POST /api/v1/compliance/frameworks/{key}/report`
+
+| Parameter | Type | Description |
+|---|---|---|
+| windowDays | integer, query | How many days back the checks look. If you leave it out, UTMStack uses the window of the framework's schedule if it has one, otherwise 30 days. |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/report?windowDays=30" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** the new report (see below). Verdicts and notes recorded on the previous report are carried over: notes always, verdicts only where a person changed the status.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 404 | `compliance framework not found` | Unknown key |
+| 403 | `this framework requires an Enterprise license` | Locked shipped framework |
+| 409 | `this report was modified by another run — reload and try again` | Two evaluations or edits of the same report at the same time |
+
+### Get the Current Report
+
+**Endpoint:** `GET /api/v1/compliance/frameworks/{key}/report`
+
+**Response (HTTP 200)** for the framework created in the example above:
+
+```json
+{
+  "id": "<report-id>",
+  "frameworkKey": "acme-internal",
+  "frameworkName": "Acme internal security policy",
+  "generatedAt": "2026-11-10T06:00:00Z",
+  "windowFrom": "2026-10-11T06:00:00Z",
+  "windowTo": "2026-11-10T06:00:00Z",
+  "summary": {
+    "compliantPct": 50,
+    "total": 2,
+    "evaluated": 2,
+    "compliant": 1,
+    "nonCompliant": 1,
+    "atRisk": 0,
+    "notCovered": 0,
+    "notEvaluated": 0,
+    "pending": 0,
+    "outOfScope": 0
+  },
+  "sections": [
+    {
+      "key": "logging",
+      "name": "Logging",
+      "summary": {"compliantPct": 50, "total": 2, "evaluated": 2, "compliant": 1, "nonCompliant": 1, "atRisk": 0, "notCovered": 0, "notEvaluated": 0, "pending": 0, "outOfScope": 0},
+      "requirements": [
+        {"id": "LOG-1", "name": "Audit logs are protected", "status": "NON_COMPLIANT", "controlIds": ["acme-log-clearing"]},
+        {"id": "LOG-2", "name": "Alerts are reviewed", "status": "COMPLIANT", "controlIds": ["au-6"]}
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "acme-log-clearing",
+      "name": "Windows audit logs are never cleared",
+      "status": "NON_COMPLIANT",
+      "engineStatus": "NON_COMPLIANT",
+      "evidence": "No Windows audit log was cleared (2 hits)",
+      "coverage": 0,
+      "activity": 0,
+      "checks": [
+        {
+          "key": "no-log-clearing",
+          "name": "No Windows audit log was cleared",
+          "dataset": "logs",
+          "dataType": "wineventlog",
+          "rule": "THRESHOLD_MAX",
+          "required": 0,
+          "outcome": "FAILED",
+          "hits": 2
+        }
+      ]
+    },
+    {
+      "controlId": "au-6",
+      "name": "Audit Record Review, Analysis, and Reporting",
+      "status": "COMPLIANT",
+      "engineStatus": "COMPLIANT",
+      "evidence": "1 of 1 checks with data passed",
+      "coverage": 0,
+      "activity": 0,
+      "checks": [
+        {
+          "key": "alerts-reviewed",
+          "name": "Alerts were reviewed (moved to In review or Completed)",
+          "dataset": "alerts",
+          "rule": "MIN_HITS_REQUIRED",
+          "required": 1,
+          "outcome": "PASSED",
+          "hits": 42
+        }
+      ]
+    }
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `summary` | Counts of requirements by status for the whole framework. `compliantPct` is compliant requirements × 100 ÷ all requirements (rounded down). `evaluated` leaves out **Out of scope**, **Pending** and **Not evaluated**. |
+| `sections[].requirements[].status` | The worst status among the requirement's controls |
+| `controls[].status` | The status shown, including a person's verdict |
+| `controls[].engineStatus` | What the checks said |
+| `controls[].originalStatus` | Present when a person overrode the status: the engine's status at that moment |
+| `controls[].note`, `editedBy`, `editedAt` | The last note and who wrote it |
+| `controls[].evidence` | One line explaining the status |
+| `controls[].coverage`, `activity` | Linked rules and their alerts. In UTMStack v12.0.2 both are always 0. |
+| `controls[].checks[].outcome` | `PASSED`, `FAILED`, `NOT_APPLICABLE` (your tenant receives no data of that type) or `ERROR` (the check could not run; see `error`) |
+
+Status values: `COMPLIANT`, `NON_COMPLIANT`, `AT_RISK`, `NOT_COVERED`, `NOT_EVALUATED`, `PENDING`, `OUT_OF_SCOPE`. Their meaning is in **Compliance Overview**.
+
+A framework that was never evaluated returns 404 `compliance report not found`.
+
+### List Reports
+
+**Endpoint:** `GET /api/v1/compliance/reports`
+
+Returns one summary per framework that has a report, sorted by framework name. `score` is the report's `compliantPct`.
+
+```json
+[
+  {"id": "<report-id>", "frameworkKey": "acme-internal", "frameworkName": "Acme internal security policy", "generatedAt": "2026-11-10T06:00:00Z", "score": 50}
+]
+```
+
+### Record a Verdict or a Note
+
+**Endpoint:** `PUT /api/v1/compliance/frameworks/{key}/controls/{id}/status`
+
+Changes one control row of the current report. Use it for controls that need a person's judgement (manual controls), or to explain a result.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| note | string | Yes | Up to 4,000 characters. Explain the verdict or link the remediation ticket. |
+| status | string | No | One of the status values. Leave it out to add a note only. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/controls/pt-2/status" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "COMPLIANT", "note": "Privacy notice reviewed by the DPO on 2026-11-02, ticket SEC-118."}'
+```
+
+**Response (HTTP 200):** the whole report, with the summary recalculated. The note's author is the email address of the caller.
+
+How the status is stored:
+
+- A status different from `engineStatus` is a verdict: `status` takes your value and `originalStatus` keeps the engine's. Verdicts survive later evaluations.
+- No status, or a status equal to `engineStatus`, is a note only: the row follows the engine again. **Sending a note without a status removes an earlier verdict on that control.** To keep a verdict while changing its note, send the status again.
+
+| HTTP code | `error` | Cause |
+|---|---|---|
+| 400 | `invalid control status` | Unknown status value |
+| 400 | Validation message | `note` missing or longer than 4,000 characters |
+| 404 | `compliance report not found` | The framework was never evaluated |
+| 404 | `compliance control not found` | The control is not part of this report |
+
+### Delete a Report
+
+**Endpoint:** `DELETE /api/v1/compliance/frameworks/{key}/report`
+
+Deletes the current report, including its verdicts and notes. The score history stays. **Response:** HTTP 204, or 404 if there is no report.
+
+### Download the Report as PDF
+
+**Endpoint:** `GET /api/v1/compliance/frameworks/{key}/report.pdf`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/report.pdf" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -o gdpr-report.pdf
+```
+
+**Response (HTTP 200):** a PDF file, named after the framework. The caller's email address is printed as the person who prepared it. Without a current report: 404 `compliance report not found`.
+
+### Score History
+
+**Endpoint:** `GET /api/v1/compliance/frameworks/{key}/history`
+
+One point per day on which the framework was evaluated (the last evaluation of the day counts).
+
+| Parameter | Description |
+|---|---|
+| from | RFC 3339 time. Default: 90 days before `to`. |
+| to | RFC 3339 time. Default: now. |
+
+Values in another format are replaced by the defaults.
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/compliance/frameworks/acme-internal/history" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "from=2026-08-01T00:00:00Z" \
+  --data-urlencode "to=2026-11-10T23:59:59Z"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {"day": "2026-11-09T00:00:00Z", "generatedAt": "2026-11-09T06:00:00Z", "score": 0, "total": 2, "evaluated": 2, "compliant": 0, "hasDocument": true},
+  {"day": "2026-11-10T00:00:00Z", "generatedAt": "2026-11-10T06:00:00Z", "score": 50, "total": 2, "evaluated": 2, "compliant": 1, "hasDocument": true}
+]
+```
+
+`hasDocument` tells whether the full report of that day is still stored. Stored copies are kept for 730 days by default.
+
+### Download a Past Report as PDF
+
+**Endpoint:** `GET /api/v1/compliance/frameworks/{key}/history.pdf?day=<YYYY-MM-DD>`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/history.pdf?day=2026-11-09" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -o gdpr-2026-11-09.pdf
+```
+
+**Response (HTTP 200):** the PDF of the report as it was on that day. Errors: 400 `day must be YYYY-MM-DD`; 404 `compliance report not found` when the stored copy was removed (`hasDocument: false`). In UTMStack v12.0.2, a day with no evaluation at all returns HTTP 500 `record not found`.
+
+## Report Schedules
+
+A schedule evaluates a framework on a timetable and emails the PDF. The email settings must work first (see **Email Configuration**). Schedules belong to the user who created them: the list endpoint shows only your own.
+
+### Schedule Object
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| frameworkKey | string | Yes | Framework to evaluate |
+| scheduleString | string | Yes | A cron expression with 5 fields, up to 250 characters (see below) |
+| windowDays | integer | No | 1 to 3650. Default 30. |
+| to | string | Yes | Comma-separated email addresses, up to 2,000 characters |
+| cc | string | No | Comma-separated email addresses |
+
+The answer also has `id`, `userId` and `lastExecutionDate`.
+
+**Cron format:** `minute hour day-of-month month weekday`, in UTC. Each field accepts `*`, `*/n` (every n), a number, a list (`1,15`) or a range (`1-5`). Weekday 0 is Sunday. Unlike standard cron, when you set both day-of-month and weekday, **both** must match. Examples:
+
+| Expression | Runs |
+|---|---|
+| `0 6 * * 1` | Every Monday at 06:00 UTC |
+| `30 7 1 * *` | The 1st of every month at 07:30 UTC |
+| `0 5 * * 1-5` | Monday to Friday at 05:00 UTC |
+
+An expression that does not have 5 fields, or that never matches within a year, returns 400 `invalid cron expression`. Each run evaluates the framework (this replaces the current report, as a manual evaluation does) and emails the PDF with the subject `UTMStack Compliance Report - <framework key> - <date>`. A failed email is only written to the server log.
+
+### Create a Schedule
+
+**Endpoint:** `POST /api/v1/compliance-report-schedules`
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/compliance-report-schedules" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"frameworkKey": "gdpr", "scheduleString": "0 6 * * 1", "windowDays": 7, "to": "dpo@example.com", "cc": "security@example.com"}'
+```
+
+**Response (HTTP 201):**
+
+```json
+{
+  "id": "<schedule-id>",
+  "userId": "<user-id>",
+  "frameworkKey": "gdpr",
+  "scheduleString": "0 6 * * 1",
+  "windowDays": 7,
+  "to": "dpo@example.com",
+  "cc": "security@example.com",
+  "lastExecutionDate": "2026-11-10T14:02:11Z"
+}
+```
+
+The server does not check that the framework exists or that the addresses are valid. Errors: 400 `invalid cron expression`, 403 `this framework requires an Enterprise license`.
+
+### Update a Schedule
+
+**Endpoint:** `PUT /api/v1/compliance-report-schedules`
+
+Same body as create, plus `id`. Every field is replaced. **Response (HTTP 200):** the stored schedule. Errors: as for create, plus 404 `compliance report schedule not found`.
+
+### List Your Schedules
+
+**Endpoint:** `GET /api/v1/compliance-report-schedules/by-user`
+
+| Parameter | Description |
+|---|---|
+| page | Page number, starting at `0` |
+| size | Default 20 |
+| frameworkKey | Only schedules of this framework |
+
+The answer is a JSON array sorted by framework key; the total is in the `X-Total-Count` header.
+
+### Get or Delete a Schedule
+
+- `GET /api/v1/compliance-report-schedules/by-id/{id}`: one schedule.
+- `DELETE /api/v1/compliance-report-schedules/{id}`: HTTP 204.
+
+An id that is not a UUID returns 400 `id must be a uuid`; an unknown id returns 404 `compliance report schedule not found`.
+
+## Apply to Many Tenants
+
+On installations with the multi-tenant licence, administrators of the default tenant can create, update or delete a custom framework or control in many tenants with one call. These endpoints need `compliance.write`.
+
+| Method | Endpoint | Body |
+|---|---|---|
+| POST | `/api/v1/platform/compliance/frameworks/bulk/create` | `{"selector": ..., "framework": <framework>}` |
+| POST | `/api/v1/platform/compliance/frameworks/bulk/update` | `{"selector": ..., "framework": <framework>}` |
+| POST | `/api/v1/platform/compliance/frameworks/bulk/delete` | `{"selector": ..., "frameworkKey": "acme-internal"}` |
+| POST | `/api/v1/platform/compliance/controls/bulk/create` | `{"selector": ..., "control": <control>}` |
+| POST | `/api/v1/platform/compliance/controls/bulk/update` | `{"selector": ..., "control": <control>}` |
+| POST | `/api/v1/platform/compliance/controls/bulk/delete` | `{"selector": ..., "controlId": "acme-log-clearing"}` |
+
+The `selector` is either `{"tenantIds": ["<tenant-id-1>", "<tenant-id-2>"]}` or `{"allTenants": true}` (every active tenant). The answer (HTTP 200) lists each tenant under `succeeded` or `failed`:
+
+```json
+{"succeeded": ["<tenant-id-1>"], "failed": [{"tenantId": "<tenant-id-2>", "error": "a framework with this key already exists"}]}
+```
+
+Create the controls before the frameworks that name them. Each tenant is handled on its own; a failure in one does not undo the others.
+
+## Worked Example: Weekly GDPR Report for an Auditor
+
+<Steps>
+  <Step title="Run a first evaluation">
+
+  ```bash
+  curl -sk -X POST "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/report?windowDays=7" \
+    -H "Utm-Api-Key: {{apiKey}}" | jq '.summary'
+  ```
+
+  </Step>
+  <Step title="Find the controls that need a person">
+
+  Controls without automatic checks show **Not covered** or **Pending** until someone records a verdict:
+
+  ```bash
+  curl -sk "{{baseUrl}}/api/v1/compliance/frameworks/gdpr/report" \
+    -H "Utm-Api-Key: {{apiKey}}" \
+    | jq -r '.controls[] | select(.status == "NOT_COVERED" or .status == "PENDING") | "\(.controlId)\t\(.name)"'
+  ```
+
+  </Step>
+  <Step title="Record the verdicts">
+
+  For each such control, send a status and a note with `PUT /compliance/frameworks/gdpr/controls/{id}/status`, as shown above.
+
+  </Step>
+  <Step title="Schedule the weekly report">
+
+  Create a schedule with `"scheduleString": "0 6 * * 1"`, `"windowDays": 7` and the auditor's address in `to`. Your verdicts are carried into every scheduled run.
+
+  </Step>
+  <Step title="Check that it works">
+
+  After the first Monday, call `GET /compliance/frameworks/gdpr/history` and check that a point for that day exists, and ask the auditor to confirm the email arrived.
+
+  </Step>
+</Steps>
+
+## Audit
+
+Creating, changing and deleting frameworks, controls and schedules, evaluations, verdicts and report deletions are recorded in the audit log (see **App Audit Logs**).

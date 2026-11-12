@@ -1,0 +1,238 @@
+UTMStack v12 installs on a cloud virtual machine exactly as on any other server. This page covers the cloud-side settings: machine size, disks, firewall rules, a fixed public address and DNS, for Amazon Web Services (AWS), Microsoft Azure and Google Cloud. Then you run the installer as described in **Install UTMStack**.
+
+Read **Prepare the Server** too. Everything on it applies to cloud servers.
+
+## Before you start
+
+- **Operating system image.** Use an official Ubuntu, Debian or Red Hat Enterprise Linux (RHEL) image for x86-64 from the cloud's image catalogue. Other images, such as Amazon Linux, Rocky Linux or AlmaLinux, are refused by the installer.
+- **Size.** The installer needs the operating system to report at least 13,360 MB of memory, so machines with 8 GB do not work. The smallest general-purpose machine types that pass have 4 virtual CPUs and 16 GB. See **Sizing and Capacity Planning** for growing beyond that.
+- **Avoid burstable machine types** (for example AWS T-series or Azure B-series) for production. UTMStack processes logs all the time, and these types can slow down or cost more once their CPU credits run out.
+- **Operating system disk.** The default system disk of many cloud images is 8 to 30 GB. The installer needs about 30 GB free on `/`, after the operating system. Make the system disk larger when you create the machine, for example 64 GB.
+- **Data disk.** Add a second SSD disk for `/utmstack`, sized for your data. Do not use temporary or instance-store disks for it: their data is lost when the machine stops.
+- **Outbound internet.** The server must reach `cm.utmstack.com`, `github.com`, `ghcr.io`, Docker Hub and the package mirrors over HTTPS. A server in a private subnet needs a NAT gateway (AWS NAT gateway, Azure NAT Gateway or Google Cloud NAT).
+
+### Example machine types
+
+| | AWS EC2 | Azure | Google Compute Engine |
+|---|---|---|---|
+| 4 vCPUs, 16 GB | `m6i.xlarge`, `m7i.xlarge` | `Standard_D4s_v5` | `n2-standard-4`, `e2-standard-4` |
+| 8 vCPUs, 32 GB | `m6i.2xlarge`, `m7i.2xlarge` | `Standard_D8s_v5` | `n2-standard-8`, `e2-standard-8` |
+| 16 vCPUs, 64 GB | `m6i.4xlarge`, `m7i.4xlarge` | `Standard_D16s_v5` | `n2-standard-16`, `e2-standard-16` |
+| SSD disk type for `/utmstack` | gp3 | Premium SSD (or Premium SSD v2) | Balanced persistent disk (`pd-balanced`) or SSD persistent disk (`pd-ssd`) |
+
+These are examples of general-purpose sizes. Other families with the same CPU and memory work too.
+
+### Firewall rules for every cloud
+
+| Port | Allow from | Why |
+|---|---|---|
+| 443/TCP | Your users' networks, API clients and every network where agents, the UTMStack Forwarder or collectors run | Web interface, API and all agent traffic |
+| 80/TCP | Your users' networks (optional) | Redirect to HTTPS. Also needed from the internet for a Let's Encrypt certificate with the HTTP challenge. |
+| 22/TCP | Administrator addresses only | SSH |
+| 9090/TCP | Administrator addresses only (optional) | Cockpit, the server management console |
+| 10001/TCP | **Nobody** | Internal port. Never open it in a cloud firewall. |
+
+Cloud firewalls block internet traffic you do not allow, so port 10001 stays closed to the internet as long as you add no rule for it. Inside the cloud network, default rules can still let it through: Azure's default rule `AllowVnetInBound` and the `default-allow-internal` rule of Google Cloud's `default` network let other machines in the same network reach every port. Where that matters, add a rule that denies 10001/TCP to the server.
+
+<Note>
+
+You do not need a load balancer in front of UTMStack. If your design requires one, use a network (layer 4, TCP pass-through) load balancer, so that the encrypted connection reaches the server's nginx unchanged. Agents use gRPC over HTTP/2 on port 443; an application load balancer or a proxy that ends the TLS connection can break their long-lived connections.
+
+</Note>
+
+## Amazon Web Services (EC2)
+
+<Steps>
+  <Step title="Create a security group">
+
+    In the EC2 console, open **Security Groups**, choose **Create security group** and add inbound rules for the ports in the table above. Or with the AWS CLI:
+
+    ```bash
+    SG=$(aws ec2 create-security-group --group-name utmstack \
+      --description "UTMStack server" --vpc-id vpc-0123456789abcdef0 \
+      --query GroupId --output text)
+
+    # Web interface and agents (replace with your networks)
+    aws ec2 authorize-security-group-ingress --group-id "$SG" \
+      --protocol tcp --port 443 --cidr 10.0.0.0/8
+
+    # SSH and Cockpit from the administrator only
+    aws ec2 authorize-security-group-ingress --group-id "$SG" \
+      --protocol tcp --port 22 --cidr 203.0.113.10/32
+    aws ec2 authorize-security-group-ingress --group-id "$SG" \
+      --protocol tcp --port 9090 --cidr 203.0.113.10/32
+    ```
+
+  </Step>
+  <Step title="Launch the instance">
+
+    In **Launch instance**:
+
+    - **Application and OS Images:** an official Ubuntu Server, Debian or Red Hat Enterprise Linux image, 64-bit (x86).
+    - **Instance type:** for example `m6i.xlarge` or larger.
+    - **Key pair:** your SSH key.
+    - **Network settings:** your VPC and subnet, and the `utmstack` security group.
+    - **Configure storage:** raise the root volume to 64 GiB or more (`gp3`), and **Add new volume** for the data disk (`gp3`, sized for your data).
+
+  </Step>
+  <Step title="Give it a fixed public address (if users or agents reach it over the internet)">
+
+    Allocate an Elastic IP address and associate it with the instance (**Elastic IPs > Allocate Elastic IP address**, then **Associate Elastic IP address**). With the AWS CLI:
+
+    ```bash
+    ALLOC=$(aws ec2 allocate-address --domain vpc --query AllocationId --output text)
+    aws ec2 associate-address --instance-id i-0123456789abcdef0 --allocation-id "$ALLOC"
+    ```
+
+    The private address of an EC2 instance stays the same when you stop and start it, which is what Docker Swarm needs.
+
+  </Step>
+  <Step title="Create the DNS record">
+
+    In Amazon Route 53 (or your DNS provider), create an `A` record such as `siem.example.com` pointing to the Elastic IP, or to the private address for an internal-only server.
+
+  </Step>
+  <Step title="Prepare and install">
+
+    Connect over SSH, mount the data disk at `/utmstack` (the volume usually appears as `/dev/nvme1n1`), and follow **Prepare the Server** and **Install UTMStack**.
+
+  </Step>
+</Steps>
+
+<Tip>
+
+**Cold storage in Amazon S3 with the instance's IAM role.** The cold storage option **Use the server's IAM role instead of keys** reads the role's credentials from the instance metadata service from inside a container. AWS recommends a hop limit of 2 for containers on instances that require IMDSv2. If the role does not work, set it:
+
+```bash
+aws ec2 modify-instance-metadata-options --instance-id i-0123456789abcdef0 \
+  --http-endpoint enabled --http-put-response-hop-limit 2
+```
+
+See **Data Retention and Cold Storage**.
+
+</Tip>
+
+## Microsoft Azure (Virtual Machines)
+
+<Steps>
+  <Step title="Create the virtual machine">
+
+    In the Azure portal, choose **Create a resource > Virtual machine**:
+
+    - **Image:** an official Ubuntu Server, Debian or Red Hat Enterprise Linux image, x64.
+    - **Size:** for example `Standard_D4s_v5` or larger.
+    - **Authentication type:** SSH public key.
+    - **Disks:** set **OS disk size** to 64 GiB or more, **OS disk type** to Premium SSD, and **Create and attach a new disk** for the data (Premium SSD, sized for your data).
+    - **Networking:** create a network security group, or choose an existing one (next step).
+
+  </Step>
+  <Step title="Allow the ports in the network security group">
+
+    Add inbound rules for the ports in the firewall table above. With the Azure CLI:
+
+    ```bash
+    az network nsg rule create --resource-group UTMStack-RG --nsg-name UTMStack-NSG \
+      --name Allow-HTTPS --priority 100 --direction Inbound --access Allow \
+      --protocol Tcp --destination-port-ranges 443 \
+      --source-address-prefixes 10.0.0.0/8
+
+    az network nsg rule create --resource-group UTMStack-RG --nsg-name UTMStack-NSG \
+      --name Allow-Admin --priority 110 --direction Inbound --access Allow \
+      --protocol Tcp --destination-port-ranges 22 9090 \
+      --source-address-prefixes 203.0.113.10/32
+    ```
+
+  </Step>
+  <Step title="Make the addresses static">
+
+    - **Private address:** in the network interface's **IP configurations**, set the assignment to **Static**, so the address never changes.
+    - **Public address (if needed):** use a Standard public IP address, which is always static.
+
+    ```bash
+    az network nic ip-config update --resource-group UTMStack-RG \
+      --nic-name utmstack-nic --name ipconfig1 --private-ip-address 10.1.0.10
+    ```
+
+  </Step>
+  <Step title="Create the DNS record">
+
+    In Azure DNS (or your DNS provider), create an `A` record that points to the public or private address.
+
+  </Step>
+  <Step title="Prepare and install">
+
+    Connect over SSH, mount the data disk at `/utmstack` (find it with `lsblk`; Azure also lists data disks under `/dev/disk/azure/`), and follow **Prepare the Server** and **Install UTMStack**.
+
+  </Step>
+</Steps>
+
+<Warning>
+
+Do not use the Azure temporary disk (usually mounted at `/mnt`) for `/utmstack`. Azure can erase it when the machine is resized, moved or deallocated.
+
+</Warning>
+
+## Google Cloud (Compute Engine)
+
+<Steps>
+  <Step title="Create firewall rules">
+
+    In **VPC network > Firewall**, create rules for the ports in the table above, and give them a target tag. With the Google Cloud CLI:
+
+    ```bash
+    gcloud compute firewall-rules create utmstack-https \
+      --network=default --direction=INGRESS --action=ALLOW \
+      --rules=tcp:443 --source-ranges=10.0.0.0/8 --target-tags=utmstack
+
+    gcloud compute firewall-rules create utmstack-admin \
+      --network=default --direction=INGRESS --action=ALLOW \
+      --rules=tcp:22,tcp:9090 --source-ranges=203.0.113.10/32 --target-tags=utmstack
+    ```
+
+  </Step>
+  <Step title="Reserve fixed addresses">
+
+    ```bash
+    # Public address (if users or agents reach the server over the internet)
+    gcloud compute addresses create utmstack-public --region=us-central1
+
+    # Fixed private address in your subnet
+    gcloud compute addresses create utmstack-internal --region=us-central1 \
+      --subnet=default --addresses=10.128.0.10
+    ```
+
+  </Step>
+  <Step title="Create the virtual machine">
+
+    ```bash
+    gcloud compute instances create utmstack \
+      --zone=us-central1-a --machine-type=n2-standard-4 \
+      --image-family=ubuntu-2404-lts-amd64 --image-project=ubuntu-os-cloud \
+      --boot-disk-size=64GB --boot-disk-type=pd-balanced \
+      --create-disk=name=utmstack-data,device-name=utmstack-data,size=500GB,type=pd-ssd,auto-delete=no \
+      --tags=utmstack \
+      --address=utmstack-public --private-network-ip=utmstack-internal
+    ```
+
+    In the console, the same settings are under **Machine configuration**, **Boot disk** (raise the size), **Advanced options > Disks > Add new disk** and **Advanced options > Networking** (network tag, reserved addresses).
+
+  </Step>
+  <Step title="Create the DNS record">
+
+    In Cloud DNS (or your DNS provider), create an `A` record that points to the reserved address.
+
+  </Step>
+  <Step title="Prepare and install">
+
+    Connect over SSH, mount the data disk at `/utmstack` (it appears as `/dev/disk/by-id/google-utmstack-data`), and follow **Prepare the Server** and **Install UTMStack**.
+
+  </Step>
+</Steps>
+
+## After installation in the cloud
+
+- **Check that port 10001 is closed** from a machine outside the cloud network: `nc -zv -w 5 <public address> 10001` must fail.
+- **Install a trusted certificate** for your DNS name. See **SSL Certificate**.
+- **Snapshots.** Cloud disk snapshots are a simple way to protect the whole server. See **Backups and Recovery**.
+- **Cold storage.** Moving older logs to a bucket in the same cloud (Amazon S3, Azure Blob Storage or Google Cloud Storage) keeps the data disk small. See **Data Retention and Cold Storage**.
+- **Growing the server.** Resize the machine, then run `sudo /usr/local/bin/utmstack_installer --recalculate-memory`. To grow the data disk, enlarge it in the cloud console, then grow the file system (`sudo resize2fs /dev/<data disk>` for ext4). See **Sizing and Capacity Planning**.

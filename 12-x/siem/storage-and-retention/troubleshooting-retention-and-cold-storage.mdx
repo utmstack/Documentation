@@ -1,0 +1,123 @@
+This page lists every message the **Data retention** page of UTMStack v12 can show, what causes it and how to fix it. It also covers problems without a message: records that do not move to cold storage, data that stays longer than expected, and a cold storage destination that stops answering.
+
+## Where to look
+
+| Where | What it tells you |
+|---|---|
+| The message at the bottom of the screen after **Save**, **Enable cold storage** or **Update credentials** | The reason a change was refused |
+| The **Cold storage** card | **In use** or **Not set up**, and an amber warning when the destination is written but not active |
+| The disk badge at the top of the page | How full the event store's disks are; hover over it for the reason when it is amber |
+| **Configure > Settings > App Audit Logs**, action prefix `retention.` or `cold_storage.` | Every change, who made it, and whether it succeeded |
+| `docker service logs --since 30m utmstack_backend` on the server | The full reason behind "could not ..." messages |
+| `docker service logs --tail 200 utmstack_clickhouse` on the server | Errors from the event store itself, including errors from the cold storage destination |
+
+To see where each table's data is, run this read-only query on the server:
+
+```bash
+CH=$(docker ps -q -f name=utmstack_clickhouse)
+docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+SELECT table, disk_name, count() AS parts, formatReadableSize(sum(bytes_on_disk)) AS size,
+       min(min_time) AS oldest, max(max_time) AS newest
+FROM system.parts
+WHERE database = 'utmstack' AND active
+GROUP BY table, disk_name
+ORDER BY table, disk_name
+SQL
+```
+
+`default` is the local disk and `cold_disk` is cold storage.
+
+## The page itself
+
+| What you see | Cause | Fix |
+|---|---|---|
+| **Data Retention** is missing from the Settings menu | You are not the instance operator, you are inside a tenant in a support session, or the server runs with the retention page switched off | Sign in as an administrator of the default tenant, leave the support session, or ask whoever runs the server. See **Settings Overview**. |
+| "This page belongs to the platform" | You opened the page's address while working inside a customer tenant in a support session. Retention applies to tables that all tenants share. (An administrator of a customer tenant who opens the address is sent back to the home page instead.) | Leave the support session, or ask the instance operator. See **Multi-Tenancy Overview**. |
+| "Could not read the store." with **Retry** | The backend could not reach the event store | Click **Retry**. If it persists, check `docker service ps utmstack_clickhouse` and the event store log. |
+| The disk badge is amber | The event store's disk is more than 90% full ("disk above 90%"), or the event store could not report its disks | See **Planning Retention and Disk Space**. |
+
+## Messages when you save a dataset card
+
+| Message | Cause | Fix |
+|---|---|---|
+| "Records have to move before they are deleted: use fewer days than the lifetime, or 0." (shown under the fields; **Save** stays greyed out) | **Move to cold storage after** is equal to or greater than **Delete after**, or **Delete after** is empty or `0` | Use fewer days for the move than for deletion, or `0`, and at least 1 day in **Delete after**. |
+| "Set up cold storage below to move older records off local disk." (the field is greyed out) | Cold storage is not active yet | Set up cold storage first. |
+| "Retention saved" | The change was accepted | The event store applies it in the background. |
+| "You do not have permission to change retention" | Your roles do not include `storage.write` | Ask an administrator of the default tenant. |
+| "retention must keep records for at least a day" | **Delete after** is below 1, or above 36,500 days (the message then ends with the number of days) | Use a value from 1 to 36,500. |
+| "records must move to cold storage before they are deleted, not after: cold at N days, deleted at M" | Sent through the API with the move later than deletion | Same as the first row. |
+| "the move to cold storage cannot be in the past" | A negative number of days | Use `0` or more. |
+| "this instance has no cold storage: configure object storage before moving records to it" | A move was requested while cold storage is not active | Set up cold storage, or set the move to `0`. |
+| "this dataset already moves records to cold storage and cannot go back to local-only without rebuilding the table" | You set **Move to cold storage after** to `0` on a dataset that already uses cold storage | Keep a value above 0. You can change it, for example to a larger number of days. |
+| "could not set the retention" | The event store refused or failed the change | Check the backend log for the reason, and that the event store is running. |
+
+## Messages on the Cold storage card
+
+| Message | Cause | Fix |
+|---|---|---|
+| "Cold storage configured" | The destination passed the test and is active | Choose what moves on the dataset cards. |
+| "the bucket URL or storage account URL is required" | **Bucket URL** or **Storage account URL** is empty | Enter it. |
+| "the bucket URL must be an absolute http(s) URL" | The URL does not start with `http://` or `https://`, or has no host name, for example `s3://my-bucket` or `my-bucket.s3.amazonaws.com` | Write the full address. See the guide for your provider. |
+| "the bucket URL must include the bucket, e.g. https://s3.example.com/utmstack-cold/" | Nothing after the host name, for example `https://my-bucket.s3.eu-west-1.amazonaws.com/` | Add the bucket (path style) or a folder (bucket in the host name). See **Cold Storage with Amazon S3**. |
+| "both an access key and a secret key are required" | One of the keys is empty and the IAM role box is not ticked | Enter both keys, or tick **Use the server's IAM role instead of keys** on AWS. |
+| "the event store could not use this bucket:" followed by a reason | The event store tried to write, read and delete a small test file and failed. The reason comes from the storage service: wrong keys, missing permissions, wrong bucket or region, certificate or network problem. Nothing was changed. | Fix the cause named in the reason. See the troubleshooting table in **Cold Storage with Amazon S3**, **Cold Storage with S3-Compatible Stores** or **Cold Storage with Azure Blob Storage**. |
+| "the event store has not picked up the cold storage yet" | The destination was written and accepted, but the event store did not show it within a few seconds | Reload the page after a minute. If the card shows the amber warning below, see the next row. |
+| Amber: "The bucket is configured but the store has not picked it up. Check that the deployment shares the store's configuration directory." | The configuration file exists but the event store has not loaded it | Check that `/utmstack/clickhouse/config.d/utmstack-tiering.xml` exists, then restart the event store with `docker service update --force utmstack_clickhouse`. |
+| "could not enable cold storage" | An error without a public reason. With **Local folder or NFS**, usually "the local cold folder is not writable by the event store: check the mount and its permissions" in the backend log. | Read the backend log. For a folder, see **Cold Storage on a Local Folder or NFS**. |
+| A short technical message such as "Network Error" | The request got no answer from the server | Check that the backend is running and try again. |
+
+**Enable cold storage** and **Update credentials** stay greyed out until the fields of the chosen type are filled in.
+
+## Records do not move to cold storage
+
+Work through these checks:
+
+1. **Is the dataset set to move?** The dataset card must show a **Move to cold storage after** value above 0 and the note "This dataset moves records to cold storage."
+2. **Are there records old enough?** The card's "since" date must be older than the number of days you set.
+3. **Has there been enough time?** Moves run in the background. The first move of a large table can take hours.
+4. **Does the table carry the move?** This read-only query shows each table's rules. A moving table shows `TO VOLUME 'cold'`:
+
+   ```bash
+   CH=$(docker ps -q -f name=utmstack_clickhouse)
+   docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+   SELECT name, engine_full FROM system.tables WHERE database = 'utmstack'
+   SQL
+   ```
+
+5. **Can the event store reach the destination?** Look for errors in `docker service logs --tail 200 utmstack_clickhouse`. Keys deleted or rotated outside UTMStack, a changed firewall or an expired certificate stop the moves.
+
+## Data stays longer than "Delete after"
+
+This is expected. The event store keeps data in monthly blocks and deletes a block only when all of its records are past the limit, so data can stay up to about a month longer than the number of days you set. On a large table, the deletion after you lower the value also takes some time. See **How UTMStack Stores Data**.
+
+## When the destination stops answering later
+
+Cold storage keeps working only while the destination is reachable with the stored keys.
+
+| Situation | What happens |
+|---|---|
+| The destination is unreachable while UTMStack runs | Searches over periods held in cold storage fail with an error. Searches over recent data still work. Moves stop and retry, so records stay on the local disk and it fills faster. |
+| The event store restarts while the destination is unreachable (server restart, update, or keys deleted) | The event store checks the destination when it starts and may not start until the destination is reachable. While it is down, UTMStack cannot store or search any data. |
+| The keys were deleted or lost their permissions | Same as above, at the next start at the latest. |
+
+<Warning>
+
+Never delete, deactivate or restrict the key, user, role or folder that UTMStack uses for cold storage before UTMStack uses its replacement. To rotate keys, add the new key, click **Update credentials**, check that it works, and only then remove the old key.
+
+</Warning>
+
+To recover:
+
+1. Restore access: fix the network or firewall, renew the certificate, or give the key back its permissions.
+2. If the event store is not running, restart it: `docker service update --force utmstack_clickhouse`.
+3. Check with `docker service ps utmstack_clickhouse` that it stays up, then search an old time range in **Log Explorer**.
+
+## Changing or removing cold storage
+
+| You want to | What UTMStack allows |
+|---|---|
+| Change the keys | Yes, at any time: enter new keys and click **Update credentials**. |
+| Use the IAM role instead of keys, or the reverse | Yes, with **Update credentials** and the same Bucket URL. |
+| Move to a different bucket, container or type | The page lets you, but records already moved are not copied. They stay in the old place and can no longer be read from UTMStack. Do not do this unless you accept losing access to those records. |
+| Stop moving records for a dataset | Not from the page. A dataset that uses cold storage cannot go back to local-only without rebuilding its table. You can raise **Move to cold storage after** so that fewer records move. |
+| Turn cold storage off completely | Not from the page. Contact UTMStack support. |

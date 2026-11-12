@@ -1,0 +1,475 @@
+Use these endpoints to read the integrations catalogue of UTMStack v12, add your own catalogue entries, store the credentials that UTMStack uses to pull logs from cloud services, and switch log types on or off on a UTMStack Forwarder from a script. Each request works inside your own tenant.
+
+The list of supported data types (`GET /api/v1/integrations/data-types`) is described on **Data Sources API**.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| List and read integrations, list configuration groups | `integrations.read` (all built-in roles) |
+| Create, change or delete custom integrations; save or delete configuration groups | `integrations.write` (Administrator) |
+| Every `/integrations/collectors` endpoint, including the ones that only read | `integrations.write` (Administrator) |
+
+No licence is needed beyond what every API key needs (API keys need the Enterprise licence; see **Authentication and API Keys**).
+
+## How the pieces fit together
+
+| Term | Meaning |
+|---|---|
+| Integration | One card in the catalogue (Integrations page). It has a name such as `AWS_IAM_USER`, a data type such as `aws`, and an ingest type. Shipped cards are read-only and shared by every tenant. |
+| Ingest type | How logs arrive: `agent` (UTMStack agent), `collector` (a separate collector program), `forwarder` (sent to a UTMStack Forwarder) or `plugin` (UTMStack pulls them from a cloud service or API). |
+| Configuration group | One set of credentials for a `plugin` integration, for example one AWS account or one Microsoft 365 tenant. You can have several groups per integration. Each group name also becomes a data source name. |
+| Collector (forwarder) | A UTMStack Forwarder installed in your network. You can switch each data type on or off on it remotely. |
+
+## List Integrations
+
+**Endpoint:** `GET /api/v1/integrations`
+
+Returns the shipped catalogue plus your tenant's custom entries, sorted by name.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| ingestType | string | Only `agent`, `collector`, `forwarder` or `plugin`. Any other value returns 400 `invalid ingestType`. |
+| nameContains | string | Part of the name, upper and lower case ignored |
+| page | integer | Page number, starting at `0` |
+| size | integer | Default 20. Values above 200 are reduced to 200. |
+
+The total number of matches is in the `X-Total-Count` response header.
+
+```bash
+curl -sk -i --get "{{baseUrl}}/api/v1/integrations" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "ingestType=plugin" \
+  --data-urlencode "size=200"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": "<integration-id>",
+    "name": "AWS_IAM_USER",
+    "dataType": "aws",
+    "ingestType": "plugin",
+    "systemOwner": true,
+    "configured": true
+  },
+  {
+    "id": "<integration-id>",
+    "name": "O365",
+    "dataType": "o365",
+    "ingestType": "plugin",
+    "systemOwner": true,
+    "configured": false
+  }
+]
+```
+
+**Integration Fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (UUID) | Integration id |
+| `name` | string | Catalogue name, for example `AWS_IAM_USER`, `O365_GRAPH` or `FORTIGATE` |
+| `dataType` | string | Data type of the logs, for example `aws` |
+| `ingestType` | string | `agent`, `collector`, `forwarder` or `plugin` |
+| `description`, `icon` | string | Only on custom entries. `icon` is an image as a data URL. |
+| `systemOwner` | boolean | `true` for shipped entries, which cannot be changed or deleted |
+| `configured` | boolean | `true` when your tenant has at least one configuration group for this integration. It is always `false` for ingest types other than `plugin`, because their setup lives on the device or agent. |
+
+## Get One Integration
+
+**Endpoint:** `GET /api/v1/integrations/{id}`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/<integration-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):** one integration object. A malformed id returns 400 `invalid id`; an unknown id returns 404 `integration not found`.
+
+## Create a Custom Integration
+
+**Endpoint:** `POST /api/v1/integrations`
+
+A custom integration is a catalogue entry for a log source that UTMStack does not ship. It gives the source a data type that rules and pipelines can use. Logs for it are sent to a UTMStack Forwarder. See **Custom Integrations** for the whole procedure, including the pipeline that parses the logs.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Catalogue name. The web console builds it from the data type in capital letters with `_` instead of `-`, for example `ACME_GATEWAY`. |
+| dataType | string | Yes | Data type the logs will carry, for example `acme-gateway`. The web console uses lower-case letters, digits and `-`. |
+| ingestType | string | Yes | `forwarder` for a custom source (the web console always sends this) |
+| description | string | No | Free text |
+| icon | string | No | Image as a data URL (the web console accepts files up to 3 MB) |
+
+```bash
+curl -sk -X POST "{{baseUrl}}/api/v1/integrations" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "ACME_GATEWAY",
+    "dataType": "acme-gateway",
+    "ingestType": "forwarder",
+    "description": "ACME web gateway logs sent by syslog"
+  }'
+```
+
+**Response (HTTP 201):** the new integration object, with `systemOwner: false`.
+
+| Error | Cause |
+|---|---|
+| 400 `invalid request body` | A required field is missing or the body is not JSON |
+| 400 `invalid ingest type: "<value>"` | `ingestType` is not one of the four values |
+| 500 `operation failed` | In UTMStack v12.0.2 a name or data type that your tenant already uses is answered this way |
+
+## Update a Custom Integration
+
+**Endpoint:** `PUT /api/v1/integrations/{id}`
+
+Only `description` and `icon` can change. Both are replaced: a field you leave out is cleared.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/integrations/<integration-id>" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"description": "ACME web gateway, all sites"}'
+```
+
+**Response (HTTP 200):** the updated integration. A shipped entry returns 403 `system integrations cannot be modified or deleted`.
+
+## Delete a Custom Integration
+
+**Endpoint:** `DELETE /api/v1/integrations/{id}`
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/integrations/<integration-id>" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. A shipped entry returns 403 `system integrations cannot be modified or deleted`. Deleting the entry does not delete logs already stored, nor rules or pipelines that use its data type.
+
+## Configuration Groups (Cloud Credentials)
+
+A configuration group holds the settings UTMStack needs to pull logs from one account of a cloud service. Only these integrations take configuration groups. Use the name exactly as shown, in capital letters.
+
+| Integration name | Settings keys (secret keys marked with *) |
+|---|---|
+| `AWS_IAM_USER` | `aws_access_key_id`, `aws_secret_access_key`*, `aws_default_region`, `aws_log_group_name` |
+| `AZURE` | `eventHubConnection`*, `consumerGroup`, `storageContainer`, `storageConnection`* |
+| `GCP` | `jsonKey`* (the service account key file content), `projectId`, `subscription` |
+| `O365` | `office365_client_id`, `office365_client_secret`*, `office365_tenant_id`, `office365_cloud_environment` |
+| `O365_GRAPH` | `o365_graph_client_id`, `o365_graph_client_secret`*, `o365_graph_tenant_id`, `o365_graph_cloud_environment` |
+| `CROWDSTRIKE` | `crowdstrike_client_id`, `crowdstrike_client_secret`*, `crowdstrike_cloud_region_url`, `crowdstrike_app_name` |
+| `SOPHOS` | `sophos_client_id`, `sophos_x_api_key`* |
+
+What each value means, and where to find it in the vendor's console, is explained on the integration's own page (for example **AWS CloudWatch**).
+
+### List the Groups of an Integration
+
+**Endpoint:** `GET /api/v1/integrations/config/{integration}`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/config/AWS_IAM_USER" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "name": "aws-production",
+    "config": {
+      "aws_access_key_id": "<access-key-id>",
+      "aws_secret_access_key": "*****",
+      "aws_default_region": "us-east-1",
+      "aws_log_group_name": "utmstack-cloudtrail"
+    }
+  }
+]
+```
+
+Secret values are never returned. A stored secret shows as `*****`. An integration that takes no configuration groups returns an empty list. There is no paging.
+
+### Create or Update a Group
+
+**Endpoint:** `PUT /api/v1/integrations/config/{integration}`
+
+If a group with the same `name` exists in your tenant, it is replaced; otherwise a new group is added. Before saving, UTMStack checks the credentials against the cloud service (for AWS, Azure, Google Cloud, Microsoft 365, Microsoft Graph and CrowdStrike). Secret values are stored encrypted.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| name | string | Yes | Group name. It also becomes the name of the data source on the Data Sources page. |
+| description | string | No | Free text |
+| config | object | Yes | The settings keys of the integration, all as text values |
+
+To keep a stored secret when you change other settings, send `*****` as its value.
+
+**Response:** HTTP 204. The group is added to the Data Sources list as a source of kind `puller`.
+
+| Error | Cause |
+|---|---|
+| 400 `name is required` or `invalid request body` | Missing name or malformed JSON |
+| 400 `integration is not configurable (no schema)` | The integration takes no configuration groups |
+| 400 `credential verification failed: ...` | The cloud service refused the settings. The rest of the message says which setting to check, for example `credential verification failed: AWS: "aws_log_group_name" is required`. |
+| 400 `required config field is empty: <key>` | You sent `*****` for a secret, but no secret is stored for that group |
+| 404 `configuration group not found` | You sent `*****` for a group name that does not exist yet |
+
+### Delete a Group
+
+**Endpoint:** `DELETE /api/v1/integrations/config/{integration}/{name}`
+
+```bash
+curl -sk -X DELETE "{{baseUrl}}/api/v1/integrations/config/AWS_IAM_USER/aws-production" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response:** HTTP 204. UTMStack stops pulling logs for that account. An unknown group returns 404 `configuration group not found`. The matching entry on the Data Sources page is not removed; delete it there (see **Data Sources API**) if you no longer need it.
+
+## Worked Example: Connect an AWS Account
+
+This example connects one AWS account whose CloudTrail events are delivered to a CloudWatch Logs log group. The AWS side (trail, log group and IAM user) is described step by step on **AWS CloudWatch**.
+
+<Steps>
+
+<Step title="Give the IAM user read access to the log group">
+
+UTMStack reads the log group with these CloudWatch Logs actions: `logs:DescribeLogGroups` (the credential check), `logs:DescribeLogStreams` and `logs:GetLogEvents`. IAM (Identity and Access Management) is the AWS service that controls what an access key may do. A minimal policy for the IAM user:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+Create an access key for the user in the AWS console (IAM, Users, the user, Security credentials, Create access key) and copy both values.
+
+</Step>
+
+<Step title="Save the configuration group">
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/integrations/config/AWS_IAM_USER" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "aws-production",
+    "config": {
+      "aws_access_key_id": "<access-key-id>",
+      "aws_secret_access_key": "<secret-access-key>",
+      "aws_default_region": "us-east-1",
+      "aws_log_group_name": "utmstack-cloudtrail"
+    }
+  }'
+```
+
+HTTP 204 means the key works and the log group was found in that region. A 400 answer says what to fix, for example `credential verification failed: The CloudWatch Log Group 'utmstack-cloudtrail' was not found in region 'us-east-1'. Please verify the Log Group name and region.`
+
+</Step>
+
+<Step title="Rotate the key later without retyping the rest">
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/integrations/config/AWS_IAM_USER" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "aws-production",
+    "config": {
+      "aws_access_key_id": "<new-access-key-id>",
+      "aws_secret_access_key": "<new-secret-access-key>",
+      "aws_default_region": "us-east-1",
+      "aws_log_group_name": "utmstack-cloudtrail"
+    }
+  }'
+```
+
+To change only the region or log group and keep the stored secret, send `"aws_secret_access_key": "*****"`.
+
+</Step>
+
+<Step title="Check that data arrives">
+
+List the data sources of kind `puller` and look for `aws-production` (see **Data Sources API**):
+
+```bash
+curl -sk --get "{{baseUrl}}/api/v1/datasources" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  --data-urlencode "search_query=source_kind.eq.puller&asset_name.eq.aws-production"
+```
+
+Then search the `logs` dataset for data type `aws` over the last hour (see **Log Search API**).
+
+</Step>
+
+</Steps>
+
+## Forwarder Collectors
+
+These endpoints switch a data type on or off on a UTMStack Forwarder from the server, as the integration guides of the web console do. They need `integrations.write` even for reading. See **UTMStack Forwarder** for installing the forwarder and for the default port of each data type.
+
+### List Forwarders
+
+**Endpoint:** `GET /api/v1/integrations/collectors`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/collectors" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "id": 3,
+    "hostname": "fwd-branch-01",
+    "ip": "192.0.2.30",
+    "version": "<forwarder-version>",
+    "lastSeen": "<time>",
+    "status": "online",
+    "noRemoteControl": false
+  }
+]
+```
+
+| Field | Description |
+|---|---|
+| `id` | Collector id, used in the other paths |
+| `status` | `online` or `offline` |
+| `noRemoteControl` | `true` when the forwarder was installed to refuse settings sent from the server. It ignores what you send; change its settings on its own host. |
+
+The list has no paging and returns up to 1,000 forwarders. If the agent manager service cannot be reached, the answer is 503 `agent manager is not available`.
+
+### Read the Settings of a Data Type
+
+**Endpoint:** `GET /api/v1/integrations/collectors/{id}/data-types/{dataType}`
+
+Returns the settings the server last sent to that forwarder for one data type, and whether the forwarder confirmed them. `{dataType}` is the data type, for example `firewall-paloalto` or `github`.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/collectors/3/data-types/firewall-paloalto" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "configured": true,
+  "enabled": true,
+  "proto": "tcp",
+  "port": "7006",
+  "configStatus": "Acked"
+}
+```
+
+`configured` is `false` (and nothing else is returned) when the server never sent settings for this data type to that forwarder. `configStatus` is `Sent`, `Pending`, `Acked` or `Failed`; `lastError` gives the forwarder's reason after a failure.
+
+### Switch a Data Type On or Off
+
+**Endpoint:** `PUT /api/v1/integrations/collectors/{id}/data-types/{dataType}`
+
+The server sends the settings to the forwarder and waits up to 15 seconds for its answer.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| enabled | boolean | Yes | `true` to start listening, `false` to stop |
+| proto | string | Yes | `udp`, `tcp`, `tls`, `http` or `https` |
+| port | string | When `enabled` is `true` | Port the forwarder listens on, as text |
+| tls | boolean | No | With `tcp`, `true` turns on TLS (the same as `proto: tls`) |
+| auth | string | No | HTTP only: empty, `none`, `bearer` or `hmac` |
+| path | string | No | HTTP only: URL path the sender posts to. Default `/logs`, or `/github` for GitHub. |
+| signatureHeader | string | No | HTTP with `hmac` only: header that carries the signature. Default `X-Hub-Signature-256`. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/integrations/collectors/3/data-types/firewall-paloalto" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": true, "proto": "tcp", "port": "7006"}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "accepted": true,
+  "requestId": "<request-id>"
+}
+```
+
+When the forwarder refuses the settings, the answer is still HTTP 200, with `"accepted": false` and the reason in `errorMessage`. For an HTTP data type with `bearer` or `hmac`, the first answer also carries `generatedSecret`: the token the sending system must use. It is returned only once, so copy it straight away.
+
+| Error | Cause |
+|---|---|
+| 400 `invalid collector id` | The id is not a number |
+| 400 `invalid collector data-type configuration` | `enabled: true` without `port`, or an `auth` value that is not allowed |
+| 400 Validation message | `enabled` or `proto` missing |
+| 400 `invalid configuration: ...` | The agent manager refused the request |
+| 503 `collector offline` | The forwarder is not connected |
+| 504 `collector did not confirm in time` | The forwarder did not answer within 15 seconds |
+
+> [!NOTE]
+> An `https` or `tls` listener needs a certificate on the forwarder. Upload it first with the endpoint below.
+
+### Upload TLS Certificates
+
+**Endpoint:** `PUT /api/v1/integrations/collectors/{id}/certificates`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| certPem | string | Yes | The certificate file in PEM format, encoded again as Base64 |
+| keyPem | string | Yes | The private key file in PEM format, encoded as Base64 |
+| caPem | string | No | The CA certificate in PEM format, encoded as Base64. Without it the certificate is used as its own CA. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/integrations/collectors/3/certificates" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d "{\"certPem\": \"$(base64 < forwarder.crt | tr -d '\n')\", \"keyPem\": \"$(base64 < forwarder.key | tr -d '\n')\"}"
+```
+
+**Response (HTTP 200):** `{"accepted": true, "requestId": "<request-id>"}`, or `accepted: false` with `errorMessage`. A value that is not Base64 of a PEM block returns 400 `invalid collector data-type configuration`.
+
+### Check the TLS Certificates
+
+**Endpoint:** `GET /api/v1/integrations/collectors/{id}/tls-status`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/integrations/collectors/3/tls-status" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "available": true,
+  "certExists": true,
+  "keyExists": true,
+  "caExists": false,
+  "valid": true
+}
+```
+
+`error` explains a problem with the files when `valid` is `false`. An offline forwarder returns 503 `collector offline`.

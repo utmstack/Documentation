@@ -10,6 +10,8 @@ Alerting rules describe the threats UTMStack looks for. When an event matches a 
 
 The page is titled **Alerting Rules**: "Correlation rules that turn events into alerts. Toggle, tune or author your own." It loads 50 rules at a time as you scroll.
 
+![The Alerting Rules page with the search box, the data type, category, adversary, state and owner filters, the Import, Export All, Test and New rule buttons, and the rule table](/assets/0382f76f-d6b9-4eb5-a949-da73637bd0a4)
+
 | Control | What it does |
 |---|---|
 | **Search rules…** | Searches the list. |
@@ -42,12 +44,16 @@ This is also how you turn a rule back on after the rule flood guard switched it 
 Click a rule to open its panel. It shows:
 
 - **Description**
-- **Details**: **Impact (C·I·A)**, **Data types**, **Updated** and **Path** (the rule file)
-- **Condition (CEL)**, drawn as a tree
+- **Details**: **Category**, **Technique**, **Adversary**, **Impact (C·I·A)**, **Data types** and **Updated**
+- **Condition (CEL)**, drawn as a tree of conditions joined by AND or OR
 - **Correlation steps**: the history searches, if any
-- **Group by**, **Deduplicate by** and **References**
+- **Correlation**: **Group by** and **Deduplicate by**, if the rule has them
 
-**Visual** and **Code** tabs switch between the form and the rule's YAML.
+The **Visual** tab does not list the rule's references: click **Code** to read them in the rule's YAML. The panel does not show the rule's file name; **Export (1)** from the list gives you the file.
+
+![The panel of a shipped rule in the Visual tab, with Export, the Active switch, Description, Details and the Condition (CEL) shown as a list of conditions](/assets/5d9e7f44-2f43-484c-b9b5-696b6dd65932)
+
+**Visual** and **Code** tabs switch between the form and the rule's YAML. The **Code** tab of a shipped rule is read-only.
 
 <Note>
 
@@ -62,7 +68,9 @@ Shipped rules cannot be edited or deleted. Custom rules have **Edit** and **Dele
 <Steps>
   <Step title="Open the editor">
 
-  Click **New rule**. The editor has a **Visual** tab and a **Code** tab. They stay in step: a change in one shows in the other.
+  Click **New rule**. The editor has a **Visual** tab and a **Code** tab. They stay in step: a change in one shows in the other. To start from a complete rule, click **Code** and paste it; **Rule Examples** has rules to copy.
+
+  ![The New rule panel in the Visual tab: Metadata with Name, Category, Technique, Adversary, Data types, Confidentiality, Integrity, Availability, Description and Active, then Condition (CEL) and Correlation steps, with Test and Save at the bottom](/assets/74a41cf4-b56d-49a9-98a6-d39d4af8d44d)
 
   </Step>
   <Step title="Fill in the details">
@@ -80,7 +88,7 @@ Shipped rules cannot be edited or deleted. Custom rules have **Edit** and **Dele
   </Step>
   <Step title="Write the condition">
 
-  The condition decides which events match. Required.
+  The condition decides which events match. Required. The **Condition (CEL)** box has its own **Visual** and **Code** switch: **Code** shows the condition as text.
 
   In **Visual**, choose **Match all** or **Match any** "of these conditions:", then add conditions. Each condition has a field, a function and an optional **Negate**. The functions are:
 
@@ -105,7 +113,7 @@ Shipped rules cannot be edited or deleted. Custom rules have **Edit** and **Dele
   </Step>
   <Step title="Add correlation steps (optional)">
 
-  A correlation step makes the rule count earlier stored events before it raises an alert, for example "10 failed logins from the same address in the last 15 minutes". Click **Add correlation step** and fill in:
+  A correlation step makes the rule count earlier stored events before it raises an alert, for example "10 failed logins from the same address in the last 15 minutes". Click **Add correlation step** (a new step starts with **Within** `2m`, **Count** `1` and **Index pattern** `v11-log-*`) and fill in:
 
   - **Within**: the time window, written like `15m`, `1h` or `24h`.
   - **Count**: how many matching stored events are needed.
@@ -143,6 +151,8 @@ Saving checks that the rule has a name, at least one data type and a condition, 
 
 Your rule is saved as `rules/user/<tenant id>/<name in lower case with dashes>-<tenant id>.yaml`, with your tenant id inside, so it runs only on your tenant's events.
 
+UTMStack writes the file itself from the rule's fields, the same way for **Save** and **Import**: comments are removed, the keys are put in a fixed order, and keys that UTMStack v12 does not use, such as `id` or `afterEvents`, are dropped. Keep your own commented copy of a rule if you need the comments.
+
 ## Import rules
 
 Use **Import** to add rules written as files. Import keeps the file's correlation steps exactly as written, so it is the best way to add counting rules and rules with Or groups.
@@ -173,7 +183,7 @@ Do not edit an imported counting rule in the editor. Its correlation steps have 
 
 ## Customize a shipped rule
 
-Shipped rules are read-only. To change one:
+Shipped rules are read-only. To change one (see **Tuning Rules and Reducing False Positives** for when this is the right tool, and **Shipped and Custom Rules and Pipelines** for what happens to your copy on updates):
 
 1. Tick the rule in the list and click **Export (1)**. You get a zip file with the rule file.
 2. Edit the file. Give the rule a new `name`. If it uses `afterEvents`, rename that key to `correlation`.
@@ -187,7 +197,9 @@ Shipped rules are read-only. To change one:
 
 ## Apply a rule to all tenants
 
-On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the rule panel. It repeats the create, update, delete or on/off change on every selected tenant. See **Apply to All Tenants**.
+On a multi-tenant installation, the instance operator also sees **Apply to all tenants** in the rule panel. In UTMStack v12.0.2 it works for switching a **shipped** rule on or off in the selected tenants. Creating or changing a custom rule in other tenants does not work from this button, and deleting or switching a custom rule reaches only your own tenant, because each tenant's custom rule is a separate file.
+
+To give several tenants the same custom rule, enter each tenant and import the rule file there (see **Import rules**), or use the **Rules and Pipelines API**. See **Apply to All Tenants** for what each button does.
 
 ## Audit
 

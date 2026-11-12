@@ -1,0 +1,378 @@
+This page is a cookbook of complete alerting rules you can copy: a single-event rule, a threshold, a sequence, de-duplication compared with grouping, a rule where the target is the attacker, and a rule for a custom data type. Each example explains what the rule does, shows a sample event and the alert it raises, and names the shipped rule it is based on.
+
+All examples use UTMStack v12 syntax. For every key, see **Rule File Format**. For the functions used in `where`, see **Condition Functions Reference**.
+
+## Before you use an example
+
+- A rule reads the fields that a pipeline wrote. Examples 2 to 6 read the fields produced by the pipelines on **Pipeline Examples**, so set up the pipeline first, or change the field names to the ones your source has. Check the names in Log Explorer.
+- Single-event rules can be pasted into the **Code** tab of **New rule** on **Configure > Alerting Rules**. Rules with `correlation` steps should be saved as a `.yaml` file and added with **Import**, because import keeps the steps exactly as written. See **Alerting Rules**.
+- UTMStack rewrites a rule file when it saves it: it adds your tenant id, puts the keys in a fixed order and removes comments.
+- Use a rule name that no other rule has. De-duplication, grouping, tagging rules, response flow triggers and the rule flood guard all work by name.
+
+![The New rule panel in the Code tab, showing the empty rule YAML with dataTypes, name, impact, category, technique, adversary and where](/assets/8773ede9-a6fd-4ab8-a1bc-3ba2ddc575eb)
+
+| Example | Kind | Data type | Based on (shipped rule) |
+|---|---|---|---|
+| 1. Windows audit log cleared | Single event | `wineventlog` | `windows/audit_log_was_cleared.yaml` (unchanged) |
+| 2. Many failed logins from one address | Threshold | `acme-webapp` | `windows/windows_bruteforce_attack.yaml` |
+| 3. Login succeeded after repeated failures | Sequence | `acme-webapp` | `o365_graph/graph_signin_success_after_failures.yaml` |
+| 4. Account locked: `deduplicateBy` or `groupBy` | Single event, two ways | `acme-webapp` | Shipped rules use both keys |
+| 5. Inside host connected to a listed address | `adversary: target` | `acme-edge` | `antivirus/esmc-eset/botnet_communication_attempts.yaml` |
+| 6. VPN login with a shared account | Custom data type | `acme-vpn` | None; written for this page |
+
+The paths are relative to the `definitions/rules` folder of the UTMStack repository on GitHub.
+
+## Single event or counting?
+
+Decide first whether one event is enough:
+
+| Use | When | Examples |
+|---|---|---|
+| A **single-event rule** (only `where`) | One occurrence is already worth an analyst's time, or must be seen at once. | Audit log cleared, malware found, an account added to an administrators group. |
+| A **threshold** (`correlation` with a `count`) | One event is normal and only many are suspicious. | Failed logins, blocked connections, scans. |
+| A **sequence** (the trigger is the last event, `correlation` finds the earlier ones) | The order of events matters: something happened after something else. | A success after many failures. |
+
+Do not add a correlation step that only finds the same kind of event as `where` with `count: 1`. It adds a history search to every match and does not make the rule better.
+
+## 1. Single event: Windows audit log cleared
+
+This is the shipped rule, unchanged. It raises an alert every time Windows reports event 1102, "The audit log was cleared". Attackers clear the Security log to hide what they did, so one occurrence is enough.
+
+```yaml
+dataTypes:
+  - wineventlog
+name: "Windows audit log was cleared"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Defense Evasion"
+technique: "T1070.001 - Indicator Removal: Clear Windows Event Logs"
+adversary: origin
+description: "Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion."
+references:
+  - "https://attack.mitre.org/techniques/T1070/001/"
+where: equals("log.eventCode", 1102)
+groupBy:
+  - adversary.ip
+  - target.user
+```
+
+Sample event, shortened, in the JSON shape the shipped Windows pipeline reads:
+
+```json
+{"computer_name":"DC01","channel":"Security","provider_name":"Microsoft-Windows-Eventlog","event":{"code":"1102","kind":"event"},"data":{"SubjectUserName":"jdoe","SubjectDomainName":"CORP"},"timestamp":"2026-11-12T09:30:00Z"}
+```
+
+The shipped pipeline turns this into `log.eventCode` `1102` (a number), `origin.user` `jdoe`, `origin.domain` `CORP` and `target.host` `DC01`. The rule raises:
+
+| Alert field | Value |
+|---|---|
+| Name | Windows audit log was cleared |
+| Severity | High (the highest impact value is 3) |
+| `adversary.user`, `adversary.domain` | `jdoe`, `CORP` (from the event's `origin`) |
+| `target.host` | `DC01` (from the event's `target`) |
+
+What to notice:
+
+- `equals("log.eventCode", 1102)` compares a number. It would also match the text `"1102"`.
+- `groupBy` lists alert fields. When a field has no value on the alert, it is skipped, and when none of them has a value, the alert is not grouped: each event raises its own alert.
+
+## 2. Threshold: many failed logins from one address
+
+At least 10 failed logins from one address within 10 minutes. It reads the `acme-webapp` events from Pipeline Examples example 1, which have `action`, `actionResult` and `origin.ip`.
+
+```yaml
+dataTypes:
+  - acme-webapp
+name: "Acme Web App: Many Failed Logins From One Address"
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: |
+  At least 10 failed logins from one address within 10 minutes.
+
+  Next Steps:
+  1. Check who owns the address and whether it also tried other applications.
+  2. Check whether any login from this address succeeded afterwards.
+  3. Block the address at the edge if the attempts continue.
+references:
+  - "https://attack.mitre.org/techniques/T1110/"
+where: |
+  equals("action", "login") &&
+  equals("actionResult", "failed") &&
+  exists("origin.ip")
+correlation:
+  - within: 10m
+    count: 10
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: action
+        operator: filter_term
+        value: login
+      - field: actionResult
+        operator: filter_term
+        value: failed
+deduplicateBy:
+  - adversary.ip
+```
+
+How it works, for a failed login from `203.0.113.7`:
+
+1. `where` is true: the event is a failed login and has an address.
+2. The correlation step counts the stored `acme-webapp` events of your tenant from the last 10 minutes that have `origin.ip` `203.0.113.7`, `action` `login` and `actionResult` `failed`. `{{.origin.ip}}` is replaced by the address of the event being checked.
+3. If it finds at least 10, the rule raises an alert. Otherwise nothing happens, and the next failed login is checked the same way.
+4. `deduplicateBy: [adversary.ip]` drops every further alert for the same address for 7 days, so an attack that goes on for hours raises one alert.
+
+What to notice:
+
+- `where` checks `exists("origin.ip")` because the step copies that field. An event without it would make the search fail, and 5 failures switch the rule off (see **Rule File Format**).
+- Events are stored in batches, so the event being checked, and others from the last few seconds, may not be counted yet. Choose a `count` with some margin.
+- The test dialog cannot prove this rule: the earlier failures must already be stored. Test it with real events, as in **Tutorial: From a New Log Source to an Alert**.
+
+## 3. Sequence: login succeeded after repeated failures
+
+A successful login for an account that had at least 5 failed logins in the 30 minutes before. The trigger is the **last** event of the sequence, the success; the correlation step looks back for the failures.
+
+```yaml
+dataTypes:
+  - acme-webapp
+name: "Acme Web App: Login Succeeded After Repeated Failures"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Credential Access"
+technique: "T1110.001 - Brute Force: Password Guessing"
+adversary: origin
+description: |
+  A login succeeded for an account that had at least 5 failed logins in the 30 minutes before.
+
+  Next Steps:
+  1. Compare the address of the success with the addresses of the failures.
+  2. Ask the user whether the login was theirs.
+  3. If not, reset the password and end the user's sessions.
+references:
+  - "https://attack.mitre.org/techniques/T1110/001/"
+where: |
+  equals("action", "login") &&
+  equals("actionResult", "success") &&
+  exists("origin.user")
+correlation:
+  - within: 30m
+    count: 5
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: login
+      - field: actionResult
+        operator: filter_term
+        value: failed
+deduplicateBy:
+  - adversary.user
+  - adversary.ip
+```
+
+Sample sequence for the account `alice`:
+
+| Time | Event | What happens |
+|---|---|---|
+| 09:00 to 09:20 | 6 failed logins for `alice` from `203.0.113.7` | Stored. `where` is false for failures, so nothing else happens. |
+| 09:21 | Successful login for `alice` from `203.0.113.7` | `where` is true. The step finds 6 failures for `alice` in the last 30 minutes, at least 5, so an alert is raised with `adversary.user` `alice` and `adversary.ip` `203.0.113.7`. |
+| 09:40 | Another successful login for `alice` from the same address | `deduplicateBy` drops the repeat. |
+
+What to notice:
+
+- The step counts failures for the **account**, from any address. To count only failures from the same address as the success, add a condition on `origin.ip` with `value: '{{.origin.ip}}'`.
+- To require several things in the history, add more steps. Every step must match. See **Several steps** in **Rule File Format**.
+
+## 4. Account locked: `deduplicateBy` or `groupBy`
+
+The same detection written twice. The application locks an account (Pipeline Examples example 1 maps `LOCKED` to `actionResult` `denied`), and you want to know about it. The only difference is how repeats are handled.
+
+One alert per account per week, repeats discarded:
+
+```yaml
+dataTypes:
+  - acme-webapp
+name: "Acme Web App: Account Locked (one alert a week)"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 2
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: "The application locked an account after a login attempt."
+where: |
+  equals("action", "login") &&
+  equals("actionResult", "denied") &&
+  exists("origin.user")
+deduplicateBy:
+  - adversary.user
+```
+
+One open alert per account and application, every lockout kept under it:
+
+```yaml
+dataTypes:
+  - acme-webapp
+name: "Acme Web App: Account Locked (every lockout kept)"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 2
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: "The application locked an account after a login attempt."
+where: |
+  equals("action", "login") &&
+  equals("actionResult", "denied") &&
+  exists("origin.user")
+groupBy:
+  - adversary.user
+  - lastEvent.log.app
+```
+
+What happens when the account `bob` is locked three times in one week:
+
+| | With `deduplicateBy` | With `groupBy` |
+|---|---|---|
+| First lockout | A new alert. | A new alert. |
+| Second and third lockouts | Dropped. They are never stored and nobody is notified. | Stored as echoes (child alerts) under the first alert. They do not count toward the rule flood guard and are not emailed. |
+| If the first alert was already closed (Completed) | Still dropped, for 7 days after the first alert. | Stored as echoes, and the first alert is opened again. |
+| After 7 days | A new alert. | Still added to the first alert: grouping has no time limit. |
+
+Which to choose:
+
+- `deduplicateBy` for noisy, repetitive activity where one alert is enough: brute force, scans, policy blocks.
+- `groupBy` when every occurrence matters for the investigation: malware, privilege changes, data leaving the network.
+- You can set both. A repeat that matches `deduplicateBy` is dropped first; anything else is grouped by `groupBy`.
+
+The field names are those of the **alert**: `adversary.*`, `target.*`, `dataSource`, and `lastEvent.*` for any field of the event that raised the alert, such as `lastEvent.log.app`. `origin.*` does not exist on an alert. See **Rule File Format** and **How Alerts Are Created**.
+
+## 5. `adversary: target`: inside host connected to a listed address
+
+Most rules treat the event's `origin` as the attacker. Sometimes the attacker is the `target`: here a host in your network opened a connection to a known bad address, so the remote address, the event's target, is the adversary. The rule reads the `acme-edge` firewall events from Pipeline Examples example 2.
+
+```yaml
+dataTypes:
+  - acme-edge
+name: "Acme Edge: Inside Host Connected to a Listed Address"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Command and Control"
+technique: "T1071 - Application Layer Protocol"
+adversary: target
+description: |
+  A host in your network opened a connection that the firewall allowed, to an address on your block list. The remote address is the adversary; the inside host is the target.
+
+  Next Steps:
+  1. Find the program on the inside host that opened the connection.
+  2. Block the remote address at the edge.
+  3. Check other hosts for connections to the same address.
+references:
+  - "https://attack.mitre.org/techniques/T1071/"
+where: |
+  equals("actionResult", "success") &&
+  (inCIDR("origin.ip", "10.0.0.0/8") || inCIDR("origin.ip", "172.16.0.0/12") || inCIDR("origin.ip", "192.168.0.0/16")) &&
+  oneOf("target.ip", ["198.51.100.66", "203.0.113.200"])
+groupBy:
+  - adversary.ip
+  - target.ip
+```
+
+Sample log:
+
+```text
+date=2026-11-12 time=09:32:00 devname="edge01" type="traffic" srcip=10.0.0.21 srcport=50112 dstip=203.0.113.200 dstport=8443 proto=6 action="accept" policyid=3 sentbyte=880 rcvdbyte=1200 msg="Allowed"
+```
+
+How the event's sides become the alert's sides:
+
+| Event field | Value | Alert field |
+|---|---|---|
+| `target.ip`, `target.port` | `203.0.113.200`, `8443` | `adversary.ip`, `adversary.port` |
+| `origin.ip`, `origin.port`, `origin.bytesSent` | `10.0.0.21`, `50112`, `880` | `target.ip`, `target.port`, `target.bytesSent` |
+
+What to notice:
+
+- The condition is written with the **event** names (`origin.ip`, `target.ip`). `groupBy` uses the **alert** names, where `adversary.ip` is now the remote address.
+- With `adversary: origin`, the same alert would name your own host as the attacker, and response flows that block the adversary address would block your host.
+- The list in `oneOf` suits a handful of addresses. For a large or changing list, rely on threat intelligence instead; see **Threat Intelligence: How Indicator Alerts Work**.
+
+## 6. Rule for a custom data type: VPN login with a shared account
+
+A custom source only gets detections you write. This rule reads the `acme-vpn` events from Pipeline Examples example 3 and raises an alert when someone logs in with a shared or built-in account.
+
+```yaml
+dataTypes:
+  - acme-vpn
+name: "Acme VPN: Login With a Shared Account"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 0
+category: "Initial Access"
+technique: "T1078 - Valid Accounts"
+adversary: origin
+description: |
+  Someone logged in to the VPN with a shared or built-in account. These accounts cannot be traced to one person.
+
+  Next Steps:
+  1. Find out who used the account, from the source address and the time.
+  2. Disable VPN access for shared accounts.
+references:
+  - "https://attack.mitre.org/techniques/T1078/"
+where: |
+  equals("action", "login") &&
+  equals("actionResult", "success") &&
+  oneOf("origin.user", ["admin", "administrator", "root", "test", "guest"])
+deduplicateBy:
+  - adversary.user
+  - adversary.ip
+```
+
+Sample log:
+
+```text
+<134>Nov 12 09:31:00 vpn01 acmevpn[812]: Login succeeded for user admin from 198.51.100.23 port 40023
+```
+
+The rule raises a medium-severity alert with `adversary.user` `admin` and `adversary.ip` `198.51.100.23`. A successful login by `bob` and a failed login by `admin` raise none.
+
+For a custom data type, every link in this chain must use the same data type, spelled the same way:
+
+1. The custom integration gives the logs their data type, here `acme-vpn` (see **Custom Integrations**).
+2. A pipeline lists that data type in `dataTypes` and writes the fields the rule reads.
+3. The rule lists the same data type in `dataTypes`.
+
+If a rule names a data type that no pipeline lists, the engine writes "rule references dataTypes no pipeline produces" to its log, and the rule never sees an event.
+
+## Testing these examples
+
+- Single-event rules (examples 1, 4, 5 and 6): click **Test** in the rule editor, choose the data type, paste a sample raw log and click **Run**. Expect an alert under **Alerts**. Then paste a log that must not match and expect "No alerts were triggered."
+- Counting rules (examples 2 and 3): the test dialog cannot reach the count, because the earlier events must already be stored. Send real events, then check **Threat Management > Alerts**.
+- The test dialog runs the rule without de-duplication or grouping, so it cannot show the difference in example 4. Check it with real alerts.
+
+See **Testing Pipelines and Rules**.
+
+## Related pages
+
+- **Rule File Format**
+- **Condition Functions Reference**
+- **Pipeline Examples**
+- **Alerting Rules**
+- **Tuning Rules and Reducing False Positives**

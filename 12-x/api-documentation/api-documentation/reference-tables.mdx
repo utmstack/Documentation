@@ -23,7 +23,7 @@ Alerts are returned by `POST /api/v1/log-analyzer/search` with `"dataset": "aler
 | `adversary` | object | The acting side: `ip`, `host`, `user`, `domain`, `port`, `geolocation` and more |
 | `target` | object | The affected side, same fields as `adversary` |
 | `impact` | object | `confidentiality`, `integrity`, `availability` |
-| `impactScore` | integer | Impact score |
+| `impactScore` | integer | Impact score, shown as **Risk**: the highest of the three `impact` values, 0 to 3 |
 | `echoes` | integer | Number of echoes (in search answers) |
 | `lastEvent` | object | The most recent log that matched the rule |
 | `events` | array | The logs that raised the alert |
@@ -105,8 +105,8 @@ The `FilterType` object is used in log and alert search, top values, chart view,
 | `DOES_NOT_EXIST` | none | A nested field has no value | `{"field":"target.user","operator":"DOES_NOT_EXIST"}` |
 | `IS_BETWEEN` | list of 2 | In the range (both ends included) | `{"field":"@timestamp","operator":"IS_BETWEEN","value":["2026-11-01T00:00:00Z","2026-11-10T23:59:59Z"]}` |
 | `IS_NOT_BETWEEN` | list of 2 | Outside the range | `{"field":"impactScore","operator":"IS_NOT_BETWEEN","value":[0,2]}` |
-| `IS_GREATER_THAN` | string or number | Greater than | `{"field":"impactScore","operator":"IS_GREATER_THAN","value":3}` |
-| `IS_LESS_THAN_OR_EQUALS` | string or number | Less than or equal | `{"field":"impactScore","operator":"IS_LESS_THAN_OR_EQUALS","value":3}` |
+| `IS_GREATER_THAN` | string or number | Greater than | `{"field":"impactScore","operator":"IS_GREATER_THAN","value":2}` |
+| `IS_LESS_THAN_OR_EQUALS` | string or number | Less than or equal | `{"field":"impactScore","operator":"IS_LESS_THAN_OR_EQUALS","value":1}` |
 | `IS_IN_FIELDS` | string | The original log text contains the text (`logs` dataset only) | `{"field":"raw","operator":"IS_IN_FIELDS","value":"failed login"}` |
 | `IS_NOT_IN_FIELDS` | string | The original log text does not contain the text (`logs` dataset only) | `{"field":"raw","operator":"IS_NOT_IN_FIELDS","value":"healthcheck"}` |
 
@@ -251,10 +251,130 @@ All paths start with `/api/v1`.
 | POST | `/soc-ai/analyze` | Analyze an alert |
 | GET, PUT, DELETE | `/soc-ai/config` | AI provider configuration |
 | GET | `/soc-ai/usage` | Daily allowance |
+| **Rules and pipelines** (see **Rules and Pipelines API**) | | |
+| GET | `/eventprocessing/correlation-rule/search-by-filters` | List rules |
+| GET | `/eventprocessing/correlation-rule/find` | One rule (`relPath` query) |
+| GET | `/eventprocessing/correlation-rule/search-property-values` | Distinct values of a rule property |
+| POST, PUT, DELETE | `/eventprocessing/correlation-rule` | Create, update, delete a custom rule |
+| PUT | `/eventprocessing/correlation-rule/activate-deactivate` | Switch a rule on or off for your tenant |
+| POST | `/eventprocessing/correlation-rule/import` | Import rule files |
+| POST | `/eventprocessing/correlation-rule/export` | Export rules as a zip file |
+| GET, POST, PUT, DELETE | `/eventprocessing/pipelines` | List, create, update, delete pipelines |
+| GET | `/eventprocessing/pipelines/find` | One pipeline (`relPath` query) |
+| GET | `/eventprocessing/pipelines/data-types` | Data types the pipelines handle |
+| PUT | `/eventprocessing/pipelines/activate` | Switch a pipeline on or off for your tenant |
+| PUT | `/eventprocessing/pipelines/order` | Your tenant's pipeline order |
+| GET | `/eventprocessing/regex-pattern`, `/eventprocessing/regex-pattern/{id}` | Named grok patterns |
+| POST | `/eventprocessing/playground/test-pipeline`, `/eventprocessing/playground/test-rule` | Test a pipeline or rule with a sample log |
+| POST | `/platform/eventprocessing/correlation-rule/bulk/{create, update, delete, activate}` | Rules in many tenants (platform) |
+| POST | `/platform/eventprocessing/pipelines/bulk/{create, update, delete, activate}` | Pipelines in many tenants (platform) |
+| **Dashboards** (see **Dashboards API**) | | |
+| GET, POST, PUT | `/dashboards` | List, create, update dashboards |
+| GET, DELETE | `/dashboards/{id}` | Read, delete a dashboard |
+| GET, POST, PUT | `/dashboards/filters` | Dashboard filter chips |
+| DELETE | `/dashboards/filters/{id}` | Delete a filter chip |
+| GET, POST, PUT | `/visualizations` | List, create, update widgets |
+| GET, DELETE | `/visualizations/{id}` | Read, delete a widget |
+| POST | `/visualizations/query` | Run a widget query |
+| **Compliance** (see **Compliance API**) | | |
+| GET, POST | `/compliance/controls` | List, create controls |
+| GET, PUT, DELETE | `/compliance/controls/{id}` | Read, change, delete a control |
+| GET, POST | `/compliance/frameworks` | List, create frameworks |
+| GET, PUT, DELETE | `/compliance/frameworks/{key}` | Read, change, delete a framework |
+| GET | `/compliance/reports` | Report summaries |
+| GET, POST, DELETE | `/compliance/frameworks/{key}/report` | Read, evaluate, delete a report |
+| GET | `/compliance/frameworks/{key}/report.pdf` | Report as PDF |
+| PUT | `/compliance/frameworks/{key}/controls/{id}/status` | Verdict or note on a control |
+| GET | `/compliance/frameworks/{key}/history`, `/compliance/frameworks/{key}/history.pdf` | Score history, past report as PDF |
+| POST, PUT | `/compliance-report-schedules` | Create, update a schedule |
+| GET | `/compliance-report-schedules/by-user`, `/compliance-report-schedules/by-id/{id}` | Your schedules, one schedule |
+| DELETE | `/compliance-report-schedules/{id}` | Delete a schedule |
+| POST | `/platform/compliance/frameworks/bulk/{create, update, delete}`, `/platform/compliance/controls/bulk/{create, update, delete}` | Frameworks and controls in many tenants (platform) |
+| **Integrations** (see **Integrations API**) | | |
+| GET, POST | `/integrations` | List integrations, create a custom one |
+| GET, PUT, DELETE | `/integrations/{id}` | Read, change, delete an integration |
+| GET, PUT | `/integrations/config/{integration}` | List or save configuration groups |
+| DELETE | `/integrations/config/{integration}/{name}` | Delete a configuration group |
+| GET | `/integrations/collectors` | List Collectors |
+| GET, PUT | `/integrations/collectors/{id}/data-types/{dataType}` | Read or switch a log type on a Collector |
+| PUT | `/integrations/collectors/{id}/certificates` | Upload TLS certificates |
+| GET | `/integrations/collectors/{id}/tls-status` | Check TLS certificates |
+| **Threat intelligence** (see **Threat Intelligence API**) | | |
+| GET | `/threat-intel/status` | Is the instance registered with ThreatWinds |
+| POST | `/threat-intel/entity/lookup` | Look up one indicator |
+| POST | `/threat-intel/search`, `/threat-intel/search/advanced`, `/threat-intel/ai/search` | Search indicators |
+| GET | `/threat-intel/entity/{id}`, `/{id}/relations`, `/{id}/history`, `/{id}/comments` | Indicator details |
+| GET | `/threat-intel/report/definitions` | Indicator types for reports |
+| POST | `/threat-intel/report/entity` | Report an indicator |
+| GET | `/threat-intel/feeds`, `/threat-intel/feeds/download/{level}/{type}/{name}`, `/threat-intel/feeds/checksum` | Feeds |
+| POST | `/threat-intel/ai/chat` | AI Analyst chat |
+| GET, POST | `/threat-intel/analyst/conversations` | List or save AI Analyst conversations |
+| PUT, DELETE | `/threat-intel/analyst/conversations/{id}` | Change or delete a conversation |
+| GET | `/threat-intel/usage` | ThreatWinds allowance used (platform) |
+| GET, PUT | `/threat-intel/feeds/contribution` | Incident contribution switch (platform) |
+| **User Auditor** (see **User Auditor API**) | | |
+| GET | `/ad-audit/users` | List directory accounts |
+| GET | `/ad-audit/stats` | Account statistics |
+| GET, POST | `/ad-audit/identities` | List or create identities |
+| GET, PUT, DELETE | `/ad-audit/identities/{id}` | Read, rename, delete an identity |
+| PUT, PATCH | `/ad-audit/users/{id}/identity` | Assign an account to an identity, or remove it |
+| **Users, roles and your account** (see **Users and Roles API**) | | |
+| GET, POST | `/users` | List, create users |
+| GET, PUT, DELETE | `/users/{id}` | Read, change, deactivate a user |
+| PUT | `/users/{id}/roles` | Replace a user's roles |
+| POST | `/users/{id}/tfa/disable` | Reset a user's two-step sign-in |
+| GET, POST | `/roles` | List, create roles |
+| GET | `/roles/permissions` | Permission catalogue |
+| GET, PUT, DELETE | `/roles/{id}` | Read, change, delete a role |
+| PUT | `/auth/me` | Update your profile |
+| POST, DELETE | `/auth/me/avatar` | Your profile picture |
+| POST | `/auth/change-password` | Change your password |
+| GET, DELETE | `/auth/sessions` | List your sessions, sign out all others |
+| DELETE | `/auth/sessions/{id}` | Sign out one session |
+| POST | `/tfa/enroll`, `/tfa/disable` | Set up or turn off your two-step sign-in |
+| POST | `/auth/reset-password/init`, `/auth/reset-password/finish` | Password reset by email |
+| **Identity providers** (see **Identity Providers API**) | | |
+| GET, POST, PUT | `/identity-providers` | List, create, update providers (Enterprise for create and update) |
+| GET, DELETE | `/identity-providers/{id}` | Read, delete a provider |
+| GET | `/identity-providers/{id}/group-mappings` | Group-to-role mappings |
+| GET | `/idp-providers` | Active providers for the sign-in page (no sign-in needed) |
+| GET, POST | `/sso/{name}/login`, `/sso/{name}/acs`, `/sso/{name}/callback` | Browser sign-in addresses (not for scripts) |
+| POST | `/platform/identity-providers/bulk/{create, update, delete}` | Providers in many tenants (platform, Enterprise) |
+| **Tenants** (multi-tenant licence; see **Tenants API**) | | |
+| GET, POST | `/tenants` | List, create tenants (platform) |
+| GET, PUT, DELETE | `/tenants/{id}` | Read, update, terminate a tenant (platform) |
+| POST | `/tenants/{id}/reactivate` | Reactivate a tenant (platform) |
+| DELETE | `/tenants/{id}/permanent` | Delete a tenant for good (platform) |
+| GET, PUT | `/tenants/{id}/support-access` | Your tenant's support access setting |
+| **Settings, branding and licence** (see **Settings, Branding and Licence API**) | | |
+| GET | `/config` | List settings |
+| GET, PUT | `/config/{key}` | Read, change one setting |
+| POST | `/config/checkEmailConfiguration` | Send a test email |
+| GET | `/date-format` | Display time zone and date format (no sign-in needed) |
+| GET, PUT | `/branding` | Read, replace branding (Enterprise for changes) |
+| POST | `/branding/assets/{slot}` | Upload a branding image (Enterprise) |
+| GET | `/branding/public` | Public branding (no sign-in needed) |
+| POST | `/billing/license` | Install a licence (platform) |
+| POST | `/platform/config/smtp/bulk/update` | Email settings in many tenants (platform) |
+| POST | `/platform/branding/bulk/update`, `/platform/branding/bulk/upload-asset/{slot}` | Branding in many tenants (platform, Enterprise) |
+| **Audit log and notifications** (see **Audit Log and Notifications API**) | | |
+| GET | `/audit`, `/audit/{id}` | Audit log entries |
+| GET | `/notifications`, `/notifications/grouped`, `/notifications/unread-count` | Notifications |
+| GET, DELETE | `/notifications/{id}` | Read, delete a notification |
+| PUT | `/notifications/read-all`, `/notifications/{id}/read`, `/notifications/{id}/status` | Mark read, change status |
+| **Storage and retention** (platform, except `/storage/enabled`; see **Storage and Retention API**) | | |
+| GET | `/storage/enabled` | Is the Data Retention feature on |
+| GET, PUT | `/storage/retention` | Retention periods |
+| GET | `/storage/usage` | Records and size per dataset |
+| GET | `/storage/health` | Event store health |
+| GET, PUT | `/storage/tiering` | Cold storage |
+| **MCP server** (see **MCP Server**) | | |
+| GET | `/mcp/health` | MCP server status and tool count |
+| POST, GET, DELETE | `/mcp` | MCP Streamable HTTP endpoint for AI clients |
 
 ## UTMStack v11 to UTMStack v12 Path Map
 
-The method is unchanged unless the table says otherwise. Bodies, parameters and values also changed for most endpoints; the page named in the last column explains the new form.
+The method is unchanged unless the table says otherwise. UTMStack v11 endpoints for users, roles, rules, dashboards, compliance and settings were also replaced; use the endpoint list above to find the UTMStack v12 equivalent. Bodies, parameters and values also changed for most endpoints; the page named in the last column explains the new form.
 
 | UTMStack v11 | UTMStack v12 | Page |
 |---|---|---|

@@ -1,11 +1,11 @@
-UTMStack v12 starts with a self-signed certificate. This page explains how to replace it with a certificate your browsers trust, either one you already have or a free Let's Encrypt certificate, and how to renew it. SSL (more precisely TLS) is the encryption that protects HTTPS connections.
+UTMStack v12 starts with a self-signed certificate. This page explains how to replace it with a certificate your browsers and agents trust: one from your own certificate authority or a commercial one, or a free Let's Encrypt certificate. It also covers certificates for several names (for example tenant domains) and renewal. SSL, more precisely TLS, is the encryption that protects HTTPS connections.
 
 ## How UTMStack uses certificates
 
 - At installation the installer creates its own certificate authority and a server certificate in `/utmstack/cert`: `ca.crt`, `ca.key`, `utm.crt` and `utm.key`. They are RSA 4096-bit and valid for 10 years. Browsers do not trust them, so they show a warning.
-- **nginx on the host** serves `/utmstack/cert/utm.crt` and `/utmstack/cert/utm.key` on port 443 for every host name. This is the certificate browsers, API clients, agents and collectors see.
-- The same files are mounted into the UTMStack containers, which use them for connections inside the server.
-- The installer rewrites the nginx configuration on every update, and the new configuration always points to these two files. **Replace the files, not the paths.** Changes you make to the nginx configuration itself, including changes made by `certbot --nginx`, are lost at the next update.
+- **nginx on the host** serves `/utmstack/cert/utm.crt` and `/utmstack/cert/utm.key` on port 443, for every name the server is reached on. This is the certificate browsers, API clients, agents and collectors see.
+- The agent manager and log intake services also load these two files when they start, for connections inside the server.
+- The installer rewrites the nginx settings at every update, and they always point to these two files. **Replace the files, not the paths.** Changes you make to the nginx settings, including changes made by `certbot --nginx`, are lost at the next update.
 - There is no page in the web interface for certificates. You replace the files on the server.
 
 Agents install by default with the option **Skip TLS certificate validation (self-signed server)**, so they work with the self-signed certificate. After you install a trusted certificate, you can install new agents without that option.
@@ -16,10 +16,10 @@ You need two files in PEM format (text files that start with `-----BEGIN`):
 
 | File | Contents | Name in UTMStack |
 |---|---|---|
-| Certificate | Your server certificate followed by the intermediate certificates (the full chain) | `utm.crt` |
+| Certificate | Your server certificate first, followed by the intermediate certificates (the full chain) | `utm.crt` |
 | Private key | The private key of the certificate, without a passphrase | `utm.key` |
 
-The certificate must cover every name users and agents use to reach the server. On a multi-tenant licence, every tenant has its own domain on the same server, so the certificate must also cover every tenant domain, for example with a wildcard certificate.
+The certificate must cover every name that users and agents use to reach the server.
 
 <Warning>
 
@@ -27,7 +27,52 @@ Never share your private key. Keep it secure and backed up.
 
 </Warning>
 
+## Certificates for several names
+
+nginx serves one certificate for every name. If the server is reached on more than one name, one certificate must cover them all. This is always the case on a multi-tenant licence, where each tenant has its own domain (see **Tenants**).
+
+| Type | Covers | Good for |
+|---|---|---|
+| Certificate with several names (SAN, Subject Alternative Names) | Exactly the names listed in it, for example `siem.example.com`, `customer-a.example.net` and `customer-b.example.org` | Tenant domains under different parent domains. Add or remove a tenant by issuing a new certificate with the new list. |
+| Wildcard certificate | Every name one level below a domain, for example `*.siem.example.com` covers `customer-a.siem.example.com` and `customer-b.siem.example.com` | Tenant domains under one parent domain. New tenants need no new certificate. |
+
+A wildcard covers only one level: `*.siem.example.com` does not cover `siem.example.com` itself, nor `a.b.siem.example.com`. Add the parent name to the certificate as well if you use it.
+
+Example naming plan for a multi-tenant server: the operator signs in at `siem.example.com`, and tenants use `customer-a.siem.example.com`, `customer-b.siem.example.com` and so on. Create one wildcard DNS record `*.siem.example.com` pointing to the server, and one certificate for `siem.example.com` and `*.siem.example.com`.
+
 ## Method 1: Install a certificate you already have
+
+Use this for a certificate from your own certificate authority or a commercial one.
+
+### Request the certificate
+
+If your certificate authority needs a certificate signing request (CSR), create the key and the request on the server. Replace the names with yours:
+
+```bash
+sudo openssl req -new -newkey rsa:2048 -nodes \
+  -keyout /root/siem.example.com.key -out /root/siem.example.com.csr \
+  -subj "/CN=siem.example.com" \
+  -addext "subjectAltName=DNS:siem.example.com,DNS:*.siem.example.com"
+```
+
+Send the `.csr` file to your certificate authority. Keep the `.key` file on the server.
+
+### Prepare the files
+
+- **Separate certificate and intermediate files:** join them into one file, server certificate first:
+
+  ```bash
+  cat siem.example.com.crt intermediate.crt > fullchain.pem
+  ```
+
+- **A `.pfx` or `.p12` file** (common when the certificate comes from Windows): extract the chain and the key. Add `-legacy` to both commands if OpenSSL refuses an older file.
+
+  ```bash
+  openssl pkcs12 -in certificate.pfx -nokeys -out fullchain.pem
+  openssl pkcs12 -in certificate.pfx -nocerts -nodes -out private.key
+  ```
+
+### Install the files
 
 <Steps>
   <Step title="Back up the current files">
@@ -35,6 +80,16 @@ Never share your private key. Keep it secure and backed up.
     ```bash
     sudo cp /utmstack/cert/utm.crt /utmstack/cert/utm.crt.bak
     sudo cp /utmstack/cert/utm.key /utmstack/cert/utm.key.bak
+    ```
+
+  </Step>
+  <Step title="Check that the certificate and the key belong together">
+
+    The two lines must be identical:
+
+    ```bash
+    openssl x509 -noout -pubkey -in fullchain.pem | openssl sha256
+    openssl pkey -pubout -in private.key | openssl sha256
     ```
 
   </Step>
@@ -53,18 +108,28 @@ Never share your private key. Keep it secure and backed up.
     Use `cp`, not `mv`. On Red Hat Enterprise Linux, files copied into `/utmstack/cert` keep the security label the installer set on that folder.
 
   </Step>
-  <Step title="Check the files and reload nginx">
+  <Step title="Test the nginx settings and reload nginx">
 
     ```bash
-    # Show the names and dates of the certificate
-    openssl x509 -in /utmstack/cert/utm.crt -noout -subject -dates
-
-    # Test the nginx configuration, then reload it
+    openssl x509 -in /utmstack/cert/utm.crt -noout -subject -ext subjectAltName -dates
     sudo nginx -t
     sudo systemctl reload nginx
     ```
 
     If `nginx -t` reports an error, restore the `.bak` files and reload nginx again.
+
+  </Step>
+  <Step title="Restart the two services that also use the files">
+
+    This is not needed for browsers, but it confirms now, rather than at the next update, that the services accept the new files:
+
+    ```bash
+    sudo docker service update --force utmstack_agentmanager
+    sudo docker service update --force utmstack_log-input
+    sudo docker service ls --filter name=utmstack_
+    ```
+
+    Both services must show `1/1` again after a minute. If one does not, read its log (`sudo docker service logs --tail 50 utmstack_log-input`) and see **Troubleshooting** below.
 
   </Step>
   <Step title="Check in the browser">
@@ -76,12 +141,16 @@ Never share your private key. Keep it secure and backed up.
 
 ## Method 2: Get a free certificate from Let's Encrypt
 
-Let's Encrypt issues free certificates that are valid for 90 days. The examples use certbot, the Let's Encrypt client.
+Let's Encrypt issues free certificates that are valid for 90 days. The examples use certbot, the Let's Encrypt client, and a deploy hook that copies every new certificate into UTMStack.
 
-### Prerequisites
+### Choose how to prove that you own the names
 
-- A DNS name, for example `siem.example.com`, that points to the server's public IP address.
-- Port 80 on the server reachable from the internet while the certificate is issued or renewed. If you cannot open port 80, use the DNS challenge below.
+| Challenge | Needs | Good for |
+|---|---|---|
+| HTTP challenge, standalone | Every name points to the server in public DNS, and port 80 on the server is reachable from the internet. nginx is stopped for a moment at each issue and renewal. | One or a few names on a server reachable from the internet. |
+| DNS challenge | API access to your DNS provider through a certbot plugin. Port 80 and public access are not needed. | Wildcard certificates, and servers not reachable from the internet. |
+
+The nginx settings that UTMStack writes send every request on port 80 to HTTPS, so certbot's webroot method does not work, and the `--nginx` method's changes are lost at the next update. Use one of the two methods above.
 
 ### Install certbot
 
@@ -94,38 +163,15 @@ sudo apt install certbot
 
 On Red Hat Enterprise Linux, install the `certbot` package from the EPEL repository.
 
-### Get the certificate
+### Add the deploy hook first
 
-nginx on the server owns port 80 and redirects every request to HTTPS. certbot's standalone mode needs port 80 for a moment, so nginx is stopped while the certificate is issued. The web interface and agent connections are unavailable during that time, usually less than a minute.
-
-Replace `siem.example.com` with your DNS name:
+This script copies the certificate into UTMStack and reloads nginx. certbot runs it after every renewal. The commands below also name it with `--deploy-hook`, so that it runs after the first issue too:
 
 ```bash
-sudo certbot certonly --standalone -d siem.example.com \
-  --pre-hook "systemctl stop nginx" \
-  --post-hook "systemctl start nginx"
-```
-
-certbot asks for an email address and for your agreement to the Let's Encrypt terms of service. It saves the two hooks, so renewals stop and start nginx in the same way.
-
-Then copy the certificate into UTMStack and reload nginx:
-
-```bash
-sudo cp /etc/letsencrypt/live/siem.example.com/fullchain.pem /utmstack/cert/utm.crt
-sudo cp /etc/letsencrypt/live/siem.example.com/privkey.pem /utmstack/cert/utm.key
-sudo chmod 644 /utmstack/cert/utm.crt
-sudo chmod 600 /utmstack/cert/utm.key
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-### Renew automatically
-
-certbot installs a timer that renews certificates before they expire. Add a deploy hook so that every renewed certificate is copied into UTMStack:
-
-```bash
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
 sudo tee /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh > /dev/null <<'EOF'
 #!/bin/bash
-# Copy the renewed certificate into UTMStack and reload nginx
+# Copy the new certificate into UTMStack and reload nginx
 cp "$RENEWED_LINEAGE/fullchain.pem" /utmstack/cert/utm.crt
 cp "$RENEWED_LINEAGE/privkey.pem" /utmstack/cert/utm.key
 chmod 644 /utmstack/cert/utm.crt
@@ -135,38 +181,93 @@ EOF
 sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
 ```
 
-Check that a certbot renewal timer is listed and active (depending on how certbot was installed, you may have to enable it first), then test a renewal without changing anything:
+Back up `/utmstack/cert/utm.crt` and `utm.key` before the first issue, as in Method 1.
+
+### Option A: HTTP challenge (standalone)
+
+nginx on the server owns port 80. certbot's standalone mode needs port 80 for a moment, so the hooks stop nginx while the certificate is issued. The web interface and agent connections are unavailable during that time, usually less than a minute.
+
+```bash
+sudo certbot certonly --standalone --cert-name siem.example.com \
+  -d siem.example.com \
+  --pre-hook "systemctl stop nginx" \
+  --post-hook "systemctl start nginx" \
+  --deploy-hook /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
+```
+
+For several names, add one `-d` for each, for example `-d siem.example.com -d customer-a.example.net`. certbot asks for an email address and for your agreement to the Let's Encrypt terms of service, and remembers the hooks for renewals.
+
+### Option B: DNS challenge
+
+certbot has plugins for many DNS providers. Two examples:
+
+<CodeGroup>
+
+```bash Cloudflare
+sudo apt install python3-certbot-dns-cloudflare
+
+# Store an API token that can edit the zone's DNS records
+sudo mkdir -p /root/.secrets
+echo "dns_cloudflare_api_token = YOUR_API_TOKEN" | sudo tee /root/.secrets/cloudflare.ini > /dev/null
+sudo chmod 600 /root/.secrets/cloudflare.ini
+
+sudo certbot certonly --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
+  --cert-name siem.example.com \
+  -d "siem.example.com" -d "*.siem.example.com" \
+  --deploy-hook /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
+```
+
+```bash Amazon Route 53
+sudo apt install python3-certbot-dns-route53
+
+# Credentials come from the server's IAM role or from /root/.aws/credentials.
+# They need route53:ListHostedZones, route53:GetChange and
+# route53:ChangeResourceRecordSets on the hosted zone.
+sudo certbot certonly --dns-route53 \
+  --cert-name siem.example.com \
+  -d "siem.example.com" -d "*.siem.example.com" \
+  --deploy-hook /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
+```
+
+</CodeGroup>
+
+With the DNS challenge, nginx does not need to stop.
+
+### Check the result
+
+The deploy hook has already copied the certificate into `/utmstack/cert`. Check it:
+
+```bash
+openssl x509 -in /utmstack/cert/utm.crt -noout -subject -ext subjectAltName -dates
+sudo nginx -t
+```
+
+Then restart the agent manager and log intake once, as in step 5 of Method 1.
+
+### Renew automatically
+
+The certbot package installs a timer that renews certificates before they expire. Each renewal runs the deploy hook. Check the timer and test a renewal without changing anything:
 
 ```bash
 systemctl list-timers | grep certbot
 sudo certbot renew --dry-run
 ```
 
-With the standalone method, the test also stops nginx for a moment.
+Depending on how certbot was installed, you may have to enable the timer first. With the standalone method, the test also stops nginx for a moment.
 
-### Alternative: DNS challenge
+### Add or remove a name later
 
-If port 80 cannot be reached from the internet, prove that you own the domain with a DNS record instead. certbot has plugins for many DNS providers. For example, with Cloudflare:
+Issue the certificate again under the same name (`--cert-name`) with the complete new list of names. certbot replaces the certificate, the deploy hook copies it, and renewals continue:
 
 ```bash
-# Install the Cloudflare plugin
-sudo apt install python3-certbot-dns-cloudflare
-
-# Store the API token in a protected file
-sudo mkdir -p /root/.secrets
-echo "dns_cloudflare_api_token = YOUR_API_TOKEN" | sudo tee /root/.secrets/cloudflare.ini > /dev/null
-sudo chmod 600 /root/.secrets/cloudflare.ini
-
-# Get the certificate
-sudo certbot certonly \
-  --dns-cloudflare \
-  --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-  -d siem.example.com
+sudo certbot certonly --standalone --cert-name siem.example.com \
+  -d siem.example.com -d customer-a.example.net -d customer-c.example.com \
+  --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" \
+  --deploy-hook /etc/letsencrypt/renewal-hooks/deploy/utmstack.sh
 ```
 
-Then copy the files and add the deploy hook as described above. With the DNS challenge, nginx does not need to stop.
-
-For a wildcard certificate, for example for tenant domains, use the DNS challenge with `-d "*.example.com" -d "example.com"`.
+With a wildcard certificate, new tenant names under the same parent domain need no change.
 
 ## Monitor the certificate
 
@@ -174,11 +275,12 @@ For a wildcard certificate, for example for tenant domains, use the DNS challeng
 # Expiry date of the installed certificate
 openssl x509 -enddate -noout -in /utmstack/cert/utm.crt
 
-# Expiry date as clients see it
-echo | openssl s_client -servername siem.example.com -connect siem.example.com:443 2>/dev/null | openssl x509 -noout -dates
+# Expiry date and names as clients see them
+echo | openssl s_client -servername siem.example.com -connect siem.example.com:443 2>/dev/null \
+  | openssl x509 -noout -dates -ext subjectAltName
 ```
 
-Keep a copy of your certificate and key outside `/utmstack/cert`, so that you can put them back if the files are ever replaced. Do not delete files in `/utmstack/locks`: removing the certificate step's lock makes the installer generate a new self-signed certificate over yours.
+Keep a copy of your certificate and key outside `/utmstack/cert` so that you can put them back if the files are ever replaced. Do not delete files in `/utmstack/locks`: removing the certificate step's lock makes the installer create a new self-signed certificate over yours.
 
 ## Troubleshooting
 
@@ -186,7 +288,7 @@ Keep a copy of your certificate and key outside `/utmstack/cert`, so that you ca
   <AccordionTab title="The browser does not trust the certificate" icon="hi-window-solid">
 
     - Make sure `utm.crt` holds the full chain (use `fullchain.pem` from Let's Encrypt, not `cert.pem`).
-    - Make sure the certificate covers the name in the browser's address bar.
+    - Make sure the certificate covers the name in the browser's address bar. For tenant domains, see **Certificates for several names**.
     - Check that nginx was reloaded after you copied the files.
 
   </AccordionTab>
@@ -194,6 +296,14 @@ Keep a copy of your certificate and key outside `/utmstack/cert`, so that you ca
   <AccordionTab title="certbot reports that port 80 is in use" icon="fa fa-plug">
 
     nginx is still running. Use the `--pre-hook "systemctl stop nginx"` and `--post-hook "systemctl start nginx"` options shown above, or use the DNS challenge.
+
+  </AccordionTab>
+
+  <AccordionTab title="The HTTP challenge fails" icon="pi pi-globe">
+
+    - Every name must point to the server's public address in public DNS: check with `dig +short <name>`.
+    - Port 80 must be reachable from the internet while certbot runs, including in your cloud firewall or security group.
+    - If the server is not reachable from the internet, use the DNS challenge.
 
   </AccordionTab>
 
@@ -210,6 +320,18 @@ Keep a copy of your certificate and key outside `/utmstack/cert`, so that you ca
     ```
 
     If the key has a passphrase, remove it or use the original key. To go back, restore the `.bak` files and run `sudo systemctl reload nginx`.
+
+  </AccordionTab>
+
+  <AccordionTab title="Log intake or the agent manager does not start after the change" icon="hi-wrenchScrewdriver-outline">
+
+    Log intake reports "cannot read the certificate files" when it cannot load `utm.crt` or `utm.key`. Check the files as above, restore the `.bak` files if needed, and restart the service with `sudo docker service update --force utmstack_log-input` (or `utmstack_agentmanager`).
+
+  </AccordionTab>
+
+  <AccordionTab title="Agents stop connecting after the change" icon="fa fa-plug">
+
+    Agents installed with **Skip TLS certificate validation** are not affected. Agents installed without it check the certificate: it must be trusted by their system and must cover the name or address they were installed with. An agent installed with an IP address does not accept a certificate that covers only a DNS name.
 
   </AccordionTab>
 

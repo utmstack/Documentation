@@ -15,7 +15,7 @@ sudo /usr/local/bin/utmstack_installer --help
 
 | Argument | What it does |
 |---|---|
-| (none), `--install`, `-i` | Installs UTMStack. If the `UTMStackComponentsUpdater` service already exists, it only restarts that service and stops. |
+| (none), `--install`, `-i` | Installs UTMStack. If the `UTMStackComponentsUpdater` service is running, it only restarts that service and stops. |
 | `--uninstall`, `-u` | Uninstalls UTMStack. See **Uninstall**. |
 | `--version`, `-v` | Prints the installed version and edition, for example `UTMStack version: v12.0.2, edition: community`. |
 | `--help`, `-h` | Prints the list of arguments. |
@@ -26,52 +26,43 @@ sudo /usr/local/bin/utmstack_installer --help
 
 Any other argument prints the help.
 
-## Files and folders
+## Files the installer creates
 
-| Path | Contents |
+The installer creates `/root/utmstack.yml`, the data folder `/utmstack`, the installation log `/var/log/utmstack-installer.log`, the update service and its folder `/utmstack/updates`, and `compose.yml` next to the installer program (for updates this is `/usr/local/bin/compose.yml`). The complete list of folders and files, with what each holds, is in **Server Services and Files Reference**.
+
+### Installation steps and lock files
+
+The installer records each completed step as a file in `/utmstack/locks` and skips that step when it runs again, for example after a failed installation or during an update. Do not delete these files: a missing lock makes the step run again at the next update, for example the certificate step creates a new self-signed certificate over yours.
+
+| Step | Lock file |
 |---|---|
-| `/root/utmstack.yml` | Settings and secrets generated at installation. Do not change or delete it. |
-| `/var/log/utmstack-installer.log` | Detailed installation log. |
-| `/utmstack/cert` | Certificates: `utm.crt` and `utm.key` (used by nginx and the services), `ca.crt` and `ca.key`. See **SSL certificate**. |
-| `/utmstack/clickhouse/data` | Logs, alerts and statistics (ClickHouse). |
-| `/utmstack/clickhouse/cold` | Cold storage when you choose a local or NFS folder. |
-| `/utmstack/clickhouse/init`, `/conf`, `/config.d` | ClickHouse table definitions and configuration. |
-| `/utmstack/nats` | The message queue between log intake and processing. |
-| `/utmstack/valkey` | The sign-in session cache. |
-| `/utmstack/events-engine-workdir` | Event processor files: `pipeline`, `rules`, `soar`, `compliance` and `logs`. |
-| `/utmstack/uploads` | Uploaded images such as avatars and branding. |
-| `/utmstack/front-end/nginx` | nginx configuration of the web container. Rewritten on every update. |
-| `/utmstack/locks` | One file per completed installation step. Do not delete these files. |
-| `/utmstack/images` | Container image files for air-gapped installations. |
-| `/utmstack/updates` | Update service files (see below). |
-| `compose.yml` next to the installer | The service definitions the installer deployed. For updates this is `/usr/local/bin/compose.yml`. |
-| Docker volume `postgres_data` | The PostgreSQL databases `utmstack` and `agentmanager`: users, tenants, settings, incidents and other configuration. It is not under `/utmstack`. |
+| Checking system requirements | `202501131200.lock` |
+| Generating certificates | `1.lock` |
+| Preparing the system | `2.lock` |
+| Preparing the kernel | `202402081552.lock` |
+| Configuring VLAN | `202402081553.lock` |
+| Configuring Docker | `3.lock` |
+| Initializing Swarm | `4.lock` |
+| Installing administration tools (Cockpit) | `5.lock` |
+| Initializing the UTMStack and AgentManager databases | `6.lock` |
+| Generating the Base URL | `9.lock` |
 
-Files in `/utmstack/updates`:
-
-| File | Contents |
-|---|---|
-| `version.json` | Installed version, edition and change log. |
-| `instance-config.yml` | The instance ID and key this server received from the UTMStack update server. |
-| `LICENSE` | The installed licence file. |
-| `pending-updates.json` | An update that has been downloaded but not yet applied. |
-| `memory-allocation.json` | Memory limits of the services. |
-| `last-admin-email.txt` | The administrator email address last sent to the update server. |
-| `logs/utmstack-updater.log` | Update service log. |
+These steps run every time, at installation and at every update: generating the stack configuration (including the memory check on a first run), downloading the images and deploying the services, writing the nginx settings and restarting nginx, waiting for the backend, and cleaning up unused Docker images.
 
 ### Contents of /root/utmstack.yml
 
 | Key | Meaning |
 |---|---|
-| `main_server` | The server's main IP address, detected at each run. |
+| `main_server` | The server's main IP address: the address it uses to reach the internet. Detected at each run. |
 | `branch` | The release channel. Leave it unchanged. |
 | `password` | Generated password (16 characters). It is the PostgreSQL, ClickHouse and Valkey password and the first password of the `admin` user. |
 | `data_dir` | Data folder. Default `/utmstack`. |
 | `server_type` | Installation type. Default `aio` (all in one). |
-| `server_name` | The server's host name. |
+| `server_name` | The server's host name, read at each run. |
 | `internal_key` | Generated key (32 characters) that UTMStack services use to call each other. |
 | `shared_key` | Generated key (32 characters) that nginx on the host adds to every request it forwards to the web container. |
 | `updates_folder` | Folder of the update service. Default `/utmstack/updates`. |
+| `mapping_name` | Optional. Not written unless set. When set, it is sent to the UTMStack update server at registration. |
 
 <Warning>
 
@@ -81,27 +72,13 @@ This file contains the database password and the internal keys. Keep it readable
 
 ## Docker services
 
-The installer deploys one Docker Swarm stack named `utmstack`. Use these names with `docker service logs` and `docker service ps`:
+The installer deploys one Docker Swarm stack named `utmstack` with 10 services: `utmstack_frontend`, `utmstack_backend`, `utmstack_agentmanager`, `utmstack_log-input`, `utmstack_nats`, `utmstack_event-processor-worker`, `utmstack_event-processor-manager`, `utmstack_clickhouse`, `utmstack_postgres` and `utmstack_valkey`. Use these names with `docker service logs` and `docker service ps`. What each service does is described in **Server Services and Files Reference**.
 
-| Service | Purpose |
-|---|---|
-| `utmstack_frontend` | Web interface and internal router |
-| `utmstack_backend` | REST API |
-| `utmstack_agentmanager` | Agent and collector management |
-| `utmstack_log-input` | Log intake |
-| `utmstack_nats` | Message queue |
-| `utmstack_event-processor-worker` | Parsing and correlation |
-| `utmstack_event-processor-manager` | Event processor management, SOC-AI and playground |
-| `utmstack_clickhouse` | Log, alert and statistics storage |
-| `utmstack_postgres` | Configuration database |
-| `utmstack_valkey` | Session cache |
+<Warning>
 
-For example:
+Do not change the services with `docker service update` options such as `--env-add` or `--limit-memory`, and do not edit `compose.yml`. The installer redeploys the stack from its own definition at every update and with `--apply-memory` or `--recalculate-memory`, which undoes such changes. Use the memory options below to change memory limits.
 
-```bash
-docker service ls
-docker service logs --tail 100 utmstack_event-processor-worker
-```
+</Warning>
 
 ## Memory limits
 
@@ -121,7 +98,7 @@ The installer gives each service a memory limit. It takes the server's total mem
 
 The minimums add up to 12,360 MB. With the 1,000 MB kept for the system, the installer needs at least 13,360 MB of memory. The `event-processor` value is the limit of each of the two event processor services (worker and manager).
 
-The result is saved in `/utmstack/updates/memory-allocation.json` and reused by every update, so manual changes survive updates.
+The result is saved in `/utmstack/updates/memory-allocation.json` and reused by every update, so manual changes survive updates. For the limits the installer calculates on 16, 32, 64 and 128 GB servers, see **Sizing and Capacity Planning**.
 
 ### Change the memory limits by hand
 

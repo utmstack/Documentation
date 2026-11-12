@@ -1,8 +1,22 @@
-On a server with a multi-tenant licence, the instance operator cannot look inside a customer's tenant unless the customer allows it. The tenant's administrator grants this **support access**, and the operator then uses a **support session** to work inside the tenant. This page explains both sides.
+On a server with a multi-tenant licence, whoever runs the server (the instance operator, often your managed security provider) cannot look inside your tenant unless you allow it. You allow it with **Support access**. This page is for tenant administrators: it explains the three levels, how to change them, and how to see what the operator did.
 
-## For tenant administrators: grant or take back support access
+## Who can set support access
 
-You need the **Administrator** role in your own tenant. The page exists only on a multi-tenant licence and is not shown to the instance operator.
+- You need the **Administrator** role in your own tenant, signed in on your tenant's own address.
+- The page exists only on a multi-tenant licence. It is not shown to the instance operator, and the operator cannot change it for you.
+- It cannot be changed for a deactivated tenant.
+
+## The levels
+
+| Level | Description shown on the page | What it means in practice |
+|---|---|---|
+| **No access** (default) | "The operator sees that your tenant exists and nothing else. Requests into your data are refused." | The operator sees your tenant's name, domain and status on their **Tenants** page, but no counts and no data, and cannot enter your tenant. |
+| **Read only** | "The operator can look at your alerts, logs and configuration to help you. They cannot change anything — every write is refused, whatever their own role says." | The operator can open your pages and settings. Every change is refused. In UTMStack v12.0.2 the alert list, Log Explorer, dashboard charts and the SOC-AI assistant also do not work in a read-only session (see **Working Inside a Tenant**). |
+| **Full access** | "The operator can act inside your tenant as an administrator: change configuration, users and response flows." | The operator works with Administrator rights: they can change settings, users, integrations, rules and flows. Their changes are real. |
+
+With **Read only** or **Full access**, the operator's **Tenants** page also shows your number of users, data sources, open alerts and AI requests used today.
+
+## Change the level
 
 <Steps>
 
@@ -14,56 +28,43 @@ Go to **Configure > Settings > Support access**.
 
 <Step title="Choose a level">
 
-| Level | What the operator can do |
-|---|---|
-| **No access** (default) | The operator sees only that your tenant exists. Requests into your data are refused. |
-| **Read only** | The operator can look at your alerts, logs and configuration to help you, but cannot change anything. Every change is refused, whatever the operator's own role. |
-| **Full access** | The operator can act inside your tenant as an administrator: change configuration, users and response flows. |
+Click **No access**, **Read only** or **Full access**. The level in force is marked **current**. When you choose **Full access**, the page warns: "Full access lets the operator change things on your behalf. Grant it while you need hands-on help, and drop back afterwards."
 
 </Step>
 
 <Step title="Save">
 
-Click **Save**. The level marked **current** is the one in force.
+Click **Save**. You see "Support access updated", or "Support access revoked" when you choose **No access**.
 
 </Step>
 
 </Steps>
 
-You can change the level or set it back to **No access** at any time; the change applies at once.
+The new level applies to the operator's very next request, even while they are working inside your tenant. Your change is recorded in your audit log as `tenant.support_access.set`.
 
 <Tip>
 
-Grant **Full access** only while you need hands-on help, and go back to **Read only** or **No access** afterwards.
+Grant **Full access** only for the time you need hands-on help, for example during onboarding, and go back to **Read only** or **No access** afterwards.
 
 </Tip>
 
-Everything the operator does inside your tenant is recorded in your tenant's audit log (see **App Audit Logs**).
+## See what the operator did
 
-## For the instance operator: work inside a tenant
+"Everything the operator does here is recorded in your audit log." Each change the operator makes inside your tenant appears in **Configure > Settings > App Audit Logs** with the operator's email address as the user. Use the **User** filter to list only their actions. See **App Audit Logs**.
 
-You must be the instance operator (see **Settings Overview**), and the tenant must have granted you **Read only** or **Full access**. The tenant card on the Tenants page shows the level each tenant has granted.
+## What the instance operator cannot do, whatever you choose
 
-### Enter a tenant
+- Change your support access level.
+- Sign in on your tenant's address with their own account: their account exists only in their own tenant.
 
-Use either of these:
+## Messages
 
-- On the **Tenants** page, click **Enter** on the tenant's card.
-- In the top bar, open the tenant switcher (**Switch tenant**) and choose the tenant. The switcher lists only tenants that have granted you access.
+| Message | Meaning |
+|---|---|
+| "Only an administrator of this tenant can change this" | You are not an Administrator of this tenant. |
+| "Could not read the current setting." | The page could not load the level. Click **Retry**. |
+| "Could not save the change" | The change was not saved. Try again. |
 
-A banner at the top of every page then says **You are working inside**, followed by the tenant name and either:
+## For the instance operator
 
-- **read only — writes are refused**, or
-- **full access — changes here are real**.
-
-While you are inside a tenant, you see that tenant's data and settings, and the operator-only pages (License, Data Retention, ThreatWinds Integration, About, Tenants) are hidden.
-
-### Leave the tenant
-
-Click **Leave** in the banner, or choose **Default tenant** in the tenant switcher. You are back in your own tenant.
-
-### What to expect
-
-- With **Read only**, you can open pages and searches, but saving, deleting or running anything is refused.
-- With **Full access**, your changes are real changes in the customer's tenant. They appear in the customer's audit log under your name.
-- If the tenant takes access back while you are inside, your next request is refused.
+How to enter a tenant, what the banner shows, what works at each level and how to leave are described in **Working Inside a Tenant**.

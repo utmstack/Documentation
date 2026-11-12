@@ -7,6 +7,8 @@ You build a flow in the flow editor: you set the trigger conditions, drag steps 
 
 ## Editor layout
 
+![The flow editor in Visual mode: the palette of step types on the left, the canvas with the Alert match trigger and wired steps in the middle, the When panel with the trigger conditions and Save and close on the right, Edit with AI and the Visual and Code tabs at the top, and Delete and Save at the bottom](/assets/acb09dcc-5184-4700-bf1e-10f82a6e4ec9)
+
 | Part | What it does |
 |---|---|
 | **Visual** tab | The canvas. You drag steps from the palette and wire them together. |
@@ -21,7 +23,13 @@ You can hide the side panels with **Hide palette** and **Hide inspector**.
 
 ## Set the trigger conditions
 
-Select the trigger node ("When — An alert matches all of these conditions") and add conditions. Each condition has a field, an operator and a value. The flow runs only when **all** conditions match.
+Select the trigger node ("When — An alert matches all of these conditions") and add conditions with **Add condition**. Each condition has a field, an operator and a value. The flow runs only when **all** conditions match ("The flow runs when an alert matches ALL of these conditions."). Click **Save and close** to keep the conditions.
+
+How matching works:
+
+- Conditions are checked when a correlation rule raises an alert, before anyone has looked at it.
+- Every matching alert can start its own run. UTMStack does not limit how many runs a flow starts, so a rule that fires often starts the flow often. Narrow conditions matter.
+- After you save a flow or switch it on, the engine picks up the change when the flow file changes, and in any case within about a minute.
 
 The field picker offers these alert fields. They are read from the alert at the moment it is raised, so there is no alert status to match on.
 
@@ -85,7 +93,13 @@ The palette sections **Windows**, **Linux** and **MacOS** hold ready-made shell 
 - Uninstall a package
 - Remove file
 
-Each is written for the platform's default shell (cmd on Windows, bash elsewhere). Some contain markers you must replace before you save: `<PID>` in "Kill process by PID", `<SESSION_ID>` in the Windows "Log user out", `<PACKAGE>` in "Uninstall a package" and `<PATH>` in "Remove file". "Isolate host (block all traffic)" also cuts the machine's connection to UTMStack, so you cannot undo it from UTMStack.
+Each is written for the platform's default shell (cmd on Windows, bash elsewhere). The same commands are in the **Templates** menu of every Shell step, written for the shell you chose. Some contain markers you must replace before you save: `<PID>` in "Kill process by PID", `<SESSION_ID>` in the Windows "Log user out", `<PACKAGE>` in "Uninstall a package" and `<PATH>` in "Remove file". "Isolate host (block all traffic)" also cuts the machine's connection to UTMStack, so you cannot undo it from UTMStack; **Worked Examples: Responding Through Other Systems** shows an isolation that keeps the agent connected.
+
+<Warning>
+
+The PowerShell version of "Disable target user" (in the **Templates** menu of a step whose shell is `powershell`) puts double quotes around `$(alert.target.user)`. Remove those quotes: UTMStack already quotes the value for PowerShell, and the two sets of quotes together make the account name wrong. The `cmd` version, which the Windows palette section uses, is correct as it is. See **Placeholders**.
+
+</Warning>
 
 ## Wire the steps
 
@@ -202,3 +216,4 @@ If an AI provider is set up, **Using AI** in the **New flow** dialog and **Edit 
 - **Placeholders**
 - **Step Outputs and Variables**
 - **Running Steps on Another Host**
+- **Troubleshooting Flows**

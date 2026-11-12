@@ -1,0 +1,117 @@
+This page helps you find out why logs from a source are missing, late, unparsed or stored in the wrong place in UTMStack v12. Start with the symptom that matches yours; each section points to the page with the detailed fixes.
+
+## Start here
+
+| Symptom | Go to |
+|---|---|
+| No source sends anything any more | "Nothing arrives from any source" |
+| One source, or one kind of source, is missing | "One source is missing" |
+| Logs arrive but fields are empty, or `errors` is filled | "Logs arrive but are not parsed" |
+| Logs show under the wrong data type, source name or tenant | "Logs are in the wrong place" |
+| Logs arrive, but expected alerts do not | "Rules do not fire" |
+| Events are late, have odd times, or appear twice | "Timing and duplicates" |
+
+## Nothing arrives from any source
+
+If every source stopped at the same time, the problem is on the UTMStack server or on the network path to it, not on the sources.
+
+1. Open **Configure > Data Processing** and look at **Received** for the last hour. Zero means nothing reaches the event processor. Remember that these figures can lag by up to 10 minutes.
+2. Check that the server answers on 443 from a source host: `curl -k -I https://<server>/`.
+3. If you recently changed the server's address or certificate, see **Reinstall, Move or Remove an Agent** ("Change the server address agents use").
+4. If you run the server yourself, check its health and disk space. See **Updates** and **Data Retention and Cold Storage**.
+
+## One source is missing
+
+First, find out whether UTMStack received anything from it recently. In **Log Explorer**, switch to SQL mode and list the sources that stopped sending in the last week:
+
+```sql
+SELECT dataType, dataSource, max(`@timestamp`) AS last_event, count() AS events
+FROM logs
+WHERE `@timestamp` > now() - INTERVAL 7 DAY
+GROUP BY dataType, dataSource
+HAVING last_event < now() - INTERVAL 1 HOUR
+ORDER BY last_event
+LIMIT 100
+```
+
+The **Data Sources** page shows the same from another angle: **Idle** and **Offline** sources, and a "possible log gap" warning in each source's details. See **Data Sources Page**.
+
+![Data Sources page with the Offline tab and the Status and Last seen columns of each source](/assets/656f1e19-5c8a-4063-b215-a4919c985bb8)
+
+Then follow the page for the way the source sends:
+
+| Source | Check first | Detailed page |
+|---|---|---|
+| Windows, Linux or macOS agent | Is the agent **Live** on the Data Sources page? Does `status` on the host show recent events? | **Agent Troubleshooting** |
+| Device through the Forwarder | Is the Collector online in the device's guide? Do packets reach the Forwarder host (`tcpdump`)? | **Forwarder Troubleshooting** |
+| Cloud integration | Is the config group still on the card? Did the credentials or permissions change at the provider? | The integration's own page, section "Troubleshooting" |
+| IBM AS/400 | Is the `UTMStackAS400Collector` service running? | **IBM AS/400 (IBM i) Collector** |
+| Custom integration | Is the listener open on the Collector, on the port the source uses? | **Custom Integrations** |
+
+## Logs arrive but are not parsed
+
+A log is parsed when its pipeline turns the raw text into fields. When a pipeline step fails, UTMStack still stores the log, keeps the raw text in `raw`, and writes the reason to the `errors` field. Pipelines can also discard logs, which shows as **Dropped (parsing)** on **Configure > Data Processing**.
+
+### Find logs that fail parsing
+
+1. Open **Configure > Data Processing**, choose **24h**, and in **Top sources & types** show **Dropped (parsing)** by data type. A data type with many drops has a format problem.
+2. In **Log Explorer**, switch to SQL mode and count stored events with errors per data type:
+
+   ```sql
+   SELECT dataType, count() AS events_with_errors
+   FROM logs
+   WHERE notEmpty(errors)
+     AND `@timestamp` > now() - INTERVAL 1 DAY
+   GROUP BY dataType
+   ORDER BY events_with_errors DESC
+   LIMIT 50
+   ```
+
+3. Look at a few of them, with the start of the error text:
+
+   ```sql
+   SELECT `@timestamp`, dataSource, substring(arrayStringConcat(errors, ' | '), 1, 300) AS error_text, raw
+   FROM logs
+   WHERE dataType = 'firewall-paloalto'
+     AND notEmpty(errors)
+     AND `@timestamp` > now() - INTERVAL 1 DAY
+   ORDER BY `@timestamp` DESC
+   LIMIT 20
+   ```
+
+   Replace `firewall-paloalto` with the data type from step 2.
+
+4. Copy a `raw` value and test it with **Test pipeline** on **Configure > Pipelines**. The result shows which step fails. See **Testing Pipelines and Rules**.
+
+### Common causes
+
+| Cause | Fix |
+|---|---|
+| The device sends another log format than the pipeline expects (for example CEF instead of CSV, or a custom log format). | Set the device to the format its integration page names. |
+| The device sends to another integration's port, so the wrong pipeline runs. | Point it at its own integration's port. |
+| Messages are cut, so the end of each line is missing. | Over UDP the Forwarder keeps 2,048 bytes per message. Use TCP or TLS. |
+| A new device firmware changed the log format. | Test a sample; adjust or add a pipeline. See **Pipelines**. |
+| A pipeline you wrote has a broken condition or pattern. | Saving does not check them. Test the pipeline and fix it. |
+| The data type has no pipeline (for example a new custom integration). | Write one. See **Custom Integrations**. |
+
+## Logs are in the wrong place
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Wrong data type | Through the Forwarder, the port decides the data type. | Send to the right port. Logs already stored keep their data type. |
+| Wrong data source name | Through the Forwarder, the data source is the IP address the Forwarder sees. A NAT device or a relay (another syslog server) in between replaces the original address. | Send directly to the Forwarder where you can. Otherwise use the host field inside the log (for example `origin.host`) to tell senders apart. |
+| Wrong tenant (multi-tenant installs) | Agents and Forwarders store logs in the tenant whose install command was used. | Reinstall from inside the right tenant. See **Reinstall, Move or Remove an Agent** and **Forwarder Placement and Sizing**. |
+
+## Rules do not fire
+
+1. Check that the events have the fields the rule reads. Open the rule on **Configure > Alerting Rules** and compare its condition with an event in Log Explorer. Missing standard fields usually mean a parsing problem (see above).
+2. Check that the rule is active for your tenant. Rules that raised too many alerts can be switched off automatically. See **Rule Flood Guard**.
+3. For Windows hosts, check that the audit policy records the events the rule needs. See **Windows Agent**.
+4. Test the rule with a real event. See **Testing Pipelines and Rules**.
+
+## Timing and duplicates
+
+- **`@timestamp`** is when the log was collected: when the agent read it on the host, or when UTMStack received it from the Forwarder or a cloud service. **`deviceTime`** is the time written inside the log, when the pipeline can read it. Searches and the time picker use `@timestamp`.
+- An agent that catches up after an outage keeps the time it read each log. Logs that reach a Forwarder late (for example from a device that queued them) get the time they arrived, and keep their own time in `deviceTime`.
+- Set every device's clock with NTP and check its time zone, so `deviceTime` is right.
+- A source can be stored twice if it is sent to two Forwarders, or if an agent re-sends logs the server had not confirmed in time. Repeated copies of one agent log share the same `id`.

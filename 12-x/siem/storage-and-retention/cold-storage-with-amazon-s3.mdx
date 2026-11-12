@@ -1,0 +1,420 @@
+This guide sets up Amazon S3 (Amazon Simple Storage Service, AWS's object storage) as cold storage for UTMStack v12, from creating the bucket to checking that records arrive in it. It covers both ways UTMStack can sign in to S3: an access key of an IAM (AWS Identity and Access Management) user, or the IAM role of the EC2 instance UTMStack runs on.
+
+For what cold storage is and how it behaves, read **How UTMStack Stores Data** first.
+
+## Before you start
+
+- **In UTMStack:** you need to be the instance operator (a user with the **Administrator** role in the default tenant). See **Settings Overview**.
+- **In AWS:** you need permission to create S3 buckets and IAM policies, users or roles.
+- **Network:** the UTMStack server must reach the S3 endpoint of your bucket's region on port 443 (HTTPS). If the server is in a private subnet, it needs a NAT gateway or an S3 gateway endpoint.
+- **Decide how UTMStack signs in to S3:**
+
+| Method | Use it when | What you create |
+|---|---|---|
+| IAM role (recommended in AWS) | UTMStack runs on an Amazon EC2 instance | An IAM role attached to the instance. UTMStack stores no keys, and AWS rotates the temporary credentials for you. |
+| Access key | UTMStack runs anywhere else (on premises, another cloud) | An IAM user with an access key. UTMStack stores the key. |
+
+- **Decide your retention first.** See **Planning Retention and Disk Space**.
+
+<Warning>
+
+Pick the bucket carefully. Once records have moved to a bucket, keep using that bucket: if you point UTMStack at a different bucket, the records already moved stay in the old one and can no longer be read from UTMStack. You can change the keys at any time.
+
+</Warning>
+
+## Step 1: Choose the region
+
+Create the bucket in the same AWS region as the UTMStack server if the server runs in AWS. Traffic between EC2 and S3 in the same region has no data transfer charge and the lowest delay. If the server runs outside AWS, choose the region closest to it.
+
+Write down the region code, for example `eu-west-1`. You need it for the Bucket URL.
+
+## Step 2: Create the bucket
+
+Use a bucket only for UTMStack cold storage. Do not share it with other applications or with another UTMStack server.
+
+<Steps>
+
+<Step title="Open the S3 console">
+
+In the AWS Management Console, open **S3** and click **Create bucket**. Check that the region at the top of the console is the one you chose.
+
+</Step>
+
+<Step title="Name the bucket">
+
+Choose **General purpose** and enter a **Bucket name**, for example `utmstack-cold-example`. Bucket names are unique across all of AWS and use lowercase letters, numbers and hyphens. Avoid dots in the name: they cause certificate errors with the recommended URL format.
+
+</Step>
+
+<Step title="Keep the safe defaults">
+
+| Setting | Choose |
+|---|---|
+| Object Ownership | **ACLs disabled (recommended)** |
+| Block Public Access settings | **Block all public access** (on) |
+| Bucket Versioning | **Disable** |
+| Default encryption | **Server-side encryption with Amazon S3 managed keys (SSE-S3)**, or SSE-KMS if your policy requires your own key (see Step 4) |
+| Bucket Key | **Enable** if you choose SSE-KMS. It lowers the cost of KMS requests. |
+| Object Lock (under Advanced settings) | **Disable** |
+
+</Step>
+
+<Step title="Create">
+
+Click **Create bucket**.
+
+</Step>
+
+</Steps>
+
+The same with the AWS CLI (command line interface):
+
+```bash
+REGION=eu-west-1
+BUCKET=utmstack-cold-example
+
+# For us-east-1, leave out --create-bucket-configuration.
+aws s3api create-bucket --bucket "$BUCKET" --region "$REGION" \
+  --create-bucket-configuration LocationConstraint="$REGION"
+
+aws s3api put-public-access-block --bucket "$BUCKET" \
+  --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+New buckets are encrypted with SSE-S3 by default; you do not need a command for that.
+
+### Optional: clean up unfinished uploads
+
+The event store uploads large files in several pieces. If an upload is interrupted, the pieces stay in the bucket and are billed. A lifecycle rule that deletes incomplete multipart uploads is safe, because it never touches complete objects:
+
+1. Open the bucket, then **Management > Create lifecycle rule**.
+2. Name it, for example `abort-incomplete-uploads`, and choose **Apply to all objects in the bucket**.
+3. Under **Lifecycle rule actions**, tick only **Delete expired object delete markers or incomplete multipart uploads**, then tick **Delete incomplete multipart uploads** and enter `7` days.
+4. Click **Create rule**.
+
+Do not add any other lifecycle rule. See **Rules that break cold storage** below.
+
+## Step 3: Create the permission policy
+
+UTMStack needs to list the bucket, and to read, write and delete objects in it. The event store writes each moved block of records as several objects, reads them when someone searches old data, and deletes them when the records reach **Delete after** or when it merges blocks.
+
+| Action | Why the event store needs it |
+|---|---|
+| `s3:ListBucket` | List objects. Also lets S3 answer "not found" instead of "access denied" when an object does not exist, which the event store relies on. |
+| `s3:GetBucketLocation` | Find the bucket's region |
+| `s3:PutObject` | Write objects, including large objects uploaded in several parts |
+| `s3:GetObject` | Read objects when searching cold data |
+| `s3:DeleteObject` | Delete objects at the end of retention, after merges, and the test file written when you enable cold storage |
+| `s3:AbortMultipartUpload` | Cancel an upload that failed, so its parts do not stay in the bucket |
+
+Create a policy with this content. Replace `utmstack-cold-example` with your bucket name in both places.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UTMStackColdStorageBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::utmstack-cold-example"
+    },
+    {
+      "Sid": "UTMStackColdStorageObjects",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": "arn:aws:s3:::utmstack-cold-example/*"
+    }
+  ]
+}
+```
+
+In the console: **IAM > Policies > Create policy**, open the **JSON** tab, paste the policy, click **Next**, name it `UTMStackColdStorage` and click **Create policy**.
+
+With the CLI, save the policy as `utmstack-cold-policy.json` and run:
+
+```bash
+aws iam create-policy --policy-name UTMStackColdStorage \
+  --policy-document file://utmstack-cold-policy.json
+```
+
+The command prints the policy ARN (Amazon Resource Name). Keep it for the next step.
+
+## Step 4 (only for SSE-KMS): allow the encryption key
+
+If the bucket's default encryption uses a KMS key that you manage, add this statement to the policy, with your key's ARN. Writing needs `kms:GenerateDataKey` and reading needs `kms:Decrypt`.
+
+```json
+{
+  "Sid": "UTMStackColdStorageKms",
+  "Effect": "Allow",
+  "Action": [
+    "kms:GenerateDataKey",
+    "kms:Decrypt"
+  ],
+  "Resource": "arn:aws:kms:eu-west-1:111122223333:key/your-key-id"
+}
+```
+
+If the key policy does not delegate access to IAM, also allow the user or role in the key policy itself.
+
+Use the bucket's default encryption to encrypt objects. Do not add a bucket policy that refuses uploads without an encryption header: the event store does not send one, so every move would be refused.
+
+## Step 5: Give UTMStack access
+
+Follow **5A** if UTMStack runs on an EC2 instance, or **5B** otherwise.
+
+### 5A: Use the server's IAM role (EC2)
+
+<Steps>
+
+<Step title="Create the role">
+
+In **IAM > Roles**, click **Create role**. Choose **AWS service**, use case **EC2**, and click **Next**. Attach the `UTMStackColdStorage` policy, name the role `UTMStackColdStorage` and click **Create role**.
+
+</Step>
+
+<Step title="Attach the role to the instance">
+
+In **EC2 > Instances**, select the UTMStack server, then **Actions > Security > Modify IAM role**. Choose the role and click **Update IAM role**. If the instance already has a role, add the policy to that role instead.
+
+</Step>
+
+<Step title="Let containers reach the instance metadata">
+
+UTMStack's event store runs in a container, and fetches the role's temporary credentials from the instance metadata service. With IMDSv2, the default on many newer instances, a container needs a hop limit of 2. In **Actions > Instance settings > Modify instance metadata options**, set **Metadata response hop limit** to `2`, or run:
+
+```bash
+aws ec2 modify-instance-metadata-options --instance-id i-0123456789abcdef0 \
+  --http-endpoint enabled --http-put-response-hop-limit 2
+```
+
+</Step>
+
+<Step title="Check from the server">
+
+On the UTMStack server, run:
+
+```bash
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/iam/security-credentials/
+```
+
+The second command prints the role name. If it prints nothing, the role is not attached.
+
+</Step>
+
+</Steps>
+
+The same with the CLI, using a trust policy saved as `ec2-trust.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "Service": "ec2.amazonaws.com" },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+```bash
+aws iam create-role --role-name UTMStackColdStorage \
+  --assume-role-policy-document file://ec2-trust.json
+aws iam attach-role-policy --role-name UTMStackColdStorage \
+  --policy-arn arn:aws:iam::111122223333:policy/UTMStackColdStorage
+aws iam create-instance-profile --instance-profile-name UTMStackColdStorage
+aws iam add-role-to-instance-profile --instance-profile-name UTMStackColdStorage \
+  --role-name UTMStackColdStorage
+aws ec2 associate-iam-instance-profile --instance-id i-0123456789abcdef0 \
+  --iam-instance-profile Name=UTMStackColdStorage
+```
+
+### 5B: Use an access key
+
+<Steps>
+
+<Step title="Create a dedicated user">
+
+In **IAM > Users**, click **Create user**, name it `utmstack-cold-storage`, and do not give it console access. On the permissions page, choose **Attach policies directly**, select `UTMStackColdStorage` and create the user.
+
+</Step>
+
+<Step title="Create the access key">
+
+Open the user, then **Security credentials > Create access key**. Choose **Application running outside AWS**, and click **Create access key**.
+
+</Step>
+
+<Step title="Keep the key safe">
+
+Copy the **Access key** and the **Secret access key**. AWS shows the secret only once. Keep both in your password manager until you enter them in UTMStack.
+
+</Step>
+
+</Steps>
+
+With the CLI:
+
+```bash
+aws iam create-user --user-name utmstack-cold-storage
+aws iam attach-user-policy --user-name utmstack-cold-storage \
+  --policy-arn arn:aws:iam::111122223333:policy/UTMStackColdStorage
+aws iam create-access-key --user-name utmstack-cold-storage
+```
+
+## Step 6: Build the Bucket URL
+
+The **Bucket URL** tells UTMStack where the bucket is. Use an `https://` address (UTMStack accepts only `https://` and `http://`), and its path must contain at least one part after the host name.
+
+| Format | Example | Use it |
+|---|---|---|
+| Bucket in the host name, with a folder (recommended) | `https://utmstack-cold-example.s3.eu-west-1.amazonaws.com/utmstack/` | Records are stored under the folder `utmstack/` in the bucket. |
+| Bucket in the path | `https://s3.eu-west-1.amazonaws.com/utmstack-cold-example/` | The format of the example on the page. Also works with a folder: `https://s3.eu-west-1.amazonaws.com/utmstack-cold-example/utmstack/` |
+
+Rules:
+
+- Use the endpoint of the bucket's region: `s3.<region>.amazonaws.com`, for example `s3.eu-west-1.amazonaws.com` or `s3.us-east-1.amazonaws.com`.
+- The folder does not need to exist; S3 has no real folders. Use a short name without spaces.
+- UTMStack adds the final `/` if you leave it out.
+- `https://utmstack-cold-example.s3.eu-west-1.amazonaws.com/` (bucket in the host name but nothing after it) is refused with "the bucket URL must include the bucket". Add a folder.
+- `s3://utmstack-cold-example` is refused with "the bucket URL must be an absolute http(s) URL".
+
+## Step 7: Turn on cold storage in UTMStack
+
+<Steps>
+
+<Step title="Open the Cold storage card">
+
+Go to **Configure > Settings > Data Retention** and scroll to **Cold storage**.
+
+</Step>
+
+<Step title="Choose the type">
+
+Click **S3-compatible object store**.
+
+</Step>
+
+<Step title="Enter the bucket and access">
+
+- **Bucket URL**: the URL from Step 6.
+- With an IAM role: tick **Use the server's IAM role instead of keys**. The key fields disappear.
+- With an access key: enter the **Access key** and the **Secret key**.
+
+</Step>
+
+<Step title="Enable">
+
+Click **Enable cold storage**. The event store writes a small test file to the bucket, reads it back and deletes it. This takes a few seconds.
+
+- If it works, you see "Cold storage configured" and the card shows **In use**.
+- If it fails, you see "the event store could not use this bucket:" followed by the reason, and nothing is changed. See **Troubleshooting** below.
+
+</Step>
+
+<Step title="Choose what moves">
+
+On the **Logs** card, enter a number of days in **Move to cold storage after** (lower than **Delete after**) and click **Save**. Do the same for **Alerts** if you want. The card then shows "This dataset moves records to cold storage."
+
+</Step>
+
+</Steps>
+
+Records older than the number of days you set move to the bucket in the background. The first move of a large table can take hours.
+
+## Check that it works
+
+1. **The page.** The **Cold storage** card shows **In use**.
+2. **The audit log.** In **Configure > Settings > App Audit Logs**, filter on the action prefix `cold_storage.`. The entry shows **Success** and the Bucket URL as the resource. The keys are never logged.
+3. **The bucket.** Once records older than **Move to cold storage after** exist, objects with generated names appear under your folder:
+
+   ```bash
+   aws s3 ls s3://utmstack-cold-example/utmstack/ --recursive --summarize | tail -n 2
+   ```
+
+4. **The event store.** On the UTMStack server, this read-only query shows how much of each table is on the local disk (`default`) and in cold storage (`cold_disk`):
+
+   ```bash
+   CH=$(docker ps -q -f name=utmstack_clickhouse)
+   docker exec -i "$CH" sh -c 'clickhouse-client --password "$CLICKHOUSE_PASSWORD"' <<'SQL'
+   SELECT table, disk_name, count() AS parts, formatReadableSize(sum(bytes_on_disk)) AS size
+   FROM system.parts
+   WHERE database = 'utmstack' AND active
+   GROUP BY table, disk_name
+   ORDER BY table, disk_name
+   SQL
+   ```
+
+5. **A search.** In **Log Explorer**, search a time range older than **Move to cold storage after**. The results come back as before, a little more slowly.
+
+## Rotate the access key
+
+An IAM user can have two access keys at the same time, so you can rotate without a gap.
+
+1. In IAM, create a second access key for `utmstack-cold-storage`.
+2. In UTMStack, on the **Cold storage** card, keep **S3-compatible object store** and the same **Bucket URL**, enter the new **Access key** and **Secret key**, and click **Update credentials**.
+3. Check that it works (see above), for example with a Log Explorer search on old data.
+4. In IAM, make the old key **Inactive**. After a day without problems, delete it.
+
+To move from keys to the IAM role later, attach the role (Step 5A), tick **Use the server's IAM role instead of keys** on the card and click **Update credentials**. The card does not remember the tick box: tick it again whenever you update the settings.
+
+With an IAM role there is nothing to rotate: AWS renews the temporary credentials on its own.
+
+## Rules that break cold storage
+
+The event store manages every object in the bucket itself. It reads objects directly, without a restore step, and it deletes them when retention says so.
+
+<Warning>
+
+- **Never add lifecycle rules that expire or delete current objects.** The event store would lose parts of its tables, and searches over that period fail. Retention already deletes old records.
+- **Never transition objects to S3 Glacier Flexible Retrieval or S3 Glacier Deep Archive**, and do not turn on the Archive Access tiers of S3 Intelligent-Tiering. Objects in those classes must be restored before they can be read, so searches and retention fail.
+- **Do not turn on Object Lock or bucket retention.** The event store must be able to delete objects.
+- **Do not edit, move or delete objects by hand,** and do not let another application or another UTMStack server write to the same folder.
+
+</Warning>
+
+Other settings to know about:
+
+- **Versioning.** Leave it off. With versioning on, every object the event store deletes or replaces stays in the bucket as an older version, and you keep paying for it. If your policy requires versioning, add a lifecycle rule that permanently deletes noncurrent versions after a few days and removes expired delete markers. That rule does not touch current objects.
+- **Storage classes.** Leave objects in S3 Standard. Classes such as Standard-IA, One Zone-IA and Glacier Instant Retrieval can be read directly, but they charge for every gigabyte read and bill a minimum storage time, and the event store rewrites and deletes objects as it merges blocks and applies retention. They usually cost more than they save here.
+- **Replication** to another region or account is possible, but a replica cannot be read by another UTMStack server on its own (see **How UTMStack Stores Data**).
+
+## What it costs
+
+S3 charges for:
+
+- **Storage**, per GB per month, for the records in cold storage.
+- **Requests**: writes when records move, reads when someone searches cold data, and deletes.
+- **Data transfer out** of AWS when the UTMStack server is not in AWS and reads cold data. Searches over long periods read more data.
+
+If the server runs in AWS in the same region, add an S3 gateway endpoint to the server's VPC. Traffic to S3 then does not pass through a NAT gateway, which has its own per-gigabyte charge.
+
+## Troubleshooting
+
+The table lists the most common S3 replies. UTMStack shows them after "the event store could not use this bucket:". For every UTMStack message, see **Troubleshooting Retention and Cold Storage**.
+
+| Message contains | Cause | Fix |
+|---|---|---|
+| `Access Denied` | The policy is missing an action, names another bucket, or is not attached. With SSE-KMS, the KMS permissions are missing. A bucket policy may also deny the request. | Compare the policy with Step 3, check the bucket name in both `Resource` lines, check it is attached to the user or role, and add Step 4 for SSE-KMS. |
+| `The specified bucket does not exist` | Typo in the bucket name, or the bucket is in another account or partition | Copy the name from the S3 console. |
+| `The AWS Access Key Id you provided does not exist in our records` | Wrong or deleted access key | Create a new key and enter it again. |
+| `The request signature we calculated does not match the signature you provided` | Wrong secret key, often with a missing or extra character | Paste the secret again, or create a new key. |
+| `must be addressed using the specified endpoint`, or a redirect | The region in the Bucket URL is not the bucket's region | Use `s3.<region>.amazonaws.com` with the bucket's own region. |
+| Certificate or host name errors | A bucket name with dots in the host-name format | Use the "bucket in the path" format. |
+| Timeouts or "could not connect" | The server cannot reach S3 on port 443: security group, network ACL, firewall, missing NAT or VPC endpoint, or DNS | From the server, run `curl -sI https://<bucket>.s3.<region>.amazonaws.com/`. Any HTTP answer, even `403`, means the network path works. |
+| `Access Denied` with **Use the server's IAM role instead of keys** | The role is not attached, does not have the policy, or the container cannot reach the instance metadata | Check Step 5A, including the hop limit of 2. |

@@ -1,0 +1,171 @@
+This page is the reference for what runs on a UTMStack v12 server: every service, the ports it uses, the folders and files it keeps, where its logs are, the update service, the settings that have no screen, and what the server sends to UTMStack. Use it when you troubleshoot, plan backups or answer a security review.
+
+For a picture of how the parts work together, see **Architecture**.
+
+## What runs on the server
+
+| Part | Runs as | Started by |
+|---|---|---|
+| nginx | System service `nginx` on the host | systemd |
+| Docker and Docker Swarm | System service `docker` | systemd |
+| UTMStack services | Docker Swarm stack `utmstack` (10 services) | Docker, from the definition the installer writes |
+| Update service | System service `UTMStackComponentsUpdater` | systemd |
+| Cockpit (optional server console) | System socket `cockpit.socket`, port 9090 | systemd |
+
+## Docker services
+
+All UTMStack services belong to the stack `utmstack`, so Docker names them `utmstack_<service>`, for example `utmstack_backend`. Each runs one copy on the server. The UTMStack images carry the tag of the installed version, for example `v12.0.2`.
+
+| Service | Image | What it does | Port inside the stack | Host folders it uses |
+|---|---|---|---|---|
+| `utmstack_frontend` | `ghcr.io/utmstack/utmstack/frontend` | Serves the web interface and routes API, agent and download traffic to the other services. | 80, published on the host as **10001** | `/utmstack/cert`, `/utmstack/front-end/nginx` |
+| `utmstack_backend` | `ghcr.io/utmstack/utmstack/backend` | The REST API under `/api/v1`, the MCP server for AI assistants, the API documentation at `/swagger`, and background jobs (notifications, audit clean-up, compliance schedules and others). | 8080 | `/utmstack/updates`, `/utmstack/uploads`, `/utmstack/events-engine-workdir` (`soar`, `compliance`, `rules`, `pipeline`), `/utmstack/clickhouse/config.d` |
+| `utmstack_agentmanager` | `ghcr.io/utmstack/utmstack/agent-manager` | Registers agents and collectors, sends them commands, and serves their installers and updates. | 9000 (agent connections), 9001 (downloads) | `/utmstack/cert`, `/utmstack/updates` |
+| `utmstack_log-input` | `ghcr.io/utmstack/utmstack/log-input` | Receives logs from agents, the UTMStack Forwarder and collectors, and puts them on the queue. | 50051 (log streams), 8080 (health) | `/utmstack/cert` |
+| `utmstack_nats` | `nats:2.10-alpine` | The queue between log intake and processing, kept on disk. | 4222 | `/utmstack/nats` |
+| `utmstack_event-processor-worker` | `ghcr.io/utmstack/utmstack/eventprocessor` | Parses logs with the pipelines, enriches them, stores them in ClickHouse and runs correlation rules, threat intelligence, SOC-AI analysis and automated response. | none | `/utmstack/events-engine-workdir` (`pipeline`, `rules`, `soar`, `logs`), `/utmstack/cert`, `/utmstack/updates` |
+| `utmstack_event-processor-manager` | `ghcr.io/utmstack/utmstack/eventprocessor` | Manages the event processor and serves the SOC-AI service and the pipeline and rule test playground to the backend. | 9002, 8090 (SOC-AI), 8091 (playground) | Same as the worker |
+| `utmstack_clickhouse` | `clickhouse/clickhouse-server:25.8` | Stores logs, alerts and ingestion statistics. | 9000 | `/utmstack/clickhouse` (`data`, `init`, `conf`, `config.d`, `cold`) |
+| `utmstack_postgres` | `ghcr.io/utmstack/utmstack/postgres` | Stores configuration: users, tenants, settings, incidents, dashboards, compliance, response flows, agent registrations and more. | 5432 | Docker volume `utmstack_postgres_data` |
+| `utmstack_valkey` | `valkey/valkey:9-alpine` | A short-lived cache of agent and collector credentials (for `utmstack_agentmanager` and `utmstack_log-input`) and of recent alerts for de-duplication (for the event processor). It can be rebuilt, so it drops old keys when full. | 6379 | `/utmstack/valkey` |
+
+Only the frontend is published on the host. All other ports are reachable only inside the stack's Docker network.
+
+The memory limit of each service is in `/utmstack/updates/memory-allocation.json`. See **Sizing and Capacity Planning** and **Installer Reference**.
+
+## Ports on the host
+
+| Port | Listens | Purpose |
+|---|---|---|
+| 80/TCP | nginx | Redirects every request to HTTPS. |
+| 443/TCP | nginx | Web interface, API, MCP server, agent and collector connections (gRPC), agent downloads. Everything is forwarded to `127.0.0.1:10001`. |
+| 9090/TCP | Cockpit | Server management console, if the Cockpit socket is running. |
+| 10001/TCP | Docker (frontend) | Internal: nginx on the host reaches the web container here. Plain HTTP. Block it from outside the server. |
+| 2377/TCP, 7946/TCP and UDP, 4789/UDP | Docker Swarm | Docker's cluster ports. UTMStack runs on one server, so no other machine needs them. |
+
+See **Network Ports and Firewall** for firewall rules and outbound connections.
+
+## Folders and files
+
+### On the host
+
+| Path | Contents |
+|---|---|
+| `/root/utmstack.yml` | The installer's settings and secrets: generated password, internal keys, data folder. See **Installer Reference**. Back it up and keep it private. |
+| `/utmstack` | The data folder. To keep data on a separate disk, mount that disk here before you install (see **Prepare the Server**). |
+| `/utmstack/cert` | `utm.crt` and `utm.key` (the certificate nginx and the services use), `ca.crt` and `ca.key` (the certificate authority the installer created). See **SSL Certificate**. |
+| `/utmstack/clickhouse/data` | ClickHouse data: logs, alerts, statistics, and the records of what was moved to cold storage. |
+| `/utmstack/clickhouse/init` | The table definitions ClickHouse runs the first time it starts with an empty data folder. |
+| `/utmstack/clickhouse/conf` | ClickHouse settings UTMStack depends on. Rewritten by every update. |
+| `/utmstack/clickhouse/config.d` | ClickHouse server settings, plus the cold storage settings that **Data Retention** writes (`utmstack-tiering.xml`). |
+| `/utmstack/clickhouse/cold` | Cold storage when you choose a local folder or an NFS share. |
+| `/utmstack/nats` | The queue of logs not yet processed. |
+| `/utmstack/valkey` | Cache files. |
+| `/utmstack/events-engine-workdir/pipeline` | Pipelines and the event processor's plugin settings (`system_plugins_*.yaml` and others). |
+| `/utmstack/events-engine-workdir/rules` | Correlation rules. |
+| `/utmstack/events-engine-workdir/soar` | Response flow files. |
+| `/utmstack/events-engine-workdir/compliance` | Compliance framework files. |
+| `/utmstack/events-engine-workdir/logs` | Event processor log folder. |
+| `/utmstack/uploads` | Uploaded images: avatars and branding. |
+| `/utmstack/front-end/nginx` | nginx settings of the web container. Rewritten by every update. |
+| `/utmstack/updates` | Update service files, the licence and the instance identity (table below). |
+| `/utmstack/locks` | One file per completed installation step. Do not delete them. See **Installer Reference**. |
+| `/utmstack/images` | Container image files for air-gapped installations only. |
+| `/var/lib/docker/volumes/utmstack_postgres_data` | The PostgreSQL databases `utmstack` and `agentmanager`. Check the exact name with `docker volume ls`. |
+| `/usr/local/bin/utmstack_installer` and `/usr/local/bin/utmstack` | The installer program and its short name. Replaced by each update. |
+| `compose.yml` next to the installer program | The service definitions the installer last deployed, for example `/usr/local/bin/compose.yml`. Rewritten by every update. |
+| `/etc/systemd/system/UTMStackComponentsUpdater.service` | The update service definition. |
+| `/etc/nginx/sites-available/default` (Ubuntu, Debian) or `/etc/nginx/nginx.conf` (RHEL) | nginx settings for UTMStack. Rewritten by every update. |
+| `/etc/nginx/html/custom_502.html` | The "We're getting things ready" page nginx shows while the services start. |
+
+### In /utmstack/updates
+
+| File | Contents |
+|---|---|
+| `version.json` | Installed version, edition and change log. |
+| `instance-config.yml` | The address of the UTMStack update server, and this server's instance ID and key. The licence is tied to the instance ID. |
+| `LICENSE` | The installed licence file. |
+| `pending-updates.json` | An update that is downloaded but not yet applied. |
+| `memory-allocation.json` | Memory limits of the services. |
+| `last-admin-email.txt` | The administrator email address last sent to the update server. |
+| `logs/utmstack-updater.log` | The update service log. |
+
+<Warning>
+
+Do not edit files that the installer rewrites (the nginx settings, `compose.yml`, the ClickHouse `conf` folder and the web container's nginx folder). Your changes are lost at the next update, and a wrong change can stop the services.
+
+</Warning>
+
+## Where the logs are
+
+| What | Where | How to read it |
+|---|---|---|
+| Installation | `/var/log/utmstack-installer.log` | `sudo tail -n 100 /var/log/utmstack-installer.log` |
+| Update service | `/utmstack/updates/logs/utmstack-updater.log` | `sudo tail -n 100 /utmstack/updates/logs/utmstack-updater.log`, or `journalctl -u UTMStackComponentsUpdater` |
+| A UTMStack service | Docker's log of the service | `sudo docker service logs --tail 200 --timestamps utmstack_<service>` |
+| nginx | `/var/log/nginx/error.log` and `/var/log/nginx/access.log` | `sudo tail -n 100 /var/log/nginx/error.log` |
+| Docker | systemd journal | `journalctl -u docker --since "1 hour ago"` |
+| Kernel (for example processes stopped for lack of memory) | systemd journal | `journalctl -k --since "1 day ago"`, then look for "Out of memory" |
+
+Docker keeps at most 50 MB of log for each container. Older lines are dropped, and a container that is replaced (for example by an update) starts a new log. If you need UTMStack's own logs for longer, send them into UTMStack with **UTMStack Self-Monitoring**.
+
+## The update service
+
+| Item | Value |
+|---|---|
+| Name | `UTMStackComponentsUpdater` ("UTMStack Components Updater") |
+| Runs | `/usr/local/bin/utmstack_installer --run` |
+| Starts | At boot, and restarts itself to apply an update |
+| Every minute | Sends a heartbeat to the UTMStack update server |
+| Every 5 minutes | Asks for the next update and for licence changes; until it has sent one, checks for the administrator's email address |
+| Every 15 minutes | Sends the day's usage per tenant (number of events and bytes ingested) |
+| Log | `/utmstack/updates/logs/utmstack-updater.log` |
+
+See **Updates** for how an update is applied.
+
+## Settings without a screen
+
+### Event processor settings files
+
+Some event processor settings are files in `/utmstack/events-engine-workdir/pipeline`:
+
+| File | What it holds | Changed by |
+|---|---|---|
+| `system_plugins_analysis.yaml`, `system_plugins_correlation.yaml`, `system_plugins_notification.yaml` | The order of the event processor's plugins. | The installer, at every update. Do not edit. |
+| `utmstack_plugins.yaml`, `clickhouse_plugins.yaml` | How the plugins reach the databases. | The installer, at every update. Do not edit. |
+| `system_plugins_feeds.yaml` | Threat intelligence switches. | **Settings > ThreatWinds Integration**. |
+| `system_plugins_soc_ai.yaml` | SOC-AI settings. | **Settings > SOC-AI**. |
+| `system_plugins_rule-flood-guard.yaml` | Rule flood guard settings. | By hand. See **Rule Flood Guard**. |
+| `system_plugins_<integration>.yaml` | Settings of cloud integrations. | **Configure > Integrations**. |
+
+### Environment variables
+
+The backend reads some settings from environment variables. The installer sets them in the service definition it writes, and offers no option to add your own. A change you make by hand, for example with `docker service update --env-add`, is undone the next time the installer redeploys the stack: at every update and with `--apply-memory` or `--recalculate-memory`.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `AUDIT_RETENTION_DAYS` | 365 | Days the audit log is kept. 0 or less keeps it for ever. |
+| `NOTIFICATIONS_READ_RETENTION_DAYS` | 30 | Days read notifications are kept. |
+| `NOTIFICATIONS_RETENTION_DAYS` | 365 | Days any notification is kept. |
+| `COMPLIANCE_REPORT_BODY_RETENTION_DAYS` | 730 | Days the stored content of compliance reports is kept. |
+| `APP_AI_REQUEST_LIMIT` | -1 (no limit) | Server-wide daily limit of SOC-AI requests. See **AI Usage and Limits**. |
+| `MCP_ENABLED` | true | Turns the MCP server for AI assistants on or off. See **MCP Server**. |
+| `DATA_RETENTION_ENABLED` | true | Shows the **Data Retention** page. When false, the page is hidden. |
+| `SERVER_NAME` | The host name, set by the installer | The server name UTMStack shows. |
+
+## What the server sends to UTMStack
+
+The update service talks to the UTMStack update server, `https://cm.utmstack.com`, over HTTPS:
+
+| When | What is sent |
+|---|---|
+| Once, when the server registers | The host name, the installed version, the edition, and the product name `utmstack-v12`. The update server answers with this server's instance ID and key, saved in `/utmstack/updates/instance-config.yml`. |
+| Every minute | A heartbeat with the instance ID. |
+| Every 5 minutes | Requests for the next update and for the licence, with the instance ID. |
+| Every 15 minutes | For each tenant: the tenant's ID, the day, and the number of events and bytes ingested that day. No log content is sent. |
+| Once, after the administrator sets an email address | The host name and the email address of the first active administrator of the default tenant. |
+| After an update is applied | Confirmation that the update was applied. |
+
+Registration is also what lets the server use the ThreatWinds threat intelligence feeds, the default ThreatWinds SOC-AI provider and licences from UTMStack. Threat intelligence and SOC-AI send their own data to ThreatWinds when you use them; see **Threat Intelligence: How Indicator Alerts Work** and **AI Providers**.
+
+The installer also checks `https://cm.utmstack.com/api/v1/health` during installation, and the server downloads installers from `github.com` and container images from `ghcr.io` and Docker Hub.

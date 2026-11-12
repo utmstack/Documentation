@@ -8,9 +8,16 @@ To also collect Microsoft Defender alerts and incidents, sign-ins and risk detec
 
 ## How it works
 
-- UTMStack signs in with the app's client ID and secret and reads the Office 365 Management Activity API every 5 minutes.
-- It reads these content types: `Audit.AzureActiveDirectory`, `Audit.Exchange`, `Audit.General`, `Audit.SharePoint` and `DLP.All`.
-- Events are stored with the data type `o365`. UTMStack v12 ships 73 detection rules for this data type; see **Office 365** in the **Rules** tab.
+- UTMStack signs in with the app's client ID and secret (OAuth, the standard way an app gets a time-limited access token from Microsoft) and reads the Office 365 Management Activity API every 5 minutes.
+- It starts the API subscriptions for these content types itself, so you do not need to: `Audit.AzureActiveDirectory`, `Audit.Exchange`, `Audit.General`, `Audit.SharePoint` and `DLP.All`.
+- It reads the audit content that Microsoft publishes from the moment collection starts (with a 5-minute margin). Content published before that is not imported.
+- Events are stored with the data type `o365` and parsed by the shipped pipeline `office365/o365.yaml` (version 1.4.2). UTMStack v12 ships 73 detection rules for this data type; see **Office 365** in the **Rules** tab.
+
+<Note>
+
+Microsoft does not publish audit records instantly. According to Microsoft, after a subscription is first created it can take up to 12 hours before the first content is available. After that, records usually arrive with a delay of minutes to a few hours, depending on the workload.
+
+</Note>
 
 ## Before you start
 
@@ -97,13 +104,28 @@ Select **Application permissions** and add **SecurityAlert.Read.All** and **Secu
 </Step>
 </Steps>
 
+<Note>
+
+The steps above follow the setup guide in the product. In UTMStack v12.0.2 this integration reads only the Office 365 Management Activity API, which needs **ActivityFeed.Read** (and **ActivityFeed.ReadDlp** to include the sensitive data details of DLP events). The Microsoft Graph **SecurityAlert** permissions are not used by this integration. If your policy allows only the permissions an app really uses, you can leave them out. Microsoft Defender alerts are collected by the **Microsoft 365 through Microsoft Graph** integration instead.
+
+</Note>
+
 ## Step 3: Make sure audit logging is on
 
 The Office 365 Management Activity API returns events only when audit logging is turned on for your organization.
 
-1. Sign in to the Microsoft Purview compliance portal and select **Audit** in the left navigation.
+1. Sign in to the Microsoft Purview portal and open the **Audit** solution.
 2. If auditing is not turned on, a banner asks you to start recording user and admin activity. Select it.
 3. The change can take up to 60 minutes to take effect.
+
+You can also check and turn it on with Exchange Online PowerShell:
+
+```powershell
+Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled
+Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true
+```
+
+The first command shows `True` when auditing is on.
 
 ## Step 4: Copy the app IDs
 
@@ -119,6 +141,10 @@ Each Microsoft 365 tenant connection is a **config group**. You can add more tha
 <Step title="Open the integration">
 
 Go to **Configure > Integrations**, search for `O365` and open the **O365** card. The form is at the end of the setup guide, under **Connect your Microsoft 365 tenant**.
+
+![O365 setup guide in UTMStack, showing How it works and the first app registration step: open Microsoft Entra ID](/assets/de5baa6d-1458-4782-8e87-803e6d1b9010)
+
+The guide says no write permissions are requested, but its steps add **SecurityAlert.ReadWrite.All**, which this integration does not use (see the note above).
 
 </Step>
 <Step title="Fill in the form">
@@ -146,9 +172,53 @@ Click **Add config group**. UTMStack checks the credentials by signing in to Mic
 | `GCCHigh` | `login.microsoftonline.us` | `manage.office365.us` |
 | `DoD` | `login.microsoftonline.us` | `manage.protection.apps.mil` |
 
+### If the save fails
+
+UTMStack signs in to Microsoft with the app and then lists the app's Management Activity API subscriptions. When either fails, the config group is not saved and a message starting with "credential verification failed:" explains why.
+
+| Message | What to check |
+|---|---|
+| Invalid Client Secret. Please verify the Client Secret value (not the Secret ID) is correct and has not expired. | Paste the secret **Value**, not the **Secret ID**. If the secret expired, create a new one. |
+| Invalid Client ID or Client Secret | The Client ID or the secret is wrong. |
+| Client ID was not found in the tenant ... | The Client ID belongs to another tenant, or the Tenant ID is wrong. |
+| Admin consent is required | Click **Grant admin consent for** your organization in **API permissions**. |
+| Invalid Tenant ID ... | Copy the **Directory (tenant) ID** again from the app's **Overview** page. |
+| The application does not have permission to access the Office 365 Management API (HTTP 403) | Add **ActivityFeed.Read** under **Office 365 Management APIs > Application permissions** and grant admin consent. |
+| Office 365 Management API endpoint not found (HTTP 404) | The Tenant ID or the **Cloud Environment** value does not match your tenant. |
+| Cannot connect to Microsoft login service / Cannot connect to the Office 365 Management API | The UTMStack server cannot reach Microsoft on port 443. |
+
 ## Check that events arrive
 
-Open the **O365** card again and click **View logs**. Log Explorer opens filtered to the `o365` data type for the last 24 hours. UTMStack reads new content every 5 minutes, so allow a few minutes after you save.
+<Steps>
+<Step title="Create some activity">
+
+Sign in to Outlook on the web or SharePoint with a test user, or change a setting in the Microsoft 365 admin center.
+
+</Step>
+<Step title="Open the logs in UTMStack">
+
+Open the **O365** card again and click **View logs**. Log Explorer opens with the `o365` data type for the last 24 hours. UTMStack asks Microsoft for new content every 5 minutes, but Microsoft itself publishes audit records with a delay. On a new connection, allow up to 12 hours for the first events.
+
+</Step>
+<Step title="Check the data source">
+
+Go to **Configure > Data Sources** and open the **Integrations** tab. Your config group is listed by its name. The row is created when you save, and turns **Live** after the first events are counted.
+
+</Step>
+</Steps>
+
+## Troubleshooting
+
+Errors that happen after the config group is saved, for example an expired secret, do not appear in the web interface. They are written to the logs of the UTMStack event processor on the server, where the integration runs.
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| The save fails | See **If the save fails** above. | Fix the value the message names. |
+| Saved, but no `o365` events after 12 hours | Audit logging is off for the organization, so Microsoft has no content to return. | Turn on auditing (Step 3) and wait up to 60 minutes for the change, then up to 12 hours for content. |
+| Events stopped after months of working | The client secret expired. | Create a new secret, then edit the config group and paste the new **Value**. |
+| DLP events arrive without the matched sensitive data | The app has **ActivityFeed.Read** but not **ActivityFeed.ReadDlp**. | Add **ActivityFeed.ReadDlp** and grant admin consent. |
+| Defender alerts, sign-in details or risk detections are missing | This integration reads the audit log only. | Add the **Microsoft 365 through Microsoft Graph** integration. |
+| A government tenant does not connect | The **Cloud Environment** value is wrong. Any value other than `GCC`, `GCCHigh` or `DoD` is treated as the commercial cloud. | Type the value exactly as shown, with the same capital letters. |
 
 ## Manage config groups
 

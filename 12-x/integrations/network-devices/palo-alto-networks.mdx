@@ -7,22 +7,29 @@ UTMStack v12 collects Palo Alto Networks firewall logs through the **UTMStack Fo
 | Card on the Integrations page | **Palo Alto** (category Firewall) |
 | Data type | `firewall-paloalto` |
 | Default ports on the Collector | 7006/UDP; 7006/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 11 detection rules |
+| Log format UTMStack reads | PAN-OS default CSV log format, with a BSD or IETF syslog header. Palo Alto's documented CEF templates are also read. |
+| Parsing pipeline | `paloalto/pa_firewall.yaml`, version 3.1.3. **Filters** in the card's drawer opens it. |
+| Detection rules | 11. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- The firewall must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- The firewall must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between.
 - You need the `integrations.write` permission to enable the integration from the web interface.
+- Threat and URL log lines can be long. If you can, send over TCP or TLS: over UDP, the Collector reads at most 2,048 bytes of each message.
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Palo Alto** card.
+
+    ![Palo Alto Networks setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/6ef73f81-4395-4532-98b2-c6c243b3b719)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7006`.
@@ -32,22 +39,41 @@ UTMStack v12 collects Palo Alto Networks firewall logs through the **UTMStack Fo
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-paloalto 7006 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-paloalto udp
 ```
 
+The command prints the port the Collector really listens on, for example `Integration "firewall-paloalto" enabled on udp port 7006`.
+
 To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port, for example:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-paloalto tcp 7106
+   ```
+
+   Use `udp` instead of `tcp` for UDP.
+2. In the **Palo Alto** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the syslog server profile in step 2.
 
 ## Step 2: Configure PAN-OS to forward logs
 
 <Steps>
   <Step title="Create a Syslog Server Profile">
-    In PAN-OS, go to **Device → Server Profiles → Syslog** and add a profile. Set the server address to the Collector host, transport **UDP**, port **7006** and format **BSD**.
+    In PAN-OS, go to **Device > Server Profiles > Syslog** and add a profile. Add a server with the address of the Collector host, transport **UDP** (or **TCP** or **SSL**, matching what you enabled in step 1), port **7006** and format **BSD**. Leave the **Custom Log Format** tab empty, so PAN-OS sends its default CSV format.
   </Step>
   <Step title="Create a Log Forwarding profile">
-    Go to **Objects → Log Forwarding** and create a profile that sends Traffic, Threat and the other log types you want to the syslog profile above.
+    Go to **Objects > Log Forwarding** and create a profile that sends Traffic, Threat and the other log types you want to the syslog profile above.
   </Step>
   <Step title="Attach it to your security rules">
-    Attach the Log Forwarding profile to your Security policy rules (**Policies → Security →** rule **→ Actions → Log Forwarding**).
+    Attach the Log Forwarding profile to your Security policy rules (**Policies > Security >** rule **> Actions > Log Forwarding**).
+  </Step>
+  <Step title="Forward system and configuration logs (optional)">
+    To also send System and Configuration logs, go to **Device > Log Settings** and add the syslog profile to those log types.
   </Step>
   <Step title="Commit">
     Click **Commit**.
@@ -60,16 +86,50 @@ The setup guide in UTMStack fills in your UTMStack server's address in this step
 
 </Note>
 
+For **SSL** (TLS), the firewall must trust the certificate loaded on the Collector. See Palo Alto Networks' documentation on syslog over SSL for your PAN-OS version.
+
 ## Step 3: Check that logs arrive
 
-- In the **Palo Alto** drawer, click **View logs**. Log Explorer opens with the `firewall-paloalto` data type for the last 24 hours.
-- Within about 10 minutes, the firewall appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Palo Alto** drawer, click **View logs**. Log Explorer opens with the `firewall-paloalto` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-paloalto` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip`, `target.port` and `action`, and Palo Alto fields under `log.`, such as `log.paFormat` (`CSV` or `CEF`). The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, the firewall appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-paloalto'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, the configuration was not committed, or the firewall sends to the wrong address, port or transport, or a firewall blocks the port. | Check that the Collector shows as online in the **Collector** list, that the change is committed, and that the Collector host allows the port in. See **Forwarder Troubleshooting**. |
+| Nothing arrives, and the Forwarder guide filled in the UTMStack server's address | The firewall sends to the UTMStack server, but the Collector runs on another host. | Use the Collector host's address in the syslog server profile. |
+| Only some traffic arrives | Some Security policy rules have no Log Forwarding profile, or logging at session end is off. | Attach the Log Forwarding profile to every rule you care about. |
+| Events keep only `log.paFormat` and `log.paVsys`, and `errors` contains `column index out of range` | The log line does not have the column layout of the default PAN-OS format, for example because of a custom log format, or because a long line was cut off over UDP. | Clear the **Custom Log Format** tab of the syslog profile, and send over TCP or TLS so long lines arrive whole. |
+| Long Threat or URL lines are cut off | Over UDP, the Collector reads at most 2,048 bytes of each message. | Send over TCP or SSL. |
+| Palo Alto logs appear under another data type | The firewall sends to the port of a different integration. | Send to the port that the Palo Alto integration listens on. |
 
 ## Stop collecting
 
-In the **Palo Alto** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Palo Alto** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`udp`, `tcp` or `tls`):
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-paloalto udp
 ```
+
+Then remove the syslog profile from your Log Forwarding profiles and log settings, and commit.

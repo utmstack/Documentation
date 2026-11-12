@@ -3,7 +3,7 @@ The UTMStack macOS agent is a service you install on each Mac. It collects macOS
 ## Before you begin
 
 - The Mac must run **macOS 11 (Big Sur) or later** on **Apple Silicon** (M1, M2, M3 or newer). Intel-based Macs are not supported.
-- The Mac must reach your UTMStack server on **443/TCP**. No other port is needed.
+- The Mac must reach your UTMStack server directly on **443/TCP**. No other port is needed. The agent has no proxy setting.
 - You need administrator rights (`sudo`) on the Mac.
 - You need the install command from your own UTMStack instance. It contains your connection key, which only administrators can see. See **How Data Reaches UTMStack**.
 
@@ -17,12 +17,16 @@ The install command downloads everything it needs from your UTMStack instance.
   </Step>
   <Step title="Check the platform and choose options">
     The only **Platform** is **ARM64 (Apple Silicon)**. Set the **Options** (see the table below).
+
+    ![macOS agent setup guide in UTMStack: the requirements (port 443, macOS 11 or later on Apple Silicon), Platform ARM64, the install options and the install command](/assets/40c087eb-aaf5-45e8-94c9-2aa6da10147d)
+
+    This screenshot is from UTMStack v12.0.0, which shows the internal name `MACOS` instead of **Macos**.
   </Step>
   <Step title="Copy the command">
     Copy the command shown. It contains a sensitive enrollment token: do not share it.
   </Step>
   <Step title="Run it in Terminal">
-    Paste the command into Terminal on the Mac and press Enter. Run it on every Mac you want to monitor.
+    Paste the command into Terminal on the Mac and press Enter. Run it on every Mac you want to monitor. To install through a device management tool, see **Deploying Agents at Scale**.
   </Step>
 </Steps>
 
@@ -36,7 +40,7 @@ sudo bash -c "mkdir -p /opt/utmstack-macos-agent && \
     /opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 install <server> <connection-key> yes"
 ```
 
-The command downloads the agent into `/opt/utmstack-macos-agent`, checks that the server answers on 443, registers the agent and starts it as a system service (a launch daemon). The agent then downloads its log collection helper, `utmstack-collector-mac`, into the same folder.
+The command downloads the agent into `/opt/utmstack-macos-agent`, checks that the server answers on 443, registers the agent and starts it as a system service (a launch daemon). The agent then downloads its log collection helper, `utmstack-collector-mac`, into the same folder. A successful run ends with `UTMStackAgent service installed correctly`. If it stops with an error, see **Agent Troubleshooting**.
 
 ### Install options
 
@@ -45,18 +49,56 @@ The command downloads the agent into `/opt/utmstack-macos-agent`, checks that th
 | **Skip TLS certificate validation (self-signed server)** | On | The agent accepts the server's certificate without checking it. Leave it on if your UTMStack server uses its self-signed certificate. Turn it off if the server has a certificate your Macs trust. In the command this is the last argument, `yes` or `no`. |
 | **Disable remote command execution on this host** | Off | Adds `--no-remote-control`. The agent then refuses every remote command, from the Data Sources console and from SOAR. This can only be undone by reinstalling the agent on the Mac. |
 
-## After you install
+## What is installed
 
-- The Mac appears on the **Data Sources** page, under **Agents**, within about a minute of the agent starting.
-- Its events appear in Log Explorer under the data type `macos`. Use **View logs** in the Macos drawer to open them.
-- The agent keeps itself up to date. See **Updates and Status**.
+| Item | Value |
+|---|---|
+| Folder | `/opt/utmstack-macos-agent` |
+| Collection helper | `/opt/utmstack-macos-agent/utmstack-collector-mac`, downloaded from your UTMStack server and started by the agent |
+| Launch daemons | `/Library/LaunchDaemons/UTMStackAgent.plist` and `/Library/LaunchDaemons/UTMStackUpdater.plist` |
+| Agent log file | `/opt/utmstack-macos-agent/logs/utmstack_agent.log` |
+| Local log store | `logs_process/logs.db` in the agent folder, 20 MB by default. See **Agent Command Line**. |
 
-To check the agent on the Mac, see **Agent Command Line**.
+## What the agent collects
+
+The agent sends macOS system and security log activity under the data type `macos`. The data source name is the Mac's host name. The collection itself is done by the helper `utmstack-collector-mac`; the agent restarts it if it stops.
+
+The shipped detection rules for macOS read this data type. To see what your Macs send, open the **Macos** card and click **View logs**, then look at the fields of a few events.
+
+You cannot choose sources on the Mac. To discard events you do not need, use a pipeline with a `drop` step for the `macos` data type. See **Pipelines**.
+
+## Check that events arrive
+
+1. Open the **Macos** card and click **View logs**. Log Explorer opens with the data type `macos` for the last 24 hours.
+2. Filter on `dataSource` with the Mac's host name. Events normally appear within a minute of the install.
+3. On **Configure > Data Sources**, the Mac appears under **Agents** within about a minute, with the status **Live**.
+
+On the Mac, check the services and the helper:
+
+```bash
+sudo launchctl list | grep UTMStack
+pgrep -fl utmstack-collector-mac
+sudo /opt/utmstack-macos-agent/utmstack_agent_service_darwin_arm64 status
+```
 
 ## Uninstall the agent
 
 Open the **Macos** card and expand **Uninstall the agent** at the bottom of the guide. Run the command in Terminal. It:
 
-1. runs the agent's own `uninstall` command,
+1. runs the agent's own `uninstall` command, which also removes the agent's registration on the UTMStack server,
 2. unloads and deletes the launch daemons `/Library/LaunchDaemons/UTMStackAgent.plist` and `/Library/LaunchDaemons/UTMStackUpdater.plist`,
 3. waits 10 seconds and deletes `/opt/utmstack-macos-agent`.
+
+The Mac's row stays on the **Data Sources** page and turns **Idle**, then **Offline**. Delete it there if you no longer need it. See **Reinstall, Move or Remove an Agent**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Bad CPU type in executable` | The Mac has an Intel processor. | Intel Macs are not supported. |
+| `Error trying to connect to server:  cannot connect to <server> on port 443` | No direct route to the server on 443. | Open 443 from the Mac to the server. |
+| `Error registering agent:` … `invalid connection key` | The key is wrong or was regenerated, or the command was copied by a non-administrator (`*******`). | Copy the command again as an administrator. |
+| The Mac is **Live** but no `macos` events arrive | The collection helper is missing or not running. The agent log says `macOS collector binary not found at: …`. | Check that `/opt/utmstack-macos-agent/utmstack-collector-mac` exists and that the Mac can download from the server; restart the agent with `sudo launchctl kickstart -k system/UTMStackAgent`. |
+| The Mac shows **Offline** | The Mac is asleep or off, the service is stopped, or the Mac cannot reach UTMStack. | Wake the Mac, check `sudo launchctl list \| grep UTMStack`, then read the agent log. |
+
+For more, see **Agent Troubleshooting**.

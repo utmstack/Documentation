@@ -34,7 +34,7 @@ flowchart LR
 2. The SOAR engine plugin checks the alert against every flow that the alert's tenant has switched on. Repeat alerts (echoes, which UTMStack groups under an earlier alert) never start a flow.
 3. If all conditions of a flow match, the server creates a run and starts every start step.
 4. When a step finishes, UTMStack follows its green wires if it succeeded, or its red wires if it failed. The branch that is not taken is recorded as **Unreachable**.
-5. Each step and its result appear in **SOAR > Execution history**.
+5. Each step and its status appear in **SOAR > Execution history**.
 
 The server picks up new work as soon as it arrives and also checks for waiting steps every 15 seconds. It runs up to 5 steps at the same time, and one step may take up to 5 minutes. In testing of UTMStack v12.0.1, a command reached the machine about a quarter of a second after the alert.
 
@@ -98,3 +98,5 @@ Flows act for real. They block addresses, disable accounts, stop processes, isol
 - **Interactive Console**
 - **Execution History and Run Statuses**
 - **Use Cases**
+- **Worked Examples: Responding Through Other Systems**
+- **Troubleshooting Flows**

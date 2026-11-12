@@ -7,22 +7,29 @@ UTMStack v12 collects Cisco Meraki logs through the **UTMStack Forwarder**, whic
 | Card on the Integrations page | **Meraki** (category Firewall) |
 | Data type | `firewall-meraki` |
 | Default ports on the Collector | 514/UDP; 1470/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 7 detection rules |
+| Log format UTMStack reads | Meraki's standard syslog format (event log, IDS alerts, URLs, flows, firewall and Air Marshal messages) |
+| Parsing pipeline | `cisco/meraki.yaml`, version 3.3.0. **Filters** in the card's drawer opens it. |
+| Detection rules | 7. **Rules** in the card's drawer opens them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
-- Your Meraki devices must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
+- Your Meraki devices must reach the Collector host on the port you use. Open it on the Collector host and on any firewall in between. Meraki devices send syslog from their own addresses, not from the Meraki cloud.
 - You need the `integrations.write` permission to enable the integration from the web interface.
+- Cisco ASA, Cisco Firepower, Cisco Meraki and Cisco Switch all use 514/UDP and 1470/TCP by default, and only one integration can listen on a port and protocol on the same Collector. If you collect more than one of them on one Collector, give each its own port (see **Use a different port** below).
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Meraki** card.
+
+    ![Cisco Meraki setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/359df8e6-a7f3-4c95-918d-3d755318c480)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a different port** below.
   </Step>
-  <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+  <Step title="Choose the Collector and protocol">
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol**. Choose **UDP** unless you use Meraki's TCP or encrypted syslog (see step 2). Leave **Port** at the default it fills in.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 514`.
@@ -32,35 +39,87 @@ UTMStack v12 collects Cisco Meraki logs through the **UTMStack Forwarder**, whic
 To do the same on the Collector host instead, run:
 
 ```bash
-sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-meraki 514 udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration firewall-meraki udp
 ```
 
-To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+The command prints the port the Collector really listens on, for example `Integration "firewall-meraki" enabled on udp port 514`.
+
+### Use a different port
+
+For built-in integrations, the Collector always listens on the port saved on the Collector host. That is the default port unless you change it there. A different number typed in **Port**, or on the `enable-integration` command line, is not used. To use another port:
+
+1. On the Collector host, change the saved port. For example, to move Cisco Meraki over UDP to 5142:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port firewall-meraki udp 5142
+   ```
+
+   Use `tcp` instead of `udp` for TCP and TLS.
+2. In the **Meraki** card, type the same port in **Port** when you enable the integration. If it is already enabled, click **Disable integration** first, then enable it again with the new port. The panel shows the port you type there, not a value read from the Collector, so typing the same port keeps the two in step.
+3. Use the new port in the syslog server entry in step 2.
 
 ## Step 2: Configure Meraki to forward logs
 
 <Steps>
   <Step title="Open the network settings">
-    In the Meraki Dashboard, go to **Network-wide → Configure → General**.
+    In the Meraki Dashboard, go to **Network-wide > Configure > General**. The syslog servers are in the **Reporting** section (called **Logging** in networks with only one device type).
   </Step>
   <Step title="Add a syslog server">
-    Scroll to the **Reporting** section and add a syslog server with the Collector IP and port 514.
+    Click **Add a syslog server**. Enter the Collector IP address and the port (514 by default).
   </Step>
   <Step title="Choose what to send">
-    Select all roles you want to forward.
+    Select the roles you want to forward, then save. Security appliances (MX) offer Event Log, IDS alerts, URLs and Flows; access points (MR) offer Event Log, URLs, Flows and Air Marshal events; switches (MS) offer Event Log only.
   </Step>
 </Steps>
 
+Repeat these steps in every Meraki network whose logs you want.
+
+### TCP and encrypted syslog
+
+Meraki sends syslog over UDP by default. According to Meraki's documentation, TCP and encrypted (TLS) syslog need MX 26.1 or MR 33.1 firmware or later, and switches do not support encrypted syslog. For encrypted syslog, the device checks the server certificate, so the certificate loaded on the Collector must come from a public certificate authority or from a CA bundle you upload in the Meraki Dashboard. Enable the UTMStack integration with the matching protocol (**TCP** or **TLS**, port 1470).
+
 ## Step 3: Check that logs arrive
 
-- In the **Meraki** drawer, click **View logs**. Log Explorer opens with the `firewall-meraki` data type for the last 24 hours.
-- Within about 10 minutes, each sending device appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+<Steps>
+  <Step title="Open the logs">
+    In the **Meraki** drawer, click **View logs**. Log Explorer opens with the `firewall-meraki` data type for the last 24 hours. You can also open **Log Explorer**, keep the data set `logs` and choose `firewall-meraki` as the data type.
+  </Step>
+  <Step title="Check the parsed fields">
+    Expand an event. Parsed events have standard fields such as `origin.ip`, `target.ip` and `action`, and Meraki fields under `log.`. The event should have no `errors`.
+  </Step>
+  <Step title="Check the data source">
+    Within about 20 minutes, each sending device appears on the **Data Sources** page under **Direct**, named after the address its logs come from.
+  </Step>
+</Steps>
+
+To list the latest events and any processing errors, switch Log Explorer to SQL mode and run:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'firewall-meraki'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Nothing arrives | The Collector is offline, or the devices cannot reach the Collector host on the port, or no role is selected. | Check that the Collector shows as online in the **Collector** list, that the devices have a route to the Collector, that the Collector host allows the port in, and that at least one role is selected. See **Forwarder Troubleshooting**. |
+| Only some devices send | Syslog servers are set per network, and switches only send the Event Log role. | Add the syslog server in every network, and select the roles each device type supports. |
+| Enabling fails with `port 514 is already in use by integration '…'` | Another Cisco integration already listens on 514/UDP on this Collector. | Move one of them to another port with `change-port` (see **Use a different port**), or use a second Collector. |
+| Enabling fails with `port 514 is already in use by another process` | Another program on the Collector host, often the system syslog service, holds the port. | Stop that program from listening on the port, or move Cisco Meraki to another port. |
+| Long URL or flow messages are cut off | Over UDP, the Collector reads at most 2,048 bytes of each message. | Where your firmware supports it, send over TCP instead. |
+| Meraki logs appear under another data type | The devices send to the port of a different integration. | Send to the port that the Cisco Meraki integration listens on. |
 
 ## Stop collecting
 
-In the **Meraki** card, select the same Collector and click **Disable integration**, or run on the Collector host:
+In the **Meraki** card, select the same Collector and click **Disable integration**, or run on the Collector host, with the protocol you enabled (`udp`, `tcp` or `tls`):
 
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration firewall-meraki udp
 ```
+
+Then remove the syslog server in each Meraki network.

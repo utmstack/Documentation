@@ -1,0 +1,116 @@
+With a multi-tenant licence, one UTMStack v12 server can host many customers, each in its own separate space called a **tenant**. This page explains what a tenant is, who does what, which things each tenant owns and which are shared by the whole server, and how UTMStack keeps tenants apart.
+
+This section is mainly for managed security service providers (MSSPs): companies that run one UTMStack server and monitor several customers from it. If your server has no multi-tenant licence, everything lives in one tenant and you can skip this section.
+
+<Note>
+
+UTMStack v12 replaces the v11 approach based on data source groups. Data source groups, **Apply Group** and filtering alerts by group do not exist in v12. Each customer is now a real tenant. See **Upgrading from v11 to v12**.
+
+</Note>
+
+## What a tenant is
+
+A tenant is one customer's own space on the server. It has its own:
+
+- address (domain), sign-in page and user accounts;
+- settings, branding and sign-in providers;
+- agents, Forwarders, cloud integrations and connection key;
+- logs, alerts, incidents, dashboards and reports;
+- custom rules, pipelines and response flows, and its own choice of which ones are switched on;
+- audit log and notifications.
+
+Every server has a **default tenant**, named **UTMStack**. It is created during installation and belongs to whoever runs the server. On a server without the multi-tenant licence, it is the only tenant. With the licence, you create one more tenant for each customer on the **Tenants** page.
+
+## Who does what
+
+| Person | Who this is | What they can do |
+|---|---|---|
+| **Instance operator** | A user with the **Administrator** role in the default tenant | Create, change, deactivate and delete tenants; set each tenant's daily AI request cap; manage the licence, data retention and cold storage, the ThreatWinds Integration switches and the About page; push items to many tenants with **Apply to all tenants**; work inside a customer's tenant when the customer allows it. |
+| Other users of the default tenant | Analysts, viewers and custom roles in the default tenant | Work in the default tenant only. They do not see the **Tenants** page and cannot enter customer tenants. |
+| **Tenant administrator** | A user with the **Administrator** role in a customer tenant | Run their own tenant: users, roles, settings, branding, sign-in providers, integrations, data sources, rules, pipelines and flows. Decide how much the instance operator may see or change (**Support access**). They never see other tenants or the server-wide pages. |
+| Tenant users | Analysts, viewers and custom roles in a customer tenant | Work with their own tenant's alerts, incidents, logs and dashboards, as their role allows. |
+
+The roles themselves (Administrator, Analyst, Viewer) are the same in every tenant. See **Roles and Permissions**.
+
+<Tip>
+
+Only Administrators of the default tenant can enter customer tenants. If your analysts must work in customers' tenants, either give them the Administrator role in the default tenant, which also lets them manage tenants, the licence and data retention, or ask each customer to create accounts for them inside the customer's tenant.
+
+</Tip>
+
+## Licence
+
+- Multi-tenancy needs an **Enterprise** licence with the multi-tenant option. The **License** page shows it in the row **MSSP / multi-tenant**. Only the instance operator can install a licence. See **License and Editions**.
+- Without that option there is no **Tenants** page, no tenant switcher in the top bar, no **Support access** page and no **Apply to all tenants** button, and every request goes to the default tenant.
+- Multi-tenancy works only while the licence is valid. An expired licence falls back to Community. Renew in time: the **License** page shows **Expiring soon** during the last 30 days.
+- Before you install a multi-tenant licence on a server that is already in use, check which address the default tenant answers on. See **How Users Reach Their Tenant**.
+
+## What each tenant owns and what is shared
+
+"Per tenant" means each tenant has its own copy and cannot see anyone else's. "Shared" means one copy serves the whole server.
+
+| Item | Per tenant or shared | Details |
+|---|---|---|
+| Users and their passwords | Per tenant | The same email address can exist in several tenants as separate accounts with separate passwords. See **Users**. |
+| Roles | Built-in roles shared, custom roles per tenant | Administrator, Analyst and Viewer are the same everywhere and cannot be changed. Roles a tenant creates belong to that tenant. |
+| API keys | Per user, so per tenant | A key works only on its owner's tenant address. See **API Keys**. |
+| Email settings, Base URL, alert and incident recipients | Per tenant, with fallback | A setting the tenant has never saved is read from the default tenant. Incident emails are the exception: they go only to incident recipients the tenant saved itself. See **Email Configuration**. |
+| Date, time zone and language | Per tenant, with fallback | Same fallback as email. See **Date, Time Zone and Language**. |
+| Branding | Per tenant, no fallback | A tenant without its own branding shows the standard UTMStack look, not the operator's. Needs Enterprise. See **Branding**. |
+| Identity providers (single sign-on) | Per tenant | A tenant's providers appear on its own sign-in page. See **Single Sign-On**. |
+| SOC-AI provider settings | Per tenant, with fallback | A tenant follows the instance default until it saves its own. See **AI Providers**. |
+| Daily AI request cap and AI usage | Per tenant | Usage is counted per tenant. Only the instance operator sets the cap. See **AI Usage and Limits**. |
+| Integrations catalogue | Shared | The built-in integrations are the same for every tenant. Custom integrations a tenant creates are its own. |
+| Integration credentials (config groups) | Per tenant | Each tenant saves its own cloud accounts, keys and secrets. Data collected with them belongs to that tenant. |
+| Connection key | Per tenant | Agents and Forwarders installed with a tenant's key belong to that tenant. See **Connection Key**. |
+| Agents, Forwarders and data sources | Per tenant | Decided by the connection key used at install time. |
+| Logs, alerts and ingestion statistics | Per tenant | Every record carries the ID of the tenant it belongs to. |
+| Incidents, notes and incident history | Per tenant | |
+| Dashboards and saved searches | Built-in dashboards shared, your own per tenant | |
+| Tagging rules and tags | Per tenant | Built-in tags such as "False positive" exist in every tenant. |
+| Correlation rules and pipelines | Shipped ones shared, custom ones per tenant | Tenants cannot edit shipped rules and pipelines. Switching any rule or pipeline on or off, and the order of pipelines, apply to one tenant only. |
+| Response flows (SOAR) | Shipped ones shared, custom ones per tenant | Each tenant switches shipped flows on separately. Flow variables and the execution history are per tenant. |
+| Compliance | Shipped frameworks shared, custom frameworks and controls per tenant | Reports, scores and report schedules are per tenant. Which shipped frameworks are available depends on the server's licence. |
+| Notifications (the bell) | Per tenant | See **Notifications**. |
+| App audit log | Per tenant | Actions the operator takes inside a tenant are recorded in that tenant's log. See **App Audit Logs**. |
+| User Auditor (account inventory) | Per tenant | |
+| Data retention | Shared | One setting for the whole server. There is no retention per tenant. See **Data Retention and Cold Storage**. |
+| Cold storage | Shared | Older records of every tenant move to cold storage under the same rule. |
+| ThreatWinds Integration switches | Shared | Set by the instance operator for the whole server. |
+| Licence | Shared | One licence for the server, installed by the instance operator. |
+| SSL certificate | Shared | One certificate is served for every tenant address. See **How Users Reach Their Tenant**. |
+
+### What a new tenant starts with
+
+- Every shipped correlation rule and pipeline switched on, whatever you switched off in your own tenant.
+- Every shipped response flow switched off.
+- None of your custom rules, pipelines, flows or compliance frameworks. To give them to customers, see **Apply to All Tenants**.
+- Your email settings, Base URL, alert recipients, date format and language, until the tenant saves its own.
+- No support access for you: the default level is **No access**.
+
+## How tenants are kept apart
+
+UTMStack ties every request to exactly one tenant, and then limits what the request can read or change to that tenant.
+
+1. **Which tenant a request belongs to.**
+   - People and programs using the web interface or the API: the **host name** in the address they use, for example `acme.siem.example.com`. Each tenant has its own domain. See **How Users Reach Their Tenant**.
+   - Agents and Forwarders: the **connection key** they were installed with.
+   - Cloud integrations: the tenant in which the config group was saved.
+   - The instance operator working inside a customer's tenant: the tenant chosen in a support session. See **Working Inside a Tenant**.
+2. **Settings and records.** Every record in the database (users, settings, incidents, data sources and so on) carries the ID of its tenant. UTMStack adds the acting tenant to every read and every change of these records automatically. An item that belongs to another tenant answers "not found".
+3. **Logs and alerts.** Every log, alert and statistics record in the event store carries a `tenantId`. Log searches, dashboards, alert lists and compliance checks add the acting tenant to what they read.
+4. **Sessions and keys.** A signed-in session and an API key belong to the tenant where they were created. Used on another tenant's address, they are refused with "credential does not belong to this tenant".
+5. **The operator.** The instance operator cannot enter a customer's tenant unless the tenant allows it. The tenant's own administrator decides whether the operator gets **Read only** or **Full access**, and can take it back at any time. See **Support Access**.
+
+## Where to go next
+
+| Task | Page |
+|---|---|
+| Plan domain names, DNS and the certificate | **How Users Reach Their Tenant** |
+| Bring a new customer on board, from creating the tenant to the first alert | **Onboarding a Customer** |
+| Use the Tenants page | **Tenants** |
+| Grant or take back the operator's access (tenant administrators) | **Support Access** |
+| Help a customer from inside their tenant | **Working Inside a Tenant** |
+| Edit, deactivate, suspend, reactivate or delete a tenant | **Tenant Lifecycle** |
+| Roll out the same pipeline, rule switch or flow to many tenants | **Apply to All Tenants** |
+| Fix common problems | **Multi-Tenancy FAQ and Troubleshooting** |

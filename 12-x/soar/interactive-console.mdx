@@ -5,6 +5,9 @@ The Interactive Console runs commands on one machine through its UTMStack agent,
 You can open it in two places:
 
 - **SOAR > Interactive Console**. The left list shows your agents with a search box (**Search agents…**). Select an agent to open its console. Until you do, the page reads "Select an agent — Choose an agent from the list to open its interactive console."
+
+  ![The Interactive Console page with the Search agents box and the list of agents with their platform on the left, and the Select an agent message on the right](/assets/24a106cf-01f0-4f3b-9f07-fdbab00e9aa7)
+
 - From a host in **Configure > Data Sources**: the **Console** section ("Run commands on this host through its agent (live response).") has an **Open console** button.
 
 Who can use it: users with the `soar.write` permission (Administrator and Analyst roles). Viewers are refused.
@@ -19,12 +22,14 @@ Who can use it: users with the `soar.write` permission (Administrator and Analys
   </Step>
   <Step title="Confirm your password">
 
-    Before the first command, the console asks you to authenticate again ("Authenticate to run commands on this agent."). Type your UTMStack password. The characters are shown as `*`.
+    Before the first command, the console asks you to authenticate again ("Authenticate to run commands on this agent."). Type your UTMStack password. The characters are shown as dots. A wrong password shows "invalid credentials"; after too many failures the console shows "too many failed attempts; try again later".
+
+    Only accounts with a UTMStack password can pass this step. Accounts that sign in through single sign-on or a directory (LDAP) have no UTMStack password and cannot use the console. Failed attempts count toward the sign-in lockout: after 9 failures within 10 minutes from one address, sign-in from that address is blocked for 10 minutes.
 
   </Step>
   <Step title="Choose the shell">
 
-    Use **Shell type** to pick the shell: `cmd` or `powershell` on Windows, `bash` or `sh` on Linux and macOS.
+    On Windows, use **Shell type** to pick `cmd` (the default) or `powershell`. On Linux and macOS the console always uses `bash`.
 
   </Step>
   <Step title="Type a command and press Enter">
@@ -34,9 +39,9 @@ Who can use it: users with the `soar.write` permission (Administrator and Analys
   </Step>
 </Steps>
 
-If the agent is offline, the console shows "Agent offline — commands are disabled".
+If the agent is offline, the console shows "This agent appears offline — it may not respond to commands." and the command box reads "Agent offline — commands are disabled". For an agent installed with remote control disabled, the console explains: "This agent was installed with remote control disabled. It refuses commands, and that can only be changed on the machine itself."
 
-If a command is refused after the console has been open for a while, close the console and open it again to authenticate again.
+The password proof is valid for 5 minutes. If a command is refused after the console has been open for a while, close the console and open it again to authenticate again.
 
 ## Use variables
 
@@ -45,14 +50,16 @@ The **Variables** button opens **Command variables**, where you create, edit and
 ## How commands run
 
 - Each command runs once and returns its full output when it finishes. Output is not streamed line by line.
+- The command runs with the agent's own rights: root on Linux, the Local System account on Windows. The shell is started the same way as for flow steps (`cmd.exe /C`, `powershell.exe -Command`, `bash -c` or `sh -c`; see **Step Types**).
 - Commands for one agent run one at a time. A long console command delays flow steps on the same machine, and the other way round.
-- Output longer than 65,536 characters is not shown; it ends with the error "string exceeds 65536 characters".
+- Agents from UTMStack v12.0.2 cut output longer than 65,536 bytes and add the line `... output truncated, showing first N of M bytes`. Older agents return the error "string exceeds 65536 characters" instead.
+- When a command fails, the output holds what it printed, its error text, and a last line such as `exit status 1`.
 - On Windows, text in other alphabets may appear garbled in the output.
-- A failing command may show only "exit status N" instead of the error text (seen in testing of UTMStack v12.0.1).
+- Interactive programs that wait for input (for example `passwd` without options, or a command that asks "Are you sure?") never get an answer. Use options that make the command run without questions.
 
 ## Where commands are recorded
 
-Every console command is stored in **SOAR > Execution history** with the origin **Manual** and the agent it ran on. The **Flow** column shows "Interactive console". See **Execution History and Run Statuses**.
+Every console command is stored in **SOAR > Execution history** with the origin **Manual** and the agent it ran on. The **Node** column shows "Interactive console" and the **Flow** column shows who ran the command. A console command that ended with an error is still recorded as **Executed**; only a broken connection to the agent records **Failed**. See **Execution History and Run Statuses**.
 
 <Note>
 
@@ -79,3 +86,4 @@ Use **Execution history** as the record of console commands. In testing of UTMSt
 - **Step Outputs and Variables**
 - **Execution History and Run Statuses**
 - **Running Steps on Another Host**
+- **Troubleshooting Flows**

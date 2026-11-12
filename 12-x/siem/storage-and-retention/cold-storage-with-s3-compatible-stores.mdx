@@ -1,0 +1,241 @@
+Many storage products speak the same language as Amazon S3. UTMStack v12 can use them as cold storage through the **S3-compatible object store** type. This page gives the Bucket URL format and the setup steps for MinIO, Ceph, Wasabi, Cloudflare R2 and Google Cloud Storage, plus the general rules that apply to any S3-compatible store.
+
+For what cold storage is and how it behaves, read **How UTMStack Stores Data**. For Amazon S3 itself, see **Cold Storage with Amazon S3**.
+
+## What every store needs
+
+Whatever the product, prepare:
+
+1. **A dedicated bucket** for UTMStack. Do not share it with other applications or with another UTMStack server.
+2. **An access key and secret key** that can list the bucket and read, write and delete objects in it. Read-only or write-only keys do not work: the event store deletes objects when records reach **Delete after** and when it merges blocks.
+3. **The Bucket URL**, in this form (path style):
+
+```text
+https://<endpoint>/<bucket>/
+https://<endpoint>/<bucket>/<folder>/
+```
+
+The `<endpoint>` is the address of the storage service, with a port if it is not 443. The path must contain at least the bucket name; UTMStack refuses a URL without it ("the bucket URL must include the bucket"). UTMStack adds the final `/` if you leave it out.
+
+4. **Network access** from the UTMStack server to the endpoint. The event store runs in a container on the server and uses the server's DNS and routes.
+
+5. **A trusted certificate** if the endpoint uses `https://`. The certificate must be issued by a public certificate authority and match the host name in the Bucket URL. Certificates from a private or self-signed authority are refused. An `http://` endpoint works, but data then travels unencrypted: use it only on a network you trust.
+
+Then follow the UTMStack steps in **Turn on cold storage in UTMStack** at the end of this page.
+
+<Warning>
+
+On every product, avoid settings that delete, lock or archive objects behind the event store's back: lifecycle or expiry rules on current objects, object lock or retention locks, and archive tiers that need a restore before reading. Leave versioning off. The event store manages every object in the bucket itself.
+
+</Warning>
+
+## MinIO
+
+MinIO is object storage you run yourself.
+
+| Item | Value |
+|---|---|
+| Bucket URL | `https://minio.example.com:9000/utmstack-cold/` |
+| Access key, Secret key | Those of a MinIO user created for UTMStack |
+
+Set it up with the MinIO client (`mc`). Replace the alias, host and names with yours.
+
+```bash
+# Connect mc to your MinIO server as an administrator
+mc alias set myminio https://minio.example.com:9000 ADMIN_USER ADMIN_PASSWORD
+
+# Create the bucket
+mc mb myminio/utmstack-cold
+```
+
+Save this policy as `utmstack-cold.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
+      "Resource": ["arn:aws:s3:::utmstack-cold"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:AbortMultipartUpload"],
+      "Resource": ["arn:aws:s3:::utmstack-cold/*"]
+    }
+  ]
+}
+```
+
+Then create the user and give it the policy:
+
+```bash
+mc admin policy create myminio utmstack-cold utmstack-cold.json
+mc admin user add myminio utmstack-cold-user 'A-LONG-RANDOM-SECRET'
+mc admin policy attach myminio utmstack-cold --user utmstack-cold-user
+```
+
+Use `utmstack-cold-user` as the **Access key** and its secret as the **Secret key**. Keep versioning and object locking off on the bucket.
+
+## Ceph (RADOS Gateway)
+
+Ceph exposes S3 through its RADOS Gateway (RGW).
+
+| Item | Value |
+|---|---|
+| Bucket URL | `https://rgw.example.com/utmstack-cold/` (add the port if RGW does not listen on 443) |
+| Access key, Secret key | The keys of an RGW user created for UTMStack |
+
+Create the user on a Ceph admin node:
+
+```bash
+radosgw-admin user create --uid=utmstack-cold --display-name="UTMStack cold storage"
+```
+
+The output shows the user's `access_key` and `secret_key`. Create the bucket with any S3 client using those keys, for example with the AWS CLI:
+
+```bash
+aws --endpoint-url https://rgw.example.com s3 mb s3://utmstack-cold
+```
+
+A bucket created by the UTMStack user belongs to it, so no extra policy is needed.
+
+## Wasabi
+
+| Item | Value |
+|---|---|
+| Bucket URL | `https://s3.<region>.wasabisys.com/<bucket>/`, for example `https://s3.eu-central-1.wasabisys.com/utmstack-cold-example/` |
+| Access key, Secret key | The access key of a Wasabi sub-user created for UTMStack |
+
+1. In the Wasabi console, create the bucket in the region you want. Leave versioning and object locking off.
+2. Create a policy with the same content as the MinIO policy above, with your bucket name.
+3. Create a sub-user with programmatic access only, attach the policy, and copy the access key and secret key.
+4. Use the endpoint of the bucket's region in the Bucket URL. Wasabi lists its endpoints in its documentation; for `us-east-1` the host is `s3.wasabisys.com`.
+
+<Note>
+
+Wasabi bills each object for a minimum storage time (90 days on most plans), even if it is deleted earlier. The event store deletes and rewrites objects as it merges blocks and applies retention, so expect some charges for deleted objects, especially with short retention.
+
+</Note>
+
+## Cloudflare R2
+
+| Item | Value |
+|---|---|
+| Bucket URL | `https://<account-id>.r2.cloudflarestorage.com/<bucket>/`, for example `https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com/utmstack-cold/` |
+| Access key, Secret key | The **Access Key ID** and **Secret Access Key** of an R2 API token |
+
+1. In the Cloudflare dashboard, open **R2 Object Storage** and create the bucket.
+2. Under **Manage API tokens**, create an API token with the **Object Read & Write** permission, limited to that bucket.
+3. Copy the **Access Key ID** and **Secret Access Key** shown once on the result page, and your account ID (it is in the S3 API endpoint shown for the bucket).
+4. For a bucket created with an EU jurisdiction, use the endpoint Cloudflare shows for it, `https://<account-id>.eu.r2.cloudflarestorage.com`.
+
+R2 does not charge for data read out of it, which helps when analysts often search old data.
+
+## Google Cloud Storage
+
+Google Cloud Storage accepts S3 requests through its XML API when you use HMAC keys (a key pair that works like an AWS access key).
+
+| Item | Value |
+|---|---|
+| Bucket URL | `https://storage.googleapis.com/<bucket>/`, for example `https://storage.googleapis.com/utmstack-cold-example/utmstack/` |
+| Access key, Secret key | The **Access ID** and **Secret** of an HMAC key for a service account |
+
+<Steps>
+
+<Step title="Create the bucket">
+
+In the Google Cloud console, open **Cloud Storage > Buckets** and click **Create**. Choose the location, the **Standard** storage class, and **Uniform** access control. Leave **Autoclass** off, keep public access prevention on, and do not set a retention policy or object versioning.
+
+</Step>
+
+<Step title="Create a service account">
+
+In **IAM & Admin > Service Accounts**, create a service account, for example `utmstack-cold-storage`. It needs no project-wide role.
+
+</Step>
+
+<Step title="Give it access to the bucket only">
+
+Open the bucket, then **Permissions > Grant access**. Add the service account with the role **Storage Object User** (`roles/storage.objectUser`). This role can list, read, create and delete objects in the bucket.
+
+</Step>
+
+<Step title="Create an HMAC key">
+
+In **Cloud Storage > Settings > Interoperability**, under **Access keys for service accounts**, click **Create a key for a service account** and choose the service account. Copy the **Access ID** and the **Secret**; the secret is shown once.
+
+</Step>
+
+</Steps>
+
+With the gcloud CLI:
+
+```bash
+gcloud storage buckets create gs://utmstack-cold-example --location=europe-west1 \
+  --default-storage-class=STANDARD --uniform-bucket-level-access
+gcloud iam service-accounts create utmstack-cold-storage
+gcloud storage buckets add-iam-policy-binding gs://utmstack-cold-example \
+  --member="serviceAccount:utmstack-cold-storage@YOUR-PROJECT.iam.gserviceaccount.com" \
+  --role="roles/storage.objectUser"
+gcloud storage hmac create utmstack-cold-storage@YOUR-PROJECT.iam.gserviceaccount.com
+```
+
+<Note>
+
+New Google Cloud Storage buckets keep deleted objects for 7 days by default (soft delete), and bill them for that time. The event store deletes objects regularly, so you may want to shorten or turn off soft delete on this bucket.
+
+</Note>
+
+## Other S3-compatible stores
+
+For any other product:
+
+- Use the path-style Bucket URL: `https://<endpoint>/<bucket>/`.
+- Create a key that can list the bucket and read, write and delete objects, including multipart uploads.
+- Check that the product supports the standard S3 calls for listing, reading, writing (including multipart upload) and deleting objects. Products that only offer a subset may fail the test when you enable cold storage, or fail later.
+- If the product offers object lock, lifecycle expiry or archive tiers, leave them off for this bucket.
+
+## Turn on cold storage in UTMStack
+
+<Steps>
+
+<Step title="Open the Cold storage card">
+
+Go to **Configure > Settings > Data Retention** and scroll to **Cold storage**.
+
+</Step>
+
+<Step title="Enter the details">
+
+Click **S3-compatible object store**. Enter the **Bucket URL**, the **Access key** and the **Secret key**. Leave **Use the server's IAM role instead of keys** clear: it works only with Amazon S3 on AWS.
+
+</Step>
+
+<Step title="Enable">
+
+Click **Enable cold storage**. The event store writes a small test file to the bucket, reads it back and deletes it. If it works, the card shows **In use**. If not, the error starts with "the event store could not use this bucket:" and nothing is changed.
+
+</Step>
+
+<Step title="Choose what moves">
+
+On the **Logs** card, and on **Alerts** if you want, set **Move to cold storage after** and click **Save**.
+
+</Step>
+
+</Steps>
+
+To check that records arrive, see **Check that it works** in **Cold Storage with Amazon S3**: the event store query and the Log Explorer search work the same way for every store. To change the keys later, enter new ones and click **Update credentials**.
+
+## Troubleshooting
+
+| The error mentions | Cause | Fix |
+|---|---|---|
+| A certificate or SSL problem | The endpoint's certificate is self-signed, from a private authority, expired, or does not match the host name | Use a certificate from a public authority that matches the host name in the Bucket URL. |
+| A host that cannot be found, a refused connection, or a timeout | The server cannot resolve or reach the endpoint | From the UTMStack server, run `curl -sI https://<endpoint>/`. Any HTTP answer means the path works. Check DNS, firewalls and the port in the URL. |
+| A bucket that does not exist (`NoSuchBucket`) | The bucket name in the URL is wrong, or the URL uses the wrong style | Use the path style: the bucket is the first part of the path. |
+| Access denied (`AccessDenied`) or a signature mismatch (`SignatureDoesNotMatch`) | The key is wrong, or cannot list, read, write or delete | Check the key and its permissions on this bucket. |
+
+For every UTMStack message, see **Troubleshooting Retention and Cold Storage**.

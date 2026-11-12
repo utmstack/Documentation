@@ -1,0 +1,150 @@
+Use the generic `syslog` data type for any device or application that can send syslog but has no card of its own on the Integrations page. UTMStack v12 parses standard syslog headers, and splits CEF and LEEF messages into fields, so many security products work without a pipeline of your own.
+
+## When to use it
+
+| Your source sends | Use |
+|---|---|
+| Logs from a product that has its own card (FortiGate, Palo Alto, Cisco and so on) | That card. Its pipeline understands the vendor's fields. |
+| CEF (Common Event Format) or LEEF (Log Event Extended Format) from a product without a card, for example many web application firewalls, proxies, email gateways and endpoint products | The generic `syslog` data type, on this page. |
+| Plain syslog (RFC 3164 or RFC 5424) from Linux, Unix, appliances or network gear without a card | The generic `syslog` data type, on this page. |
+| One JSON object per line | **JSON Input**. |
+| Anything else, or a source you want to keep apart with its own data type and pipeline | **Custom Integrations**. |
+
+CEF and LEEF are two common ways to put structured security events into a syslog line. CEF lines contain `CEF:0|vendor|product|…`, LEEF lines contain `LEEF:1.0|vendor|product|…` or `LEEF:2.0|…`.
+
+## What UTMStack does with these logs
+
+| Item | Value |
+|---|---|
+| Data type | `syslog` |
+| Default port on the UTMStack Forwarder | 7014, UDP and TCP (TLS on the TCP port) |
+| Card on the Integrations page | None. You enable it from the command line or through a custom integration named **Syslog** (both below). |
+| Shipped pipelines | `syslog/syslog-cef-leef.yaml` (version 1.1.0) for CEF and LEEF, and `syslog/syslog-generic.yaml` (version 1.0.0) for plain syslog |
+| Shipped rules | 3 rules for CEF: "CEF File Hash Mismatch Detection", "CEF Source Impersonation Detection" and "CEF User Agent Anomaly Detection" |
+
+Each line is handled by one of the two pipelines:
+
+- **CEF or LEEF.** If the line contains `CEF:` or `LEEF:`, the header fields are kept under `log.` (for example `log.deviceVendor`, `log.deviceProduct`), and the common extension keys are moved to standard fields: source and destination addresses to `origin.ip` and `target.ip`, ports, users, `action`, `severity`, the requested URL and file hashes. Custom string fields stay as `log.cs1` to `log.cs6` with their labels.
+- **Plain syslog.** Every other line gets its priority, severity, facility, host, program and message parsed from the RFC 5424 or RFC 3164 header. The sending host goes to `origin.host` and the message text is kept in `log.message`.
+
+The field `log.dataType` tells you which format a line had: `cef`, `leef` or `plain`.
+
+<Note>
+
+The shipped detection rules for this data type are few. For a product you depend on, add rules of your own that use its fields. See **Alerting Rules**.
+
+</Note>
+
+## Before you begin
+
+- A UTMStack Forwarder (the **Collector** in the web interface) must be installed and online. See **UTMStack Forwarder**.
+- The source must reach the Forwarder host on port 7014 (UDP or TCP), or on the port you choose.
+- You need administrator rights on the Forwarder host for the command line method, or the `integrations.write` permission for the web interface method.
+
+## Step 1: Open the listener on the Forwarder
+
+Choose one method.
+
+### Method A: command line on the Forwarder host
+
+`syslog` is a built-in data type of the Forwarder, so you only give the protocol:
+
+```bash
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration syslog udp
+sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration syslog tcp
+```
+
+Each command prints the port it opened, for example `Integration "syslog" enabled on udp port 7014`. Enable only the protocols your sources use.
+
+### Method B: web interface, through a custom integration
+
+UTMStack v12 has no **Syslog** card, but you can create one:
+
+<Steps>
+  <Step title="Create the integration">
+    Go to **Configure > Integrations**, scroll to **Add custom integration** and click **Create**. In **Integration name**, type `Syslog`. The drawer shows that it is stored as `syslog`. Add a description if you like, then save.
+
+    ![New custom integration drawer in UTMStack with the Integration name, Description and Icon fields and the Create integration button](/assets/c2f44659-cfbf-43cb-aa33-de6ab9844cf7)
+  </Step>
+  <Step title="Enable it on a Collector">
+    Open the new **Syslog** card. Under **Enable this integration remotely**, choose the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). In **Port**, type `7014`: the Forwarder always uses its own port for the `syslog` data type, whatever you type, so typing 7014 keeps the page truthful.
+  </Step>
+  <Step title="Click Enable integration">
+    The panel shows `Currently: enabled · udp · port 7014`.
+  </Step>
+</Steps>
+
+To use a port other than 7014, run `change-port syslog udp <port>` (or `tcp`) on the Forwarder host first. See "Use a different port" in **UTMStack Forwarder**.
+
+## Step 2: Point your source at the Forwarder
+
+Configure the source's remote syslog destination as `<forwarder-ip>` port 7014, with the protocol you enabled. Choose CEF or LEEF as the output format if the product offers it, because those formats give the most fields.
+
+Examples:
+
+<CodeGroup>
+
+```text rsyslog (Linux)
+# /etc/rsyslog.d/90-utmstack.conf  (@@ = TCP, @ = UDP)
+*.* @@<forwarder-ip>:7014
+```
+
+```text syslog-ng (Linux)
+destination d_utmstack { network("<forwarder-ip>" transport("tcp") port(7014)); };
+log { source(s_src); destination(d_utmstack); };
+```
+
+</CodeGroup>
+
+After you change rsyslog, check the file with `rsyslogd -N1` and restart it with `sudo systemctl restart rsyslog`. In syslog-ng, the source name (`s_src` above) must match one defined in your configuration.
+
+<Tip>
+
+Prefer TCP when your sources send CEF or LEEF. These lines are often longer than 2,048 bytes, and the Forwarder cuts UDP messages at that size.
+
+</Tip>
+
+## Step 3: Check that logs arrive
+
+1. Send a test line from any Linux machine that can reach the Forwarder:
+
+   ```bash
+   logger -n <forwarder-ip> -P 7014 -T "CEF:0|Example|TestProduct|1.0|100|UTMStack test event|3|src=192.0.2.10 dst=198.51.100.20 act=blocked"
+   ```
+
+   Use `-d` instead of `-T` if you enabled UDP.
+
+2. In **Log Explorer**, choose the data set `logs` and the data type `syslog`, and search for `UTMStack test event`.
+3. Expand the event. You should see `log.dataType` = `cef`, `log.deviceVendor` = `Example`, `origin.ip` = `192.0.2.10`, `target.ip` = `198.51.100.20`, and an empty `errors` field.
+4. Within about 20 minutes, each sender appears on **Configure > Data Sources** under **Direct**, named after its IP address, with the data type `syslog`.
+
+To see which formats arrive and from where, run this in Log Explorer's SQL mode:
+
+```sql
+SELECT dataSource, toString(log.dataType) AS format, count() AS events
+FROM logs
+WHERE dataType = 'syslog'
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+GROUP BY dataSource, format
+ORDER BY events DESC
+LIMIT 50
+```
+
+## Make the logs more useful
+
+The generic pipelines only know the standard syslog, CEF and LEEF fields. To get more:
+
+- **Add your own pipeline** for the `syslog` data type that reads product-specific fields from `log.message` or `log.cs1` to `log.cs6`. Give it a condition (`where`) on `log.deviceProduct` or on the program name so it touches only that product's lines. See **Pipelines**.
+- **Give a product its own data type** when it sends a lot or needs its own rules: create a custom integration for it (for example "Acme WAF", data type `acme-waf`) on another port, and write a pipeline for that data type. See **Custom Integrations**.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Nothing arrives | The listener is not open, the source sends to another address or port, or a firewall blocks 7014. | Check `sudo ss -lntup \| grep 7014` on the Forwarder host and capture with `sudo tcpdump -ni any port 7014`. See **Forwarder Troubleshooting**. |
+| `port 7014 is already in use by another process` | Another syslog server on the host holds the port. | Stop that listener or move `syslog` to another port with `change-port`. |
+| The panel says port 7100 but nothing listens there | The Forwarder ignores the typed port for the built-in `syslog` data type and uses 7014. | Disable, type 7014 (or the port you set with `change-port`), and enable again. |
+| CEF events arrive cut off, extension fields missing | UDP messages are cut at 2,048 bytes. | Send over TCP or TLS. |
+| `log.dataType` is `plain` for CEF lines | The line does not contain `CEF:` (for example the product sends its own key=value format). | Choose CEF output on the product, or write a pipeline for its format. |
+| Values with spaces are cut in CEF extension fields | The CEF step splits extension pairs on spaces. | Check the raw line; for important fields, add your own pipeline step that extracts them from `raw`. |
+| Logs from a product with its own card arrive as `syslog` | The device sends to 7014 instead of its card's port. | Point it at its own port so its own pipeline and rules apply. |

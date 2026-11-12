@@ -7,15 +7,17 @@ UTMStack v12 collects GitHub events through webhooks. GitHub posts each event ov
 | Card on the Integrations page | **Github** (category DevOps) |
 | Data type | `github` |
 | Listener on the Collector | HTTPS on port 7020, path `/github`, listening on all addresses |
-| Authentication | HMAC signature in the `X-Hub-Signature-256` header |
-| Included in UTMStack | A parsing filter and 13 detection rules |
+| Authentication | HMAC signature (a hash of each request made with a shared secret) in the `X-Hub-Signature-256` header |
+| Format UTMStack expects | GitHub's JSON webhook payloads (content type `application/json`) |
+| Parsing pipeline | `github/github.yaml`. The **Filters** button in the drawer opens it. |
+| Detection rules | 13 rules for the `github` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**.
-- GitHub sends from the internet, so port **7020/TCP** on the Collector host must be reachable from GitHub.
+- GitHub sends from the internet, so port **7020/TCP** on the Collector host must be reachable from GitHub. GitHub publishes the addresses its webhooks come from in the `hooks` list of `https://api.github.com/meta`; you can allow only those.
 - The Collector host needs a DNS name and a TLS certificate for that name issued by a public certificate authority.
-- You need the `integrations.write` permission to enable the integration from the web interface, and access to the settings of the GitHub repository or organization.
+- You need the `integrations.write` permission to enable the integration from the web interface, and admin access to the GitHub repository or owner access to the organization.
 
 <Warning>
 
@@ -25,25 +27,27 @@ GitHub only delivers webhooks to HTTPS endpoints with a certificate issued by a 
 
 ## Step 1: Load the certificate on the Collector
 
-Load the certificate and its private key once per Collector. Use one of these ways:
+Load the certificate and its private key once per Collector. Use a certificate file that contains the **full chain**: your certificate followed by the intermediate certificates (for example `fullchain.pem` from Let's Encrypt). The Collector presents exactly what is in that file, and GitHub needs the intermediates to trust it.
 
-- **Web interface**: in the **Github** card, under **Enable this integration remotely**, select the **Collector**. In the **TLS certificate** box, choose the **Certificate**, the **Private key** and, if needed, the **CA certificate**, then click **Upload certificate**.
+- **Web interface**: in the **Github** card, under **Enable this integration remotely**, select the **Collector**. In the **TLS certificate** box, choose the **Certificate**, the **Private key** and, if needed, the **CA certificate**, then click **Upload certificate**. The box then says "A valid certificate is already loaded on this Collector."
 - **Command line** on the Collector host:
 
   ```bash
-  sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key
+  sudo /opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/fullchain.pem /path/to/privkey.pem
   ```
 
-  You can add the CA certificate (the chain) as a third argument.
+The Collector reads the certificate for each new connection. When you renew it, load the new files the same way; you do not need to restart anything. The same certificate is used by every TLS and HTTPS listener on that Collector.
 
 ## Step 2: Enable the integration
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Github** card.
+
+    ![GitHub setup guide in UTMStack: Enable this integration remotely with Protocol HTTPS, Port 7020, HMAC signature authentication, Path /github and Signature header X-Hub-Signature-256](/assets/01e79f61-8086-4421-b405-1f53bd5531cf)
   </Step>
   <Step title="Check the settings">
-    Under **Enable this integration remotely**, select the **Collector**. The other fields are already set for GitHub: **Protocol** HTTPS, **Port** 7020, **Authentication** HMAC signature, **Path** `/github` and **Signature header** `X-Hub-Signature-256`.
+    Under **Enable this integration remotely**, select the **Collector**. The other fields are already set for GitHub: **Protocol** HTTPS, **Port** 7020, **Authentication** HMAC signature, **Path** `/github` and **Signature header** `X-Hub-Signature-256`. Unlike syslog integrations, the HTTPS listener uses the port you type here.
   </Step>
   <Step title="Enable it and copy the secret">
     Click **Enable integration**. UTMStack shows a secret token once: "Store this token securely — it won't be shown again." Copy it now. You need it in GitHub.
@@ -56,7 +60,13 @@ To do the same on the Collector host instead, run:
 sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration github 7020 https
 ```
 
-The terminal prints the secret token once. The Forwarder also keeps it in `/opt/utmstack-forwarder/certs/integration-http-github.token`.
+The terminal prints the secret token once. The Forwarder keeps it in `/opt/utmstack-forwarder/certs/integration-http-github.token`.
+
+<Note>
+
+A new token is created only when that file does not exist. If you enable the integration while the file is already there, no token is shown and the existing one stays valid; read it with `sudo cat /opt/utmstack-forwarder/certs/integration-http-github.token`. Disabling the integration deletes the file, so enabling it again creates a new token that you must also enter in GitHub.
+
+</Note>
 
 ## Step 3: Register the webhook in GitHub
 
@@ -67,9 +77,10 @@ In your repository or organization, go to **Settings → Webhooks → Add webhoo
 | **Payload URL** | `https://<collector-domain>:7020/github` |
 | **Content type** | `application/json` |
 | **Secret** | The token from step 2 |
+| **SSL verification** | Keep it enabled |
 | **Which events** | **Send me everything**, or select the event types you want |
 
-Save the webhook.
+Save the webhook. GitHub sends a `ping` event right away.
 
 <Note>
 
@@ -79,8 +90,21 @@ The setup guide in UTMStack fills in your UTMStack server's address in the Paylo
 
 ## Step 4: Check that events arrive
 
-- In the **Github** drawer, click **View logs**. Log Explorer opens with the `github` data type for the last 24 hours.
-- **Rules** and **Filters** in the drawer open the detection rules and the parsing filter for this data type.
+1. In GitHub, open the webhook and its **Recent Deliveries** tab. The `ping` delivery should show the response code **204**, which means the Collector accepted it.
+2. In the **Github** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `github` data type for the last 24 hours. You can also open **Log Explorer** and choose the data type yourself.
+3. Expand an event. The **Parsed fields** view should show the webhook fields under `log.`, and the `errors` field should be empty.
+4. Within about 20 minutes, a source named `github` appears on **Configure > Data Sources** under **Direct**. All webhook events on this Collector are stored under that one source name.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'github'
+  AND `@timestamp` > now() - INTERVAL 1 DAY
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Stop collecting
 
@@ -90,4 +114,18 @@ In the **Github** card, select the same Collector and click **Disable integratio
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration github https
 ```
 
-Then delete the webhook in GitHub.
+This also deletes the token file. Then delete the webhook in GitHub.
+
+## Troubleshooting
+
+GitHub's **Recent Deliveries** tab shows the response for each delivery. Use it first: the Collector does not log rejected webhook requests.
+
+| What Recent Deliveries shows | Likely cause | What to do |
+|---|---|---|
+| A timeout or "failed to connect" | Port 7020 is not reachable from the internet, or the integration is not enabled | Open the port to GitHub's `hooks` addresses. Check that the panel shows `Currently: enabled · https · port 7020`. On the Collector host, `sudo ss -lntp` lists the open TCP ports: look for 7020. |
+| An SSL or certificate error | The certificate is self-signed, expired, missing intermediates, or issued for another name | Load a full-chain certificate from a public certificate authority for the name in the Payload URL (step 1). |
+| **401** | The secret in GitHub does not match the token, or the signature header is missing | Copy the current token (step 2) into the webhook's **Secret** field and redeliver. After a disable and enable, a new token is created. |
+| **404** | The Payload URL path is not `/github` | Fix the Payload URL. |
+| **413** | The payload is larger than 8 MB, the most the Collector accepts | Select fewer event types if this repeats. |
+| **503** | The Collector's queue was full for a moment | Click **Redeliver** in GitHub. If it repeats, see **Forwarder Troubleshooting**. |
+| **204**, but parsed fields are missing and `errors` is not empty | The webhook's content type is `application/x-www-form-urlencoded` | Set **Content type** to `application/json`. |

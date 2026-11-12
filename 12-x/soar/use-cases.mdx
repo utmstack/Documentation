@@ -17,9 +17,9 @@ If you start with **New flow > From scratch** instead, the flow is switched on a
 
 ## Use case 1: Contain an SSH brute-force attack on a Linux server
 
-**Scenario.** Someone guesses passwords over SSH and finally signs in to a Linux server. You want to block the attacker's address on that server, end the sessions of the account that was used, and tell the team. If the block fails, the team must know at once.
+**Scenario.** Someone guesses passwords over SSH on a Linux server. You want to block the attacker's address on that server, end the sessions of the account that was used, and tell the team. If the block fails, the team must know at once.
 
-**Trigger.** Alert name **is** `System Linux: Possible Brute Force Attack` (shipped rule: several SSH sign-in failures followed by a success from the same address).
+**Trigger.** Alert name **is** `System Linux: Possible Brute Force Attack` (shipped rule: ten or more failed SSH sign-ins on the same server within 15 minutes).
 
 **Steps.**
 
@@ -206,6 +206,7 @@ If you start with **New flow > From scratch** instead, the flow is switched on a
 **Notes.**
 
 - Replace `DC01` and `SQL01` with the host names exactly as they appear in the alert's **Data source**. Comparisons are case-sensitive.
+- Keep the list in the **Code** tab as shown. If you type the values of a Conditional step's "is not one of" in the Visual tab, UTMStack v12.0.2 saves them as one piece of text and the condition always matches (see **Step Types**).
 - The isolation command is the palette's "Isolate host (block all traffic)" step for PowerShell.
 
 ## Use case 4: Block an attacker on a Linux gateway from a network sensor alert
@@ -289,7 +290,8 @@ If you start with **New flow > From scratch** instead, the flow is switched on a
 
 - The step's `kind` is `executor`, because chat webhooks usually answer with plain text (such as `ok`), which an enrichment step would reject.
 - The request leaves from the UTMStack server, which must be able to reach the webhook address.
-- The webhook address works like a password. Anyone who can view flows can read it.
+- The webhook address works like a password. Anyone who can view flows can read it, and **Execution history** shows it in full.
+- For Microsoft Teams, ticketing tools and firewalls, see **Worked Examples: Responding Through Other Systems**.
 - In UTMStack v12.0.2 each inserted value arrives in single quotes, and a value containing an apostrophe or a double quote stops the step. Shipped rule names contain neither.
 
 ## Use case 6: Let the AI decide, with a safe default
@@ -351,7 +353,7 @@ If you start with **New flow > From scratch** instead, the flow is switched on a
 
 - AI answers can vary. Keep the safe action (notify) on every branch that is not an exact match.
 - `step_3` has two incoming wires, but they can never both fire in one run (`step_1` runs only when `step_0` succeeds), so it runs at most once.
-- An AI step can take minutes. A step still running after about 6 minutes is queued again.
+- An AI step can take minutes. A step still running after 5 minutes is stopped and marked **Failed**, so the error wire to `step_3` sends the notification.
 - Do not insert the AI answer into notifications, emails or HTTP calls in UTMStack v12.0.2: an apostrophe in the answer stops those steps (see **Placeholders**).
 
 ## Combine the patterns
@@ -366,3 +368,5 @@ You can chain these patterns in one flow: block on the machine, block on the gat
 - **Step Outputs and Variables**
 - **Running Steps on Another Host**
 - **Shipped Flows**
+- **Worked Examples: Responding Through Other Systems**
+- **Troubleshooting Flows**

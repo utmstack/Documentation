@@ -4,7 +4,7 @@ Branding (white-labelling) replaces the UTMStack name, colours and logos with yo
 
 - You need the **Administrator** role (`config.write` permission).
 - The server needs an Enterprise licence. On Community, the page shows "White-labelling is an Enterprise feature" and nothing can be changed. See **License and Editions**.
-- Prepare your images. Allowed formats: PNG, SVG, WEBP, JPG or ICO, up to 5 MB each.
+- Prepare your images. The page lists PNG, SVG, WEBP, JPG or ICO; GIF is accepted too. Each image can be up to 5 MB. A logo with a transparent background looks best in both the light and the dark theme.
 
 ## Set up your brand
 
@@ -13,6 +13,8 @@ Branding (white-labelling) replaces the UTMStack name, colours and logos with yo
 <Step title="Open Branding">
 
 Go to **Configure > Settings > Branding**.
+
+![The Branding page with the White-label switch, the Identity section (product name and accent colour) and the Logos section with upload boxes for the light logo, dark logo and favicon](/assets/cc4ef33f-2504-4c3c-8372-c0df7e468217)
 
 </Step>
 
@@ -33,7 +35,7 @@ Under **Identity**:
 
 <Step title="Upload logos">
 
-Under **Logos**, click **Upload** (or **Replace**) for each image:
+Under **Logos**, for each image click **Upload** (or **Replace**), choose the file, then click **Upload to tenant**:
 
 - **Logo (light)**: used with the light theme.
 - **Logo (dark)**: used with the dark theme.
@@ -43,7 +45,7 @@ Under **Logos**, click **Upload** (or **Replace**) for each image:
 
 <Step title="Upload report images">
 
-Under **Report assets**, upload a **Report logo** and a **Report cover**. They are added to the PDF reports UTMStack generates.
+Under **Report assets**, upload a **Report logo** and a **Report cover** the same way. They are added to the PDF reports UTMStack generates.
 
 </Step>
 
@@ -55,9 +57,27 @@ Click **Save changes**. Sign out to check the sign-in screen with your brand.
 
 </Steps>
 
+Each image is uploaded and stored when you click **Upload to tenant** ("Image uploaded"); the other settings are saved with **Save changes** ("Branding updated").
+
 ## Go back to the UTMStack look
 
-Click **Restore UTMStack defaults** on the Branding page. This removes your product name, colour and images.
+Click **Restore UTMStack defaults** on the Branding page. This removes your product name, colour and images ("Branding restored to the UTMStack defaults").
+
+To hide your brand only for a while, switch off **Enable white-labeling** and click **Save changes**; your settings and images stay stored.
+
+## Branding and the licence
+
+Your brand is shown only while white-labelling is switched on and the server has a valid Enterprise licence. If the licence expires, UTMStack shows its own look again, and your settings return when a valid licence is installed. See **License and Editions**.
+
+## Troubleshooting
+
+| Message | Cause | Fix |
+|---|---|---|
+| The page shows only "White-labelling is an Enterprise feature" | No valid Enterprise licence | Install the licence. |
+| "Could not upload image" | The image is larger than 5 MB, or it is not a PNG, JPEG, WEBP, GIF, SVG or ICO file (the server checks the content, not only the name). | Make the image smaller, or export it again in one of the allowed formats. |
+| "Could not save branding" | Your roles lack `config.write`, or the licence is not Enterprise | Ask an administrator, or install the licence. |
+
+If the browser tab still shows the old icon after you change the favicon, reload the page while bypassing the cache (for example Ctrl+Shift+R), because browsers keep favicons for a long time.
 
 ## Branding and tenants
 

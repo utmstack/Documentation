@@ -1,0 +1,142 @@
+This page helps you decide where to install UTMStack Forwarders, how many you need, how ports map to integrations, and how to keep collection running when a Forwarder host fails. For installing and enabling integrations, see **UTMStack Forwarder**.
+
+## What decides the design
+
+Keep these facts from the product in mind:
+
+| Fact | What it means for you |
+|---|---|
+| One Forwarder serves many integrations. | A single Forwarder is enough for many sites, as long as every device can reach it. |
+| Only one Forwarder can run on a host. | The service name `UTMStackForwarder` and the folder `/opt/utmstack-forwarder` are fixed. More Forwarders need more hosts. |
+| One data type can listen on a given port and protocol of one Forwarder. | Integrations that share a default port (the four Cisco types on 514/UDP and 1470/TCP) need different ports on the same Forwarder, or separate Forwarders. |
+| The Forwarder keeps logs in memory only (up to 10,000). | If the link to UTMStack is down, new logs are lost. Place the Forwarder where its connection to UTMStack is reliable. |
+| UDP messages are cut at 2,048 bytes and have no delivery guarantee. | Keep UDP traffic short and local. Use TCP or TLS across WAN links and for long messages. |
+| A Forwarder belongs to one tenant. | On multi-tenant installs, every tenant needs its own Forwarder. |
+| The data source name is the sender's IP address. | Two devices with the same IP address and the same data type in one tenant appear as one data source. |
+
+## Where to install a Forwarder
+
+<Columns columnCount={2}>
+  <Column>
+    <Card title="On the UTMStack server" icon="fa fa-server">
+
+    Simplest: no extra host, and the device guides already fill in the server's address. Devices must reach the server on the integration ports, so you open those ports on the server. Suits small, single-site installs.
+
+    </Card>
+  </Column>
+  <Column>
+    <Card title="On a separate Linux host" icon="fa fa-network-wired">
+
+    Best for most networks: devices send syslog to a nearby host, and only port 443 crosses to UTMStack. Use the host's address, not the server's, when you configure devices.
+
+    </Card>
+  </Column>
+</Columns>
+
+A separate host should:
+
+- be close to the devices, on the same site or network segment, so UDP syslog does not cross a WAN link or a firewall that may drop it,
+- reach the UTMStack server directly on 443/TCP (no proxy),
+- have a fixed IP address and a host name that no other Forwarder uses,
+- run Debian or Ubuntu on AMD64, the platform the product's install command and build target.
+
+## How many Forwarders
+
+Start with one per site, and add more when one of these applies:
+
+| Situation | Layout |
+|---|---|
+| Several sites with their own internet or WAN links | One Forwarder per site. Each site's devices send to their local Forwarder. |
+| Network zones that must not talk to each other (for example OT and IT) | One Forwarder per zone, so no zone needs a firewall opening into another. |
+| Two devices of the same kind must use the same default port | Use a second Forwarder, or move one data type to another port with `change-port`. |
+| Several tenants on a multi-tenant install | One Forwarder per tenant, each installed with the command copied inside its tenant. |
+| One very busy source (for example NetFlow from a core router) | Give it a Forwarder of its own so it cannot crowd out the others. |
+
+You enable each integration per Forwarder. The same data type can be enabled on several Forwarders; each device sends to the Forwarder nearest to it. All of them write to the same data type, so detection rules and dashboards see every device together.
+
+## How ports map to integrations
+
+Each integration has its own default port on the Forwarder. The port tells the Forwarder which data type, and therefore which pipeline, to use for every log that arrives on it. A device that sends to the wrong port is stored under the wrong data type and is not parsed.
+
+| Default port | Integrations |
+|---|---|
+| 514/UDP, 1470/TCP | Cisco ASA, Cisco Firepower, Cisco Meraki, Cisco Switch (one at a time per Forwarder) |
+| 7002 | VMware ESXi |
+| 7003 | ESET PROTECT |
+| 7004 | Kaspersky Security Center |
+| 7005 | Fortinet FortiGate |
+| 7006 | Palo Alto Networks |
+| 7007 | MikroTik |
+| 7008 | Sophos Firewall (XG) |
+| 7009 | SonicWall |
+| 7010 | Deceptive Bytes |
+| 7012 | SentinelOne |
+| 7014 | Generic syslog, CEF and LEEF |
+| 7016 | IBM AIX |
+| 7017 | pfSense |
+| 7018 | Fortinet FortiWeb |
+| 7019 | Suricata |
+| 7020 (HTTPS) | GitHub |
+| 7021 | Oracle Database |
+| 2055/UDP | NetFlow |
+
+Syslog ports accept UDP and TCP on the same number; TLS uses the TCP port. For the full list with data types, see **UTMStack Forwarder**. To change a port, see "Use a different port" on that page.
+
+### Example: one site with two Cisco device types
+
+You have Cisco ASA firewalls and Cisco switches at one site, and one Forwarder.
+
+1. Enable **Cisco** (ASA) on the default 514/UDP.
+2. On the Forwarder host, move the switch data type to another port, then enable it:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port cisco-switch udp 5140
+   sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration cisco-switch udp
+   ```
+
+3. Point the firewalls at `<forwarder-ip>` port 514 and the switches at `<forwarder-ip>` port 5140.
+
+## High availability
+
+UTMStack v12 has no built-in high availability for the Forwarder: there is no cluster mode and no disk buffer. If you need collection to survive the loss of a Forwarder host, use one of these approaches:
+
+| Approach | How | Trade-off |
+|---|---|---|
+| Standby Forwarder | Install a second Forwarder on another host and enable the same integrations on it, with the same ports. When the first host fails, change the devices' syslog destination to the standby. | Manual switch-over; logs sent during the outage are lost. |
+| Shared address | Give the active Forwarder a virtual IP address or a DNS name you control, and move it to the standby host on failure (for example with your own clustering or DNS tools). Devices always send to that address. | You run and test the failover tooling yourself. |
+| Restart quickly | Run the Forwarder as a virtual machine that your hypervisor restarts automatically. | Logs sent during the restart are lost. |
+
+<Warning>
+
+Do not send the same logs to two Forwarders at the same time. Both forward them, so UTMStack stores every log twice and rules may raise duplicate alerts.
+
+</Warning>
+
+Agents behave differently: they keep undelivered logs on disk and send them later. If a source supports both, an agent survives outages better than syslog.
+
+## Sizing
+
+UTMStack does not publish CPU, memory or throughput figures for the Forwarder. The Forwarder only receives, tags and streams logs; parsing and storage happen on the UTMStack server. Its load grows with:
+
+- the number of events per second it receives,
+- the number of open TCP and TLS connections (TLS costs more CPU than plain TCP),
+- NetFlow volume, which can be far higher than syslog.
+
+Start with a small virtual machine and watch it:
+
+- CPU and memory of the `utmstack_forwarder` process (`top` or `systemctl status UTMStackForwarder`),
+- UDP receive errors on the host (`netstat -su` or `nstat`), which mean packets were dropped before the Forwarder read them,
+- the Forwarder log `/opt/utmstack-forwarder/logs/utmstack_forwarder.log` for send errors,
+- **Configure > Data Processing** on UTMStack, where **Received** should follow what your devices send.
+
+If one Forwarder is busy, split the sources across two Forwarders.
+
+## Multi-tenant installations
+
+On a multi-tenant install, the tenant of a Forwarder is fixed when you install it: it is the tenant whose connection key is in the install command. UTMStack stores every log the Forwarder receives in that tenant, and the Forwarder appears only in that tenant's **Collector** list.
+
+- Install one Forwarder per tenant, each on its own host, with its own host name.
+- Copy the install command from inside the tenant: open the tenant, then **Configure > Integrations**. The command then contains that tenant's address and key.
+- Never point devices of one customer at another customer's Forwarder: their logs would be stored in the wrong tenant.
+
+To move a Forwarder to another tenant, uninstall it and install it again with the command copied inside the new tenant, on a host with a host name no other Forwarder has used. See **Multi-Tenancy Overview**.

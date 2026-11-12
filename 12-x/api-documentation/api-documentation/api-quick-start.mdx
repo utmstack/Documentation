@@ -1,0 +1,287 @@
+This page takes you from nothing to working API calls in about ten minutes: check the address, get a credential, make your first calls, read long lists page by page, and handle errors. Every example uses `curl` (a command-line tool for web requests) and works from any Linux, macOS or Windows machine that can reach your UTMStack v12 server.
+
+In the examples, replace `{{baseUrl}}` with `https://<your-utmstack-address>` and `{{apiKey}}` with your API key. The `-sk` options make curl quiet and accept a self-signed certificate; drop `-k` once your server has a certificate from a public authority.
+
+## Before you start
+
+| You need | Why |
+|---|---|
+| The address of your UTMStack server (or of your tenant, on a multi-tenant installation) | Every call goes to `https://<address>/api/v1/...` on port 443, the same address you use for the web console. |
+| A user account with the permissions your script needs | A credential acts with its owner's roles. A Viewer can read; changing things needs Analyst or Administrator permissions. See **Users and Roles API** for the permission list. |
+| The Enterprise licence, if you want to use an API key | API keys work only with the Enterprise licence. Without it, sign in with an email address and password to get a token (Step 2, option B). |
+| `curl`, and `jq` for the paging examples | `jq` is a small command-line JSON tool. Install it from your package manager (`apt install jq`, `brew install jq`). |
+
+### What needs which licence
+
+| Feature | Community | Enterprise | Multi-tenant (MSSP) |
+|---|---|---|---|
+| Every endpoint, called with a bearer token from `POST /auth/login` | Yes | Yes | Yes |
+| Calling any endpoint with an API key (`Utm-Api-Key` header) | No | Yes | Yes |
+| Creating and rotating API keys | No | Yes | Yes |
+| Creating and changing identity providers (single sign-on) | No | Yes | Yes |
+| Changing branding | No | Yes | Yes |
+| Compliance frameworks other than the two included in Community | No | Yes | Yes |
+| Tenants endpoints (`/tenants`) | No | No | Yes |
+
+Endpoints marked "platform" on these pages also need an Administrator of the default tenant. On a single-tenant installation, every Administrator is in the default tenant.
+
+## Step 1: Check that the API answers
+
+The health endpoint needs no credential. It tells you the address, port and certificate are right.
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/health"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"status":"ok"}
+```
+
+If this fails, fix the network path first: name resolution, a firewall between you and port 443, or a certificate problem (run it once with `-v` to see the details).
+
+## Step 2: Get a credential
+
+### Option A: an API key (Enterprise licence)
+
+<Steps>
+<Step title="Create a dedicated user">
+
+In **Configure > Team**, create a user for the script, for example `automation@example.com`, and give it only the role it needs. The key will act as this user. See **Users**.
+
+</Step>
+<Step title="Sign in as that user and create the key">
+
+Go to **Configure > Settings > API Keys** and click **New API key**. Enter a **Name** (for example `siem-export`), optionally the **Allowed IPs** your script runs from and an **Expires** date, then click **Create key**.
+
+</Step>
+<Step title="Copy the secret">
+
+The secret is shown once. Store it in your password manager or secret store. If you lose it, use **Rotate** to get a new one.
+
+</Step>
+</Steps>
+
+Send the key in the `Utm-Api-Key` header on every request:
+
+```bash
+export UTM_URL="https://<your-utmstack-address>"
+export UTM_KEY="<the secret you copied>"
+
+curl -sk "$UTM_URL/api/v1/auth/me" -H "Utm-Api-Key: $UTM_KEY"
+```
+
+### Option B: a bearer token (every edition)
+
+Sign in with the account's email address and password. This works on every edition, but the access token expires after one hour, so it suits short scripts and tests.
+
+```bash
+TOKEN=$(curl -sk -X POST "$UTM_URL/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"login": "automation@example.com", "password": "<password>"}' | jq -r .access_token)
+
+curl -sk "$UTM_URL/api/v1/auth/me" -H "Authorization: Bearer $TOKEN"
+```
+
+Accounts that sign in through single sign-on have no UTMStack password and cannot use this option. Accounts with two-step sign-in need one more call. Both cases, and how to renew a token with the refresh token, are described in **Authentication and API Keys**.
+
+The rest of this page uses the API key header. With a token, replace `-H "Utm-Api-Key: $UTM_KEY"` with `-H "Authorization: Bearer $TOKEN"`.
+
+## Step 3: Make your first calls
+
+### Who am I, and which version is this?
+
+```bash
+curl -sk "$UTM_URL/api/v1/auth/me" -H "Utm-Api-Key: $UTM_KEY"
+curl -sk "$UTM_URL/api/v1/billing/version" -H "Utm-Api-Key: $UTM_KEY"
+```
+
+`GET /auth/me` returns your user (`email`, `name`, `status` and more). `GET /billing/version` returns the installed `version` and the `edition` (`community` or `enterprise`).
+
+### How many alerts are open?
+
+```bash
+curl -sk "$UTM_URL/api/v1/utm-alerts/count-open-alerts" -H "Utm-Api-Key: $UTM_KEY"
+```
+
+The answer is a plain number. It counts top-level alerts with status Open that are not tagged False positive.
+
+### The high-severity alerts of the last 24 hours
+
+Searches need absolute times in UTC (RFC 3339 format). Relative values such as `now-24h` are ignored, so compute the window in your script:
+
+```bash
+FROM=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)   # GNU date (Linux)
+# FROM=$(date -u -v-24H +%Y-%m-%dT%H:%M:%SZ)            # macOS date
+TO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+curl -sk -X POST "$UTM_URL/api/v1/log-analyzer/search" \
+  -H "Utm-Api-Key: $UTM_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"dataset\": \"alerts\", \"from\": \"$FROM\", \"to\": \"$TO\", \"page\": 0, \"size\": 50,
+       \"filters\": [{\"field\": \"severity\", \"operator\": \"IS\", \"value\": \"high\"},
+                     {\"field\": \"parentId\", \"operator\": \"IS\", \"value\": \"\"}]}" \
+  | jq '.total, [.data[] | {name, status, dataSource, adversary: .adversary.ip}]'
+```
+
+The `parentId` filter leaves out echoes (repeats grouped under an earlier alert). See **Alerts API** for every filter and **Reference Tables** for the operators.
+
+### The systems that stopped reporting
+
+```bash
+curl -sk --get "$UTM_URL/api/v1/datasources" \
+  -H "Utm-Api-Key: $UTM_KEY" \
+  --data-urlencode "page_size=100" \
+  --data-urlencode "search_query=last_ping_at.lt.$FROM" \
+  | jq -r '.items[] | "\(.name)\t\(.dataType)\t\(.lastPingAt)"'
+```
+
+### Mark an alert as In review and add a note
+
+```bash
+ALERT_ID="<alert-id from the search above>"
+
+curl -sk -X POST "$UTM_URL/api/v1/utm-alerts/status" \
+  -H "Utm-Api-Key: $UTM_KEY" -H "Content-Type: application/json" \
+  -d "{\"alertIds\": [\"$ALERT_ID\"], \"status\": \"In review\", \"statusObservation\": \"Checked by the nightly script\"}"
+```
+
+This needs the `alerts.write` permission (Analyst or Administrator). The exact body, and how to add notes, tags and an assignee, are on **Alerts API**.
+
+## Step 4: Read long lists page by page
+
+Endpoints return results in pages. The paging style differs between endpoint groups; the full table is in **Introduction**. There are three styles.
+
+| Style | Used by | How to page | Where the total is |
+|---|---|---|---|
+| Page and size in the JSON body | Log and alert search (`POST /log-analyzer/search`) | `"page": 0, 1, 2…` and `"size"` up to 500 | `total` in the answer |
+| `page` and `size` query parameters | Incidents, SOAR flows, tags, dashboards, rules and most other lists | `?page=…&size=…`; the first page is `0` or `1` depending on the group | `X-Total-Count` response header |
+| `page_number` and `page_size` query parameters | Data sources, audit log | `?page_number=1&page_size=…` | `total_items` and `total_pages` in the answer |
+
+### Example: export every alert of a month
+
+```bash
+FROM="2026-10-01T00:00:00Z"; TO="2026-10-31T23:59:59Z"
+PAGE=0; SIZE=500
+: > alerts-2026-10.jsonl
+while : ; do
+  RESP=$(curl -sk -X POST "$UTM_URL/api/v1/log-analyzer/search" \
+    -H "Utm-Api-Key: $UTM_KEY" -H "Content-Type: application/json" \
+    -d "{\"dataset\": \"alerts\", \"from\": \"$FROM\", \"to\": \"$TO\", \"page\": $PAGE, \"size\": $SIZE, \"sortBy\": \"@timestamp\", \"order\": \"asc\"}")
+  COUNT=$(echo "$RESP" | jq '.data | length')
+  echo "$RESP" | jq -c '.data[]' >> alerts-2026-10.jsonl
+  [ "$COUNT" -lt "$SIZE" ] && break
+  PAGE=$((PAGE + 1))
+done
+wc -l alerts-2026-10.jsonl
+```
+
+On page `0`, the answer can also contain older alerts whose echoes fall inside the window, as explained in **Alerts API**. Remove duplicates by `id` if you merge several exports.
+
+### Example: read the total from the header
+
+```bash
+curl -sk -D - -o /dev/null "$UTM_URL/api/v1/incidents?page=1&size=20" \
+  -H "Utm-Api-Key: $UTM_KEY" | grep -i '^x-total-count'
+```
+
+<Tip>
+
+Ask for the largest page size the endpoint allows, and stop when a page comes back shorter than the size you asked for. Some lists fall back to their default size when you ask for more than their maximum (for example incidents above 200), so stay within the limits given on each page.
+
+</Tip>
+
+### The same loop in Python
+
+```python
+import os
+import requests
+
+URL = os.environ["UTM_URL"]
+HEADERS = {"Utm-Api-Key": os.environ["UTM_KEY"]}
+VERIFY = True  # set to the path of your server's certificate if it is self-signed
+
+def all_alerts(start, end, size=500):
+    page = 0
+    while True:
+        body = {"dataset": "alerts", "from": start, "to": end,
+                "page": page, "size": size, "sortBy": "@timestamp", "order": "asc"}
+        r = requests.post(f"{URL}/api/v1/log-analyzer/search", json=body,
+                          headers=HEADERS, verify=VERIFY, timeout=60)
+        r.raise_for_status()
+        rows = r.json().get("data", [])
+        yield from rows
+        if len(rows) < size:
+            return
+        page += 1
+
+for alert in all_alerts("2026-10-01T00:00:00Z", "2026-10-31T23:59:59Z"):
+    print(alert["id"], alert["name"], alert["severity"])
+```
+
+## Step 5: Handle errors
+
+Errors come back as JSON with an `error` field:
+
+```json
+{"error": "missing required permission: alerts.write"}
+```
+
+The SOC-AI endpoints use `{"status": "error", "message": "..."}` instead.
+
+| Code | What it usually means | What to do |
+|---|---|---|
+| 400 | A field is missing or has a wrong value, an unknown filter operator, or a refused SQL query. | Read the message, fix the request. Do not retry unchanged. |
+| 401 `missing Authorization header` | No credential was sent. | Send `Utm-Api-Key` or `Authorization: Bearer …`. |
+| 401 `invalid api key` | Wrong, expired or rotated key, a client address outside the key's **Allowed IPs**, a deactivated owner, or no Enterprise licence. | Check the key on **Configure > Settings > API Keys** and the licence. |
+| 401 `invalid token` | The access token expired (after one hour) or is malformed. | Renew it with `POST /auth/refresh`, or sign in again. |
+| 401 `credential does not belong to this tenant` | Multi-tenant: the request went to another tenant's address. | Call your own tenant's address. |
+| 403 `missing required permission: …` or `missing required role: …` | The credential's owner lacks the permission or role. | Give the user a role that has it, or use another account. |
+| 403 `This feature requires an Enterprise license` (or `an MSSP license`) | The endpoint needs a licence the installation does not have. | See **License and Editions**. |
+| 403 `this operation is limited to administrators of the default tenant` | A platform-only endpoint. | Use an Administrator of the default tenant. |
+| 403 `this tenant has been suspended or terminated` | The tenant was suspended. | Contact whoever runs the installation. |
+| 404 | Unknown id, or (multi-tenant) an address that belongs to no tenant (`unknown tenant`). | Check the id and the address. |
+| 409 | A name already in use, or alerts already linked to an incident. | Choose another name, or skip the duplicate. |
+| 429 | Too many failed sign-ins, or the tenant's daily AI allowance is used up. | Wait (see the limits below). |
+| 500 | A server error. In UTMStack v12.0.2 some invalid values are also answered with 500; each page says where. | Check the request against the page; if it is correct, retry later and check the server logs. |
+| 502, 503, 504 | A service behind the API is not reachable or too slow (for example SOC-AI, the agent manager, ThreatWinds, or a busy rule test). | Retry after a short wait, with a growing delay between attempts. |
+
+Retry only on 429, 502, 503 and 504, and wait longer after each attempt (for example 2, 4, 8 and 16 seconds). Do not retry 400, 401, 403, 404 or 409: the same request will fail again.
+
+## Limits
+
+UTMStack v12 has no general limit on how many API requests a client may send. These specific limits apply:
+
+| Limit | Value | What happens |
+|---|---|---|
+| Failed sign-ins (`POST /auth/login`) | 9 failures from one client address within 10 minutes | Sign-in from that address is refused for 10 minutes with 429 `too many failed attempts; try again later`. |
+| Failed two-step codes | 9 failures for one account within 10 minutes | Code checks for that account are refused for 10 minutes with 429. |
+| Access token lifetime | 1 hour | 401 `invalid token`; renew with the refresh token (valid 30 days). |
+| SOC-AI daily allowance | Set per tenant by the instance operator; none by default | 429 with "this tenant has used the AI requests its plan allows for today" until midnight UTC. See **AI Usage and Limits**. |
+| Log and alert search page size | 500 rows per page | Larger sizes are reduced; page through the results. |
+| SQL search | 30 seconds and 500 rows per page | Longer queries are stopped. See **Log Search API**. |
+| Rule and pipeline tests (playground) | One test at a time for the whole installation | A second test waits up to 30 seconds, then gets 503. See **Rules and Pipelines API**. |
+| Request size | 200 MB | Larger requests are refused by the web server in front of UTMStack (HTTP 413). |
+| Request duration | 900 seconds | The web server in front of UTMStack stops waiting for the answer. |
+
+## Good practice
+
+- **One user and one key per integration.** You can then see each script's actions in **Configure > Settings > App Audit Logs**, limit its permissions, and revoke it alone.
+- **Limit the key.** Fill in **Allowed IPs** with the address your script runs from, and set an **Expires** date.
+- **Keep secrets out of scripts.** Read the key from an environment variable or a secret store, as in the examples, never from a file you commit to version control.
+- **Use a real certificate.** Replace the self-signed certificate (see **SSL Certificate**) so that clients can check they talk to your server, and stop using `-k`.
+- **Read before you write.** Try every write call on one test item first, and check the result in the web console.
+
+## Next steps
+
+| To do this | Read |
+|---|---|
+| Search and change alerts | **Alerts API** |
+| Search logs, run SQL, build counts and charts | **Log Search API** |
+| Open and manage incidents | **Incidents API** |
+| Manage rules and pipelines, run rule tests | **Rules and Pipelines API** |
+| Start response flows and use the command console | **SOAR API** |
+| Manage users, roles and keys | **Users and Roles API**, **Authentication and API Keys** |
+| Connect an AI client through MCP | **MCP Server** |
+| See every endpoint at once | **Reference Tables** |

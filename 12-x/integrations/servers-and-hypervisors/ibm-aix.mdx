@@ -7,22 +7,37 @@ UTMStack v12 collects IBM AIX logs through the **UTMStack Forwarder**, which the
 | Card on the Integrations page | **Aix** (category Operating System) |
 | Data type | `ibm-aix` |
 | Default ports on the Collector | 7016/UDP; 7016/TCP (also used for TLS) |
-| Included in UTMStack | A parsing filter and 10 detection rules |
+| Format UTMStack expects | Standard AIX syslog lines, including the "Message forwarded from …" form that the AIX syslog daemon sends |
+| Parsing pipeline | `ibm/ibm_aix.yaml` (version 3.2.0). The **Filters** button in the drawer opens it. |
+| Detection rules | 10 rules for the `ibm-aix` data type. The **Rules** button in the drawer lists them. |
 
 ## Before you begin
 
 - A Collector must be installed and online. If you do not have one, see **UTMStack Forwarder**. One Collector can serve all your integrations.
 - The AIX system must reach the Collector host on the port you choose. Open it on the Collector host and on any firewall in between.
-- You need the `integrations.write` permission to enable the integration from the web interface.
+- You need the `integrations.write` permission to enable the integration from the web interface, and root access on the AIX system.
+
+<Warning>
+
+IBM documents that the native AIX syslog daemon (`syslogd`) forwards only to **UDP port 514**: you cannot give it another port, and it cannot send over TCP. Choose one of these before you start:
+
+- **Native syslogd**: move the Collector's AIX listener to UDP 514 (step 1, "Use a port other than 7016"). Only one data type can listen on UDP 514 on one Collector, so this is not possible on a Collector where a Cisco integration already uses UDP 514. Use another Collector in that case.
+- **rsyslog on AIX**: install rsyslog on the AIX system, as described in IBM's documentation, and send to port 7016 over UDP or TCP.
+
+</Warning>
 
 ## Step 1: Enable the integration on a Collector
 
 <Steps>
   <Step title="Open the integration">
     In UTMStack, go to **Configure > Integrations** and open the **Aix** card.
+
+    ![IBM AIX setup guide in UTMStack, showing How it works and the Enable this integration remotely panel with the Collector, Protocol and Port fields](/assets/4d537224-f481-47db-97ff-989bc6a60880)
+
+    A different number typed in **Port** does not change the port the Collector listens on; see **Use a port other than 7016** below. The guide's step 2 asks for port 7016, which the native AIX syslog daemon cannot use; see **Before you begin**.
   </Step>
   <Step title="Choose the Collector, protocol and port">
-    Under **Enable this integration remotely**, select the **Collector**, the **Protocol** (**UDP**, **TCP** or **TLS**) and the **Port**. The port fills in with the default for the protocol.
+    Under **Enable this integration remotely**, select the **Collector** and the **Protocol** (**UDP**, **TCP** or **TLS**). The **Port** fills in with the default, 7016. With the native AIX syslog daemon, use **UDP**.
   </Step>
   <Step title="Enable it">
     Click **Enable integration**. The panel then shows, for example, `Currently: enabled · udp · port 7016`.
@@ -35,17 +50,81 @@ To do the same on the Collector host instead, run:
 sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration ibm-aix 7016 udp
 ```
 
-To use TLS, load a certificate on the Collector first. See **UTMStack Forwarder**.
+To use TLS (rsyslog only), load a certificate on the Collector first. See **UTMStack Forwarder**.
+
+### Use a port other than 7016
+
+The Collector listens on the port stored on the Collector host: 7016 unless someone changed it there. Typing another port in the panel or in the `enable-integration` command does not move the listener. To use another port, for example UDP 514 for the native AIX syslog daemon:
+
+1. If the integration is enabled, disable it first.
+2. On the Collector host, change the port:
+
+   ```bash
+   sudo /opt/utmstack-forwarder/utmstack_forwarder change-port ibm-aix udp 514
+   ```
+
+3. Enable the integration again and type the same port in the panel, so the page shows the port that is really in use.
+
+If the change fails with "port 514 is already in use by integration '…'", another data type (for example a Cisco integration) already listens there on this Collector.
 
 ## Step 2: Configure AIX to forward logs
 
-On your AIX system, configure the syslog service to send its logs to the Collector host on port 7016. The exact syntax differs between AIX versions; see IBM's documentation for your version.
+<Accordion multiple={true}>
+  <AccordionTab title="Native AIX syslogd (UDP 514)" icon="pi pi-server">
+
+  1. Edit `/etc/syslog.conf` as root and add a line that forwards the messages you want to the Collector host. For example, to forward everything at level info and above:
+
+     ```text
+     *.info @<collector-ip>
+     ```
+
+  2. Reload the syslog daemon:
+
+     ```bash
+     refresh -s syslogd
+     ```
+
+  The native daemon always sends to UDP 514, so the AIX listener on the Collector must be on UDP 514 (see step 1).
+
+  </AccordionTab>
+  <AccordionTab title="rsyslog on AIX (any port, UDP or TCP)" icon="pi pi-server">
+
+  1. Install rsyslog on AIX and switch the system logger to it, as described in IBM's documentation. IBM provides `syslog_ssw` to convert an existing configuration, for example `syslog_ssw -c /etc/syslog.conf /etc/rsyslog.conf`.
+  2. Add a forwarding line to the rsyslog configuration. Use one `@` for UDP or two (`@@`) for TCP:
+
+     ```text
+     *.info @<collector-ip>:7016
+     ```
+
+  3. Restart the logging subsystem as IBM's documentation describes.
+
+  </AccordionTab>
+</Accordion>
+
+Replace `<collector-ip>` with the address of the Collector host. The exact syntax can differ between AIX versions; see IBM's documentation for your version.
 
 ## Step 3: Check that logs arrive
 
-- In the **Aix** drawer, click **View logs**. Log Explorer opens with the `ibm-aix` data type for the last 24 hours.
-- Within about 10 minutes, the AIX system appears on the **Data Sources** page under **Direct**.
-- **Rules** and **Filters** in the same drawer open the detection rules and the parsing filter for this data type.
+1. Write a test message on the AIX system:
+
+   ```bash
+   logger -p user.info "UTMStack AIX test message"
+   ```
+
+2. In the **Aix** drawer, click **View logs**. Log Explorer opens on the `logs` data set with the `ibm-aix` data type for the last 24 hours. Type `UTMStack AIX test message` in the search box to find it.
+3. Expand the event. The **Parsed fields** view should show fields taken from the syslog header, and the `errors` field should be empty.
+4. Within about 20 minutes, the AIX system appears on **Configure > Data Sources** under **Direct**, named after the IP address it sends from.
+
+You can also check from **Log Explorer** in SQL mode:
+
+```sql
+SELECT `@timestamp`, dataSource, errors, raw
+FROM logs
+WHERE dataType = 'ibm-aix'
+  AND `@timestamp` > now() - INTERVAL 1 HOUR
+ORDER BY `@timestamp` DESC
+LIMIT 20
+```
 
 ## Stop collecting
 
@@ -54,3 +133,16 @@ In the **Aix** card, select the same Collector and click **Disable integration**
 ```bash
 sudo /opt/utmstack-forwarder/utmstack_forwarder disable-integration ibm-aix udp
 ```
+
+Disable with the same protocol you enabled. If you enabled TCP or TLS, use `tcp` in the command. Then remove the forwarding line on the AIX system.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| The Collector shows as offline in the **Collector** list | The `UTMStackForwarder` service is stopped, or the Collector host cannot reach UTMStack on 443 | On the Collector host, run `sudo systemctl status UTMStackForwarder` and read `/opt/utmstack-forwarder/logs/utmstack_forwarder.log`. See **Forwarder Troubleshooting**. |
+| Nothing arrives from a system that uses native syslogd | The native daemon sends to UDP 514, but the Collector listens on 7016 | Move the AIX listener to UDP 514 with `change-port` (step 1), or switch the AIX system to rsyslog. |
+| Nothing arrives and the port is right | A firewall blocks the port, or the forwarding line has a typo | On the Collector host, `sudo ss -lnup` lists the open UDP ports. Check `/etc/syslog.conf` and run `refresh -s syslogd` again. |
+| `change-port` or **Enable integration** fails with "port 514 is already in use by integration '…'" or "… by another process" | A Cisco integration or another program (for example a local syslog server) already uses UDP 514 on the Collector host | Use a different Collector for AIX, or use rsyslog on AIX with port 7016. |
+| Events arrive but the `errors` field is not empty | The messages were rewritten by a relay, or come from a source that is not AIX syslog | Send directly from the AIX system to the Collector. |
+| Long messages are cut off | Over UDP the Collector reads at most 2,048 bytes of each message | Use rsyslog on AIX with TCP (`@@`) and enable TCP on the Collector. |

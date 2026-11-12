@@ -1,21 +1,84 @@
-UTMStack v12 receives logs in four ways: agents on your hosts, the UTMStack Forwarder for network devices and appliances, plugins that pull from cloud services, and two dedicated collectors. This page explains each one and how to use the **Integrations** page to set them up.
+UTMStack v12 receives logs in four ways: agents on your hosts, the UTMStack Forwarder for network devices and appliances, plugins that pull from cloud services, and two dedicated collectors. This page explains each one, follows a log from the source to storage, and shows how to use the **Integrations** page to set sources up.
 
 ## The four ways in
 
 | Way in | What it is | Used for | Badge on the card |
 |---|---|---|---|
 | Agent | A service you install on each Windows, Linux or macOS host. It reads the host's own logs and sends them to UTMStack. | Windows, Linux and macOS hosts | **Agent** |
-| UTMStack Forwarder | A Linux service that listens for logs sent by other systems (syslog, NetFlow, HTTPS webhooks) and forwards them to UTMStack. The web interface calls it the **Collector**. | Firewalls, switches, hypervisors, antivirus consoles, Suricata, Oracle, GitHub and more | **Collector** |
-| Plugin | UTMStack itself connects to a cloud service's API and pulls the logs. You only enter credentials. | AWS, Azure, Google Cloud, Microsoft 365, CrowdStrike, Sophos Central, Bitdefender | **Plugin** |
+| UTMStack Forwarder | A Linux service that listens for logs sent by other systems (syslog, NetFlow, HTTPS webhooks) and forwards them to UTMStack. The web interface calls it the **Collector**. | Firewalls, switches, hypervisors, antivirus consoles, Suricata, Oracle, GitHub, any syslog or CEF source, your own applications | **Collector** |
+| Plugin | UTMStack itself connects to a cloud service's API and pulls the logs. You only enter credentials. | AWS, Azure, Google Cloud, Microsoft 365, CrowdStrike, Sophos Central | **Plugin** |
 | Dedicated collector | A Linux service built for one source. | IBM AS/400 (IBM i), and UTMStack's own container logs | **Collector** |
 
-Agents, the Forwarder and the dedicated collectors all talk to the UTMStack server on port **443** only. See **Ports and Network Requirements**.
+Agents, the Forwarder and the dedicated collectors all talk to the UTMStack server on port **443** only, over a direct connection (they have no proxy setting). See **Ports and Network Requirements**.
 
 <Note>
 
 In UTMStack v12 the agent no longer receives syslog. Every device that sends syslog now goes to a UTMStack Forwarder, which you install once and reuse for many integrations. See **UTMStack Forwarder**.
 
 </Note>
+
+### Which way to choose
+
+| Your source | Use |
+|---|---|
+| A Windows, Linux or macOS computer you can install software on | The agent for that system. It keeps logs on disk during outages and allows response commands. |
+| Windows computers where you cannot install software | **Windows Event Forwarding** to one Windows server that runs the agent. |
+| A device or appliance that sends syslog, and has a card | That card, through a Forwarder. |
+| A device that sends syslog, CEF or LEEF, without a card | **Generic Syslog, CEF and LEEF**, through a Forwarder. |
+| An application that writes JSON | **JSON Input**, through a Forwarder. |
+| A cloud service with a card | That card (plugin). |
+| Anything else | **Custom Integrations**. |
+
+## The path of a log
+
+<Steps>
+  <Step title="Collection">
+
+  The agent reads the host's logs, the Forwarder receives logs from devices, or a plugin pulls them from a cloud API. Each log gets a **data type** (for example `wineventlog` or `firewall-fortigate-traffic`) and a **data source** (the host name, the sender's IP address, or the config group name for cloud integrations).
+
+  </Step>
+  <Step title="Transport and identity">
+
+  Agents and collectors send their logs over port 443, on an encrypted connection, to the UTMStack server. Each one first registered with the server using the connection key in its install command, and received its own credentials. The server uses those credentials to decide which tenant the logs belong to. Plugins run on the server itself and use the tenant of their config group.
+
+  </Step>
+  <Step title="Intake and queue">
+
+  The log intake service confirms each log only after it is safely in a queue. Agents keep a log on disk until it is confirmed and send it again if needed; the Forwarder does not keep logs on disk. The queue holds logs for up to 24 hours while the event processor works through them.
+
+  </Step>
+  <Step title="Parsing">
+
+  The event processor runs the pipelines for the log's data type. They split the raw text into fields and map them to the standard field names (for example `origin.ip`, `target.user`, `action`). A step that fails writes a message to the event's `errors` field. See **Pipelines**.
+
+  </Step>
+  <Step title="Analysis and detection">
+
+  The event is stored, checked against the alerting rules for its data type and against threat intelligence, and used to update the **User Auditor**. A match raises an alert. See **How UTMStack Processes Events**.
+
+  </Step>
+  <Step title="Storage">
+
+  Events are stored in the log store, where **Log Explorer**, dashboards and compliance reports read them. They are kept for the retention period set under **Data Retention and Cold Storage**.
+
+  </Step>
+  <Step title="Statistics">
+
+  Every 10 minutes, UTMStack counts what it received, parsed, analysed and stored, per data type and data source. These counts feed **Configure > Data Processing** and keep the **Data Sources** page up to date.
+
+  </Step>
+</Steps>
+
+## Is a source healthy?
+
+| Question | Where to look |
+|---|---|
+| Is the source still sending? | **Configure > Data Sources**: **Live** (seen in the last 15 minutes), **Idle** (in the last 24 hours) or **Offline**. See **Data Sources Page**. |
+| Are its logs arriving now? | The card's **View logs** button, or **Log Explorer** with its data type. |
+| Are its logs parsed? | Expand an event in Log Explorer: standard fields are filled and `errors` is empty. **Dropped (parsing)** on **Configure > Data Processing** stays low. |
+| Is the collector itself working? | Agents: **Updates and Status**. Forwarder: the **Collector** list in any device guide shows online and offline Collectors. Cloud: the config group shows on the card, and its data source is **Live**. |
+
+For a step-by-step check when something is wrong, see **Checking and Troubleshooting Data Collection**.
 
 ## The Integrations page
 
@@ -25,7 +88,7 @@ Go to **Configure > Integrations**. The page shows one card per integration.
 - The category list (**All categories**) narrows the cards to one category, for example Firewall or Cloud.
 - **Custom** shows only the integrations your team created.
 - The three agents (Windows, Linux, macOS) always come first.
-- The last card, **Add custom integration**, lets you create your own source with **Create**. See **Custom integrations**.
+- The last card, **Add custom integration**, lets you create your own source with **Create**. See **Custom Integrations**.
 
 Each card shows its badge (**Agent**, **Collector** or **Plugin**) and a button:
 
@@ -34,7 +97,7 @@ Each card shows its badge (**Agent**, **Collector** or **Plugin**) and a button:
 | **Set up** | Open the setup guide. |
 | **Enabled** | A Plugin integration that has at least one saved config group in your current tenant. |
 
-Agent and Collector cards always show **Set up**, even while logs are arriving, because their setup lives on your hosts and not in UTMStack.
+Agent and Collector cards always show **Set up**, even while logs are arriving, because their setup lives on your hosts and not in UTMStack. Use the **Data Sources** page to see what is sending.
 
 <Info>
 
@@ -55,18 +118,22 @@ Click a card to open its drawer. The top of the drawer shows the category, the b
 
 Below the buttons is the setup guide:
 
-- **Agents** show the install command for each platform, and an **Uninstall the agent** section.
+- **Agents** show the install requirements, the install command for each platform, and an **Uninstall the agent** section.
 - **Collector** integrations that use the Forwarder start with **Enable this integration remotely**, then the steps for the device, then **Install the UTMStack Collector**, **Optional — Enable via the command line instead** and **Optional — Uninstall the Collector**.
-- **Plugin** integrations show a credentials form. Each connection is saved as a **config group** with a name you choose (the v11 button "Add tenant" is now **Add config group**). The config group name becomes the data source name on the **Data Sources** page and cannot be changed later.
+- **Plugin** integrations show a credentials form. Each connection is saved as a **config group** with a name you choose (the v11 button "Add tenant" is now **Add config group**). The config group name becomes the data source name on the **Data Sources** page and cannot be changed later. UTMStack checks the credentials when you save (except for Sophos Central).
 - **IBM AS/400** and **Utmstack** (self-monitoring) show the install guide of their own collector.
+
+![Start of a Collector setup guide (FortiGate): How it works, then the Enable this integration remotely panel](/assets/aa1c4abe-7e62-41e0-8d34-42f28d639c66)
 
 ## Data types
 
-Every integration writes its logs under a **data type**, for example `firewall-cisco-asa` or `wineventlog`. The data type decides which parsing filter and which detection rules apply. You see it in Log Explorer, on the **Data Sources** page, and in the commands that enable an integration on the Forwarder.
+Every integration writes its logs under a **data type**, for example `firewall-cisco-asa` or `wineventlog`. The data type decides which pipeline parses the logs and which detection rules apply. You see it in Log Explorer, on the **Data Sources** page, and in the commands that enable an integration on the Forwarder.
+
+A device sends to the Forwarder port of its integration, and that port decides the data type. A device that sends to the wrong port is stored under the wrong data type and is not parsed correctly.
 
 ## Built-in integrations
 
-UTMStack v12.0.2 ships 34 built-in integrations. Every tenant sees them; tenants cannot edit or delete them. Card names below are as shown in the product.
+UTMStack v12.0.2 ships 34 built-in integrations. Every tenant sees them; tenants cannot edit or delete them. The card names below are the ones UTMStack v12.0.2 shows.
 
 | Card | Badge | Category | Data type | Setup page |
 |---|---|---|---|---|
@@ -99,11 +166,20 @@ UTMStack v12.0.2 ships 34 built-in integrations. Every tenant sees them; tenants
 | AWS Cloudwatch | Plugin | Cloud | `aws` | **AWS CloudWatch** |
 | Azure | Plugin | Cloud | `azure` | **Microsoft Azure** |
 | Gcp | Plugin | Cloud | `google` | **Google Cloud** |
-| O365 | Plugin | Cloud | `o365` | **Microsoft 365** |
+| O365 | Plugin | Cloud | `o365` | **Microsoft 365 (Office 365 Management Activity API)** |
 | O365 Graph | Plugin | Cloud | `o365-graph` | **Microsoft 365 through Microsoft Graph** |
 | Crowdstrike | Plugin | XDR | `crowdstrike` | **CrowdStrike Falcon** |
 | Sophos | Plugin | XDR | `sophos-central` | **Sophos Central** |
-| Bitdefender | Plugin | Antivirus | `antivirus-bitdefender-gz` | **Bitdefender GravityZone** |
+| Bitdefender | Plugin | Antivirus | `antivirus-bitdefender-gz` | Not yet documented for v12 |
+
+### Sources without a card
+
+| Source | Data type | Page |
+|---|---|---|
+| Any syslog, CEF or LEEF sender | `syslog` | **Generic Syslog, CEF and LEEF** |
+| Applications that write one JSON object per line | `json-input` | **JSON Input** |
+| Windows computers forwarding to a collector | `wineventlog` | **Windows Event Forwarding** |
+| Your own sources | A data type you name | **Custom Integrations** |
 
 ## Permissions
 
@@ -123,4 +199,4 @@ Always copy install commands from your own UTMStack instance. They contain your 
 
 ## Multi-tenant installations
 
-With the multi-tenant licence, each tenant has its own integrations, config groups, agents and Collectors. When an operator has entered a child tenant, the install commands use that tenant's domain as the server address instead of the address in the browser. Copy commands from inside the tenant the host belongs to.
+With the multi-tenant licence, each tenant has its own integrations, config groups, agents and Collectors. Agents and Forwarders belong to the tenant whose connection key was in their install command, and every log they send is stored in that tenant. When an operator has entered a child tenant, the install commands use that tenant's domain as the server address instead of the address in the browser. Copy commands from inside the tenant the host belongs to. See **Multi-Tenancy Overview**.

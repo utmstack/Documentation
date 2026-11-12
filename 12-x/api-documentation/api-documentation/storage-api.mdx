@@ -1,0 +1,323 @@
+Use these endpoints to read how much data UTMStack v12 stores, decide how long logs, alerts and ingestion statistics are kept, and move older records to cold storage: an S3-compatible bucket, an Azure Blob Storage container, or a local or NFS folder. They are the endpoints behind **Configure > Settings > Data Retention** (see **Data Retention and Cold Storage**).
+
+Retention is one setting for the whole installation. Every tenant's records live in the same tables, so only a platform administrator can read or change it.
+
+## Permissions
+
+| Action | Permission |
+|---|---|
+| Check whether the Data Retention feature is on (`GET /storage/enabled`) | `storage.read` (all built-in roles) |
+| Read retention, usage, health and cold storage settings | `storage.read`, and Administrator of the default tenant (platform administrator) |
+| Change retention or cold storage | `storage.write`, and platform administrator |
+
+On a single-tenant installation, every Administrator is a platform administrator. A caller who is not one gets 403 `this operation is limited to administrators of the default tenant`.
+
+> [!NOTE]
+> The Data Retention feature can be turned off on the server with the setting `DATA_RETENTION_ENABLED=false`. Then `GET /storage/enabled` answers `{"enabled": false}`, the settings page is hidden, and every other endpoint on this page answers 401 `missing authorization context`.
+
+## Datasets
+
+| Dataset | What it holds | Default retention |
+|---|---|---|
+| `logs` | Every stored event | 730 days |
+| `alerts` | Alerts | 730 days |
+| `statistics` | Ingestion statistics (the Data Processing page) | 1,095 days |
+
+## Check That the Feature Is On
+
+**Endpoint:** `GET /api/v1/storage/enabled`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/storage/enabled" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{"enabled": true}
+```
+
+## Read the Retention
+
+**Endpoint:** `GET /api/v1/storage/retention`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/storage/retention" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {"dataset": "logs", "keepDays": 730, "coldDays": 0, "tiered": false},
+  {"dataset": "alerts", "keepDays": 730, "coldDays": 0, "tiered": false},
+  {"dataset": "statistics", "keepDays": 1095, "coldDays": 0, "tiered": false}
+]
+```
+
+| Field | Description |
+|---|---|
+| `keepDays` | Records older than this are deleted. A table with no limit shows `36500`. |
+| `coldDays` | Records older than this move to cold storage. `0` means they stay on the local disk. |
+| `tiered` | `true` when the dataset moves records to cold storage |
+
+## Change the Retention
+
+**Endpoint:** `PUT /api/v1/storage/retention`
+
+Changes one dataset at a time.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| dataset | string | Yes | `logs`, `alerts` or `statistics` |
+| keepDays | integer | Yes | 1 to 36,500 |
+| coldDays | integer | No | `0` (default) keeps records local. A value above 0 must be smaller than `keepDays` and needs cold storage to be set up first. |
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/retention" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "keepDays": 365}'
+```
+
+**Response (HTTP 200):** the dataset's retention after the change, in the same shape as above. The change is recorded in the audit log as `retention.update`.
+
+The event store (ClickHouse) applies the new limits to existing records in the background, so older records are removed or moved over time, not at the moment you save.
+
+| Error | Cause |
+|---|---|
+| 400 `unknown dataset: <name>` | Not one of the three datasets |
+| 400 `retention must keep records for at least a day` | `keepDays` missing, below 1, or above 36,500 |
+| 400 `the move to cold storage cannot be in the past` | `coldDays` is negative |
+| 400 `records must move to cold storage before they are deleted, not after: ...` | `coldDays` is not smaller than `keepDays` |
+| 409 `this instance has no cold storage: configure object storage before moving records to it` | `coldDays` above 0, but cold storage is not set up |
+| 409 `this dataset already moves records to cold storage and cannot go back to local-only without rebuilding the table` | `coldDays` is `0` for a dataset that already moves records to cold storage |
+
+> [!WARNING]
+> Once a dataset moves records to cold storage, it cannot go back to local-only through the API or the web console. You can still change both numbers, as long as `coldDays` stays above 0.
+
+## Read Storage Use
+
+**Endpoint:** `GET /api/v1/storage/usage`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/storage/usage" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+[
+  {
+    "dataset": "logs",
+    "documents": 182000000,
+    "bytes": 96000000000,
+    "oldest": "2025-11-14T00:00:00Z",
+    "newest": "2026-11-12T10:40:00Z"
+  },
+  {"dataset": "alerts", "documents": 41000, "bytes": 52000000, "oldest": "2025-11-20T00:00:00Z", "newest": "2026-11-12T10:38:00Z"},
+  {"dataset": "statistics", "documents": 0, "bytes": 0}
+]
+```
+
+`documents` is the number of records and `bytes` their size on disk. `oldest` and `newest` are left out for an empty dataset.
+
+## Check the Event Store Health
+
+**Endpoint:** `GET /api/v1/storage/health`
+
+**Response (HTTP 200):**
+
+```json
+{"status": "degraded", "diskUsedPct": 91.4, "message": "disk above 90%"}
+```
+
+| `status` | Meaning |
+|---|---|
+| `ok` | The event store answers and its disks are 90% full or less |
+| `degraded` | Disk use is above 90% |
+| `unavailable` | The event store could not be queried; `message` says why |
+
+## Cold Storage
+
+Cold storage is a second, slower disk for the event store. Older records move there and are still searched from the same screens; it is not an archive and nothing has to be restored.
+
+### Read the Cold Storage Settings
+
+**Endpoint:** `GET /api/v1/storage/tiering`
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/storage/tiering" \
+  -H "Utm-Api-Key: {{apiKey}}"
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "configured": true,
+  "ready": true,
+  "kind": "s3",
+  "endpoint": "https://utmstack-cold.s3.eu-west-1.amazonaws.com/utmstack/",
+  "policy": "hot_cold"
+}
+```
+
+| Field | Description |
+|---|---|
+| `configured` | Cold storage settings are saved |
+| `ready` | The event store has loaded them; only then can a dataset use cold storage |
+| `kind` | `s3`, `azure` or `local` |
+| `endpoint` | The bucket URL, the storage account URL followed by the container, or the local folder |
+| `policy` | `hot_cold` once ready |
+
+Keys are never returned. With nothing configured, the answer is `{"configured": false, "ready": false}`.
+
+### Set Up Cold Storage
+
+**Endpoint:** `PUT /api/v1/storage/tiering`
+
+**Request Body:**
+
+| Field | Type | Used for | Description |
+|---|---|---|---|
+| kind | string | All | `s3` (default), `azure` or `local` |
+| endpoint | string | `s3`, `azure` | `s3`: the bucket URL, which must name the bucket in its path, for example `https://s3.example.com/utmstack-cold/`. `azure`: the storage account URL, for example `https://<account>.blob.core.windows.net`. |
+| container | string | `azure` | Container name |
+| accessKey | string | `s3`, `azure` | `s3`: access key ID. `azure`: storage account name. |
+| secretKey | string | `s3`, `azure` | `s3`: secret access key. `azure`: storage account key. |
+| useRole | boolean | `s3` | `true` to leave out the keys and let the event store use the credentials of the server's environment, such as an AWS IAM role attached to the virtual machine. IAM (Identity and Access Management) is the AWS service that grants permissions. |
+| cacheBytes | integer | `s3`, `azure` | Size of the local cache for cold records, in bytes. Default 10 GiB (`10737418240`). |
+
+What happens when you send the request:
+
+1. The settings are checked (see the errors below).
+2. The event store loads the new settings and tests the target by writing a test object. If the test fails, the previous settings are put back and you get 400 `the event store could not use this bucket: ...` with the reason from the event store.
+3. The server waits briefly for the event store to report the cold disk as ready.
+4. The answer has the new settings, with `ready: true`. The change is recorded in the audit log as `cold_storage.set`, with the target but never the keys.
+
+Setting up cold storage moves nothing by itself. Records start to move once you set `coldDays` on a dataset (see **Change the Retention**).
+
+| Error | Cause |
+|---|---|
+| 400 `unknown cold storage kind: use s3, azure or local: <kind>` | Wrong `kind` |
+| 400 `the bucket URL or storage account URL is required` | `endpoint` missing |
+| 400 `the bucket URL must be an absolute http(s) URL: ...` | Not an `http` or `https` address |
+| 400 `the bucket URL must include the bucket, e.g. https://s3.example.com/utmstack-cold/` | S3 address with no path |
+| 400 `both an access key and a secret key are required` | S3 without keys and without `useRole` |
+| 400 `the local cache cannot be negative` | `cacheBytes` below 0 |
+| 400 `the event store could not use this bucket: ...` | The test write failed: wrong address, keys, permissions or network |
+| 503 `the event store has not picked up the cold storage yet` | The settings were saved but the event store did not load them in time. They are kept; check again with `GET /storage/tiering`. |
+| 500 `could not enable cold storage` | In UTMStack v12.0.2 this also covers a missing Azure container, a missing Azure account name or key, and a local folder that the event store cannot write to |
+
+> [!WARNING]
+> Records already moved are not migrated when you change the target. They stay in the old bucket or folder and stop being readable from UTMStack until you copy them across yourself. You can change the keys at any time; do not change the bucket once records live in it.
+
+### S3-Compatible Storage
+
+Works with AWS S3 and other S3-compatible stores such as MinIO, Ceph, Wasabi, Cloudflare R2 and Google Cloud Storage (endpoint `https://storage.googleapis.com/<bucket>/` with HMAC keys). The URL must include the bucket name, or a folder inside the bucket, in its path.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "kind": "s3",
+    "endpoint": "https://minio.example.com:9000/utmstack-cold/",
+    "accessKey": "<access-key-id>",
+    "secretKey": "<secret-access-key>"
+  }'
+```
+
+### Azure Blob Storage
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "kind": "azure",
+    "endpoint": "https://<storage-account>.blob.core.windows.net",
+    "container": "utmstack-cold",
+    "accessKey": "<storage-account>",
+    "secretKey": "<storage-account-key>"
+  }'
+```
+
+### Local Folder or NFS Share
+
+No other field is needed. Records move to the folder `/mnt/utmstack-cold/` inside the event store, which is the folder `/utmstack/clickhouse/cold` on the server (with the default data folder). To use an NFS share, mount it over that folder on the server before the UTMStack services start (see **Data Retention and Cold Storage**).
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"kind": "local"}'
+```
+
+## Worked Example: Keep Logs One Year, Move Them to S3 After 30 Days
+
+This example uses an AWS S3 bucket named `utmstack-cold` in the `eu-west-1` region and an IAM user with an access key. The AWS-side steps (create the bucket, the user and its policy) are on **Data Retention and Cold Storage**.
+
+<Steps>
+
+<Step title="Check the current state">
+
+```bash
+curl -sk "{{baseUrl}}/api/v1/storage/tiering" -H "Utm-Api-Key: {{apiKey}}"
+curl -sk "{{baseUrl}}/api/v1/storage/retention" -H "Utm-Api-Key: {{apiKey}}"
+```
+
+</Step>
+
+<Step title="Set up the bucket as cold storage">
+
+The path after the host name is a folder inside the bucket, which satisfies the "must include the bucket" check.
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "kind": "s3",
+    "endpoint": "https://utmstack-cold.s3.eu-west-1.amazonaws.com/utmstack/",
+    "accessKey": "<access-key-id>",
+    "secretKey": "<secret-access-key>"
+  }'
+```
+
+A successful answer shows `"ready": true`. If you get 400 `the event store could not use this bucket`, read the rest of the message: it usually names a wrong region, a wrong key or a missing permission.
+
+</Step>
+
+<Step title="Set the retention of the logs">
+
+```bash
+curl -sk -X PUT "{{baseUrl}}/api/v1/storage/retention" \
+  -H "Utm-Api-Key: {{apiKey}}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset": "logs", "keepDays": 365, "coldDays": 30}'
+```
+
+**Response (HTTP 200):**
+
+```json
+{"dataset": "logs", "keepDays": 365, "coldDays": 30, "tiered": true}
+```
+
+Repeat for `alerts` if you want the same for alerts.
+
+</Step>
+
+<Step title="Check that it works">
+
+Read the retention again: `tiered` is `true` for `logs`. Records older than 30 days move to the bucket in the background, not all at once; objects appear under the `utmstack/` folder of the bucket in the AWS console. Searches in Log Explorer still return the moved records.
+
+</Step>
+
+</Steps>

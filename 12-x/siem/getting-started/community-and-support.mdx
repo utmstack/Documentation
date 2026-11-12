@@ -3,7 +3,8 @@ Join the UTMStack community to get help, share detection rules and filters, and 
 ## Documentation
 
 - [Official documentation](https://docs.utmstack.com): user guides, installation and integration guides.
-- [GitHub Wiki](https://github.com/utmstack/UTMStack/wiki): technical articles for developers.
+- [Online demo](https://demo.utmstack.com/?explore): the UTMStack v12 console with made-up sample data, no sign-in needed.
+- [GitHub Wiki](https://github.com/utmstack/UTMStack/wiki): technical articles for developers. Some articles were written for earlier versions; when they differ from this documentation, follow this documentation for UTMStack v12.
 
 Inside UTMStack, the instance operator finds the same links in **Configure > Settings > About**, under **Support**: **Documentation**, **GitHub repository**, **Report an issue** and **utmstack.com**.
 
@@ -34,6 +35,9 @@ A good report includes:
    | Installation | `/var/log/utmstack-installer.log` |
    | Automatic updates | `/utmstack/updates/logs/utmstack-updater.log` |
    | A UTMStack service | `docker service logs utmstack_<service>`, for example `docker service logs utmstack_backend` |
+   | The web server | `/var/log/nginx/error.log` |
+
+   **Health Checks and Troubleshooting** has a script that collects these files, the service list and the server's disk, memory and time settings into one archive.
 
 <Warning>
 

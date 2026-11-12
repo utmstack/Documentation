@@ -1,0 +1,213 @@
+This guide connects UTMStack v12 to Microsoft Entra ID (formerly Azure Active Directory) so your users sign in with their Microsoft work account and get UTMStack roles from their Entra groups. It uses OpenID Connect (OIDC), the simplest option, and also describes a SAML 2.0 setup.
+
+Read **Single Sign-On** first for how sign-in, accounts and roles work in UTMStack. Single sign-on needs an **Enterprise** licence.
+
+## What you need
+
+- In Entra ID: the **Application Administrator** or **Cloud Application Administrator** role, or another role that can register applications and grant consent.
+- In UTMStack: the **Administrator** role.
+- The address users open UTMStack with. This guide uses `https://siem.example.com` and the provider name `entra`. On a multi-tenant server, use the tenant's own address.
+- The Entra groups that should map to UTMStack roles, for example `UTMStack Administrators`, `UTMStack Analysts` and `UTMStack Viewers`.
+
+## Set up with OpenID Connect
+
+### In Microsoft Entra ID
+
+<Steps>
+
+<Step title="Register the application">
+
+In the Microsoft Entra admin center, go to **Entra ID > App registrations** and click **New registration**.
+
+- **Name**: `UTMStack`
+- **Supported account types**: **Accounts in this organizational directory only** (single tenant)
+- **Redirect URI**: platform **Web**, address `https://siem.example.com/api/v1/sso/entra/callback`
+
+Click **Register**.
+
+</Step>
+
+<Step title="Copy the IDs">
+
+On the application's **Overview**, copy the **Application (client) ID** and the **Directory (tenant) ID**.
+
+</Step>
+
+<Step title="Create a client secret">
+
+Open **Certificates & secrets > Client secrets > New client secret**. Enter a description and an expiry, and click **Add**. Copy the secret's **Value** at once; Entra shows it only once. Do not copy the **Secret ID**.
+
+Write down the expiry date. When the secret expires, single sign-on stops until you enter a new secret in UTMStack.
+
+</Step>
+
+<Step title="Add the email and groups to the ID token">
+
+Open **Token configuration**.
+
+1. Click **Add optional claim**, choose token type **ID**, tick **email**, and click **Add**. If Entra asks, tick **Turn on the Microsoft Graph email permission**.
+2. Click **Add groups claim**. Choose **Groups assigned to the application** (recommended) or **Security groups**. Under **ID**, keep **Group ID**, and click **Add**.
+
+</Step>
+
+<Step title="Grant consent">
+
+Open **API permissions**. The list must contain Microsoft Graph **User.Read** (added by default); the `openid`, `profile` and `email` sign-in permissions are requested at sign-in. Click **Grant admin consent for** your organization, so users are not asked to consent one by one.
+
+</Step>
+
+<Step title="Limit who can sign in">
+
+In **Entra ID > Enterprise applications**, open **UTMStack**.
+
+1. In **Properties**, set **Assignment required?** to **Yes** and click **Save**.
+2. In **Users and groups**, click **Add user/group** and add the groups that should use UTMStack.
+
+With assignment required, people outside these groups cannot sign in to UTMStack at all.
+
+</Step>
+
+<Step title="Copy the group object IDs">
+
+In **Entra ID > Groups**, open each group you want to map and copy its **Object ID**. Entra sends group object IDs in the token, not group names.
+
+</Step>
+
+</Steps>
+
+### In UTMStack
+
+<Steps>
+
+<Step title="Add the provider">
+
+Go to **Configure > Settings > Identity Providers**, click **Add provider**, enter the name `entra` and choose **OpenID Connect**.
+
+| Field | Value |
+|---|---|
+| Issuer URL | `https://login.microsoftonline.com/<directory-tenant-id>/v2.0`, with the Directory (tenant) ID |
+| Client ID | The Application (client) ID |
+| Client secret | The secret's **Value** |
+| Redirect URL | `https://siem.example.com/api/v1/sso/entra/callback` |
+
+Use the tenant ID itself in the Issuer URL. `common`, `organizations` or a domain name do not work, because the issuer in Entra's answer always contains the tenant ID.
+
+</Step>
+
+<Step title="Map groups to roles">
+
+Under **Accounts and roles**:
+
+| Field | Value |
+|---|---|
+| Create the account on first sign-in | On |
+| Default role | **None**, so only mapped groups get in, or **Viewer** for everyone assigned to the application |
+| Groups attribute | `groups` |
+| Re-apply roles on every sign-in | On, so changes in Entra reach UTMStack |
+| Group to role | One line per group: the group's **Object ID** on the left, the UTMStack role on the right |
+
+Example:
+
+| Group | Role |
+|---|---|
+| Object ID of `UTMStack Administrators` | Administrator |
+| Object ID of `UTMStack Analysts` | Analyst |
+| Object ID of `UTMStack Viewers` | Viewer |
+
+</Step>
+
+<Step title="Save and test">
+
+Keep **Active (show on the login page)** on (the default) and click **Create provider**; UTMStack refuses sign-ins through an inactive provider, even at its `/login` address. In a private browser window, open `https://siem.example.com/api/v1/sso/entra/login` and sign in as a test user from one of the groups. Check on **Configure > Team** that the user was created with the right role. **Continue with entra** now appears on the sign-in page.
+
+</Step>
+
+</Steps>
+
+### Notes for Entra ID
+
+- **Email.** UTMStack takes the `email` claim, or `preferred_username` (usually the user principal name) when there is no email. Users who have no mailbox may have no `email` claim; make sure their UTMStack account, if you create it yourself, uses the address Entra sends.
+- **Many groups.** If a user belongs to more than 200 groups, Entra leaves the `groups` claim out of the token. **Groups assigned to the application** avoids this, because only the groups assigned to UTMStack are sent.
+- **Groups from on-premises Active Directory.** For groups synchronized from Active Directory, the groups claim can send the group's `sAMAccountName` instead of its ID. Map the names you choose.
+- **Multi-factor sign-in.** Use Conditional Access in Entra to require multi-factor authentication for the UTMStack application.
+
+## Set up with SAML 2.0
+
+Use SAML if your policy requires it. The provider name in this example is `entra-saml`.
+
+### In Microsoft Entra ID
+
+<Steps>
+
+<Step title="Create the enterprise application">
+
+Go to **Entra ID > Enterprise applications > New application > Create your own application**. Enter `UTMStack`, choose **Integrate any other application you don't find in the gallery (Non-gallery)**, and click **Create**.
+
+</Step>
+
+<Step title="Set the SAML addresses">
+
+Open **Single sign-on**, choose **SAML**, and edit **Basic SAML Configuration**:
+
+| Entra field | Value |
+|---|---|
+| Identifier (Entity ID) | `https://siem.example.com/api/v1/sso/entra-saml` |
+| Reply URL (Assertion Consumer Service URL) | `https://siem.example.com/api/v1/sso/entra-saml/acs` |
+| Sign on URL | `https://siem.example.com/api/v1/sso/entra-saml/login` |
+
+The **Sign on URL** makes the UTMStack tile in My Apps start the sign-in from UTMStack, which is the only way UTMStack accepts.
+
+</Step>
+
+<Step title="Set the claims">
+
+Edit **Attributes & Claims**. Keep the default `emailaddress` claim (from `user.mail`) and the NameID.
+
+1. Click **Add new claim**, name it `displayName`, leave the namespace empty, choose source attribute `user.displayname`, and save. Without it, UTMStack shows the user principal name as the user's name.
+2. Click **Add a group claim**, choose **Groups assigned to the application**, source attribute **Group ID**, and save. Its name ends in `/groups`, which UTMStack reads when **Groups attribute** is `groups`.
+
+</Step>
+
+<Step title="Copy the metadata URL">
+
+In **SAML Certificates**, copy the **App Federation Metadata Url**.
+
+</Step>
+
+<Step title="Assign users">
+
+In **Properties**, set **Assignment required?** to **Yes**. In **Users and groups**, add the groups that should use UTMStack.
+
+</Step>
+
+</Steps>
+
+### In UTMStack
+
+Create the SP certificate and key as shown in **Single Sign-On**, then add a provider named `entra-saml` of type **SAML 2.0**:
+
+| Field | Value |
+|---|---|
+| IdP metadata URL | The **App Federation Metadata Url** |
+| SP Entity ID | `https://siem.example.com/api/v1/sso/entra-saml` |
+| SP ACS URL | `https://siem.example.com/api/v1/sso/entra-saml/acs` |
+| SP certificate (PEM), SP private key | The files you created |
+| Groups attribute | `groups` |
+
+![The Add identity provider dialog with SAML 2.0 selected, showing the Name, Provider type, IdP metadata URL, SP Entity ID, SP ACS URL, SP certificate and SP private key fields](/assets/ac3039dd-009c-42b1-bcc4-e40c1c2437fb)
+
+Fill in the rest of **Accounts and roles** as in the OpenID Connect setup, mapping group object IDs to roles. Test with `https://siem.example.com/api/v1/sso/entra-saml/login`.
+
+## Troubleshooting
+
+Errors from Entra start with `AADSTS`. The first three appear on Entra's sign-in page. The two client secret errors appear in the UTMStack backend log after "exchange authorization code", because UTMStack sends the secret to Entra directly:
+
+| Entra error | Cause | Fix |
+|---|---|---|
+| `AADSTS50011` | The redirect URI or reply URL sent by UTMStack is not registered | Register exactly `https://siem.example.com/api/v1/sso/<name>/callback` (OIDC) or `/acs` (SAML). |
+| `AADSTS700016` | The application (client) ID is not found in this tenant | Check the **Client ID** and the tenant ID in the **Issuer URL**. |
+| `AADSTS50105` | The user is not assigned to the application | Add the user or one of their groups in **Users and groups**. |
+| `AADSTS7000215` | The client secret is wrong (often the Secret ID was copied instead of the Value) | Create a new secret and enter its **Value**. |
+| `AADSTS7000222` | The client secret has expired | Create a new secret and enter it in UTMStack. |
+
+If Entra accepts the sign-in but UTMStack does not, see **Troubleshooting** in **Single Sign-On**. The most common causes with Entra are an **Issuer URL** with `common` instead of the tenant ID, and group names instead of object IDs in **Group to role**.
