@@ -232,7 +232,7 @@ Errors that happen after the config group is saved, for example a rotated key, d
 | Resource changes arrive, but no sign-ins or audit events | Only the Event Subscription sends to the hub. | Add the diagnostic settings for Microsoft Entra ID and the Activity log (Step 3, optional part). |
 | Diagnostic setting logs go to a hub called `insights-logs-...` | The diagnostic setting has no Event Hub name, so Azure created one hub per category. | Edit the diagnostic setting and select your Event Hub by name. |
 | Older events are missing after a long outage | The hub keeps events only for its retention time. | Raise the retention time of the Event Hub if UTMStack may be unreachable for longer. |
-| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is updated from the ingestion counts, which can take up to about 20 minutes. | Wait 20 minutes and click **Refresh**. |
 
 ## Manage config groups
 

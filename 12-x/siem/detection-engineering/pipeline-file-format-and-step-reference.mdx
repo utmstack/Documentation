@@ -305,7 +305,7 @@ Changes the type of values.
 | `to` | The new type: `int`, `float`, `string`, `bool` or `[]string`. Any other type name is an error. |
 | `where` | Optional condition. |
 
-Cast ports and counters to `int` before the event is built: a text value in a number field drops the event.
+Cast ports and counters to `int` before the event is built: a value in a number field that is not a plain number (for example `-`) drops the event.
 
 ```yaml
 - cast:

@@ -29,7 +29,7 @@ Settings are stored as keys with text values. You can change the value of a key 
 | `utmstack.mail.password` | (empty) | SMTP password. Secret: stored encrypted and never returned. |
 | `utmstack.mail.from` | (empty) | Sender address of every email |
 | `utmstack.mail.baseUrl` | (empty) | Base URL of this installation, used in email links, for example `https://siem.example.com` |
-| `utmstack.mail.organization` | (empty) | Organization name shown in alert and incident emails |
+| `utmstack.mail.organization` | (empty) | Organization name shown at the start of the subject of alert emails |
 | `utmstack.mail.properties.mail.smtp.auth` | `TLS` | Encryption used by the SMTP server: `TLS`, `SSL` or `NONE`. Any value other than `NONE` also turns on sign-in to the SMTP server when a user name is set. |
 | `utmstack.alerts.notification_to` | (empty) | Comma-separated addresses that get new-alert emails. Empty means alerts are not emailed. |
 | `utmstack.alerts.notification_cc` | (empty) | Comma-separated addresses copied on new-alert emails |
@@ -90,7 +90,7 @@ curl -sk "{{baseUrl}}/api/v1/config" \
 ]
 ```
 
-On a multi-tenant installation, a key that the tenant has not set uses the default tenant's value.
+On a multi-tenant installation, a key that the tenant has not set uses the default tenant's value. Incident emails are the exception: they go only to incident recipients the tenant saved itself.
 
 ### Get One Setting
 

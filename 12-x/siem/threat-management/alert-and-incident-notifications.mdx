@@ -10,7 +10,7 @@ UTMStack can email your team when a new alert is raised or an incident is create
 | Alerts are added to an incident, or an incident is assigned or changes status | No | No |
 | The rule flood guard switches a rule off | No | Yes, a **Warning** |
 
-Automated response flows can also send emails and bell notifications. See **Automated response overview**.
+Automated response flows can also send emails and bell notifications. See **Automated Response Overview**.
 
 ## Set up email recipients
 
@@ -38,7 +38,7 @@ Under **Incident recipients**, add addresses to **To** and **CC** in the same wa
 
 <Step title="Set the organization name and Base URL">
 
-Under **Sender**, the **Organization name** is shown in alert and incident emails. The **Base URL** is used for the **Open in UTMStack** link in alert emails.
+Under **Sender**, the **Organization name** is shown at the start of the subject of alert emails. The **Base URL** is used for the **Open in UTMStack** link in alert emails.
 
 </Step>
 
@@ -64,7 +64,7 @@ On a multi-tenant licence each tenant has its own email settings. Every tenant a
 - Body: the alert name and description, then Severity, Category, Technique, Data source, Data type, When, and the adversary and target host names when the alert has them.
 - An **Open in UTMStack** link to the alert, when a Base URL is set.
 
-Only top-level alerts are emailed. A rule that groups its alerts sends one email for the first alert, not one for each echo, and a duplicate that a rule drops sends none. To get fewer alert emails, add `groupBy` or `deduplicateBy` to noisy rules (see **How alerts are created**).
+Only top-level alerts are emailed. A rule that groups its alerts sends one email for the first alert, not one for each echo, and a duplicate that a rule drops sends none. To get fewer alert emails, add `groupBy` or `deduplicateBy` to noisy rules (see **How Alerts Are Created**).
 
 <Note>
 

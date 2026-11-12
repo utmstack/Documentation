@@ -109,7 +109,7 @@ curl -sk "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml" \
 | `incident` | `params.name` | `params.description` |
 | `llm_enrich`, `llm_action` | `params.prompt` | |
 
-`llm_action` is accepted by the API but is not offered in the flow editor's palette in UTMStack v12.0.2. Each step type is described in **Step types**. Placeholders such as `$(alert.adversary.ip)` are described in **Placeholders**, and `$[variables.NAME]` in **Step outputs and variables**.
+`llm_action` is accepted by the API but is not offered in the flow editor's palette in UTMStack v12.0.2. Each step type is described in **Step Types**. Placeholders such as `$(alert.adversary.ip)` are described in **Placeholders**, and `$[variables.NAME]` in **Step Outputs and Variables**.
 
 **Trigger and conditional operators:** `IS`, `IS_NOT`, `CONTAINS`, `NOT_CONTAINS`, `EXISTS`, `NOT_EXISTS`, `START_WITH`, `NOT_START_WITH`, `ENDS_WITH`, `NOT_ENDS_WITH`, `IS_ONE_OF`, `IS_NOT_ONE_OF`. This is a different list from the search filter operators: SOAR writes `CONTAINS` and `EXISTS`, search writes `CONTAIN` and `EXIST`.
 
@@ -193,7 +193,7 @@ Runs the flow now with the alert you send. The flow's trigger conditions are not
 | Field | Type | Required | Description |
 |---|---|---|---|
 | alert | object | No | The alert the flow works on: an alert as returned by the search (see **Alerts API**), or a smaller object with only the fields the flow uses. Its values fill the `$(alert.…)` placeholders. Default `{}`. |
-| agent | string | No | Up to 150 characters. Host name that runs the first shell steps instead of the alert's source. |
+| agent | string | No | Up to 150 characters. Host name that runs the shell steps that start the flow, and the steps after them, instead of the alert's source. |
 
 ```bash
 curl -sk -X POST "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml/trigger" \
@@ -208,7 +208,7 @@ curl -sk -X POST "{{baseUrl}}/api/v1/soar/rules/notify-on-rdp-brute-force.yaml/t
 {"flowRunId": "<flow-run-id>"}
 ```
 
-The run continues in the background. Follow it in the execution history (see also **Execution history and run statuses**). An unknown flow returns 404; a flow with no steps returns 409 `flow is not started`.
+The run continues in the background. Follow it in the execution history (see also **Execution History and Run Statuses**). An unknown flow returns 404; a flow with no steps returns 409 `flow is not started`.
 
 ## Execution History
 
@@ -321,7 +321,7 @@ curl -sk -X POST "{{baseUrl}}/api/v1/soar/variables" \
 
 ## Command Console (WebSocket)
 
-The command console runs one live command on an agent and streams the output back. It is what the **Interactive console** page uses. It uses a WebSocket (a connection that stays open so the server can send output as it arrives).
+The command console runs one live command on an agent and streams the output back. It is what the **Interactive Console** page uses. It uses a WebSocket (a connection that stays open so the server can send output as it arrives).
 
 **Endpoint:** `GET /api/v1/soar/ws/command/{agentId}` upgraded to a WebSocket, at `wss://<your-utmstack-address>/api/v1/soar/ws/command/<agent-id>`
 

@@ -276,15 +276,7 @@ The list of the 138 controls is on **Compliance Overview**.
 
 ## Apply to all tenants
 
-On a server with a multi-tenant licence, the platform administrator can push a framework or control to customer tenants. See **Apply to All Tenants**.
-
-1. Sign in as the platform administrator, outside any support session.
-2. Open the framework or control editor. Next to **Save** (and **Delete**), an icon button with the tooltip **Apply to all tenants** appears.
-3. Click it. In the dialog, tick **Apply to all tenants** or select tenants (the default tenant is marked **platform**). Click **Apply to N tenant(s)**.
-
-"This action will run on every selected tenant." Each tenant gets its own copy, and the result lists which tenants **Succeeded** and which **Failed**. "Per-tenant failures are reported after the run and are not rolled back."
-
-Push your custom controls before the frameworks that use them: a framework pushed to a tenant that does not have one of its controls shows that requirement as **Not covered** there.
+On a server with a multi-tenant licence, the platform administrator sees an icon button with the tooltip **Apply to all tenants** next to **Save** (and **Delete**) in the framework and control editors. In UTMStack v12.0.2 this button does not pass the framework or control to the tenants correctly, so the change fails in every tenant. Create your frameworks and controls inside each tenant instead, either as the tenant's administrator or in a support session with **Full access** (see **Working Inside a Tenant**). Create the custom controls before the frameworks that use them: a requirement that points to a control the tenant does not have shows as **Not covered** there. See **Apply to All Tenants**.
 
 ## Where your definitions are stored
 

@@ -152,7 +152,7 @@ The `from` and `to` fields of a search body and the incident list dates accept R
 | Data sources | `page_number` | `1` | `page_size` | 50 | 500 | `total_items` in the answer |
 | API keys | `page` | `1` | `page_size` | 20 | - | `page_info` in the answer |
 
-UTMStack v11 used `top` on the search endpoint and a `Link` header on most lists. UTMStack v12 has no `top` on search; only the incident lists send a `Link` header.
+UTMStack v11 used `top` on the search endpoint and a `Link` header on most lists. UTMStack v12 has no `top` on search; only the incident and notification lists send a `Link` header.
 
 ## Common API Errors
 
@@ -169,7 +169,7 @@ UTMStack v11 used `top` on the search endpoint and a `Link` header on most lists
 | 409 | Conflict | Name already used; alert already linked to an incident |
 | 429 | Too Many Requests | Too many failed sign-ins; daily AI allowance used up |
 | 500 | Internal Server Error | Server problem. In UTMStack v12.0.2 also: unknown incident status or severity, an invalid flow, an unknown chart interval. |
-| 502, 504 | Gateway error | SOC-AI service unreachable or slow |
+| 502, 503, 504 | Service unavailable or gateway error | A service behind the API could not be reached or timed out: SOC-AI, the agent manager, ThreatWinds, the mail server, or a rule test that waited for the busy test engine |
 
 ## Endpoint Summary
 

@@ -2,9 +2,9 @@ This page explains how to reinstall a UTMStack v12 agent, move a host to another
 
 ## How UTMStack recognises an agent
 
-When an agent installs, it registers with the UTMStack server and receives its own ID and key, which it keeps in `config.yml` in the agent folder. UTMStack identifies the machine by its **host name and network card (MAC) address**:
+When an agent installs, it registers with the UTMStack server and receives its own ID and key, which it keeps in `config.yml` in the agent folder.
 
-- If a machine with the same host name and MAC address is already registered, a new install gets the **same agent ID** back. If either changed, the install creates a new agent registration.
+- A reinstall on a machine that was not uninstalled first can reuse the earlier registration. Always run the uninstall command before you reinstall.
 - The agent's uninstall command removes its registration from the server, so the next install starts fresh.
 - The row on the **Data Sources** page is matched by host name and data type, not by agent ID. A host that keeps its name keeps its row, with its labels and asset sensitivity, across reinstalls. A renamed host gets a new row, and the old one stays until you delete it.
 - The agent belongs to the tenant whose connection key was in the install command.

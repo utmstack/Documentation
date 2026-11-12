@@ -22,7 +22,7 @@ The page shows every button to every user. If your role does not have the permis
 
 ![The Alerts page with the matching and open counts, the search box, severity, Tags and time range menus, the export and refresh buttons, Add filter, the All, Open, In review and Completed tabs, and the alert list with status, technique, source, adversary, severity, echoes and time](/assets/1904c3f8-0ddf-4939-83d0-88c5e2f65a7b)
 
-The list shows top-level alerts. When a rule raises the same alert again and the rule groups its alerts, the repeat is stored as an **echo** of the first alert. Echoes are not shown as rows; the **Echoes** column counts them. See **How alerts are created**.
+The list shows top-level alerts. When a rule raises the same alert again and the rule groups its alerts, the repeat is stored as an **echo** of the first alert. Echoes are not shown as rows; the **Echoes** column counts them. See **How Alerts Are Created**.
 
 - The list starts with the last 7 days.
 - It loads 50 alerts at a time as you scroll.
@@ -32,7 +32,7 @@ The list shows top-level alerts. When a rule raises the same alert again and the
 | Column | What it shows |
 |---|---|
 | (selection box) | Select the alert for a bulk action. |
-| Actions | Tag icon **Create a tag from this alert**: opens a new tagging rule filled in from this alert. See **Tagging rules and false positives**. |
+| Actions | Tag icon **Create a tag from this alert**: opens a new tagging rule filled in from this alert. See **Tagging Rules and False Positives**. |
 | (lightning icon) | Runs the shipped response for this alert. See **Run a response** below. |
 | (incident icon) | **Create incident from this alert**, or, if the alert is already in an incident, **View incident details**. |
 | Alert | The alert name, the **AI assessed** and **Incident** badges when they apply, the category, the data source, up to two tags and the assignee. |
@@ -80,7 +80,7 @@ Switch the view from **Alerts** to **Overview** to see charts for the same filte
 | In review | Someone is working on the alert. |
 | Completed | The work is finished. You must write an **Observation** when you complete a single alert; UTMStack keeps it as the alert's **Status note**. |
 
-To change the status of one alert, click its status in the list, or open the alert and click **Set status**. The menu also offers **Complete + false positive**, which sets the status to Completed and adds the **False positive** tag. See **Tagging rules and false positives**.
+To change the status of one alert, click its status in the list, or open the alert and click **Set status**. The menu also offers **Complete + false positive**, which sets the status to Completed and adds the **False positive** tag. See **Tagging Rules and False Positives**.
 
 Good to know:
 
@@ -93,7 +93,7 @@ Good to know:
 
 ## Severity and risk
 
-Each alert has a severity of **High**, **Medium** or **Low**. It comes from the rule's impact values and can be adjusted by the asset sensitivity of the affected host. See **How alerts are created**.
+Each alert has a severity of **High**, **Medium** or **Low**. It comes from the rule's impact values and can be adjusted by the asset sensitivity of the affected host. See **How Alerts Are Created**.
 
 **Risk** (in the alert details and the **Add filter** list) is the alert's impact score: the highest of its confidentiality, integrity and availability values, from 0 to 3.
 
@@ -135,7 +135,7 @@ For rules that count events over a time window, the Events tab can show only the
 
 ### AI summary
 
-When SOC-AI is set up, the panel offers **Generate AI summary**. SOC-AI investigates the alert and adds an assessment (**SOC AI assessment**) to the alert's notes; the alert then shows the **AI assessed** badge. This can take about a minute. The alert is sent to the AI provider chosen on **Configure > Settings > SOC-AI**, and each summary counts towards your daily AI allowance. In UTMStack v12.0.2 the button is shown to administrators only. See **SOC-AI assistant** and **AI providers**.
+When SOC-AI is set up, the panel offers **Generate AI summary**. SOC-AI investigates the alert and adds an assessment (**SOC AI assessment**) to the alert's notes; the alert then shows the **AI assessed** badge. This can take about a minute. The alert is sent to the AI provider chosen on **Configure > Settings > SOC-AI**, and each summary counts towards your daily AI allowance. In UTMStack v12.0.2 the button is shown to administrators only. See **SOC-AI Assistant** and **AI Providers**.
 
 ## Tags
 
@@ -163,7 +163,7 @@ An alert can belong to one incident only. See **Incidents**.
 
 The lightning icon on a row runs the shipped response flow that covers this kind of alert. It runs the flow on the agent of the alert's affected host (or, if the alert has no host, on the agent named as its data source). Hover over the icon to see the flow's name; if no flow fits, the tooltip says **No system flow covers this alert** and the icon is greyed out.
 
-This starts a flow by hand, so it needs the `soar.execute` permission (Administrator). See **Shipped flows** and **Automated response overview**.
+This starts a flow by hand, so it needs the `soar.execute` permission (Administrator). See **Shipped Flows** and **Automated Response Overview**.
 
 ## Work on many alerts at once
 

@@ -50,7 +50,7 @@ Each matching value raises its own alert, so one event can raise up to six alert
 
 Repeats are dropped for 7 days: a new alert is not stored when an alert with the same name, the same adversary and target addresses, host names and domains, and the same data source was raised in the last 7 days. These alerts are not grouped into echoes.
 
-Indicator alerts appear on **Threat Management > Alerts** like any other alert. Tagging rules apply to them, so you can close a known false positive with a tagging rule on, for example, **Alert name** and **Adversary IP**. See **Tagging rules and false positives**.
+Indicator alerts appear on **Threat Management > Alerts** like any other alert. Tagging rules apply to them, so you can close a known false positive with a tagging rule on, for example, **Alert name** and **Adversary IP**. See **Tagging Rules and False Positives**.
 
 Good to know:
 
@@ -80,7 +80,7 @@ Go to **Configure > Settings > ThreatWinds Integration**. The page is shown only
 | **Threat Intelligence > Triage** | The indicators you paste. | Do not use it. |
 | **Threat Intelligence > AI Analyst** | Your questions and the searches the agent runs. | Do not use it. |
 | **Threat Intelligence > Report** | The indicator and everything you enter with it. It is published to the shared ThreatWinds database; for an IP address, domain or host name it also queues a scan of the target. | Do not use it. |
-| SOC-AI with the ThreatWinds provider | The alerts and questions you send to SOC-AI. | Choose another provider on **Configure > Settings > SOC-AI**. See **AI providers**. |
+| SOC-AI with the ThreatWinds provider | The alerts and questions you send to SOC-AI. | Choose another provider on **Configure > Settings > SOC-AI**. See **AI Providers**. |
 
 Everything except the list download goes through the UTMStack update server (`cm.utmstack.com`), which forwards it to ThreatWinds with your server's registration.
 
@@ -105,7 +105,7 @@ UTMStack does not remove private (internal) IP addresses, internal host names or
 - The **Threat Intelligence** screens and **Contribute incidents** need outbound HTTPS to `cm.utmstack.com`, and a server that registered itself there during installation. Without the registration, the screens show **Threat Intelligence isn't configured**.
 - On a server without internet access no lists are downloaded, so no indicator alerts are raised.
 
-See **Network ports and firewall**.
+See **Network Ports and Firewall**.
 
 ## Who can use threat intelligence
 

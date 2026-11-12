@@ -117,7 +117,7 @@ There is no fixed ratio between the size of your raw logs and the space they tak
   </Step>
   <Step title="Add headroom">
 
-    Add the alerts and statistics, room for one day of incoming logs in the queue, and enough free space so that the disk stays below 90% full. Watch it with `df -h /utmstack` and the disk badge on the **Data Retention** page.
+    Add the alerts and statistics, room for one day of incoming logs in the queue, and enough free space to keep at least 20% of the disk free. The disk badge on **Data Retention** turns amber above 90%. Watch it with `df -h /utmstack` and the disk badge on the **Data Retention** page.
 
   </Step>
 </Steps>

@@ -202,7 +202,7 @@ Errors that happen after the config group is saved, for example a deleted key, d
 | Only some activity arrives | Data Access audit logs are off, or the sink filter excludes them. | Turn on Data Access audit logs in **IAM & Admin > Audit Logs**, and widen the sink filter. |
 | Events from another project are missing | One sink and subscription cover one project. | Create a sink in each project to the same topic, or add one config group per project. |
 | Events from before you saved are missing | A subscription only receives messages published after it was created. | Search older activity in **Logs Explorer** in the Google Cloud console. |
-| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is updated from the ingestion counts, which can take up to about 20 minutes. | Wait 20 minutes and click **Refresh**. |
 
 ## Manage config groups
 

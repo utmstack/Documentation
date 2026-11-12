@@ -76,7 +76,7 @@ Each `data` line is a JSON object with the fields `kind`, `step`, `tool`, `args`
 | 504 | `SOC AI agent timed out` | The SOC-AI service did not answer in time |
 
 > [!NOTE]
-> The assistant works through the same tools as the MCP server (see **MCP server**). What it can look up and change is described in **SOC-AI assistant**.
+> The assistant works through the same tools as the MCP server (see **MCP Server**). What it can look up and change is described in **SOC-AI Assistant**.
 
 ## Analyze an Alert
 
@@ -101,7 +101,7 @@ The analysis continues after the answer. When it is done, the assessment is adde
 
 ## AI Provider Configuration
 
-These endpoints read and change the settings shown on **Configure > Settings > SOC-AI** (see **AI providers**).
+These endpoints read and change the settings shown on **Configure > Settings > SOC-AI** (see **AI Providers**).
 
 ### Read the Configuration
 
@@ -146,7 +146,7 @@ curl -sk "{{baseUrl}}/api/v1/soc-ai/config" \
 |---|---|---|---|
 | provider | string | Yes | `threatwinds`, `openai`, `anthropic`, `gemini`, `groq`, `mistral`, `deepseek`, `azure`, `ollama` or `custom` |
 | model | string | Yes | Model name (for Azure OpenAI, the deployment name) |
-| url | string | No | Address of the model service. Needed for `azure`, `ollama` and `custom`. |
+| url | string | No | Address of the model service. Needed for `azure` and `custom`. For `ollama`, an empty value means `http://localhost:11434/v1/chat/completions`. |
 | apiKey | string | No | The provider's key. Send `*****` (five asterisks) to keep the stored key. |
 | authType | string | No | How the key is sent: `bearer` (default), `header` (in the header named by `authHeaderName`) or `none` |
 | authHeaderName | string | No | Header name when `authType` is `header`, for example `api-key` for Azure OpenAI |
@@ -165,7 +165,7 @@ curl -sk -X PUT "{{baseUrl}}/api/v1/soc-ai/config" \
 
 **Response (HTTP 200):** the saved configuration, in the same shape as the read.
 
-Before saving, UTMStack tests the connection to the provider. If the test fails, nothing is saved and the answer is 400 `connection verification failed`. Choosing `threatwinds` on an instance that is not registered yet returns an error that says so.
+Before saving, UTMStack tests the connection to the provider when the provider, model, address, key or headers changed. If the test fails, nothing is saved and the answer is 400 `connection verification failed`. Choosing `threatwinds` on an instance that is not registered yet returns an error that says so.
 
 ### Return to the Instance Default
 
@@ -216,4 +216,4 @@ When the allowance is used up, chat and analysis requests return:
 {"status": "error", "message": "this tenant has used the AI requests its plan allows for today", "limit": 200, "used": 201}
 ```
 
-with HTTP 429. The limit comes from the tenant's AI request cap and the instance limit; see **AI usage and limits**.
+with HTTP 429. The limit comes from the tenant's AI request cap and the instance limit; see **AI Usage and Limits**.

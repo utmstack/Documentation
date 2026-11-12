@@ -15,7 +15,7 @@ In the examples, replace `{{baseUrl}}` with `https://<your-utmstack-address>` an
 
 | Feature | Community | Enterprise | Multi-tenant (MSSP) |
 |---|---|---|---|
-| Every endpoint, called with a bearer token from `POST /auth/login` | Yes | Yes | Yes |
+| Calling endpoints with a bearer token from `POST /auth/login` | Yes | Yes | Yes |
 | Calling any endpoint with an API key (`Utm-Api-Key` header) | No | Yes | Yes |
 | Creating and rotating API keys | No | Yes | Yes |
 | Creating and changing identity providers (single sign-on) | No | Yes | Yes |
@@ -48,12 +48,12 @@ If this fails, fix the network path first: name resolution, a firewall between y
 <Steps>
 <Step title="Create a dedicated user">
 
-In **Configure > Team**, create a user for the script, for example `automation@example.com`, and give it only the role it needs. The key will act as this user. See **Users**.
+In **Configure > Team**, create a user for the script, for example `automation@example.com`. The key will act as this user. Creating a key needs the `apikey.write` permission, which of the built-in roles only Administrator has, so give the user a custom role with the permissions the script needs plus `apikey.write`. See **Users** and **Roles and Permissions**.
 
 </Step>
 <Step title="Sign in as that user and create the key">
 
-Go to **Configure > Settings > API Keys** and click **New API key**. Enter a **Name** (for example `siem-export`), optionally the **Allowed IPs** your script runs from and an **Expires** date, then click **Create key**.
+Go to **Configure > Settings > API Keys** and click **New API key**. A user without the Administrator role does not see the **Settings** menu and opens `https://<your-utmstack-address>/settings/api-keys` instead. Enter a **Name** (for example `siem-export`), optionally the **Allowed IPs** your script runs from and an **Expires** date, then click **Create key**.
 
 </Step>
 <Step title="Copy the secret">
@@ -240,7 +240,7 @@ The SOC-AI endpoints use `{"status": "error", "message": "..."}` instead.
 | 403 `missing required permission: …` or `missing required role: …` | The credential's owner lacks the permission or role. | Give the user a role that has it, or use another account. |
 | 403 `This feature requires an Enterprise license` (or `an MSSP license`) | The endpoint needs a licence the installation does not have. | See **License and Editions**. |
 | 403 `this operation is limited to administrators of the default tenant` | A platform-only endpoint. | Use an Administrator of the default tenant. |
-| 403 `this tenant has been suspended or terminated` | The tenant was suspended. | Contact whoever runs the installation. |
+| 403 `this tenant has been suspended or terminated` | The tenant was suspended or terminated. | Contact whoever runs the installation. |
 | 404 | Unknown id, or (multi-tenant) an address that belongs to no tenant (`unknown tenant`). | Check the id and the address. |
 | 409 | A name already in use, or alerts already linked to an incident. | Choose another name, or skip the duplicate. |
 | 429 | Too many failed sign-ins, or the tenant's daily AI allowance is used up. | Wait (see the limits below). |

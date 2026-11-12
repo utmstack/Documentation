@@ -27,7 +27,7 @@ See **Severity** below.
 
 <Step title="The alert is passed on">
 
-Every alert goes, in this order, to the alerts store, to SOC-AI and to automated response (SOAR). Automated response decides whether a flow runs; see **Automated response overview**.
+Every alert goes, in this order, to the alerts store, to SOC-AI and to automated response (SOAR). Automated response decides whether a flow runs; see **Automated Response Overview**.
 
 </Step>
 
@@ -39,7 +39,7 @@ The alerts store drops the alert if it is a duplicate, files it as an echo if it
 
 </Steps>
 
-Alerts raised by threat intelligence follow their own path. See **Threat intelligence: how indicator alerts work**.
+Alerts raised by threat intelligence follow their own path. See **Threat Intelligence: How Indicator Alerts Work**.
 
 ## Severity
 
@@ -56,7 +56,7 @@ The highest value is also shown as the alert's **Risk**.
 
 ### How asset sensitivity changes the severity
 
-You can rate how important a host is on the **Data Sources** page (**Asset sensitivity**: Confidentiality, Integrity and Availability, each None, Low, Medium or High). See **Data Sources page**.
+You can rate how important a host is on the **Data Sources** page (**Asset sensitivity**: Confidentiality, Integrity and Availability, each None, Low, Medium or High). See **Data Sources Page**.
 
 When an alert's target host name or IP address matches a rated data source in the same tenant, UTMStack adjusts each impact value of the rule that is above 0:
 
@@ -106,7 +106,7 @@ Changing the status of an alert also changes the status of all its echoes.
 
 Of the 721 rules shipped with UTMStack v12.0.2, 101 de-duplicate (`deduplicateBy`), 609 group (`groupBy`), and 11 do neither. A rule with neither raises a separate alert every time it matches, which can trigger the **Rule flood guard**.
 
-To add or change these lists, edit the rule on **Configure > Alerting Rules**. See **Rule file format**.
+To add or change these lists, edit the rule on **Configure > Alerting Rules**. See **Rule File Format**.
 
 ## Circuit breaker alerts
 
@@ -114,4 +114,4 @@ If one rule fails to evaluate 5 times, the event processor stops running it and 
 
 ## Which alerts send email
 
-When **Alert recipients** are set on **Configure > Settings > Email Configuration**, UTMStack emails each new top-level alert. Echoes and dropped duplicates are not emailed. See **Alert and incident notifications**.
+When **Alert recipients** are set on **Configure > Settings > Email Configuration**, UTMStack emails each new top-level alert. Echoes and dropped duplicates are not emailed. See **Alert and Incident Notifications**.

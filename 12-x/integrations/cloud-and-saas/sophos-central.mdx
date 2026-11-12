@@ -129,7 +129,7 @@ Errors do not appear in the web interface, not even a wrong secret. They are wri
 | Still no events with a new credential | The credential was created at partner or enterprise level, or its role cannot read events. | Create it in Sophos Central Admin of the monitored account, with a role such as **Service Principal Read-Only**. |
 | Events stopped after working | The credential was deleted or its secret was renewed in Sophos Central. | Edit the config group and paste the current secret. |
 | You also need the full traffic and threat logs of a Sophos Firewall | This integration reads Sophos Central events, not the firewall's own syslog. | Send the firewall's syslog to a UTMStack Collector; see **Sophos Firewall (XG)**. |
-| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is refreshed every 10 minutes from the ingestion counts. | Wait 10 minutes and click **Refresh**. |
+| The **Integrations** row shows **Offline** although events arrive | The data source's "last seen" time is updated from the ingestion counts, which can take up to about 20 minutes. | Wait 20 minutes and click **Refresh**. |
 
 ## Manage config groups
 

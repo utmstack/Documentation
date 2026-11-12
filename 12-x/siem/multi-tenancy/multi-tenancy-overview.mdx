@@ -54,7 +54,7 @@ Only Administrators of the default tenant can enter customer tenants. If your an
 | Users and their passwords | Per tenant | The same email address can exist in several tenants as separate accounts with separate passwords. See **Users**. |
 | Roles | Built-in roles shared, custom roles per tenant | Administrator, Analyst and Viewer are the same everywhere and cannot be changed. Roles a tenant creates belong to that tenant. |
 | API keys | Per user, so per tenant | A key works only on its owner's tenant address. See **API Keys**. |
-| Email settings, Base URL, alert and incident recipients | Per tenant, with fallback | A setting the tenant has never saved is read from the default tenant. Incident emails are the exception: they go only to incident recipients the tenant saved itself. See **Email Configuration**. |
+| Email settings, Base URL, alert and incident recipients | Per tenant | Set them in each tenant when you bring the customer on board. See **Email Configuration** and **Onboarding a Customer**. |
 | Date, time zone and language | Per tenant, with fallback | Same fallback as email. See **Date, Time Zone and Language**. |
 | Branding | Per tenant, no fallback | A tenant without its own branding shows the standard UTMStack look, not the operator's. Needs Enterprise. See **Branding**. |
 | Identity providers (single sign-on) | Per tenant | A tenant's providers appear on its own sign-in page. See **Single Sign-On**. |
@@ -84,8 +84,8 @@ Only Administrators of the default tenant can enter customer tenants. If your an
 
 - Every shipped correlation rule and pipeline switched on, whatever you switched off in your own tenant.
 - Every shipped response flow switched off.
-- None of your custom rules, pipelines, flows or compliance frameworks. To give them to customers, see **Apply to All Tenants**.
-- Your email settings, Base URL, alert recipients, date format and language, until the tenant saves its own.
+- None of your custom rules, pipelines, flows or compliance frameworks. To give customers your custom pipelines and flows, see **Apply to All Tenants**. Custom rules and compliance frameworks are created inside each tenant.
+- Your date format and language, until the tenant saves its own. Set the tenant's own email settings, Base URL and recipients when you bring it on board.
 - No support access for you: the default level is **No access**.
 
 ## How tenants are kept apart

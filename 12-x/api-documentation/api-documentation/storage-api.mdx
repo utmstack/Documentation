@@ -192,12 +192,12 @@ Keys are never returned. With nothing configured, the answer is `{"configured": 
 | accessKey | string | `s3`, `azure` | `s3`: access key ID. `azure`: storage account name. |
 | secretKey | string | `s3`, `azure` | `s3`: secret access key. `azure`: storage account key. |
 | useRole | boolean | `s3` | `true` to leave out the keys and let the event store use the credentials of the server's environment, such as an AWS IAM role attached to the virtual machine. IAM (Identity and Access Management) is the AWS service that grants permissions. |
-| cacheBytes | integer | `s3`, `azure` | Size of the local cache for cold records, in bytes. Default 10 GiB (`10737418240`). |
+| cacheBytes | integer | `s3`, `azure` | Accepted, but has no effect in UTMStack v12.0.2: cold records are not cached on the local disk. |
 
 What happens when you send the request:
 
 1. The settings are checked (see the errors below).
-2. The event store loads the new settings and tests the target by writing a test object. If the test fails, the previous settings are put back and you get 400 `the event store could not use this bucket: ...` with the reason from the event store.
+2. The event store loads the new settings and, for S3 and Azure, tests the target by writing a test object (for a local folder, UTMStack checks that the event store can write to it). The test runs only when a target is first added, not when you change the keys of a target already in use. If the test fails, the previous settings are put back and you get 400 `the event store could not use this bucket: ...` with the reason from the event store.
 3. The server waits briefly for the event store to report the cold disk as ready.
 4. The answer has the new settings, with `ready: true`. The change is recorded in the audit log as `cold_storage.set`, with the target but never the keys.
 
@@ -251,7 +251,7 @@ curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
 
 ### Local Folder or NFS Share
 
-No other field is needed. Records move to the folder `/mnt/utmstack-cold/` inside the event store, which is the folder `/utmstack/clickhouse/cold` on the server (with the default data folder). To use an NFS share, mount it over that folder on the server before the UTMStack services start (see **Data Retention and Cold Storage**).
+No other field is needed. Records move to the folder `/mnt/utmstack-cold/` inside the event store, which is the folder `/utmstack/clickhouse/cold` on the server (with the default data folder). To use an NFS share, mount it over that folder on the server before the UTMStack services start (see **Cold Storage on a Local Folder or NFS**).
 
 ```bash
 curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
@@ -262,7 +262,7 @@ curl -sk -X PUT "{{baseUrl}}/api/v1/storage/tiering" \
 
 ## Worked Example: Keep Logs One Year, Move Them to S3 After 30 Days
 
-This example uses an AWS S3 bucket named `utmstack-cold` in the `eu-west-1` region and an IAM user with an access key. The AWS-side steps (create the bucket, the user and its policy) are on **Data Retention and Cold Storage**.
+This example uses an AWS S3 bucket named `utmstack-cold` in the `eu-west-1` region and an IAM user with an access key. The AWS-side steps (create the bucket, the user and its policy) are on **Cold Storage with Amazon S3**.
 
 <Steps>
 

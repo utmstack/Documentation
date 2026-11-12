@@ -103,7 +103,7 @@ curl -sk -X POST "{{baseUrl}}/api/v1/tenants" \
 | 400 | Validation message | A field is missing or `adminEmail` is not an email address |
 | 409 | `domain already belongs to another tenant` | Domain in use |
 
-Before users can open the tenant, its domain must reach the UTMStack server: add a DNS record that points the name at the server and make sure the server's certificate covers it (see **Tenants**). In UTMStack v12.0.2 the invitation link may not let the new Administrator set a password; **Tenants** describes how to onboard the first Administrator.
+Before users can open the tenant, its domain must reach the UTMStack server: add a DNS record that points the name at the server and make sure the server's certificate covers it (see **How Users Reach Their Tenant**). In UTMStack v12.0.2 the invitation link may not let the new Administrator set a password; **Onboarding a Customer** describes how to onboard the first Administrator.
 
 ## Update a Tenant
 
@@ -231,7 +231,7 @@ curl -sk -X PUT "https://acme.siem.example.com/api/v1/tenants/<tenant-id>/suppor
 
 ### Working Inside a Tenant as the Platform Team
 
-When a tenant grants `READ` or `FULL` access, a platform administrator can call any tenant endpoint for it by adding the header `X-Tenant-Id: <tenant-id>` to a normal request on the platform address. This needs a **bearer token** from signing in (see **Authentication and API Keys**): API keys cannot switch tenant. Without access granted, the answer is 403 `this tenant has not granted the platform access`.
+When a tenant grants `READ` or `FULL` access, a platform administrator can call tenant endpoints for it by adding the header `X-Tenant-Id: <tenant-id>` to a normal request on the platform address. With `READ`, only `GET` requests are allowed, so the search example below needs `FULL`. This needs a **bearer token** from signing in (see **Authentication and API Keys**): API keys cannot switch tenant. Without access granted, the answer is 403 `this tenant has not granted the platform access`.
 
 ```bash
 curl -sk -X POST "{{baseUrl}}/api/v1/log-analyzer/search" \

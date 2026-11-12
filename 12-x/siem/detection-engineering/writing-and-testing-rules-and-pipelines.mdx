@@ -89,7 +89,7 @@ This page brings the pieces together: a step-by-step way to build a pipeline or 
 
 1. **Map to standard fields.** Rules, dashboards and threat intelligence read the standard fields. Keep only vendor-specific data under `log.`.
 2. **Check every name.** A misspelled standard field name (for example `origin.hostname`) is dropped without warning.
-3. **Convert types.** A text value in a number field, such as `origin.port`, drops the whole event. Use `cast`.
+3. **Convert types.** A value in a number field, such as `origin.port`, that is not a plain number drops the whole event. Use `cast`.
 4. **Convert times.** Use `reformat` before you write `deviceTime`; an unreadable date loses the event.
 5. **Prefer `json` to `grok`.** If the log is JSON, parse it with `json`.
 6. **Guard steps.** Use `where` so steps only run when their source exists, for example `where: 'exists("origin.ip")'`.

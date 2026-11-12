@@ -74,7 +74,7 @@ The server also publishes an interactive reference at `{{baseUrl}}/swagger/index
 ## Request conventions
 
 - **Authentication.** Every endpoint needs a credential, except `/health`, the sign-in and password-reset endpoints, and the few that the sign-in page reads before anyone signs in (branding, date format, the list of sign-in providers). See **Authentication and API Keys**.
-- **Request bodies** are JSON. Send `Content-Type: application/json`. The one exception is alert notes, which take plain text (see **Alerts API**).
+- **Request bodies** are JSON. Send `Content-Type: application/json`. The exceptions are alert notes, which take plain text (see **Alerts API**), and file uploads (licence, branding images, profile picture), which are sent as a multipart form.
 - **Times** are written in RFC 3339 format in UTC, for example `2026-11-10T14:30:00Z`.
 - **Self-signed certificates.** If your server uses a self-signed certificate, add `-k` to curl commands (the examples use `-sk`).
 - **Calls from web pages on other sites are refused.** The server does not allow cross-site browser requests (CORS). Call the API from a script, a server or a command-line tool, not from JavaScript running on another website.
