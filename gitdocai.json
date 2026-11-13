@@ -25,7 +25,7 @@
         "light",
         "dark"
       ],
-      "default": "light",
+      "default": "dark",
       "font_family": "Inter",
       "show_name": false
     },
